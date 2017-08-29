@@ -109,8 +109,7 @@ public abstract class Application {
 		defaultView = new DefaultView(this);
 		selectedView = defaultView;
 		entities = new EntitySet();
-		pulse = new Pulse(this::update, this::draw);
-		pulse.setFrequency(60);
+		pulse = new Pulse(this::update, this::draw, 60);
 		collisionHandler = new CollisionHandler();
 		LOG.info("Application " + getClass().getSimpleName() + " created.");
 	}

@@ -24,10 +24,10 @@ public class Pulse {
 	private Thread thread;
 	private volatile boolean running;
 
-	public Pulse(Runnable updateTask, Runnable renderTask) {
+	public Pulse(Runnable updateTask, Runnable renderTask, int frequency) {
 		this.updateTask = new Task(updateTask, "ups", SECONDS.toNanos(1));
 		this.renderTask = new Task(renderTask, "fps", SECONDS.toNanos(1));
-		setFrequency(60);
+		setFrequency(frequency);
 		setLogger(null);
 	}
 

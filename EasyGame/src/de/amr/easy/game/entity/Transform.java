@@ -1,6 +1,6 @@
 package de.amr.easy.game.entity;
 
-import de.amr.easy.game.math.Vector2;
+import de.amr.easy.game.math.Vector2f;
 
 /**
  * Encapsulates position, velocity and rotation of a game object.
@@ -9,13 +9,13 @@ import de.amr.easy.game.math.Vector2;
  */
 public class Transform {
 
-	private final Vector2 position;
-	private final Vector2 velocity;
+	private Vector2f position;
+	private Vector2f velocity;
 	private double rotation;
 
 	public Transform() {
-		position = new Vector2(0, 0);
-		velocity = new Vector2(0, 0);
+		position = Vector2f.of(0, 0);
+		velocity = Vector2f.of(0, 0);
 		rotation = 0.0;
 	}
 
@@ -28,39 +28,39 @@ public class Transform {
 	}
 
 	public void setX(float x) {
-		position.x = x;
+		position = Vector2f.of(x, position.y);
 	}
 
 	public void setY(float y) {
-		position.y = y;
+		position = Vector2f.of(position.x, y);
 	}
 
 	public void moveTo(float x, float y) {
-		position.assign(x, y);
+		position = Vector2f.of(x, y);
 	}
 
-	public void moveTo(Vector2 p) {
-		position.assign(p);
+	public void moveTo(Vector2f p) {
+		position = Vector2f.of(p.x, p.y);
 	}
 
 	public void move() {
-		position.add(velocity);
+		position = Vector2f.sum(position, velocity);
 	}
 
 	public void setVelocity(float vx, float vy) {
-		velocity.assign(vx, vy);
+		velocity = Vector2f.of(vx, vy);
 	}
 
-	public void setVelocity(Vector2 v) {
-		velocity.assign(v);
+	public void setVelocity(Vector2f v) {
+		velocity = Vector2f.of(v.x, v.y);
 	}
 
 	public void setVelocityX(float vx) {
-		velocity.x = vx;
+		velocity = Vector2f.of(vx, velocity.y);
 	}
 
 	public void setVelocityY(float vy) {
-		velocity.y = vy;
+		velocity = Vector2f.of(velocity.x, vy);
 	}
 
 	public float getVelocityX() {
@@ -71,8 +71,8 @@ public class Transform {
 		return velocity.y;
 	}
 
-	public Vector2 getVelocity() {
-		return new Vector2(velocity);
+	public Vector2f getVelocity() {
+		return velocity;
 	}
 
 	public double getRotation() {

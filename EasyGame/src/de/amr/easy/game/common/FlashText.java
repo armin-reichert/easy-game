@@ -6,14 +6,14 @@ import java.awt.Graphics2D;
 
 import de.amr.easy.game.Application;
 import de.amr.easy.game.entity.GameEntity;
-import de.amr.easy.game.math.Vector2;
+import de.amr.easy.game.math.Vector2f;
 
 public class FlashText extends GameEntity {
 
 	private static final Font DEFAULT_FONT = new Font(Font.DIALOG, Font.BOLD, 12);
 
-	public static void show(Application app, String text, Font font, Color color, int displayTime, Vector2 position,
-			Vector2 velocity) {
+	public static void show(Application app, String text, Font font, Color color, int displayTime, Vector2f position,
+			Vector2f velocity) {
 		FlashText flash = new FlashText(app);
 		flash.setText(text);
 		flash.setFont(font);
