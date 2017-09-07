@@ -92,7 +92,7 @@ public class Vector2f {
 		return Math.round(y);
 	}
 
-	public Vector2f normalize() {
+	public Vector2f normalized() {
 		float len = length();
 		return Vector2f.of(x / len, y / len);
 	}
