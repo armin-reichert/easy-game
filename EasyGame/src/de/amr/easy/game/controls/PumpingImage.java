@@ -1,4 +1,4 @@
-package de.amr.easy.game.common;
+package de.amr.easy.game.controls;
 
 import static de.amr.easy.game.sprite.AnimationMode.BACK_AND_FORTH;
 import static java.lang.Math.round;

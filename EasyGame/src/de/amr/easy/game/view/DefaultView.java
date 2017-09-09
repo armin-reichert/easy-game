@@ -5,7 +5,7 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 
 import de.amr.easy.game.Application;
-import de.amr.easy.game.common.TextArea;
+import de.amr.easy.game.controls.TextArea;
 
 /**
  * This view is displayed for an application if no view is selected.

@@ -1,4 +1,4 @@
-package de.amr.easy.game.common;
+package de.amr.easy.game.controls;
 
 import java.util.function.Predicate;
 
