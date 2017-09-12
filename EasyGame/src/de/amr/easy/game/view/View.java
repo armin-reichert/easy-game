@@ -1,21 +1,19 @@
 package de.amr.easy.game.view;
 
+import java.awt.Graphics2D;
+
 /**
- * Common interface for objects that may draw themselves inside the application canvas
- * ({@link #draw(java.awt.Graphics2D)}) and react to the {@link #init()} and {@link #update()}
- * lifetime events.
+ * Common interface for objects that can draw themselves into the application area.
  * 
  * @author Armin Reichert
  */
-public interface View extends Drawable {
+public interface View {
 
 	/**
-	 * Called by the game framework when an object should be initialized.
+	 * Called by the game framework when an object should draw itself.
+	 * 
+	 * @param g
+	 *          the graphics context to draw with
 	 */
-	public void init();
-
-	/**
-	 * Called by the game framework when an object should update its state.
-	 */
-	public void update();
+	public void draw(Graphics2D g);
 }

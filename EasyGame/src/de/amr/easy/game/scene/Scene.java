@@ -5,7 +5,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 
 import de.amr.easy.game.Application;
-import de.amr.easy.game.view.View;
+import de.amr.easy.game.view.ViewController;
 
 /**
  * Base class for scenes of an application.
@@ -15,7 +15,7 @@ import de.amr.easy.game.view.View;
  * @param <A>
  *          type of application
  */
-public abstract class Scene<A extends Application> implements View {
+public abstract class Scene<A extends Application> implements ViewController {
 
 	public final A app;
 	private Image bgImage;

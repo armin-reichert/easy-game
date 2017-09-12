@@ -21,8 +21,9 @@ import de.amr.easy.game.input.KeyboardHandler;
 import de.amr.easy.game.input.MouseHandler;
 import de.amr.easy.game.timing.Pulse;
 import de.amr.easy.game.ui.ApplicationShell;
+import de.amr.easy.game.view.Controller;
 import de.amr.easy.game.view.DefaultView;
-import de.amr.easy.game.view.View;
+import de.amr.easy.game.view.ViewController;
 
 /**
  * Application base class. To start an application, create an application instance, define its settings in the
@@ -82,13 +83,13 @@ public abstract class Application {
 	public final EntitySet entities;
 
 	/** The views of this application. */
-	private final Set<View> views;
+	private final Set<ViewController> views;
 
 	/** The default view of this application. */
-	private final View defaultView;
+	private final ViewController defaultView;
 
 	/** The currently displayed view. */
-	private View selectedView;
+	private ViewController selectedView;
 
 	/** The pulse (tact) of this application. */
 	public final Pulse pulse;
@@ -150,7 +151,9 @@ public abstract class Application {
 		if (!paused) {
 			if (currentView() != null) {
 				collisionHandler.update();
-				currentView().update();
+				if (currentView() instanceof Controller) {
+					currentView().update();
+				}
 			} else {
 				defaultView.update();
 			}
@@ -202,7 +205,7 @@ public abstract class Application {
 	 * 
 	 * @return the default view
 	 */
-	public View getDefaultView() {
+	public ViewController getDefaultView() {
 		return defaultView;
 	}
 
@@ -213,7 +216,7 @@ public abstract class Application {
 	 *          view to be added
 	 * @return view that was added
 	 */
-	public <V extends View> V addView(V view) {
+	public <V extends ViewController> V addView(V view) {
 		if (view == null) {
 			throw new IllegalArgumentException("Cannot add null view");
 		}
@@ -229,8 +232,8 @@ public abstract class Application {
 	 * @return view of given class
 	 */
 	@SuppressWarnings("unchecked")
-	public <V extends View> V findView(Class<V> viewClass) {
-		for (View view : views) {
+	public <V extends ViewController> V findView(Class<V> viewClass) {
+		for (ViewController view : views) {
 			if (viewClass.isAssignableFrom(view.getClass())) {
 				return (V) view;
 			}
@@ -244,7 +247,7 @@ public abstract class Application {
 	 * @return the current view
 	 */
 	@SuppressWarnings("unchecked")
-	public <V extends View> V currentView() {
+	public <V extends ViewController> V currentView() {
 		return (V) selectedView;
 	}
 
@@ -254,7 +257,7 @@ public abstract class Application {
 	 * @param viewClass
 	 *          class of view to be selected
 	 */
-	public <V extends View> void selectView(Class<V> viewClass) {
+	public <V extends ViewController> void selectView(Class<V> viewClass) {
 		selectView(findView(viewClass));
 	}
 
@@ -264,7 +267,7 @@ public abstract class Application {
 	 * @param view
 	 *          the view to be displayed
 	 */
-	public void selectView(View view) {
+	public void selectView(ViewController view) {
 		selectedView = view == null ? defaultView : view;
 		selectedView.init(); // TODO should this be done here?
 		views.add(selectedView);
@@ -276,7 +279,7 @@ public abstract class Application {
 	 * 
 	 * @return current view
 	 */
-	public View getSelectedView() {
+	public ViewController getSelectedView() {
 		return selectedView;
 	}
 
@@ -285,7 +288,7 @@ public abstract class Application {
 	 * 
 	 * @return set of views
 	 */
-	public Set<View> views() {
+	public Set<ViewController> views() {
 		return Collections.unmodifiableSet(views);
 	}
 }

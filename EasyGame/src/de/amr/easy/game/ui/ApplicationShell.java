@@ -28,7 +28,7 @@ import javax.swing.JFrame;
 import de.amr.easy.game.Application;
 import de.amr.easy.game.input.KeyboardHandler;
 import de.amr.easy.game.input.MouseHandler;
-import de.amr.easy.game.view.Drawable;
+import de.amr.easy.game.view.View;
 
 /**
  * The application shell provides the window or the full-screen display where the current scene of the application is
@@ -85,7 +85,7 @@ public class ApplicationShell implements PropertyChangeListener {
 		return fullScreen ? frame.getHeight() : canvas.getHeight();
 	}
 
-	public void draw(Drawable content) {
+	public void draw(View content) {
 		do {
 			do {
 				Graphics2D g = null;
