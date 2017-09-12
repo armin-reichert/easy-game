@@ -6,9 +6,6 @@ import static java.awt.event.KeyEvent.VK_CONTROL;
 import static java.awt.event.KeyEvent.VK_P;
 
 import java.awt.EventQueue;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.swing.UIManager;
@@ -19,7 +16,6 @@ import de.amr.easy.game.entity.EntitySet;
 import de.amr.easy.game.entity.collision.CollisionHandler;
 import de.amr.easy.game.input.KeyboardHandler;
 import de.amr.easy.game.input.MouseHandler;
-import de.amr.easy.game.scene.PassiveScene;
 import de.amr.easy.game.timing.Pulse;
 import de.amr.easy.game.ui.ApplicationShell;
 import de.amr.easy.game.view.Controller;
@@ -84,14 +80,11 @@ public abstract class Application {
 	/** The set of entities used by this application. */
 	public final EntitySet entities;
 
-	/** The views of this application. */
-	private final Set<View> views;
-
-	/** The default view of this application. */
-	private final ViewController defaultView;
+	/** The default view controller of this application. */
+	private final ViewController defaultViewController;
 
 	/** The currently displayed view. */
-	private View selectedView;
+	private Controller selectedController;
 
 	/** The pulse (tact) of this application. */
 	public final Pulse pulse;
@@ -108,9 +101,8 @@ public abstract class Application {
 	 */
 	protected Application() {
 		settings = new AppSettings();
-		views = new LinkedHashSet<>();
-		defaultView = new DefaultView(this);
-		selectedView = defaultView;
+		defaultViewController = new DefaultView(this);
+		selectedController = defaultViewController;
 		entities = new EntitySet();
 		pulse = new Pulse(this::update, this::draw, 60);
 		collisionHandler = new CollisionHandler();
@@ -122,7 +114,7 @@ public abstract class Application {
 
 	/** Called after initialization and starts the pulse. */
 	private final void start() {
-		defaultView.init();
+		defaultViewController.init();
 		LOG.info("Default view initialized.");
 		init();
 		LOG.info("Application initialized.");
@@ -150,22 +142,21 @@ public abstract class Application {
 		if (keyDown(PAUSE_TOGGLE_KEY[0]) && keyPressedOnce(PAUSE_TOGGLE_KEY[1])) {
 			pause(!paused);
 		}
-		if (!paused) {
-			if (currentView() != null) {
-				collisionHandler.update();
-				if (currentView() instanceof Controller) {
-					((Controller) currentView()).update();
-				} else if (currentView() instanceof PassiveScene) {
-					((PassiveScene<?>) currentView()).getController().update();
-				}
-			} else {
-				defaultView.update();
-			}
+		if (paused) {
+			return;
+		}
+		if (selectedController != null) {
+			collisionHandler.update();
+			selectedController.update();
+		} else {
+			defaultViewController.update();
 		}
 	}
 
 	private void draw() {
-		shell.draw(currentView());
+		if (selectedController != null) {
+			shell.draw(selectedController.currentView());
+		}
 	}
 
 	/**
@@ -210,89 +201,22 @@ public abstract class Application {
 	 * @return the default view
 	 */
 	public View getDefaultView() {
-		return defaultView;
+		return defaultViewController;
 	}
 
 	/**
-	 * Adds a view to the set of views.
+	 * Selects the given controller, initializes it and initializes the current view.
 	 * 
-	 * @param view
-	 *          view to be added
-	 * @return view that was added
+	 * @param controller
+	 *          a controller (for example a view controller or a scene)
 	 */
-	public <V extends View> V addView(V view) {
-		if (view == null) {
-			throw new IllegalArgumentException("Cannot add null view");
+	public void select(Controller controller) {
+		selectedController = (controller == null) ? defaultViewController : controller;
+		selectedController.init();
+		LOG.info("Initialized current controller: " + selectedController);
+		if (selectedController != selectedController.currentView()) {
+			selectedController.currentView().init();
 		}
-		views.add(view);
-		return view;
-	}
-
-	/**
-	 * Finds a view by its class. Only one view of any class should be added.
-	 * 
-	 * @param viewClass
-	 *          class of view to be found
-	 * @return view of given class
-	 */
-	@SuppressWarnings("unchecked")
-	public <V extends View> V findView(Class<V> viewClass) {
-		for (View view : views) {
-			if (viewClass.isAssignableFrom(view.getClass())) {
-				return (V) view;
-			}
-		}
-		throw new IllegalArgumentException("No view with class '" + viewClass.getName() + "' exists");
-	}
-
-	/**
-	 * The current view.
-	 * 
-	 * @return the current view
-	 */
-	@SuppressWarnings("unchecked")
-	public <V extends View> V currentView() {
-		return (V) selectedView;
-	}
-
-	/**
-	 * Selects the view of the given class as the current view.
-	 * 
-	 * @param viewClass
-	 *          class of view to be selected
-	 */
-	public <V extends View> void selectView(Class<V> viewClass) {
-		selectView(findView(viewClass));
-	}
-
-	/**
-	 * Selects the given view and displays it.
-	 * 
-	 * @param view
-	 *          the view to be displayed
-	 */
-	public void selectView(View view) {
-		selectedView = (view == null) ? defaultView : view;
-		selectedView.init(); // TODO should this be done here?
-		views.add(selectedView);
-		LOG.info("Current view: " + selectedView);
-	}
-
-	/**
-	 * Returns the currently selected view.
-	 * 
-	 * @return current view
-	 */
-	public View getSelectedView() {
-		return selectedView;
-	}
-
-	/**
-	 * Returns the set of views. The iteration order corresponds to the insertion order.
-	 * 
-	 * @return set of views
-	 */
-	public Set<View> views() {
-		return Collections.unmodifiableSet(views);
+		LOG.info("Initialized current view: " + selectedController.currentView());
 	}
 }

@@ -17,4 +17,11 @@ public interface Controller {
 	 */
 	public void update();
 
+	/**
+	 * Returns the current view.
+	 * 
+	 * @return the current view
+	 */
+	public View currentView();
+
 }

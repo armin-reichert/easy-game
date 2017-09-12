@@ -1,11 +1,15 @@
 package de.amr.easy.game.view;
 
 /**
- * Common interface for objects that may draw themselves inside the application canvas
- * ({@link #draw(java.awt.Graphics2D)}) and react to the {@link #init()} and {@link #update()} lifetime events.
+ * A view which serves as controller too.
  * 
  * @author Armin Reichert
  */
 public interface ViewController extends View, Controller {
+
+	@Override
+	default View currentView() {
+		return this;
+	}
 
 }
