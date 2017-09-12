@@ -5,29 +5,29 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 
 import de.amr.easy.game.Application;
-import de.amr.easy.game.view.ViewController;
+import de.amr.easy.game.view.View;
 
 /**
- * Base class for scenes of an application.
+ * A convenience class for passive scenes.
  * 
  * @author Armin Reichert
  *
  * @param <A>
- *          type of application
+ *          class of application
  */
-public abstract class Scene<A extends Application> implements ViewController {
+public class PassiveScene<A extends Application> implements View {
 
 	public final A app;
 	private Image bgImage;
 	private Color bgColor;
 
 	/**
-	 * Creates a scene for the given app with a black background.
+	 * Creates a scene for the given application with a black background.
 	 * 
 	 * @param app
 	 *          an application
 	 */
-	public Scene(A app) {
+	public PassiveScene(A app) {
 		this.app = app;
 		bgColor = Color.BLACK;
 	}
@@ -54,14 +54,6 @@ public abstract class Scene<A extends Application> implements ViewController {
 
 	public void setBgImage(Image bgImage) {
 		this.bgImage = bgImage;
-	}
-
-	@Override
-	public void init() {
-	}
-
-	@Override
-	public void update() {
 	}
 
 	@Override

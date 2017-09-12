@@ -23,6 +23,7 @@ import de.amr.easy.game.timing.Pulse;
 import de.amr.easy.game.ui.ApplicationShell;
 import de.amr.easy.game.view.Controller;
 import de.amr.easy.game.view.DefaultView;
+import de.amr.easy.game.view.View;
 import de.amr.easy.game.view.ViewController;
 
 /**
@@ -83,13 +84,13 @@ public abstract class Application {
 	public final EntitySet entities;
 
 	/** The views of this application. */
-	private final Set<ViewController> views;
+	private final Set<View> views;
 
 	/** The default view of this application. */
 	private final ViewController defaultView;
 
 	/** The currently displayed view. */
-	private ViewController selectedView;
+	private View selectedView;
 
 	/** The pulse (tact) of this application. */
 	public final Pulse pulse;
@@ -152,7 +153,7 @@ public abstract class Application {
 			if (currentView() != null) {
 				collisionHandler.update();
 				if (currentView() instanceof Controller) {
-					currentView().update();
+					((Controller) currentView()).update();
 				}
 			} else {
 				defaultView.update();
@@ -205,7 +206,7 @@ public abstract class Application {
 	 * 
 	 * @return the default view
 	 */
-	public ViewController getDefaultView() {
+	public View getDefaultView() {
 		return defaultView;
 	}
 
@@ -216,7 +217,7 @@ public abstract class Application {
 	 *          view to be added
 	 * @return view that was added
 	 */
-	public <V extends ViewController> V addView(V view) {
+	public <V extends View> V addView(V view) {
 		if (view == null) {
 			throw new IllegalArgumentException("Cannot add null view");
 		}
@@ -232,8 +233,8 @@ public abstract class Application {
 	 * @return view of given class
 	 */
 	@SuppressWarnings("unchecked")
-	public <V extends ViewController> V findView(Class<V> viewClass) {
-		for (ViewController view : views) {
+	public <V extends View> V findView(Class<V> viewClass) {
+		for (View view : views) {
 			if (viewClass.isAssignableFrom(view.getClass())) {
 				return (V) view;
 			}
@@ -247,7 +248,7 @@ public abstract class Application {
 	 * @return the current view
 	 */
 	@SuppressWarnings("unchecked")
-	public <V extends ViewController> V currentView() {
+	public <V extends View> V currentView() {
 		return (V) selectedView;
 	}
 
@@ -257,7 +258,7 @@ public abstract class Application {
 	 * @param viewClass
 	 *          class of view to be selected
 	 */
-	public <V extends ViewController> void selectView(Class<V> viewClass) {
+	public <V extends View> void selectView(Class<V> viewClass) {
 		selectView(findView(viewClass));
 	}
 
@@ -267,9 +268,11 @@ public abstract class Application {
 	 * @param view
 	 *          the view to be displayed
 	 */
-	public void selectView(ViewController view) {
-		selectedView = view == null ? defaultView : view;
-		selectedView.init(); // TODO should this be done here?
+	public void selectView(View view) {
+		selectedView = (view == null) ? defaultView : view;
+		if (selectedView instanceof Controller) {
+			((Controller) selectedView).init(); // TODO should this be done here?
+		}
 		views.add(selectedView);
 		LOG.info("Current view: " + selectedView);
 	}
@@ -279,7 +282,7 @@ public abstract class Application {
 	 * 
 	 * @return current view
 	 */
-	public ViewController getSelectedView() {
+	public View getSelectedView() {
 		return selectedView;
 	}
 
@@ -288,7 +291,7 @@ public abstract class Application {
 	 * 
 	 * @return set of views
 	 */
-	public Set<ViewController> views() {
+	public Set<View> views() {
 		return Collections.unmodifiableSet(views);
 	}
 }
