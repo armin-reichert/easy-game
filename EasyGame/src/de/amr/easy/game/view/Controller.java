@@ -1,5 +1,10 @@
 package de.amr.easy.game.view;
 
+/**
+ * Common interface for controllers.
+ * 
+ * @author Armin Reichert
+ */
 public interface Controller {
 
 	/**

@@ -19,6 +19,7 @@ import de.amr.easy.game.entity.EntitySet;
 import de.amr.easy.game.entity.collision.CollisionHandler;
 import de.amr.easy.game.input.KeyboardHandler;
 import de.amr.easy.game.input.MouseHandler;
+import de.amr.easy.game.scene.PassiveScene;
 import de.amr.easy.game.timing.Pulse;
 import de.amr.easy.game.ui.ApplicationShell;
 import de.amr.easy.game.view.Controller;
@@ -154,6 +155,8 @@ public abstract class Application {
 				collisionHandler.update();
 				if (currentView() instanceof Controller) {
 					((Controller) currentView()).update();
+				} else if (currentView() instanceof PassiveScene) {
+					((PassiveScene<?>) currentView()).getController().update();
 				}
 			} else {
 				defaultView.update();
@@ -270,9 +273,7 @@ public abstract class Application {
 	 */
 	public void selectView(View view) {
 		selectedView = (view == null) ? defaultView : view;
-		if (selectedView instanceof Controller) {
-			((Controller) selectedView).init(); // TODO should this be done here?
-		}
+		selectedView.init(); // TODO should this be done here?
 		views.add(selectedView);
 		LOG.info("Current view: " + selectedView);
 	}

@@ -5,8 +5,7 @@ import de.amr.easy.game.view.Controller;
 import de.amr.easy.game.view.View;
 
 /**
- * Base class for active scenes of an application. An active scene is called by the framework to initialize and update
- * itself.
+ * Active scenes get called by the framework with every pulse.
  * 
  * @author Armin Reichert
  *
@@ -20,7 +19,8 @@ public abstract class ActiveScene<A extends Application> extends PassiveScene<A>
 	}
 
 	@Override
-	public void init() {
+	public Controller getController() {
+		return this;
 	}
 
 	@Override
