@@ -9,15 +9,17 @@ import de.amr.easy.game.view.Controller;
 import de.amr.easy.game.view.View;
 
 /**
- * A convenience class for passive scenes. Passive scenes don't get updates by the application pulse.
+ * Represents a view for a given application. This class expects a separate controller and does not handle clock updates
+ * by itself.
  * 
  * @author Armin Reichert
  *
  * @param <A>
- *          class of application
+ *          application type
  */
-public abstract class PassiveScene<A extends Application> implements View {
+public abstract class Scene<A extends Application> implements View {
 
+	/** The application of this view. */
 	public final A app;
 
 	private Image bgImage;
@@ -28,15 +30,11 @@ public abstract class PassiveScene<A extends Application> implements View {
 	 * Creates a scene for the given application with a black background.
 	 * 
 	 * @param app
-	 *          an application
+	 *          the application of this view
 	 */
-	public PassiveScene(A app) {
+	public Scene(A app) {
 		this.app = app;
 		bgColor = Color.BLACK;
-	}
-
-	@Override
-	public void init() {
 	}
 
 	/**
