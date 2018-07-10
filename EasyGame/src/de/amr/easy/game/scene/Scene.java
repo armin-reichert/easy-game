@@ -3,13 +3,14 @@ package de.amr.easy.game.scene;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.util.Optional;
 
 import de.amr.easy.game.Application;
 import de.amr.easy.game.view.Controller;
 import de.amr.easy.game.view.View;
 
 /**
- * Represents a view for a given application. This class expects a separate controller and does not handle clock updates
+ * Represents a view for a given application. This class expects a separate controller and does not handle clock events
  * by itself.
  * 
  * @author Armin Reichert
@@ -38,7 +39,7 @@ public abstract class Scene<A extends Application> implements View {
 	}
 
 	/**
-	 * @return the controller which will get the updates
+	 * @return the controller which handles the clock events
 	 */
 	public abstract Controller getController();
 
@@ -59,8 +60,8 @@ public abstract class Scene<A extends Application> implements View {
 	/**
 	 * @return the background color
 	 */
-	public Color getBgColor() {
-		return bgColor;
+	public Optional<Color> getBgColor() {
+		return Optional.ofNullable(bgColor);
 	}
 
 	/**
@@ -76,8 +77,8 @@ public abstract class Scene<A extends Application> implements View {
 	/**
 	 * @return the background image
 	 */
-	public Image getBgImage() {
-		return bgImage;
+	public Optional<Image> getBgImage() {
+		return Optional.ofNullable(bgImage);
 	}
 
 	/**

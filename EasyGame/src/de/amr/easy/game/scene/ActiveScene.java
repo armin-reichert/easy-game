@@ -5,7 +5,7 @@ import de.amr.easy.game.view.Controller;
 import de.amr.easy.game.view.ViewController;
 
 /**
- * Represents a view/controller combination for a given application, handles clock updates by itself.
+ * Represents a combined view/controller which handles clock events.
  * 
  * @author Armin Reichert
  *

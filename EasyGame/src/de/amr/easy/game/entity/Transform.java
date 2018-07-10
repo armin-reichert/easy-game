@@ -27,6 +27,10 @@ public class Transform {
 		return position.y;
 	}
 
+	public Vector2f getPosition() {
+		return Vector2f.of(position.x, position.y);
+	}
+
 	public void setX(float x) {
 		position = Vector2f.of(x, position.y);
 	}

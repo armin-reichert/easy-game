@@ -1,7 +1,7 @@
 package de.amr.easy.game.view;
 
 /**
- * A view which serves as controller too.
+ * A combined view/controller.
  * 
  * @author Armin Reichert
  */
