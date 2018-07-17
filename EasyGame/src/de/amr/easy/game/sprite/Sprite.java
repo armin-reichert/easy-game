@@ -150,9 +150,7 @@ public class Sprite {
 	 *          the new state
 	 */
 	public void setAnimationEnabled(boolean enabled) {
-		animation.ifPresent(a -> {
-			a.setEnabled(enabled);
-		});
+		animation.ifPresent(a -> a.setEnabled(enabled));
 	}
 
 	/**

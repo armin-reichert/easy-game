@@ -74,6 +74,10 @@ public class GameEntity implements ViewController, CollisionBoxSupplier {
 	public Rectangle2D getCollisionBox() {
 		return new Rectangle2D.Double(tf.getX(), tf.getY(), getWidth(), getHeight());
 	}
+	
+	public boolean collidesWith(GameEntity other) {
+		return getCollisionBox().intersects(other.getCollisionBox());
+	}
 
 	public Sprite currentSprite() {
 		return sprites.length == 0 ? null : sprites[0];
@@ -92,7 +96,7 @@ public class GameEntity implements ViewController, CollisionBoxSupplier {
 	}
 
 	public void setAnimated(boolean animated) {
-		for (Sprite sprite : sprites) {
+		for (Sprite sprite : getSprites()) {
 			sprite.setAnimationEnabled(animated);
 		}
 	}
