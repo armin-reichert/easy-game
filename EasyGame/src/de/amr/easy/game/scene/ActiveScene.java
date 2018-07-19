@@ -2,6 +2,7 @@ package de.amr.easy.game.scene;
 
 import de.amr.easy.game.Application;
 import de.amr.easy.game.view.Controller;
+import de.amr.easy.game.view.View;
 import de.amr.easy.game.view.ViewController;
 
 /**
@@ -20,6 +21,11 @@ public abstract class ActiveScene<A extends Application> extends Scene<A> implem
 
 	@Override
 	public Controller getController() {
+		return this;
+	}
+
+	@Override
+	public View currentView() {
 		return this;
 	}
 }
