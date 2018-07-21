@@ -130,7 +130,7 @@ public class Sprite {
 	 *          the time in milliseconds for each animation frame
 	 */
 	public void makeAnimated(AnimationMode mode, int frameDurationMillis) {
-		if (mode == AnimationMode.LEFT_TO_RIGHT) {
+		if (mode == AnimationMode.LINEAR) {
 			animation = Optional.of(new LeftToRightAnimation(images));
 		} else if (mode == AnimationMode.BACK_AND_FORTH) {
 			animation = Optional.of(new BackForthAnimation(images));
