@@ -10,9 +10,9 @@ class CyclicAnimation extends Animation {
 
 	@Override
 	protected void nextFrame() {
-		++current;
-		if (current == frames.length) {
-			current = 0;
+		++frameIndex;
+		if (frameIndex == frames.length) {
+			frameIndex = 0;
 		}
 	}
 }

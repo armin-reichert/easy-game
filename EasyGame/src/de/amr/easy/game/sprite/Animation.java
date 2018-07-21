@@ -8,14 +8,14 @@ import java.awt.Image;
  * 
  * @author Armin Reichert
  */
-abstract class Animation {
+public abstract class Animation {
 
 	protected final Image[] frames;
-	private boolean enabled;
-	private int frameDuration;
-	private long frameRunning;
-	private long lastTime;
-	protected int current;
+	protected boolean enabled;
+	protected int frameDuration;
+	protected int frameIndex;
+	protected long frameTime;
+	protected long lastUpdateTime;
 
 	protected Animation(Image... frames) {
 		if (frames.length == 0) {
@@ -30,43 +30,41 @@ abstract class Animation {
 	protected abstract void nextFrame();
 
 	protected void reset() {
-		frameRunning = 0;
-		lastTime = System.currentTimeMillis();
-		current = 0;
+		frameIndex = 0;
+		frameTime = 0;
+		lastUpdateTime = 0;
 	}
 
 	public void update() {
 		if (!enabled) {
 			return;
 		}
-		long currentTime = System.currentTimeMillis();
-		frameRunning += (currentTime - lastTime);
-		if (frameRunning >= frameDuration) {
-			nextFrame();
-			frameRunning = 0;
+		long now = System.currentTimeMillis();
+		if (lastUpdateTime != 0) {
+			frameTime += (now - lastUpdateTime);
+			if (frameTime >= frameDuration) {
+				nextFrame();
+				frameTime = 0;
+			}
 		}
-		lastTime = currentTime;
+		lastUpdateTime = now;
 	}
 
 	public void setEnabled(boolean enabled) {
-		if (this.enabled != enabled) {
-			this.enabled = enabled;
-			if (!enabled) {
-				reset();
-			}
-		}
+		this.enabled = enabled;
+		reset();
 	}
 
 	public boolean isEnabled() {
 		return enabled;
 	}
 
-	public void setFrameDuration(int frameDuration) {
-		this.frameDuration = frameDuration;
+	public void setFrameDuration(int millis) {
+		frameDuration = millis;
 		reset();
 	}
 
-	public Image currentImage() {
-		return frames[current];
+	public Image currentFrame() {
+		return frames[frameIndex];
 	}
 }

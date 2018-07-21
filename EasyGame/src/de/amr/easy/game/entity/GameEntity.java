@@ -2,7 +2,9 @@ package de.amr.easy.game.entity;
 
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
+import java.util.Arrays;
 import java.util.function.BooleanSupplier;
+import java.util.stream.Stream;
 
 import de.amr.easy.game.entity.collision.CollisionBoxSupplier;
 import de.amr.easy.game.math.Vector2f;
@@ -13,11 +15,12 @@ import de.amr.easy.game.view.ViewController;
  * Base class for game entities with the lifetime methods {@link #init()}, {@link #update()} and
  * {@link #draw(Graphics2D)}.
  * 
- * Provides a {@link Transform transform} object for storing position, velocity and rotation. A game entity can store a
- * list of sprites. By overriding the {@link #currentSprite()} method, the sprite used for drawing is defined.
+ * Provides a {@link Transform transform} object for storing position, velocity and rotation. A game
+ * entity can store a list of sprites. By overriding the {@link #currentSprite()} method, the sprite
+ * used for drawing is defined.
  * <p>
- * Game entities can be stored and accessed in the entity set of an application which serves as a generic container for
- * the application's entities.
+ * Game entities can be stored and accessed in the entity set of an application which serves as a
+ * generic container for the application's entities.
  * 
  * @author Armin Reichert
  */
@@ -74,7 +77,7 @@ public class GameEntity implements ViewController, CollisionBoxSupplier {
 	public Rectangle2D getCollisionBox() {
 		return new Rectangle2D.Double(tf.getX(), tf.getY(), getWidth(), getHeight());
 	}
-	
+
 	public boolean collidesWith(GameEntity other) {
 		return getCollisionBox().intersects(other.getCollisionBox());
 	}
@@ -87,18 +90,16 @@ public class GameEntity implements ViewController, CollisionBoxSupplier {
 		return sprites[i];
 	}
 
-	protected Sprite[] getSprites() {
-		return sprites;
+	protected Stream<Sprite> getSprites() {
+		return Arrays.stream(sprites);
 	}
 
 	public void setSprites(Sprite... sprites) {
 		this.sprites = sprites;
 	}
 
-	public void setAnimated(boolean animated) {
-		for (Sprite sprite : getSprites()) {
-			sprite.setAnimationEnabled(animated);
-		}
+	public void enableAnimation(boolean animated) {
+		getSprites().forEach(sprite -> sprite.setAnimationEnabled(animated));
 	}
 
 	public Vector2f getCenter() {

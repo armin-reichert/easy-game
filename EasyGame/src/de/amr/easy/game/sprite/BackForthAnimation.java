@@ -19,13 +19,13 @@ class BackForthAnimation extends Animation {
 	@Override
 	protected void nextFrame() {
 		if (forward) {
-			++current;
-			if (current == frames.length - 1) {
+			++frameIndex;
+			if (frameIndex == frames.length - 1) {
 				forward = false;
 			}
 		} else {
-			--current;
-			if (current == 0) {
+			--frameIndex;
+			if (frameIndex == 0) {
 				forward = true;
 			}
 		}

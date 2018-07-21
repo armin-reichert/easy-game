@@ -4,7 +4,7 @@ import static de.amr.easy.game.assets.Assets.scaledImage;
 
 import java.awt.Graphics2D;
 import java.awt.Image;
-import java.util.Optional;
+import java.util.Objects;
 
 import de.amr.easy.game.assets.Assets;
 
@@ -15,43 +15,42 @@ import de.amr.easy.game.assets.Assets;
  */
 public class Sprite {
 
-	private final Image[] images;
-	private Optional<Animation> animation = Optional.empty();
+	private final Image[] frames;
+	private Animation animation;
 
 	/**
 	 * Creates a sprite from the given image sequence.
 	 * 
-	 * @param images
+	 * @param frames
+	 *          animation frames
 	 */
-	public Sprite(Image... images) {
-		if (images.length == 0) {
+	public Sprite(Image... frames) {
+		if (frames.length == 0) {
 			throw new IllegalArgumentException("Sprite needs at least one image");
 		}
-		this.images = images;
+		this.frames = frames;
 	}
 
 	/**
-	 * Creates a sprite from the image sequence taken from the application assets and with the given
-	 * keys.
+	 * Creates a sprite from frames with the given asset keys.
 	 * 
-	 * @param imageKeys
-	 *          image keys as stored inside the assets
+	 * @param keys
+	 *          keys of images stored as assets
 	 */
-	public Sprite(String... imageKeys) {
-		if (imageKeys.length == 0) {
+	public Sprite(String... keys) {
+		if (keys.length == 0) {
 			throw new IllegalArgumentException("Sprite needs at least one image");
 		}
-		images = new Image[imageKeys.length];
-		int i = 0;
-		for (String key : imageKeys) {
-			images[i++] = Assets.image(key);
+		frames = new Image[keys.length];
+		for (int i = 0; i < keys.length; ++i) {
+			frames[i] = Assets.image(keys[i]);
 		}
 	}
 
 	/**
 	 * Scales the i'th image of this sprite to the given size.
 	 * 
-	 * @param index
+	 * @param i
 	 *          index of image to be scaled
 	 * @param width
 	 *          target width
@@ -59,11 +58,11 @@ public class Sprite {
 	 *          target height
 	 * @return this sprite to allow method chaining
 	 */
-	public Sprite scale(int index, int width, int height) {
-		if (index < 0 || index >= images.length) {
-			throw new IllegalArgumentException("Sprite index out of range: " + index);
+	public Sprite scale(int i, int width, int height) {
+		if (i < 0 || i >= frames.length) {
+			throw new IllegalArgumentException("Sprite index out of range: " + i);
 		}
-		images[index] = scaledImage(images[index], width, height);
+		frames[i] = scaledImage(frames[i], width, height);
 		return this;
 	}
 
@@ -77,8 +76,8 @@ public class Sprite {
 	 * @return this sprite to allow method chaining
 	 */
 	public Sprite scale(int width, int height) {
-		for (int i = 0; i < images.length; ++i) {
-			images[i] = scaledImage(images[i], width, height);
+		for (int i = 0; i < frames.length; ++i) {
+			frames[i] = scaledImage(frames[i], width, height);
 		}
 		return this;
 	}
@@ -89,7 +88,7 @@ public class Sprite {
 	 * @return currently used image
 	 */
 	public Image getImage() {
-		return animation.isPresent() ? animation.get().currentImage() : images[0];
+		return animation != null ? animation.currentFrame() : frames[0];
 	}
 
 	/**
@@ -118,7 +117,9 @@ public class Sprite {
 	 */
 	public void draw(Graphics2D g) {
 		g.drawImage(getImage(), 0, 0, null);
-		animation.ifPresent(Animation::update);
+		if (animation != null) {
+			animation.update();
+		}
 	}
 
 	/**
@@ -126,37 +127,41 @@ public class Sprite {
 	 * 
 	 * @param mode
 	 *          the animation mode
-	 * @param frameDurationMillis
+	 * @param millis
 	 *          the time in milliseconds for each animation frame
 	 */
-	public void makeAnimated(AnimationMode mode, int frameDurationMillis) {
+	public void createAnimation(AnimationMode mode, int millis) {
+		Objects.nonNull(mode);
 		if (mode == AnimationMode.LINEAR) {
-			animation = Optional.of(new LeftToRightAnimation(images));
+			animation = new LinearAnimation(frames);
 		} else if (mode == AnimationMode.BACK_AND_FORTH) {
-			animation = Optional.of(new BackForthAnimation(images));
+			animation = new BackForthAnimation(frames);
 		} else if (mode == AnimationMode.CYCLIC) {
-			animation = Optional.of(new CyclicAnimation(images));
-		} else {
-			throw new IllegalArgumentException("Illegal animation mode: " + mode);
+			animation = new CyclicAnimation(frames);
 		}
-		animation.get().setFrameDuration(frameDurationMillis);
-		animation.get().setEnabled(true);
+		animation.setFrameDuration(millis);
+		animation.setEnabled(true);
 	}
 
 	/**
 	 * Enables or disables the animation of this sprite.
 	 * 
 	 * @param enabled
-	 *          the new state
+	 *          the enabling state
 	 */
 	public void setAnimationEnabled(boolean enabled) {
-		animation.ifPresent(a -> a.setEnabled(enabled));
+		if (animation != null) {
+			animation.setEnabled(enabled);
+			animation.reset();
+		}
 	}
 
 	/**
-	 * Resets the animation of this sprite to its initial state.
+	 * Resets the animation of this sprite.
 	 */
 	public void resetAnimation() {
-		animation.ifPresent(Animation::reset);
+		if (animation != null) {
+			animation.reset();
+		}
 	}
 }
