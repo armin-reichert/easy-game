@@ -99,7 +99,7 @@ public class GameEntity implements ViewController, CollisionBoxSupplier {
 	}
 
 	public void enableAnimation(boolean animated) {
-		getSprites().forEach(sprite -> sprite.setAnimationEnabled(animated));
+		getSprites().forEach(sprite -> sprite.enableAnimation(animated));
 	}
 
 	public Vector2f getCenter() {

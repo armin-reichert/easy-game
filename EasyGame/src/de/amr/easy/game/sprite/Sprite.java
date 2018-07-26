@@ -48,17 +48,17 @@ public class Sprite {
 	}
 
 	/**
-	 * Scales the i'th image of this sprite to the given size.
+	 * Scales the i'th frame of this sprite to the given size.
 	 * 
 	 * @param i
-	 *          index of image to be scaled
+	 *          index of frame to be scaled
 	 * @param width
 	 *          target width
 	 * @param height
 	 *          target height
 	 * @return this sprite to allow method chaining
 	 */
-	public Sprite scale(int i, int width, int height) {
+	public Sprite scaleFrame(int i, int width, int height) {
 		if (i < 0 || i >= frames.length) {
 			throw new IllegalArgumentException("Sprite index out of range: " + i);
 		}
@@ -80,6 +80,17 @@ public class Sprite {
 			frames[i] = scaledImage(frames[i], width, height);
 		}
 		return this;
+	}
+
+	/**
+	 * Scales all frames to the same size (width, height).
+	 * 
+	 * @param size
+	 *          the frame size
+	 * @return the sprite
+	 */
+	public Sprite scale(int size) {
+		return scale(size, size);
 	}
 
 	/**
@@ -130,7 +141,7 @@ public class Sprite {
 	 * @param millis
 	 *          the time in milliseconds for each animation frame
 	 */
-	public void createAnimation(AnimationMode mode, int millis) {
+	public Sprite animation(AnimationMode mode, int millis) {
 		Objects.nonNull(mode);
 		if (mode == AnimationMode.LINEAR) {
 			animation = new LinearAnimation(frames);
@@ -141,6 +152,7 @@ public class Sprite {
 		}
 		animation.setFrameDuration(millis);
 		animation.setEnabled(true);
+		return this;
 	}
 
 	/**
@@ -149,7 +161,7 @@ public class Sprite {
 	 * @param enabled
 	 *          the enabling state
 	 */
-	public void setAnimationEnabled(boolean enabled) {
+	public void enableAnimation(boolean enabled) {
 		if (animation != null) {
 			animation.setEnabled(enabled);
 			animation.reset();

@@ -44,8 +44,8 @@ public class PumpingImage extends GameEntity {
 			frames[i] = image.getScaledInstance(-1, frameHeight, BufferedImage.SCALE_FAST);
 		}
 		Sprite sprite = new Sprite(frames);
-		sprite.createAnimation(BACK_AND_FORTH, 166);
-		sprite.setAnimationEnabled(true);
+		sprite.animation(BACK_AND_FORTH, 166);
+		sprite.enableAnimation(true);
 		setSprites(sprite);
 	}
 }
