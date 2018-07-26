@@ -9,7 +9,7 @@ import java.util.Objects;
 import de.amr.easy.game.assets.Assets;
 
 /**
- * A sprite is a sequence of images used to simulate an animated object.
+ * A sprite.
  * 
  * @author Armin Reichert
  */
@@ -19,23 +19,23 @@ public class Sprite {
 	private Animation animation;
 
 	/**
-	 * Creates a sprite from the given image sequence.
+	 * Creates a sprite with the given frames.
 	 * 
 	 * @param frames
-	 *          animation frames
+	 *          non-empty list of animation frames
 	 */
 	public Sprite(Image... frames) {
 		if (frames.length == 0) {
-			throw new IllegalArgumentException("Sprite needs at least one image");
+			throw new IllegalArgumentException("Sprite needs at least a single frame");
 		}
 		this.frames = frames;
 	}
 
 	/**
-	 * Creates a sprite from frames with the given asset keys.
+	 * Creates a sprite from the frames stored in the assets with the given keys.
 	 * 
 	 * @param keys
-	 *          keys of images stored as assets
+	 *          list of keys of the images
 	 */
 	public Sprite(String... keys) {
 		if (keys.length == 0) {
@@ -83,7 +83,7 @@ public class Sprite {
 	}
 
 	/**
-	 * Scales all frames to the same size (width, height).
+	 * Scales all frames to the same size (width = height).
 	 * 
 	 * @param size
 	 *          the frame size
@@ -94,40 +94,40 @@ public class Sprite {
 	}
 
 	/**
-	 * Returns the current image of this sprite.
+	 * Returns the current frame of this sprite.
 	 * 
-	 * @return currently used image
+	 * @return current frame or the single frame for a non-animated sprite
 	 */
-	public Image getImage() {
+	public Image currentFrame() {
 		return animation != null ? animation.currentFrame() : frames[0];
 	}
 
 	/**
 	 * Returns the width of this sprite.
 	 * 
-	 * @return width of current image
+	 * @return width of current frame
 	 */
 	public int getWidth() {
-		return getImage().getWidth(null);
+		return currentFrame().getWidth(null);
 	}
 
 	/**
 	 * Returns the height of this sprite.
 	 * 
-	 * @return height of current image
+	 * @return height of current frame
 	 */
 	public int getHeight() {
-		return getImage().getHeight(null);
+		return currentFrame().getHeight(null);
 	}
 
 	/**
-	 * Draws this sprite (its current image).
+	 * Draws the current animation frame and moves to the next animation frame.
 	 * 
 	 * @param g
 	 *          graphics context
 	 */
 	public void draw(Graphics2D g) {
-		g.drawImage(getImage(), 0, 0, null);
+		g.drawImage(currentFrame(), 0, 0, null);
 		if (animation != null) {
 			animation.update();
 		}
