@@ -29,7 +29,7 @@ public abstract class Animation {
 
 	protected abstract void nextFrame();
 
-	protected void reset() {
+	public void reset() {
 		frameIndex = 0;
 		frameTime = 0;
 		lastUpdateTime = 0;
@@ -52,7 +52,6 @@ public abstract class Animation {
 
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
-		reset();
 	}
 
 	public boolean isEnabled() {

@@ -11,7 +11,7 @@ class BackForthAnimation extends Animation {
 	}
 
 	@Override
-	protected void reset() {
+	public void reset() {
 		forward = true;
 		super.reset();
 	}

@@ -164,7 +164,6 @@ public class Sprite {
 	public void enableAnimation(boolean enabled) {
 		if (animation != null) {
 			animation.setEnabled(enabled);
-			animation.reset();
 		}
 	}
 
