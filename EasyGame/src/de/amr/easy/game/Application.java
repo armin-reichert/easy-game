@@ -24,8 +24,8 @@ import de.amr.easy.game.view.View;
 import de.amr.easy.game.view.ViewController;
 
 /**
- * Application base class. To start an application, create an application instance, define its settings in the
- * constructor and call the {@link #launch(Application)} method.
+ * Application base class. To start an application, create an application instance, define its
+ * settings in the constructor and call the {@link #launch(Application)} method.
  * <p>
  * Example:
  * <p>
@@ -50,8 +50,8 @@ import de.amr.easy.game.view.ViewController;
 public abstract class Application {
 
 	/**
-	 * Starts the given application inside a window or in full-screen mode according to the settings defined after its
-	 * creation.
+	 * Starts the given application inside a window or in full-screen mode according to the settings
+	 * defined after its creation.
 	 * 
 	 * @param app
 	 *          the application
@@ -196,7 +196,8 @@ public abstract class Application {
 	}
 
 	/**
-	 * Returns the default view which is displayed in case no view has been created so far or no view is selected.
+	 * Returns the default view which is displayed in case no view has been created so far or no view
+	 * is selected.
 	 * 
 	 * @return the default view
 	 */
@@ -214,9 +215,5 @@ public abstract class Application {
 		selectedController = (controller == null) ? defaultViewController : controller;
 		selectedController.init();
 		LOG.info("Initialized current controller: " + selectedController);
-		if (selectedController != selectedController.currentView()) {
-			selectedController.currentView().init();
-		}
-		LOG.info("Initialized current view: " + selectedController.currentView());
 	}
 }

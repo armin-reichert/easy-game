@@ -10,15 +10,10 @@ import java.awt.Graphics2D;
 public interface View {
 
 	/**
-	 * Called by the framework to initialize the view.
-	 */
-	public void init();
-
-	/**
 	 * Called by the framework to draw the view.
 	 * 
 	 * @param g
 	 *          the graphics context used for drawing
 	 */
-	public void draw(Graphics2D g);
+	void draw(Graphics2D g);
 }
