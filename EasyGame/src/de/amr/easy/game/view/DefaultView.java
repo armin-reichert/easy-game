@@ -3,6 +3,7 @@ package de.amr.easy.game.view;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 
 import de.amr.easy.game.Application;
 import de.amr.easy.game.controls.TextArea;
@@ -49,7 +50,7 @@ public class DefaultView implements View<Graphics2D>, Controller {
 		text.tf.setY(app.settings.height);
 		text.setScrollSpeed(-0.5f);
 		text.setColor(Color.WHITE);
-		text.setFont(new Font("Monospaced", Font.BOLD, 16));
+		text.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 14));
 	}
 
 	@Override
@@ -62,9 +63,11 @@ public class DefaultView implements View<Graphics2D>, Controller {
 
 	@Override
 	public void draw(Graphics2D g) {
-		g.setColor(Color.DARK_GRAY);
+		g.setColor(app.settings.bgColor);
 		g.fillRect(0, 0, app.getWidth(), app.getHeight());
 		text.hCenter(app.getWidth());
+		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		text.draw(g);
+		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
 	}
 }
