@@ -2,7 +2,6 @@ package de.amr.easy.game.entity;
 
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
-import java.util.Arrays;
 import java.util.function.BooleanSupplier;
 import java.util.stream.Stream;
 
@@ -28,15 +27,21 @@ import de.amr.easy.game.view.View;
 public abstract class GameEntity implements View<Graphics2D>, Controller, CollisionSensitive {
 
 	private String name;
-	private Sprite[] sprites;
 	public BooleanSupplier visibility;
 	public final Transform tf;
 
-	public GameEntity(Sprite... sprites) {
+	public GameEntity() {
 		this.tf = new Transform();
 		this.name = super.toString();
-		this.sprites = sprites;
 		this.visibility = () -> currentSprite() != null;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	@Override
@@ -49,7 +54,7 @@ public abstract class GameEntity implements View<Graphics2D>, Controller, Collis
 
 	@Override
 	public void draw(Graphics2D g) {
-		if (visibility.getAsBoolean()) {
+		if (visibility.getAsBoolean() && currentSprite() != null) {
 			Graphics2D pen = (Graphics2D) g.create();
 			pen.translate(tf.getX(), tf.getY());
 			pen.rotate(tf.getRotation());
@@ -58,18 +63,20 @@ public abstract class GameEntity implements View<Graphics2D>, Controller, Collis
 		}
 	}
 
-	public String getName() {
-		return name;
+	public abstract Sprite currentSprite();
+
+	public abstract Stream<Sprite> getSprites();
+
+	public void enableAnimation(boolean animated) {
+		getSprites().forEach(sprite -> sprite.enableAnimation(animated));
 	}
 
-	public void setName(String name) {
-		this.name = name;
-	}
-
+	@Override
 	public int getWidth() {
 		return currentSprite() != null ? currentSprite().getWidth() : 0;
 	}
 
+	@Override
 	public int getHeight() {
 		return currentSprite() != null ? currentSprite().getHeight() : 0;
 	}
@@ -81,26 +88,6 @@ public abstract class GameEntity implements View<Graphics2D>, Controller, Collis
 
 	public boolean collidesWith(GameEntity other) {
 		return getCollisionBox().intersects(other.getCollisionBox());
-	}
-
-	public Sprite currentSprite() {
-		return sprites.length == 0 ? null : sprites[0];
-	}
-
-	public Sprite getSprite(int i) {
-		return sprites[i];
-	}
-
-	protected Stream<Sprite> getSprites() {
-		return Arrays.stream(sprites);
-	}
-
-	public void setSprites(Sprite... sprites) {
-		this.sprites = sprites;
-	}
-
-	public void enableAnimation(boolean animated) {
-		getSprites().forEach(sprite -> sprite.enableAnimation(animated));
 	}
 
 	public Vector2f getCenter() {

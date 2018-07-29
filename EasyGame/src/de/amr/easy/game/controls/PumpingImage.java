@@ -5,12 +5,14 @@ import static java.lang.Math.round;
 
 import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.util.stream.Stream;
 
 import de.amr.easy.game.entity.GameEntity;
 import de.amr.easy.game.sprite.Sprite;
 
 public class PumpingImage extends GameEntity {
 
+	private Sprite sprite;
 	private final int frameCount = 6;
 	private final Image image;
 	private float scale;
@@ -20,8 +22,7 @@ public class PumpingImage extends GameEntity {
 		scale = 2;
 		createFrames();
 	}
-	
-	
+
 	public void setScale(float scale) {
 		this.scale = scale;
 		createFrames();
@@ -35,6 +36,16 @@ public class PumpingImage extends GameEntity {
 	public void update() {
 	}
 
+	@Override
+	public Sprite currentSprite() {
+		return sprite;
+	}
+
+	@Override
+	public Stream<Sprite> getSprites() {
+		return Stream.of(sprite);
+	}
+
 	private void createFrames() {
 		Image[] frames = new Image[frameCount];
 		float delta = scale / frames.length;
@@ -43,9 +54,8 @@ public class PumpingImage extends GameEntity {
 			int frameHeight = round(height + i * delta * height);
 			frames[i] = image.getScaledInstance(-1, frameHeight, BufferedImage.SCALE_FAST);
 		}
-		Sprite sprite = new Sprite(frames);
+		sprite = new Sprite(frames);
 		sprite.animation(BACK_AND_FORTH, 166);
 		sprite.enableAnimation(true);
-		setSprites(sprite);
 	}
 }

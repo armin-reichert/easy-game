@@ -7,6 +7,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.util.stream.Stream;
 
 import de.amr.easy.game.entity.GameEntity;
 import de.amr.easy.game.sprite.Sprite;
@@ -18,6 +19,7 @@ import de.amr.easy.game.sprite.Sprite;
  */
 public class TextArea extends GameEntity {
 
+	private Sprite sprite;
 	private String[] lines;
 	private float lineSpacing;
 	private Color color;
@@ -34,6 +36,16 @@ public class TextArea extends GameEntity {
 
 	public TextArea() {
 		this("");
+	}
+
+	@Override
+	public Sprite currentSprite() {
+		return sprite;
+	}
+
+	@Override
+	public Stream<Sprite> getSprites() {
+		return Stream.of(sprite);
 	}
 
 	@Override
@@ -74,7 +86,6 @@ public class TextArea extends GameEntity {
 	}
 
 	private void updateImage() {
-
 		// helper image for computing bounds
 		BufferedImage helperImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D pen = helperImage.createGraphics();
@@ -111,7 +122,7 @@ public class TextArea extends GameEntity {
 				y += lineSpacing;
 			}
 		}
-		setSprites(new Sprite(image));
+		sprite = new Sprite(image);
 	}
 
 	@Override
