@@ -50,19 +50,18 @@ import de.amr.easy.game.view.View;
 public abstract class Application {
 
 	/**
-	 * Starts the given application inside a window or in full-screen mode according to the settings
-	 * defined after its creation.
+	 * Launches the given application.
 	 * 
 	 * @param app
 	 *          the application
 	 */
 	public static void launch(Application app) {
+		try {
+			UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
+		} catch (Exception e) {
+			LOG.warning("Could not set Nimbus Look&Feel");
+		}
 		EventQueue.invokeLater(() -> {
-			try {
-				UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
-			} catch (Exception e) {
-				LOG.warning("Could not set Nimbus Look&Feel");
-			}
 			app.shell = new ApplicationShell(app);
 			app.shell.showApplication();
 			app.start();
@@ -71,46 +70,58 @@ public abstract class Application {
 
 	private static final int[] PAUSE_TOGGLE_KEY = { VK_CONTROL, VK_P };
 
-	/** A logger that may be used by any application. */
-	public static final Logger LOG = Logger.getLogger(Application.class.getName());
+	/** A logger that may be used by application subclasses. */
+	public static Logger LOG;
 
 	/** The settings of this application. */
 	public final AppSettings settings;
 
-	/** The set of entities used by this application. */
+	/** The entities of this application. */
 	public final EntityMap entities;
 
 	/** The default view of this application. */
 	private final DefaultView defaultView;
 
-	/** The currently displayed view. */
-	private Controller selectedController;
+	/** The current application controller. */
+	private Controller controller;
 
-	/** The pulse (tact) of this application. */
+	/** The pulse of this application. */
 	public final Pulse pulse;
 
 	/** The collision handler of this application. */
 	public final CollisionHandler collisionHandler;
 
 	private boolean paused;
-
 	private ApplicationShell shell;
 
 	/**
 	 * Base class constructor. By default, applications run at 60 frames/second.
 	 */
-	protected Application() {
+	public Application() {
+		LOG = Logger.getLogger(getClass().getName());
 		settings = new AppSettings();
-		defaultView = new DefaultView(this);
-		selectedController = defaultView;
 		entities = new EntityMap();
+		defaultView = new DefaultView(this);
+		controller = defaultView;
 		pulse = new Pulse(this::update, this::draw, 60);
 		collisionHandler = new CollisionHandler();
 		LOG.info("Application " + getClass().getSimpleName() + " created.");
 	}
 
-	/** Called when the application should be initialized. */
+	/** Called when the application is initialized. */
 	public abstract void init();
+
+	/**
+	 * Sets the given controller and calls its {@link Controller#init()} method.
+	 * 
+	 * @param controller
+	 *          a controller (for example a view controller or a scene)
+	 */
+	public void setController(Controller controller) {
+		this.controller = (controller == null) ? defaultView : controller;
+		controller.init();
+		LOG.info("Set controller to: " + controller);
+	}
 
 	/** Called after initialization and starts the pulse. */
 	private final void start() {
@@ -119,7 +130,7 @@ public abstract class Application {
 		init();
 		LOG.info("Application initialized.");
 		pulse.start();
-		LOG.info("Application started.");
+		LOG.info("Pulse started.");
 	}
 
 	private final void pause(boolean state) {
@@ -142,17 +153,16 @@ public abstract class Application {
 		if (keyDown(PAUSE_TOGGLE_KEY[0]) && keyPressedOnce(PAUSE_TOGGLE_KEY[1])) {
 			pause(!paused);
 		}
-		if (paused) {
-			return;
+		if (!paused) {
+			collisionHandler.update();
+			controller.update();
 		}
-		collisionHandler.update();
-		selectedController.update();
 	}
 
 	@SuppressWarnings("unchecked")
 	private void draw() {
-		if (selectedController instanceof View<?>) {
-			shell.draw((View<Graphics2D>) selectedController);
+		if (controller instanceof View<?>) {
+			shell.draw((View<Graphics2D>) controller);
 		}
 	}
 
@@ -190,17 +200,5 @@ public abstract class Application {
 	 */
 	public boolean isPaused() {
 		return paused;
-	}
-
-	/**
-	 * Selects the given controller, initializes it and initializes the current view.
-	 * 
-	 * @param controller
-	 *          a controller (for example a view controller or a scene)
-	 */
-	public void select(Controller controller) {
-		selectedController = (controller == null) ? defaultView : controller;
-		selectedController.init();
-		LOG.info("Initialized current controller: " + selectedController);
 	}
 }
