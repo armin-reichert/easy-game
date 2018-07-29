@@ -21,7 +21,7 @@ import de.amr.easy.game.timing.Pulse;
 import de.amr.easy.game.ui.ApplicationShell;
 import de.amr.easy.game.view.Controller;
 import de.amr.easy.game.view.DefaultView;
-import de.amr.easy.game.view.ViewController;
+import de.amr.easy.game.view.View;
 
 /**
  * Application base class. To start an application, create an application instance, define its
@@ -145,19 +145,14 @@ public abstract class Application {
 		if (paused) {
 			return;
 		}
-		if (selectedController != null) {
-			collisionHandler.update();
-			selectedController.update();
-		} else {
-			defaultView.update();
-		}
+		collisionHandler.update();
+		selectedController.update();
 	}
 
 	@SuppressWarnings("unchecked")
 	private void draw() {
-		if (selectedController instanceof ViewController<?>) {
-			ViewController<Graphics2D> vc = (ViewController<Graphics2D>) selectedController;
-			shell.draw(vc.currentView());
+		if (selectedController instanceof View<?>) {
+			shell.draw((View<Graphics2D>) selectedController);
 		}
 	}
 
