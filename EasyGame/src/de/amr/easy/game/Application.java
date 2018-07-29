@@ -80,8 +80,8 @@ public abstract class Application {
 	/** The set of entities used by this application. */
 	public final EntitySet entities;
 
-	/** The default view controller of this application. */
-	private final ViewController defaultViewController;
+	/** The default view of this application. */
+	private final DefaultView defaultView;
 
 	/** The currently displayed view. */
 	private Controller selectedController;
@@ -101,8 +101,8 @@ public abstract class Application {
 	 */
 	protected Application() {
 		settings = new AppSettings();
-		defaultViewController = new DefaultView(this);
-		selectedController = defaultViewController;
+		defaultView = new DefaultView(this);
+		selectedController = defaultView;
 		entities = new EntitySet();
 		pulse = new Pulse(this::update, this::draw, 60);
 		collisionHandler = new CollisionHandler();
@@ -114,7 +114,7 @@ public abstract class Application {
 
 	/** Called after initialization and starts the pulse. */
 	private final void start() {
-		defaultViewController.init();
+		defaultView.init();
 		LOG.info("Default view initialized.");
 		init();
 		LOG.info("Application initialized.");
@@ -149,13 +149,14 @@ public abstract class Application {
 			collisionHandler.update();
 			selectedController.update();
 		} else {
-			defaultViewController.update();
+			defaultView.update();
 		}
 	}
 
 	private void draw() {
-		if (selectedController != null) {
-			shell.draw(selectedController.currentView());
+		if (selectedController instanceof ViewController) {
+			ViewController vc = (ViewController) selectedController;
+			shell.draw(vc.currentView());
 		}
 	}
 
@@ -202,7 +203,7 @@ public abstract class Application {
 	 * @return the default view
 	 */
 	public View getDefaultView() {
-		return defaultViewController;
+		return defaultView;
 	}
 
 	/**
@@ -212,7 +213,7 @@ public abstract class Application {
 	 *          a controller (for example a view controller or a scene)
 	 */
 	public void select(Controller controller) {
-		selectedController = (controller == null) ? defaultViewController : controller;
+		selectedController = (controller == null) ? defaultView : controller;
 		selectedController.init();
 		LOG.info("Initialized current controller: " + selectedController);
 	}

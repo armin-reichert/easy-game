@@ -9,7 +9,8 @@ import java.util.stream.Stream;
 import de.amr.easy.game.entity.collision.CollisionBoxSupplier;
 import de.amr.easy.game.math.Vector2f;
 import de.amr.easy.game.sprite.Sprite;
-import de.amr.easy.game.view.ViewController;
+import de.amr.easy.game.view.Controller;
+import de.amr.easy.game.view.View;
 
 /**
  * Base class for game entities with the lifetime methods {@link #init()}, {@link #update()} and
@@ -24,7 +25,7 @@ import de.amr.easy.game.view.ViewController;
  * 
  * @author Armin Reichert
  */
-public class GameEntity implements ViewController, CollisionBoxSupplier {
+public abstract class GameEntity implements View, Controller, CollisionBoxSupplier {
 
 	private String name;
 	private Sprite[] sprites;

@@ -36,6 +36,10 @@ public class TextArea extends GameEntity {
 		this("");
 	}
 
+	@Override
+	public void init() {
+	}
+
 	public String getText() {
 		return String.join("\n", lines);
 	}

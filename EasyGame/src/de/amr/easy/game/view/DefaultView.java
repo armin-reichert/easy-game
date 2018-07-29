@@ -12,7 +12,7 @@ import de.amr.easy.game.controls.TextArea;
  * 
  * @author Armin Reichert
  */
-public class DefaultView implements ViewController {
+public class DefaultView implements View, Controller {
 
 	private final Application app;
 	private final TextArea text;
