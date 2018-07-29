@@ -26,22 +26,12 @@ import de.amr.easy.game.view.View;
  */
 public abstract class GameEntity implements View<Graphics2D>, Controller, CollisionSensitive {
 
-	private String name;
 	public BooleanSupplier visibility;
 	public final Transform tf;
 
 	public GameEntity() {
 		this.tf = new Transform();
-		this.name = super.toString();
 		this.visibility = () -> currentSprite() != null;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	@Override

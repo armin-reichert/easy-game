@@ -13,7 +13,7 @@ import javax.swing.UIManager;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 
 import de.amr.easy.game.config.AppSettings;
-import de.amr.easy.game.entity.EntitySet;
+import de.amr.easy.game.entity.EntityMap;
 import de.amr.easy.game.entity.collision.CollisionHandler;
 import de.amr.easy.game.input.KeyboardHandler;
 import de.amr.easy.game.input.MouseHandler;
@@ -78,7 +78,7 @@ public abstract class Application {
 	public final AppSettings settings;
 
 	/** The set of entities used by this application. */
-	public final EntitySet entities;
+	public final EntityMap entities;
 
 	/** The default view of this application. */
 	private final DefaultView defaultView;
@@ -103,7 +103,7 @@ public abstract class Application {
 		settings = new AppSettings();
 		defaultView = new DefaultView(this);
 		selectedController = defaultView;
-		entities = new EntitySet();
+		entities = new EntityMap();
 		pulse = new Pulse(this::update, this::draw, 60);
 		collisionHandler = new CollisionHandler();
 		LOG.info("Application " + getClass().getSimpleName() + " created.");
