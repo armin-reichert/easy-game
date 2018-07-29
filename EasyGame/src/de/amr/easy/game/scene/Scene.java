@@ -9,20 +9,11 @@ import de.amr.easy.game.view.View;
  * 
  * @author Armin Reichert
  */
-public interface Scene extends View {
+public interface Scene<GC> extends View<GC> {
 
 	/**
 	 * @return the controller which handles the clock events
 	 */
 	Controller getController();
 
-	/**
-	 * @return the width in pixels
-	 */
-	int getWidth();
-
-	/**
-	 * @return the height in pixels
-	 */
-	int getHeight();
 }

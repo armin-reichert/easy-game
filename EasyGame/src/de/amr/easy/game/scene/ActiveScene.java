@@ -9,7 +9,7 @@ import de.amr.easy.game.view.ViewController;
  * 
  * @author Armin Reichert
  */
-public interface ActiveScene extends Scene, ViewController {
+public interface ActiveScene<GC> extends Scene<GC>, ViewController<GC> {
 
 	@Override
 	default Controller getController() {
@@ -17,7 +17,7 @@ public interface ActiveScene extends Scene, ViewController {
 	}
 
 	@Override
-	default View currentView() {
+	default View<GC> currentView() {
 		return this;
 	}
 }

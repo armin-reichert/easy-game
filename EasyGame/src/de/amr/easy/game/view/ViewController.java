@@ -5,7 +5,7 @@ package de.amr.easy.game.view;
  * 
  * @author Armin Reichert
  */
-public interface ViewController extends View, Controller {
+public interface ViewController<GC> extends Controller {
 
-	View currentView();
+	View<GC> currentView();
 }

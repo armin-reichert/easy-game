@@ -85,7 +85,7 @@ public class ApplicationShell implements PropertyChangeListener {
 		return fullScreen ? frame.getHeight() : canvas.getHeight();
 	}
 
-	public void draw(View content) {
+	public void draw(View<Graphics2D> content) {
 		do {
 			do {
 				Graphics2D g = null;

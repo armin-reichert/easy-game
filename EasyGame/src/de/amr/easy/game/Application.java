@@ -6,6 +6,7 @@ import static java.awt.event.KeyEvent.VK_CONTROL;
 import static java.awt.event.KeyEvent.VK_P;
 
 import java.awt.EventQueue;
+import java.awt.Graphics2D;
 import java.util.logging.Logger;
 
 import javax.swing.UIManager;
@@ -20,7 +21,6 @@ import de.amr.easy.game.timing.Pulse;
 import de.amr.easy.game.ui.ApplicationShell;
 import de.amr.easy.game.view.Controller;
 import de.amr.easy.game.view.DefaultView;
-import de.amr.easy.game.view.View;
 import de.amr.easy.game.view.ViewController;
 
 /**
@@ -153,9 +153,10 @@ public abstract class Application {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private void draw() {
-		if (selectedController instanceof ViewController) {
-			ViewController vc = (ViewController) selectedController;
+		if (selectedController instanceof ViewController<?>) {
+			ViewController<Graphics2D> vc = (ViewController<Graphics2D>) selectedController;
 			shell.draw(vc.currentView());
 		}
 	}
@@ -194,16 +195,6 @@ public abstract class Application {
 	 */
 	public boolean isPaused() {
 		return paused;
-	}
-
-	/**
-	 * Returns the default view which is displayed in case no view has been created so far or no view
-	 * is selected.
-	 * 
-	 * @return the default view
-	 */
-	public View getDefaultView() {
-		return defaultView;
 	}
 
 	/**

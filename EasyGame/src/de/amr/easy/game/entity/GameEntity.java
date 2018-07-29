@@ -25,7 +25,7 @@ import de.amr.easy.game.view.View;
  * 
  * @author Armin Reichert
  */
-public abstract class GameEntity implements View, Controller, CollisionBoxSupplier {
+public abstract class GameEntity implements View<Graphics2D>, Controller, CollisionBoxSupplier {
 
 	private String name;
 	private Sprite[] sprites;

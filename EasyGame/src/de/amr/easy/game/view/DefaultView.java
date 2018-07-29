@@ -12,7 +12,7 @@ import de.amr.easy.game.controls.TextArea;
  * 
  * @author Armin Reichert
  */
-public class DefaultView implements View, Controller {
+public class DefaultView implements View<Graphics2D>, Controller {
 
 	private final Application app;
 	private final TextArea text;
@@ -20,6 +20,16 @@ public class DefaultView implements View, Controller {
 	public DefaultView(Application app) {
 		this.app = app;
 		text = new TextArea();
+	}
+
+	@Override
+	public int getWidth() {
+		return app.getWidth();
+	}
+
+	@Override
+	public int getHeight() {
+		return app.getHeight();
 	}
 
 	@Override
