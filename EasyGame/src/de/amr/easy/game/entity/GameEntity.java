@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.function.BooleanSupplier;
 import java.util.stream.Stream;
 
-import de.amr.easy.game.entity.collision.CollisionBoxSupplier;
+import de.amr.easy.game.entity.collision.CollisionSensitive;
 import de.amr.easy.game.math.Vector2f;
 import de.amr.easy.game.sprite.Sprite;
 import de.amr.easy.game.view.Controller;
@@ -25,7 +25,7 @@ import de.amr.easy.game.view.View;
  * 
  * @author Armin Reichert
  */
-public abstract class GameEntity implements View<Graphics2D>, Controller, CollisionBoxSupplier {
+public abstract class GameEntity implements View<Graphics2D>, Controller, CollisionSensitive {
 
 	private String name;
 	private Sprite[] sprites;

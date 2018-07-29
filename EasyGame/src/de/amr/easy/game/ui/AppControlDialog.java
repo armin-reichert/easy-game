@@ -8,7 +8,6 @@ import javax.swing.event.ChangeListener;
 
 import de.amr.easy.game.Application;
 
-@SuppressWarnings("serial")
 public class AppControlDialog extends JDialog {
 
 	private final Application app;

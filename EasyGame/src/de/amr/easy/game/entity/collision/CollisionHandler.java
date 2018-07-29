@@ -16,19 +16,19 @@ public class CollisionHandler {
 	private final Set<CollisionPair> oldCollisions = new HashSet<>();
 	private final Set<Collision> events = new HashSet<>();
 
-	public void registerStart(CollisionBoxSupplier x, CollisionBoxSupplier y, Object event) {
+	public void registerStart(CollisionSensitive x, CollisionSensitive y, Object event) {
 		collisionStarts.put(new CollisionPair(x, y), event);
 	}
 
-	public void registerEnd(CollisionBoxSupplier x, CollisionBoxSupplier y, Object event) {
+	public void registerEnd(CollisionSensitive x, CollisionSensitive y, Object event) {
 		collisionEnds.put(new CollisionPair(x, y), event);
 	}
 
-	public void unregisterStart(CollisionBoxSupplier x, CollisionBoxSupplier y) {
+	public void unregisterStart(CollisionSensitive x, CollisionSensitive y) {
 		collisionStarts.remove(new CollisionPair(x, y));
 	}
 
-	public void unregisterEnd(CollisionBoxSupplier x, CollisionBoxSupplier y) {
+	public void unregisterEnd(CollisionSensitive x, CollisionSensitive y) {
 		collisionEnds.remove(new CollisionPair(x, y));
 	}
 

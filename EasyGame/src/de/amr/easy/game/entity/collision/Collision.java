@@ -4,13 +4,13 @@ import java.awt.geom.Rectangle2D;
 
 public class Collision {
 
-	private final CollisionBoxSupplier first;
-	private final CollisionBoxSupplier second;
+	private final CollisionSensitive first;
+	private final CollisionSensitive second;
 	private final Rectangle2D intersection;
 	private final boolean collisionStart;
 	private final Object appEvent;
 
-	public Collision(CollisionBoxSupplier first, CollisionBoxSupplier second, Rectangle2D intersection, Object appEvent,
+	public Collision(CollisionSensitive first, CollisionSensitive second, Rectangle2D intersection, Object appEvent,
 			boolean collisionStart) {
 		this.first = first;
 		this.second = second;
@@ -25,11 +25,11 @@ public class Collision {
 				+ second.getClass().getSimpleName() + ") -> " + appEvent;
 	}
 
-	public CollisionBoxSupplier getFirst() {
+	public CollisionSensitive getFirst() {
 		return first;
 	}
 
-	public CollisionBoxSupplier getSecond() {
+	public CollisionSensitive getSecond() {
 		return second;
 	}
 

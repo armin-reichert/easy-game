@@ -4,20 +4,20 @@ import java.awt.geom.Rectangle2D;
 
 public class CollisionPair {
 
-	private final CollisionBoxSupplier either;
-	private final CollisionBoxSupplier other;
+	private final CollisionSensitive either;
+	private final CollisionSensitive other;
 	private Rectangle2D intersection;
 
-	public CollisionPair(CollisionBoxSupplier x, CollisionBoxSupplier y) {
+	public CollisionPair(CollisionSensitive x, CollisionSensitive y) {
 		this.either = x;
 		this.other = y;
 	}
 
-	public CollisionBoxSupplier either() {
+	public CollisionSensitive either() {
 		return either;
 	}
 
-	public CollisionBoxSupplier other() {
+	public CollisionSensitive other() {
 		return other;
 	}
 
