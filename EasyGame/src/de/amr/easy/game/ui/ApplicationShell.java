@@ -31,8 +31,8 @@ import de.amr.easy.game.input.MouseHandler;
 import de.amr.easy.game.view.View;
 
 /**
- * The application shell provides the window or the full-screen display where the current scene of the application is
- * shown.
+ * The application shell provides the window or the full-screen display where the current scene of
+ * the application is shown.
  * 
  * @author Armin Reichert
  */
@@ -65,7 +65,8 @@ public class ApplicationShell implements PropertyChangeListener {
 			fps = (int) e.getNewValue();
 		}
 		EventQueue.invokeLater(() -> {
-			frame.setTitle(format("%s - %d fps - %d ups, scaled %.2f", app.settings.title, fps, ups, app.settings.scale));
+			frame.setTitle(format("%s - %d fps - %d ups, scaled %.2f", app.settings.title, fps, ups,
+					app.settings.scale));
 		});
 	}
 
@@ -103,14 +104,15 @@ public class ApplicationShell implements PropertyChangeListener {
 						}
 						g.scale(app.settings.scale, app.settings.scale);
 						content.draw(g);
+						g.scale(1f / app.settings.scale, 1f / app.settings.scale);
 						if (app.isPaused()) {
-							String text = "PAUSED";
-							g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+							String text = "PAUSED (Press CTRL+P to continue)";
+							g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+									RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 							g.setColor(Color.RED);
-							g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 40));
+							g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, getWidth() / text.length()));
 							Rectangle2D bounds = g.getFontMetrics().getStringBounds(text, g);
-							g.drawString(text, (int) (getWidth() - bounds.getWidth()) / 2,
-									(int) (getHeight() - bounds.getHeight()) / 2);
+							g.drawString(text, (int) (getWidth() - bounds.getWidth()) / 2, getHeight() / 2);
 						}
 					}
 				} catch (Exception x) {
@@ -125,7 +127,7 @@ public class ApplicationShell implements PropertyChangeListener {
 			try {
 				buffer.show();
 			} catch (Exception x) {
-				// Log.info("Exception occured showing buffer");
+				x.printStackTrace(System.err);
 			}
 		} while (buffer.contentsLost());
 	}
@@ -199,7 +201,8 @@ public class ApplicationShell implements PropertyChangeListener {
 		}
 		DisplayMode mode = app.settings.fullScreenMode.getDisplayMode();
 		if (!isValidDisplayMode(mode)) {
-			LOG.info("Cannot enter full-screen mode: Display mode not supported: " + formatDisplayMode(mode));
+			LOG.info(
+					"Cannot enter full-screen mode: Display mode not supported: " + formatDisplayMode(mode));
 			return;
 		}
 		// Note: The order of the following statements is important!
@@ -238,8 +241,8 @@ public class ApplicationShell implements PropertyChangeListener {
 	}
 
 	private String formatDisplayMode(DisplayMode mode) {
-		return format("%d x %d, depth: %d, refresh rate: %d", mode.getWidth(), mode.getHeight(), mode.getBitDepth(),
-				mode.getRefreshRate());
+		return format("%d x %d, depth: %d, refresh rate: %d", mode.getWidth(), mode.getHeight(),
+				mode.getBitDepth(), mode.getRefreshRate());
 	}
 
 	// TODO: provide useful control and info dialog
