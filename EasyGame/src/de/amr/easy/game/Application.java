@@ -22,21 +22,21 @@ import de.amr.easy.game.ui.ApplicationShell;
 import de.amr.easy.game.view.Controller;
 
 /**
- * Application base class. To start an application, create an application instance, define its
+ * Application base class. To start an application, create an application subclass, define its
  * settings in the constructor and call the {@link #launch(Application)} method.
  * <p>
  * Example:
  * <p>
  * 
  * <pre>
- * public class MyApplication extends Application {
+ * public class MyGame extends Application {
  * 
  * 	public static void main(String... args) {
- * 		launch(new MyApplication());
+ * 		launch(new MyGame());
  * 	}
  * 
- * 	public MyApplication() {
- * 		settings.title = "My Application";
+ * 	public MyGame() {
+ * 		settings.title = "My Game";
  * 		settings.width = 800;
  * 		settings.height = 600;
  * 	}
