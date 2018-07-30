@@ -10,18 +10,12 @@ import de.amr.easy.game.Application;
 
 public class AppControlDialog extends JDialog {
 
-	private final Application app;
 	private JSlider fpsControl;
 
 	public AppControlDialog(JFrame parent, Application app) {
 		super(parent);
-		this.app = app;
-		setTitle("Application Control for: " + app.settings.title);
-		addFPSControl();
 		setSize(600, 100);
-	}
-
-	private void addFPSControl() {
+		setTitle("Application: " + app.settings.title);
 		fpsControl = new JSlider(0, 100);
 		fpsControl.addChangeListener(new ChangeListener() {
 

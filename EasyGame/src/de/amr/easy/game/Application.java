@@ -110,15 +110,30 @@ public abstract class Application {
 	public abstract void init();
 
 	/**
-	 * Sets the given controller and calls its {@link Controller#init()} method.
+	 * Sets the given controller and optionally initializes it.
 	 * 
 	 * @param controller
-	 *          a controller (for example a view controller or a scene)
+	 *          a controller
+	 * @param initialize
+	 *          if the controller should be initialized
+	 */
+	public void setController(Controller controller, boolean initialize) {
+		this.controller = (controller == null) ? defaultView : controller;
+		LOG.info("Set controller to: " + controller);
+		if (initialize) {
+			controller.init();
+			LOG.info("Initialized controller: " + controller);
+		}
+	}
+
+	/**
+	 * Sets the given controller and initializes it.
+	 * 
+	 * @param controller
+	 *          a controller
 	 */
 	public void setController(Controller controller) {
-		this.controller = (controller == null) ? defaultView : controller;
-		controller.init();
-		LOG.info("Set controller to: " + controller);
+		setController(controller, true);
 	}
 
 	/** Called after initialization and starts the pulse. */

@@ -65,8 +65,8 @@ public class ApplicationShell implements PropertyChangeListener {
 			fps = (int) e.getNewValue();
 		}
 		EventQueue.invokeLater(() -> {
-			frame.setTitle(format("%s - %d fps - %d ups, scaled %.2f", app.settings.title, fps, ups,
-					app.settings.scale));
+			frame.setTitle(format("%s [%d fps, %d ups, %dx%d pixel, scaling %.2f]", app.settings.title, fps, ups,
+					app.settings.width, app.settings.height, app.settings.scale));
 		});
 	}
 
@@ -86,7 +86,7 @@ public class ApplicationShell implements PropertyChangeListener {
 		return fullScreen ? frame.getHeight() : canvas.getHeight();
 	}
 
-	public void renderView(View content) {
+	public void renderView(View view) {
 		do {
 			do {
 				Graphics2D g = null;
@@ -103,7 +103,7 @@ public class ApplicationShell implements PropertyChangeListener {
 							}
 						}
 						g.scale(app.settings.scale, app.settings.scale);
-						content.draw(g);
+						view.draw(g);
 						g.scale(1f / app.settings.scale, 1f / app.settings.scale);
 						if (app.isPaused()) {
 							String text = "PAUSED (Press CTRL+P to continue)";
