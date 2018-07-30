@@ -48,8 +48,18 @@ public abstract class GameEntity implements ViewController, CollisionSensitive {
 	}
 
 	@Override
+	public int getWidth() {
+		return currentSprite().getWidth();
+	}
+
+	@Override
+	public int getHeight() {
+		return currentSprite().getHeight();
+	}
+
+	@Override
 	public void draw(Graphics2D g) {
-		if (visibility.getAsBoolean() && currentSprite() != null) {
+		if (isVisible() && currentSprite() != null) {
 			Graphics2D pen = (Graphics2D) g.create();
 			pen.translate(tf.getX(), tf.getY());
 			pen.rotate(tf.getRotation());
@@ -64,6 +74,10 @@ public abstract class GameEntity implements ViewController, CollisionSensitive {
 
 	public void enableAnimation(boolean animated) {
 		getSprites().forEach(sprite -> sprite.enableAnimation(animated));
+	}
+
+	public boolean isVisible() {
+		return visibility.getAsBoolean();
 	}
 
 	@Override

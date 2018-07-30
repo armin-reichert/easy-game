@@ -50,12 +50,12 @@ public class TextArea extends GameEntity {
 
 	@Override
 	public int getWidth() {
-		return sprite.getWidth();
+		return sprite != null ? sprite.getWidth() : 0;
 	}
 
 	@Override
 	public int getHeight() {
-		return sprite.getHeight();
+		return sprite != null ? sprite.getHeight() : 0;
 	}
 
 	@Override
