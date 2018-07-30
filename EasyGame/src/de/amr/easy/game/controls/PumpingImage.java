@@ -29,11 +29,13 @@ public class PumpingImage extends GameEntity {
 	}
 
 	@Override
-	public void init() {
+	public int getWidth() {
+		return sprite.getWidth();
 	}
 
 	@Override
-	public void update() {
+	public int getHeight() {
+		return sprite.getHeight();
 	}
 
 	@Override

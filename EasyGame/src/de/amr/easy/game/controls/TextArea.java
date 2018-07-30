@@ -49,6 +49,16 @@ public class TextArea extends GameEntity {
 	}
 
 	@Override
+	public int getWidth() {
+		return sprite.getWidth();
+	}
+
+	@Override
+	public int getHeight() {
+		return sprite.getHeight();
+	}
+
+	@Override
 	public void init() {
 	}
 
@@ -85,7 +95,7 @@ public class TextArea extends GameEntity {
 		tf.move();
 	}
 
-	private void updateImage() {
+	private void updateSprite() {
 		// helper image for computing bounds
 		BufferedImage helperImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D pen = helperImage.createGraphics();
@@ -128,7 +138,7 @@ public class TextArea extends GameEntity {
 	@Override
 	public void draw(Graphics2D g) {
 		if (imageNeedsUpdate) {
-			updateImage();
+			updateSprite();
 		}
 		super.draw(g);
 	}

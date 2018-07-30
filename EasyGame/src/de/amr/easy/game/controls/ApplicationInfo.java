@@ -1,26 +1,38 @@
-package de.amr.easy.game.view;
+package de.amr.easy.game.controls;
 
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.util.stream.Stream;
 
 import de.amr.easy.game.Application;
-import de.amr.easy.game.controls.TextArea;
+import de.amr.easy.game.entity.GameEntity;
+import de.amr.easy.game.sprite.Sprite;
 
 /**
- * This view is displayed for an application if no view is selected.
+ * This view displays general application info.
  * 
  * @author Armin Reichert
  */
-public class DefaultView implements View<Graphics2D>, Controller {
+public class ApplicationInfo extends GameEntity {
 
 	private final Application app;
 	private final TextArea text;
 
-	public DefaultView(Application app) {
+	public ApplicationInfo(Application app) {
 		this.app = app;
 		text = new TextArea();
+	}
+
+	@Override
+	public Sprite currentSprite() {
+		return null;
+	}
+
+	@Override
+	public Stream<Sprite> getSprites() {
+		return Stream.empty();
 	}
 
 	@Override
@@ -66,8 +78,10 @@ public class DefaultView implements View<Graphics2D>, Controller {
 		g.setColor(app.settings.bgColor);
 		g.fillRect(0, 0, app.getWidth(), app.getHeight());
 		text.hCenter(app.getWidth());
-		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+				RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		text.draw(g);
-		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+				RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
 	}
 }

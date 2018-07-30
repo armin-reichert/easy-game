@@ -1,11 +1,13 @@
 package de.amr.easy.game.view;
 
+import java.awt.Graphics2D;
+
 /**
- * Common interface for objects that can draw themselves into the application canvas.
+ * A drawable area of a certain size.
  * 
  * @author Armin Reichert
  */
-public interface View<GraphicsContext> {
+public interface View {
 
 	/**
 	 * @return the width in pixels
@@ -23,5 +25,5 @@ public interface View<GraphicsContext> {
 	 * @param g
 	 *          the graphics context used for drawing
 	 */
-	void draw(GraphicsContext g);
+	void draw(Graphics2D g);
 }

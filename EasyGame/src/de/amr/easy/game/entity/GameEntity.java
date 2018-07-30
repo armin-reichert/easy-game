@@ -8,8 +8,8 @@ import java.util.stream.Stream;
 import de.amr.easy.game.entity.collision.CollisionSensitive;
 import de.amr.easy.game.math.Vector2f;
 import de.amr.easy.game.sprite.Sprite;
-import de.amr.easy.game.view.Controller;
 import de.amr.easy.game.view.View;
+import de.amr.easy.game.view.ViewController;
 
 /**
  * Base class for game entities with the lifetime methods {@link #init()}, {@link #update()} and
@@ -24,7 +24,7 @@ import de.amr.easy.game.view.View;
  * 
  * @author Armin Reichert
  */
-public abstract class GameEntity implements View<Graphics2D>, Controller, CollisionSensitive {
+public abstract class GameEntity implements ViewController, CollisionSensitive {
 
 	public BooleanSupplier visibility;
 	public final Transform tf;
@@ -40,6 +40,11 @@ public abstract class GameEntity implements View<Graphics2D>, Controller, Collis
 
 	@Override
 	public void update() {
+	}
+
+	@Override
+	public View currentView() {
+		return this;
 	}
 
 	@Override
@@ -59,16 +64,6 @@ public abstract class GameEntity implements View<Graphics2D>, Controller, Collis
 
 	public void enableAnimation(boolean animated) {
 		getSprites().forEach(sprite -> sprite.enableAnimation(animated));
-	}
-
-	@Override
-	public int getWidth() {
-		return currentSprite() != null ? currentSprite().getWidth() : 0;
-	}
-
-	@Override
-	public int getHeight() {
-		return currentSprite() != null ? currentSprite().getHeight() : 0;
 	}
 
 	@Override

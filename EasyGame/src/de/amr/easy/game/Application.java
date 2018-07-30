@@ -6,13 +6,13 @@ import static java.awt.event.KeyEvent.VK_CONTROL;
 import static java.awt.event.KeyEvent.VK_P;
 
 import java.awt.EventQueue;
-import java.awt.Graphics2D;
 import java.util.logging.Logger;
 
 import javax.swing.UIManager;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 
 import de.amr.easy.game.config.AppSettings;
+import de.amr.easy.game.controls.ApplicationInfo;
 import de.amr.easy.game.entity.EntityMap;
 import de.amr.easy.game.entity.collision.CollisionHandler;
 import de.amr.easy.game.input.KeyboardHandler;
@@ -20,8 +20,6 @@ import de.amr.easy.game.input.MouseHandler;
 import de.amr.easy.game.timing.Pulse;
 import de.amr.easy.game.ui.ApplicationShell;
 import de.amr.easy.game.view.Controller;
-import de.amr.easy.game.view.DefaultView;
-import de.amr.easy.game.view.View;
 
 /**
  * Application base class. To start an application, create an application instance, define its
@@ -80,7 +78,7 @@ public abstract class Application {
 	public final EntityMap entities;
 
 	/** The default view of this application. */
-	private final DefaultView defaultView;
+	private final ApplicationInfo defaultView;
 
 	/** The current application controller. */
 	private Controller controller;
@@ -101,9 +99,9 @@ public abstract class Application {
 		LOG = Logger.getLogger(getClass().getName());
 		settings = new AppSettings();
 		entities = new EntityMap();
-		defaultView = new DefaultView(this);
+		defaultView = new ApplicationInfo(this);
 		controller = defaultView;
-		pulse = new Pulse(this::update, this::draw, 60);
+		pulse = new Pulse(this::update, this::renderCurrentView, 60);
 		collisionHandler = new CollisionHandler();
 		LOG.info("Application " + getClass().getSimpleName() + " created.");
 	}
@@ -159,10 +157,9 @@ public abstract class Application {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	private void draw() {
-		if (controller instanceof View<?>) {
-			shell.draw((View<Graphics2D>) controller);
+	private void renderCurrentView() {
+		if (controller.currentView() != null) {
+			shell.renderView(controller.currentView());
 		}
 	}
 

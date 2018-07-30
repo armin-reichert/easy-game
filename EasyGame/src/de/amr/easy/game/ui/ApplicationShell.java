@@ -65,7 +65,7 @@ public class ApplicationShell implements PropertyChangeListener {
 			fps = (int) e.getNewValue();
 		}
 		EventQueue.invokeLater(() -> {
-			frame.setTitle(format("%s - %d frames/sec - %d updates/sec", app.settings.title, fps, ups));
+			frame.setTitle(format("%s - %d fps - %d ups, scaled %.2f", app.settings.title, fps, ups, app.settings.scale));
 		});
 	}
 
@@ -85,7 +85,7 @@ public class ApplicationShell implements PropertyChangeListener {
 		return fullScreen ? frame.getHeight() : canvas.getHeight();
 	}
 
-	public void draw(View<Graphics2D> content) {
+	public void renderView(View content) {
 		do {
 			do {
 				Graphics2D g = null;
