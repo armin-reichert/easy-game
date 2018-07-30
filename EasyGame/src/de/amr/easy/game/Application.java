@@ -77,6 +77,9 @@ public abstract class Application {
 	/** The entities of this application. */
 	public final EntityMap entities;
 
+	/** The window displaying the application. */
+	private ApplicationShell shell;
+	
 	/** The default view of this application. */
 	private final ApplicationInfo defaultView;
 
@@ -90,7 +93,6 @@ public abstract class Application {
 	public final CollisionHandler collisionHandler;
 
 	private boolean paused;
-	private ApplicationShell shell;
 
 	/**
 	 * Base class constructor. By default, applications run at 60 frames/second.
