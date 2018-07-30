@@ -10,8 +10,8 @@ public class Collision {
 	private final boolean collisionStart;
 	private final Object appEvent;
 
-	public Collision(CollisionSensitive first, CollisionSensitive second, Rectangle2D intersection, Object appEvent,
-			boolean collisionStart) {
+	public Collision(CollisionSensitive first, CollisionSensitive second, Rectangle2D intersection,
+			Object appEvent, boolean collisionStart) {
 		this.first = first;
 		this.second = second;
 		this.intersection = intersection;
@@ -21,8 +21,8 @@ public class Collision {
 
 	@Override
 	public String toString() {
-		return "Collision" + (collisionStart ? "Start" : "End") + "(" + first.getClass().getSimpleName() + "<->"
-				+ second.getClass().getSimpleName() + ") -> " + appEvent;
+		return "Collision" + (collisionStart ? "Start" : "End") + "(" + first.getClass().getSimpleName()
+				+ "<->" + second.getClass().getSimpleName() + ") -> " + appEvent;
 	}
 
 	public CollisionSensitive getFirst() {

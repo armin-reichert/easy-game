@@ -65,8 +65,8 @@ public class ApplicationShell implements PropertyChangeListener {
 			fps = (int) e.getNewValue();
 		}
 		EventQueue.invokeLater(() -> {
-			frame.setTitle(format("%s [%d fps, %d ups, %dx%d pixel, scaling %.2f]", app.settings.title, fps, ups,
-					app.settings.width, app.settings.height, app.settings.scale));
+			frame.setTitle(format("%s [%d fps, %d ups, %dx%d pixel, scaling %.2f]", app.settings.title,
+					fps, ups, app.settings.width, app.settings.height, app.settings.scale));
 		});
 	}
 
@@ -227,7 +227,7 @@ public class ApplicationShell implements PropertyChangeListener {
 		canvas.createBufferStrategy(2);
 		canvas.requestFocus();
 		buffer = canvas.getBufferStrategy();
-		LOG.info("Window-mode: " + app.getWidth() + "x" + app.getHeight());
+		LOG.info("Window-mode: " + app.settings.width + "x" + app.settings.height);
 	}
 
 	private boolean isValidDisplayMode(DisplayMode displayMode) {

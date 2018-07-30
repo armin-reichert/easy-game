@@ -53,14 +53,16 @@ public class CollisionHandler {
 		}
 		for (CollisionPair pair : collisionStarts.keySet()) {
 			if (newCollisions.contains(pair) && !oldCollisions.contains(pair)) {
-				Collision event = new Collision(pair.either(), pair.other(), pair.getIntersection(), collisionStarts.get(pair), true);
+				Collision event = new Collision(pair.either(), pair.other(), pair.getIntersection(),
+						collisionStarts.get(pair), true);
 				events.add(event);
 				Application.LOG.fine(event.toString());
 			}
 		}
 		for (CollisionPair pair : collisionEnds.keySet()) {
 			if (!newCollisions.contains(pair) && oldCollisions.contains(pair)) {
-				Collision event = new Collision(pair.either(), pair.other(), pair.getIntersection(), collisionEnds.get(pair), false);
+				Collision event = new Collision(pair.either(), pair.other(), pair.getIntersection(),
+						collisionEnds.get(pair), false);
 				events.add(event);
 				Application.LOG.fine(event.toString());
 			}
@@ -76,7 +78,8 @@ public class CollisionHandler {
 	}
 
 	private boolean checkCollision(CollisionPair p) {
-		Rectangle2D intersection = p.either().getCollisionBox().createIntersection(p.other().getCollisionBox());
+		Rectangle2D intersection = p.either().getCollisionBox()
+				.createIntersection(p.other().getCollisionBox());
 		if (!intersection.isEmpty()) {
 			p.setIntersection(intersection);
 			return true;

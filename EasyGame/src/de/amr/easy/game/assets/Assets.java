@@ -145,7 +145,8 @@ public enum Assets {
 	 */
 	public static BufferedImage scaledImage(Image image, int width, int height) {
 		Image scaled = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
-		BufferedImage copy = new BufferedImage(scaled.getWidth(null), scaled.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+		BufferedImage copy = new BufferedImage(scaled.getWidth(null), scaled.getHeight(null),
+				BufferedImage.TYPE_INT_ARGB);
 		Graphics g = copy.getGraphics();
 		g.drawImage(scaled, 0, 0, null);
 		g.dispose();
@@ -209,8 +210,8 @@ public enum Assets {
 	}
 
 	/**
-	 * Returns the image with the given path. If the image is requested for the first time, it is loaded from the
-	 * specified path.
+	 * Returns the image with the given path. If the image is requested for the first time, it is
+	 * loaded from the specified path.
 	 * 
 	 * @param path
 	 *          path under assets folder or key in assets map
@@ -276,7 +277,8 @@ public enum Assets {
 		s.append("\n-- Images:\n");
 		for (String name : imageNames) {
 			Image image = image(name);
-			s.append(name).append(": ").append(image.getWidth(null) + "x" + image.getHeight(null)).append("\n");
+			s.append(name).append(": ").append(image.getWidth(null) + "x" + image.getHeight(null))
+					.append("\n");
 		}
 		s.append("\n-- Sounds:\n");
 		for (String name : soundNames) {

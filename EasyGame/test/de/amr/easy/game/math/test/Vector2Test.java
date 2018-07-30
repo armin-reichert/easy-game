@@ -5,8 +5,8 @@ import static de.amr.easy.game.math.Vector2f.diff;
 import static de.amr.easy.game.math.Vector2f.dist;
 import static de.amr.easy.game.math.Vector2f.dot;
 import static de.amr.easy.game.math.Vector2f.inverse;
-import static de.amr.easy.game.math.Vector2f.sum;
 import static de.amr.easy.game.math.Vector2f.smul;
+import static de.amr.easy.game.math.Vector2f.sum;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 

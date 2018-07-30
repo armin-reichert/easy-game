@@ -37,12 +37,12 @@ public class ApplicationInfo extends GameEntity {
 
 	@Override
 	public int getWidth() {
-		return app.getWidth();
+		return app.settings.width;
 	}
 
 	@Override
 	public int getHeight() {
-		return app.getHeight();
+		return app.settings.height;
 	}
 
 	@Override
@@ -69,15 +69,15 @@ public class ApplicationInfo extends GameEntity {
 	public void update() {
 		text.update();
 		if (text.tf.getY() < -text.getHeight()) {
-			text.tf.setY(app.getHeight());
+			text.tf.setY(getHeight());
 		}
 	}
 
 	@Override
 	public void draw(Graphics2D g) {
 		g.setColor(app.settings.bgColor);
-		g.fillRect(0, 0, app.getWidth(), app.getHeight());
-		text.hCenter(app.getWidth());
+		g.fillRect(0, 0, getWidth(), getHeight());
+		text.hCenter(getWidth());
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
 				RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		text.draw(g);

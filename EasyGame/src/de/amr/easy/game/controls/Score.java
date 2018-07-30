@@ -6,7 +6,7 @@ public class Score {
 
 	private Predicate<Integer> winCondition;
 	public int points;
-	
+
 	public Score() {
 		this(always -> true);
 	}

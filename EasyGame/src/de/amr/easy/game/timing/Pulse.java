@@ -107,10 +107,12 @@ public class Pulse {
 				});
 			} else if (timeLeft < 0) {
 				overTime += (-timeLeft);
-				for (int extraUpdates = 3; extraUpdates > 0 && overTime > period; overTime -= period, --extraUpdates) {
+				for (int extraUpdates = 3; extraUpdates > 0
+						&& overTime > period; overTime -= period, --extraUpdates) {
 					updateTask.run();
 					logger.ifPresent(log -> {
-						log.info(format("Extra Update time: %10.2f millis", updateTask.getUsedTime() / 1000000f));
+						log.info(
+								format("Extra Update time: %10.2f millis", updateTask.getUsedTime() / 1000000f));
 					});
 					++updateCount;
 				}

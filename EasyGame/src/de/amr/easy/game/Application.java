@@ -188,24 +188,6 @@ public abstract class Application {
 	}
 
 	/**
-	 * The width of this application (without scaling).
-	 * 
-	 * @return the width in pixels
-	 */
-	public int getWidth() {
-		return settings.width;
-	}
-
-	/**
-	 * The height of this application (without scaling).
-	 * 
-	 * @return the height in pixels
-	 */
-	public int getHeight() {
-		return settings.height;
-	}
-
-	/**
 	 * Tells if the application is paused.
 	 * 
 	 * @return if the application is paused

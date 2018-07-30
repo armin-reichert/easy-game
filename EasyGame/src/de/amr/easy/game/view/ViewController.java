@@ -6,7 +6,7 @@ package de.amr.easy.game.view;
  * @author Armin Reichert
  */
 public interface ViewController extends View, Controller {
-	
+
 	@Override
 	default View currentView() {
 		return this;
