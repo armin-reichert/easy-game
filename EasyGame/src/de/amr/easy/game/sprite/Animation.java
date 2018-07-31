@@ -36,9 +36,6 @@ public abstract class Animation {
 	}
 
 	public void update() {
-		if (!enabled) {
-			return;
-		}
 		long now = System.currentTimeMillis();
 		if (lastUpdateTime != 0) {
 			frameTime += (now - lastUpdateTime);

@@ -128,7 +128,7 @@ public class Sprite {
 	 */
 	public void draw(Graphics2D g) {
 		g.drawImage(currentFrame(), 0, 0, null);
-		if (animation != null) {
+		if (animation != null && animation.isEnabled()) {
 			animation.update();
 		}
 	}
