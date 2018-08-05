@@ -13,4 +13,9 @@ public class LinearAnimation extends Animation {
 		if (frameIndex < frames.length - 1)
 			++frameIndex;
 	}
+
+	@Override
+	public float getSeconds() {
+		return (frames.length * frameDurationMillis / 1000f);
+	}
 }

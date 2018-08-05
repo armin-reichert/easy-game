@@ -12,7 +12,7 @@ public abstract class Animation {
 
 	protected final Image[] frames;
 	protected boolean enabled;
-	protected int frameDuration;
+	protected int frameDurationMillis;
 	protected int frameIndex;
 	protected long frameTime;
 	protected long lastUpdateTime;
@@ -23,7 +23,7 @@ public abstract class Animation {
 		}
 		this.frames = frames;
 		enabled = true;
-		frameDuration = 333;
+		frameDurationMillis = 333;
 		reset();
 	}
 
@@ -39,7 +39,7 @@ public abstract class Animation {
 		long now = System.currentTimeMillis();
 		if (lastUpdateTime != 0) {
 			frameTime += (now - lastUpdateTime);
-			if (frameTime >= frameDuration) {
+			if (frameTime >= frameDurationMillis) {
 				nextFrame();
 				frameTime = 0;
 			}
@@ -56,11 +56,13 @@ public abstract class Animation {
 	}
 
 	public void setFrameDuration(int millis) {
-		frameDuration = millis;
+		frameDurationMillis = millis;
 		reset();
 	}
 
 	public Image currentFrame() {
 		return frames[frameIndex];
 	}
+	
+	public abstract float getSeconds();
 }

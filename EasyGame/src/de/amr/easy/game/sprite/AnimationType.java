@@ -1,6 +1,6 @@
 package de.amr.easy.game.sprite;
 
-public enum AnimationMode {
+public enum AnimationType {
 	/** Plays frames once from first to last. */
 	LINEAR,
 	/** Cycles frames. */

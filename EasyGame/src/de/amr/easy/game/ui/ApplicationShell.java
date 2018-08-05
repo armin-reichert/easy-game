@@ -102,9 +102,10 @@ public class ApplicationShell implements PropertyChangeListener {
 								g.translate((mode.getWidth() - scaledWidth) / 2, 0);
 							}
 						}
-						g.scale(app.settings.scale, app.settings.scale);
-						view.draw(g);
-						g.scale(1f / app.settings.scale, 1f / app.settings.scale);
+						Graphics2D sg = (Graphics2D) g.create(); 
+						sg.scale(app.settings.scale, app.settings.scale);
+						view.draw(sg);
+						sg.dispose();
 						if (app.isPaused()) {
 							String text = "PAUSED (Press CTRL+P to continue)";
 							g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,

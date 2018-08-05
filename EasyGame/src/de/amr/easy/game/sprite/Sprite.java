@@ -22,7 +22,7 @@ public class Sprite {
 	 * Creates a sprite with the given frames.
 	 * 
 	 * @param frames
-	 *          non-empty list of animation frames
+	 *                 non-empty list of animation frames
 	 */
 	public Sprite(Image... frames) {
 		if (frames.length == 0) {
@@ -35,7 +35,7 @@ public class Sprite {
 	 * Creates a sprite from the frames stored in the assets with the given keys.
 	 * 
 	 * @param keys
-	 *          list of keys of the images
+	 *               list of keys of the images
 	 */
 	public Sprite(String... keys) {
 		if (keys.length == 0) {
@@ -51,11 +51,11 @@ public class Sprite {
 	 * Scales the i'th frame of this sprite to the given size.
 	 * 
 	 * @param i
-	 *          index of frame to be scaled
+	 *                 index of frame to be scaled
 	 * @param width
-	 *          target width
+	 *                 target width
 	 * @param height
-	 *          target height
+	 *                 target height
 	 * @return this sprite to allow method chaining
 	 */
 	public Sprite scaleFrame(int i, int width, int height) {
@@ -70,9 +70,9 @@ public class Sprite {
 	 * Scales all images of this sprite to the given size.
 	 * 
 	 * @param width
-	 *          target width
+	 *                 target width
 	 * @param height
-	 *          target height
+	 *                 target height
 	 * @return this sprite to allow method chaining
 	 */
 	public Sprite scale(int width, int height) {
@@ -86,7 +86,7 @@ public class Sprite {
 	 * Scales all frames to the same size (width = height).
 	 * 
 	 * @param size
-	 *          the frame size
+	 *               the frame size
 	 * @return the sprite
 	 */
 	public Sprite scale(int size) {
@@ -124,7 +124,7 @@ public class Sprite {
 	 * Draws the current animation frame and moves to the next animation frame.
 	 * 
 	 * @param g
-	 *          graphics context
+	 *            graphics context
 	 */
 	public void draw(Graphics2D g) {
 		g.drawImage(currentFrame(), 0, 0, null);
@@ -136,18 +136,18 @@ public class Sprite {
 	/**
 	 * Creates an animation for this sprite.
 	 * 
-	 * @param mode
-	 *          the animation mode
+	 * @param type
+	 *                 the animation type
 	 * @param millis
-	 *          the time in milliseconds for each animation frame
+	 *                 the time in milliseconds for each animation frame
 	 */
-	public Sprite animation(AnimationMode mode, int millis) {
-		Objects.nonNull(mode);
-		if (mode == AnimationMode.LINEAR) {
+	public Sprite animate(AnimationType type, int millis) {
+		Objects.nonNull(type);
+		if (type == AnimationType.LINEAR) {
 			animation = new LinearAnimation(frames);
-		} else if (mode == AnimationMode.BACK_AND_FORTH) {
+		} else if (type == AnimationType.BACK_AND_FORTH) {
 			animation = new BackForthAnimation(frames);
-		} else if (mode == AnimationMode.CYCLIC) {
+		} else if (type == AnimationType.CYCLIC) {
 			animation = new CyclicAnimation(frames);
 		}
 		animation.setFrameDuration(millis);
@@ -155,11 +155,15 @@ public class Sprite {
 		return this;
 	}
 
+	public float getAnimationSeconds() {
+		return animation != null ? animation.getSeconds() : 0;
+	}
+
 	/**
 	 * Enables or disables the animation of this sprite.
 	 * 
 	 * @param enabled
-	 *          the enabling state
+	 *                  the enabling state
 	 */
 	public void enableAnimation(boolean enabled) {
 		if (animation != null) {

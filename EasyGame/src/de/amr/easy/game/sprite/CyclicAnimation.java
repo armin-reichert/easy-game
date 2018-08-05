@@ -15,4 +15,9 @@ class CyclicAnimation extends Animation {
 			frameIndex = 0;
 		}
 	}
+
+	@Override
+	public float getSeconds() {
+		return Float.MAX_VALUE;
+	}
 }

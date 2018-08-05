@@ -1,6 +1,6 @@
 package de.amr.easy.game.controls;
 
-import static de.amr.easy.game.sprite.AnimationMode.BACK_AND_FORTH;
+import static de.amr.easy.game.sprite.AnimationType.BACK_AND_FORTH;
 import static java.lang.Math.round;
 
 import java.awt.Image;
@@ -57,7 +57,7 @@ public class PumpingImage extends GameEntity {
 			frames[i] = image.getScaledInstance(-1, frameHeight, BufferedImage.SCALE_FAST);
 		}
 		sprite = new Sprite(frames);
-		sprite.animation(BACK_AND_FORTH, 166);
+		sprite.animate(BACK_AND_FORTH, 166);
 		sprite.enableAnimation(true);
 	}
 }

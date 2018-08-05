@@ -104,7 +104,7 @@ public class Assets {
 		g.dispose();
 		return copy;
 	}
-
+	
 	/**
 	 * Returns a scaled version of the given image as a buffered image.
 	 * 
