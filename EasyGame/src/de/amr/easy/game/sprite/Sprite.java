@@ -103,6 +103,16 @@ public class Sprite {
 	}
 
 	/**
+	 * 
+	 * @param i
+	 *            frame index
+	 * @return i'th frame of the sprite
+	 */
+	public Image frame(int i) {
+		return frames[i];
+	}
+
+	/**
 	 * Returns the width of this sprite.
 	 * 
 	 * @return width of current frame
