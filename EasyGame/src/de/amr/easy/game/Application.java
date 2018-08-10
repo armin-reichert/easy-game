@@ -22,8 +22,9 @@ import de.amr.easy.game.ui.ApplicationShell;
 import de.amr.easy.game.view.Controller;
 
 /**
- * Application base class. To start an application, create an application subclass, define its
- * settings in the constructor and call the {@link #launch(Application)} method.
+ * Application base class. To start an application, create an application
+ * subclass, define its settings in the constructor and call the
+ * {@link #launch(Application)} method.
  * <p>
  * Example:
  * <p>
@@ -50,8 +51,7 @@ public abstract class Application {
 	/**
 	 * Launches the given application.
 	 * 
-	 * @param app
-	 *          the application
+	 * @param app the application
 	 */
 	public static void launch(Application app) {
 		try {
@@ -69,7 +69,7 @@ public abstract class Application {
 	private static final int[] PAUSE_TOGGLE_KEY = { VK_CONTROL, VK_P };
 
 	/** A logger that may be used by application subclasses. */
-	public static Logger LOG;
+	public static Logger LOG = Logger.getLogger(Application.class.getName());
 
 	/** The settings of this application. */
 	public final AppSettings settings;
@@ -79,7 +79,7 @@ public abstract class Application {
 
 	/** The window displaying the application. */
 	private ApplicationShell shell;
-	
+
 	/** The default view of this application. */
 	private final ApplicationInfo defaultView;
 
@@ -98,7 +98,6 @@ public abstract class Application {
 	 * Base class constructor. By default, applications run at 60 frames/second.
 	 */
 	public Application() {
-		LOG = Logger.getLogger(getClass().getName());
 		settings = new AppSettings();
 		entities = new EntityMap();
 		defaultView = new ApplicationInfo(this);
@@ -114,10 +113,8 @@ public abstract class Application {
 	/**
 	 * Sets the given controller and optionally initializes it.
 	 * 
-	 * @param controller
-	 *          a controller
-	 * @param initialize
-	 *          if the controller should be initialized
+	 * @param controller a controller
+	 * @param initialize if the controller should be initialized
 	 */
 	public void setController(Controller controller, boolean initialize) {
 		this.controller = (controller == null) ? defaultView : controller;
@@ -131,8 +128,7 @@ public abstract class Application {
 	/**
 	 * Sets the given controller and initializes it.
 	 * 
-	 * @param controller
-	 *          a controller
+	 * @param controller a controller
 	 */
 	public void setController(Controller controller) {
 		setController(controller, true);
