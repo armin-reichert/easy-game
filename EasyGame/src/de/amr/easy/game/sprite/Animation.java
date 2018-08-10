@@ -1,7 +1,5 @@
 package de.amr.easy.game.sprite;
 
-import java.awt.Image;
-
 /**
  * Animation for a sprite. Loops through the image sequence of a sprite in a way defined by the
  * animation mode and frame timing.
@@ -10,18 +8,15 @@ import java.awt.Image;
  */
 public abstract class Animation {
 
-	protected final Image[] frames;
+	protected final int numFrames;
 	protected boolean enabled;
 	protected int frameDurationMillis;
 	protected int frameIndex;
 	protected long frameTime;
 	protected long lastUpdateTime;
 
-	protected Animation(Image... frames) {
-		if (frames.length == 0) {
-			throw new IllegalArgumentException("Animation must have at least one frame");
-		}
-		this.frames = frames;
+	protected Animation(int numFrames) {
+		this.numFrames = numFrames;
 		enabled = true;
 		frameDurationMillis = 333;
 		reset();
@@ -60,8 +55,8 @@ public abstract class Animation {
 		reset();
 	}
 
-	public Image currentFrame() {
-		return frames[frameIndex];
+	public int currentFrame() {
+		return frameIndex;
 	}
 	
 	public abstract float getSeconds();

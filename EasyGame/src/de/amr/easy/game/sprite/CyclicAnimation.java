@@ -1,19 +1,14 @@
 package de.amr.easy.game.sprite;
 
-import java.awt.Image;
-
 class CyclicAnimation extends Animation {
 
-	public CyclicAnimation(Image... frames) {
-		super(frames);
+	public CyclicAnimation(int numFrames) {
+		super(numFrames);
 	}
 
 	@Override
 	protected void nextFrame() {
-		++frameIndex;
-		if (frameIndex == frames.length) {
-			frameIndex = 0;
-		}
+		frameIndex = (frameIndex + 1) % numFrames;
 	}
 
 	@Override

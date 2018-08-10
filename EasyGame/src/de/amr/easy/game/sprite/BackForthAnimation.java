@@ -1,13 +1,11 @@
 package de.amr.easy.game.sprite;
 
-import java.awt.Image;
-
 class BackForthAnimation extends Animation {
 
 	private boolean forward;
 
-	public BackForthAnimation(Image... frames) {
-		super(frames);
+	public BackForthAnimation(int numFrames) {
+		super(numFrames);
 	}
 
 	@Override
@@ -20,7 +18,7 @@ class BackForthAnimation extends Animation {
 	protected void nextFrame() {
 		if (forward) {
 			++frameIndex;
-			if (frameIndex == frames.length - 1) {
+			if (frameIndex == numFrames - 1) {
 				forward = false;
 			}
 		} else {
