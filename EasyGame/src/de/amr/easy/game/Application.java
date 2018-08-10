@@ -1,8 +1,5 @@
 package de.amr.easy.game;
 
-import static de.amr.easy.game.input.Keyboard.keyDown;
-import static de.amr.easy.game.input.Keyboard.keyPressedOnce;
-import static java.awt.event.KeyEvent.VK_CONTROL;
 import static java.awt.event.KeyEvent.VK_P;
 
 import java.awt.EventQueue;
@@ -15,6 +12,7 @@ import de.amr.easy.game.config.AppSettings;
 import de.amr.easy.game.controls.ApplicationInfo;
 import de.amr.easy.game.entity.EntityMap;
 import de.amr.easy.game.entity.collision.CollisionHandler;
+import de.amr.easy.game.input.Keyboard;
 import de.amr.easy.game.input.KeyboardHandler;
 import de.amr.easy.game.input.MouseHandler;
 import de.amr.easy.game.timing.Pulse;
@@ -22,9 +20,8 @@ import de.amr.easy.game.ui.ApplicationShell;
 import de.amr.easy.game.view.Controller;
 
 /**
- * Application base class. To start an application, create an application
- * subclass, define its settings in the constructor and call the
- * {@link #launch(Application)} method.
+ * Application base class. To start an application, create an application subclass, define its
+ * settings in the constructor and call the {@link #launch(Application)} method.
  * <p>
  * Example:
  * <p>
@@ -51,7 +48,8 @@ public abstract class Application {
 	/**
 	 * Launches the given application.
 	 * 
-	 * @param app the application
+	 * @param app
+	 *              the application
 	 */
 	public static void launch(Application app) {
 		try {
@@ -65,8 +63,6 @@ public abstract class Application {
 			app.start();
 		});
 	}
-
-	private static final int[] PAUSE_TOGGLE_KEY = { VK_CONTROL, VK_P };
 
 	/** A logger that may be used by application subclasses. */
 	public static Logger LOG = Logger.getLogger(Application.class.getName());
@@ -113,8 +109,10 @@ public abstract class Application {
 	/**
 	 * Sets the given controller and optionally initializes it.
 	 * 
-	 * @param controller a controller
-	 * @param initialize if the controller should be initialized
+	 * @param controller
+	 *                     a controller
+	 * @param initialize
+	 *                     if the controller should be initialized
 	 */
 	public void setController(Controller controller, boolean initialize) {
 		this.controller = (controller == null) ? defaultView : controller;
@@ -128,7 +126,8 @@ public abstract class Application {
 	/**
 	 * Sets the given controller and initializes it.
 	 * 
-	 * @param controller a controller
+	 * @param controller
+	 *                     a controller
 	 */
 	public void setController(Controller controller) {
 		setController(controller, true);
@@ -161,7 +160,7 @@ public abstract class Application {
 	private void update() {
 		KeyboardHandler.poll();
 		MouseHandler.poll();
-		if (keyDown(PAUSE_TOGGLE_KEY[0]) && keyPressedOnce(PAUSE_TOGGLE_KEY[1])) {
+		if (Keyboard.isControlDown() && Keyboard.keyPressedOnce(VK_P)) {
 			pause(!paused);
 		}
 		if (!paused) {

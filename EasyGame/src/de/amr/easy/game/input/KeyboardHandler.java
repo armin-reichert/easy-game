@@ -19,6 +19,9 @@ public enum KeyboardHandler implements KeyListener {
 		INSTANCE._poll();
 	}
 
+	private boolean shiftDown;
+	private boolean altDown;
+	private boolean controlDown;
 	private final BitSet pressed = new BitSet();
 	private final BitSet once = new BitSet();
 	private final BitSet longer = new BitSet();
@@ -26,12 +29,18 @@ public enum KeyboardHandler implements KeyListener {
 	@Override
 	public synchronized void keyPressed(KeyEvent e) {
 		pressed.set(e.getKeyCode());
+		shiftDown = e.isShiftDown();
+		altDown = e.isAltDown();
+		controlDown = e.isControlDown();
 		Application.LOG.fine(e.toString());
 	}
 
 	@Override
 	public synchronized void keyReleased(KeyEvent e) {
 		pressed.clear(e.getKeyCode());
+		shiftDown = e.isShiftDown();
+		altDown = e.isAltDown();
+		controlDown = e.isControlDown();
 		Application.LOG.fine(e.toString());
 	}
 
@@ -64,5 +73,16 @@ public enum KeyboardHandler implements KeyListener {
 	boolean pressed(int key) {
 		return longer.get(key);
 	}
-
+	
+	boolean isShiftDown() {
+		return shiftDown;
+	}
+	
+	boolean isAltDown() {
+		return altDown;
+	}
+	
+	boolean isControlDown() {
+		return controlDown;
+	}
 }
