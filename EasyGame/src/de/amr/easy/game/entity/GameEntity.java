@@ -72,8 +72,8 @@ public abstract class GameEntity implements ViewController, CollisionSensitive {
 
 	public abstract Stream<Sprite> getSprites();
 
-	public void enableAnimation(boolean animated) {
-		getSprites().forEach(sprite -> sprite.enableAnimation(animated));
+	public void enableAnimation(boolean enable) {
+		getSprites().forEach(sprite -> sprite.enableAnimation(enable));
 	}
 
 	public boolean isVisible() {

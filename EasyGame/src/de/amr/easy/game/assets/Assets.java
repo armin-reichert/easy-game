@@ -38,7 +38,7 @@ public class Assets {
 	private static InputStream stream(String path) {
 		InputStream stream = Assets.class.getClassLoader().getResourceAsStream(path);
 		if (stream == null) {
-			Application.LOG.severe(String.format("Resource with assets path %s not found", path));
+			Application.logger.severe(String.format("Resource with assets path %s not found", path));
 			throw new RuntimeException();
 		}
 		return stream;
@@ -59,7 +59,7 @@ public class Assets {
 			}
 			return sb.toString();
 		} catch (IOException e) {
-			Application.LOG.severe("Could not read text resource: " + path);
+			Application.logger.severe("Could not read text resource: " + path);
 			throw new RuntimeException(e);
 		}
 	}
@@ -68,7 +68,7 @@ public class Assets {
 		try (InputStream fontStream = stream(fontFilePath)) {
 			return Font.createFont(Font.TRUETYPE_FONT, fontStream);
 		} catch (Exception e) {
-			Application.LOG.severe("Could not read font: " + fontFilePath);
+			Application.logger.severe("Could not read font: " + fontFilePath);
 			throw new RuntimeException(e);
 		}
 	}
@@ -86,10 +86,10 @@ public class Assets {
 			if (image != null) {
 				return createOptimizedCopy(image);
 			}
-			Application.LOG.severe("Image resource not found: " + path);
+			Application.logger.severe("Image resource not found: " + path);
 			throw new IllegalArgumentException();
 		} catch (IOException e) {
-			Application.LOG.severe("Could not read image resource: " + path);
+			Application.logger.severe("Could not read image resource: " + path);
 			throw new RuntimeException(e);
 		}
 	}
@@ -158,7 +158,7 @@ public class Assets {
 	 */
 	public static void storeImage(String path, Image image) {
 		if (imageMap.put(path, image) != null) {
-			Application.LOG.warning("Image with name: " + path + " has been replaced.");
+			Application.logger.warning("Image with name: " + path + " has been replaced.");
 		}
 	}
 
@@ -250,7 +250,7 @@ public class Assets {
 			soundMap.put(path, clip);
 			return clip;
 		} catch (Exception e) {
-			Application.LOG.severe("Could not read sound resource from asset path: " + path);
+			Application.logger.severe("Could not read sound resource from asset path: " + path);
 			throw new RuntimeException(e);
 		}
 	}

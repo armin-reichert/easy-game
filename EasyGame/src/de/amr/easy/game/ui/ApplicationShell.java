@@ -1,6 +1,6 @@
 package de.amr.easy.game.ui;
 
-import static de.amr.easy.game.Application.LOG;
+import static de.amr.easy.game.Application.logger;
 import static java.lang.String.format;
 
 import java.awt.BorderLayout;
@@ -54,7 +54,7 @@ public class ApplicationShell implements PropertyChangeListener {
 		device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 		canvas = createCanvas();
 		frame = createFrame();
-		LOG.info("Application shell created.");
+		logger.info("Application shell created.");
 	}
 
 	@Override
@@ -118,7 +118,7 @@ public class ApplicationShell implements PropertyChangeListener {
 					}
 				} catch (Exception x) {
 					x.printStackTrace(System.err);
-					LOG.info("Exception occured when rendering current view");
+					logger.info("Exception occured when rendering current view");
 				} finally {
 					if (g != null) {
 						g.dispose();
@@ -160,7 +160,7 @@ public class ApplicationShell implements PropertyChangeListener {
 
 			@Override
 			public void windowClosing(WindowEvent e) {
-				LOG.info("Application window closing, app will exit...");
+				logger.info("Application window closing, app will exit...");
 				app.exit();
 			}
 		});
@@ -193,16 +193,16 @@ public class ApplicationShell implements PropertyChangeListener {
 
 	private void showFullScreen() {
 		if (!device.isFullScreenSupported()) {
-			LOG.info("Full-screen mode not supported for this device.");
+			logger.info("Full-screen mode not supported for this device.");
 			return;
 		}
 		if (app.settings.fullScreenMode == null) {
-			LOG.info("Cannot enter full-screen mode: No full-screen mode specified.");
+			logger.info("Cannot enter full-screen mode: No full-screen mode specified.");
 			return;
 		}
 		DisplayMode mode = app.settings.fullScreenMode.getDisplayMode();
 		if (!isValidDisplayMode(mode)) {
-			LOG.info(
+			logger.info(
 					"Cannot enter full-screen mode: Display mode not supported: " + formatDisplayMode(mode));
 			return;
 		}
@@ -214,7 +214,7 @@ public class ApplicationShell implements PropertyChangeListener {
 		device.setDisplayMode(mode);
 		frame.createBufferStrategy(2);
 		buffer = frame.getBufferStrategy();
-		LOG.info("Full-screen mode: " + formatDisplayMode(mode));
+		logger.info("Full-screen mode: " + formatDisplayMode(mode));
 	}
 
 	private void showAsWindow() {
@@ -228,7 +228,7 @@ public class ApplicationShell implements PropertyChangeListener {
 		canvas.createBufferStrategy(2);
 		canvas.requestFocus();
 		buffer = canvas.getBufferStrategy();
-		LOG.info("Window-mode: " + app.settings.width + "x" + app.settings.height);
+		logger.info("Window-mode: " + app.settings.width + "x" + app.settings.height);
 	}
 
 	private boolean isValidDisplayMode(DisplayMode displayMode) {

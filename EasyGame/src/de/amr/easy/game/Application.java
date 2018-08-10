@@ -55,7 +55,7 @@ public abstract class Application {
 		try {
 			UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
 		} catch (Exception e) {
-			LOG.warning("Could not set Nimbus Look&Feel");
+			logger.warning("Could not set Nimbus Look&Feel");
 		}
 		EventQueue.invokeLater(() -> {
 			app.shell = new ApplicationShell(app);
@@ -65,7 +65,7 @@ public abstract class Application {
 	}
 
 	/** A logger that may be used by application subclasses. */
-	public static Logger LOG = Logger.getLogger(Application.class.getName());
+	public static Logger logger = Logger.getLogger(Application.class.getName());
 
 	/** The settings of this application. */
 	public final AppSettings settings;
@@ -100,7 +100,7 @@ public abstract class Application {
 		controller = defaultView;
 		pulse = new Pulse(this::update, this::renderCurrentView, 60);
 		collisionHandler = new CollisionHandler();
-		LOG.info("Application " + getClass().getSimpleName() + " created.");
+		logger.info("Application " + getClass().getSimpleName() + " created.");
 	}
 
 	/** Called when the application is initialized. */
@@ -116,10 +116,10 @@ public abstract class Application {
 	 */
 	public void setController(Controller controller, boolean initialize) {
 		this.controller = (controller == null) ? defaultView : controller;
-		LOG.info("Set controller to: " + controller);
+		logger.info("Set controller to: " + controller);
 		if (initialize) {
 			controller.init();
-			LOG.info("Initialized controller: " + controller);
+			logger.info("Initialized controller: " + controller);
 		}
 	}
 
@@ -136,16 +136,16 @@ public abstract class Application {
 	/** Called after initialization and starts the pulse. */
 	private final void start() {
 		defaultView.init();
-		LOG.info("Default view initialized.");
+		logger.info("Default view initialized.");
 		init();
-		LOG.info("Application initialized.");
+		logger.info("Application initialized.");
 		pulse.start();
-		LOG.info("Pulse started.");
+		logger.info("Pulse started.");
 	}
 
 	private final void pause(boolean state) {
 		paused = state;
-		LOG.info("Application" + (state ? " paused." : " resumed."));
+		logger.info("Application" + (state ? " paused." : " resumed."));
 	}
 
 	/**
@@ -153,7 +153,7 @@ public abstract class Application {
 	 */
 	public final void exit() {
 		pulse.stop();
-		LOG.info("Application terminated.");
+		logger.info("Application terminated.");
 		System.exit(0);
 	}
 
