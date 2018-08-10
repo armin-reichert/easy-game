@@ -1,6 +1,6 @@
 package de.amr.easy.game.sprite;
 
-class BackForthAnimation extends Animation {
+public class BackForthAnimation extends Animation {
 
 	private boolean forward;
 
