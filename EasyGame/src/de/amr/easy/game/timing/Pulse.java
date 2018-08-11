@@ -97,8 +97,8 @@ public class Pulse {
 			updateTask.run();
 			renderTask.run();
 			if (loggingEnabled) {
-				LOGGER.info(format("Update: %10.2f ms", updateTask.getUsedTime() / 1_000_000f));
-				LOGGER.info(format("Render: %10.2f ms", renderTask.getUsedTime() / 1_000_000f));
+				logTime("Update", updateTask.getUsedTime());
+				logTime("Render", renderTask.getUsedTime());
 			}
 			++updateCount;
 			long usedTime = updateTask.getUsedTime() + renderTask.getUsedTime();
@@ -111,18 +111,22 @@ public class Pulse {
 					e.printStackTrace();
 				}
 				if (loggingEnabled) {
-					LOGGER.info(format("Sleep:  %10.2f ms", sleepTime / 1_000_000f));
+					logTime("Sleep", sleepTime);
 				}
 			} else if (timeLeft < 0) {
 				overTime += (-timeLeft);
-				for (int extraUpdates = 3; extraUpdates > 0 && overTime > period; overTime -= period, --extraUpdates) {
+				for (int xUpdates = 3; xUpdates > 0 && overTime > period; overTime -= period, --xUpdates) {
 					updateTask.run();
 					if (loggingEnabled) {
-						LOGGER.info(format("Xpdate: %10.2f ms", updateTask.getUsedTime() / 1_000_000f));
+						logTime("UpdateX", updateTask.getUsedTime());
 					}
 					++updateCount;
 				}
 			}
 		}
+	}
+
+	private void logTime(String taskName, long nanos) {
+		LOGGER.info(format("%-7s: %10.2f ms", taskName, nanos / 1_000_000f));
 	}
 }
