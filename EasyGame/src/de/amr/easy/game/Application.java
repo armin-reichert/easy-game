@@ -23,9 +23,8 @@ import de.amr.easy.game.ui.ApplicationShell;
 import de.amr.easy.game.view.Controller;
 
 /**
- * Application base class. To start an application, create an application
- * subclass, define its settings in the constructor and call the
- * {@link #launch(Application)} method.
+ * Application base class. To start an application, create an application subclass, define its
+ * settings in the constructor and call the {@link #launch(Application)} method.
  * <p>
  * Example:
  * <p>
@@ -52,13 +51,14 @@ public abstract class Application {
 	/**
 	 * Launches the given application.
 	 * 
-	 * @param app the application
+	 * @param app
+	 *              the application
 	 */
 	public static void launch(Application app) {
 		try {
 			UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
 		} catch (Exception e) {
-			logger.warning("Could not set Nimbus Look&Feel");
+			LOGGER.warning("Could not set Nimbus Look&Feel");
 		}
 		EventQueue.invokeLater(() -> {
 			app.shell = new ApplicationShell(app);
@@ -67,15 +67,16 @@ public abstract class Application {
 		});
 	}
 
+	/** The pulse of this application. */
+	public static final Pulse PULSE = new Pulse();
+
 	/** A logger that may be used by application subclasses. */
-	public static Logger logger;
+	public static final Logger LOGGER = Logger.getLogger(Application.class.getName());
 
 	static {
 		InputStream stream = Application.class.getClassLoader().getResourceAsStream("logging.properties");
 		try {
 			LogManager.getLogManager().readConfiguration(stream);
-			logger = Logger.getLogger(Application.class.getName());
-
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -96,9 +97,6 @@ public abstract class Application {
 	/** The current application controller. */
 	private Controller controller;
 
-	/** The pulse of this application. */
-	public final Pulse pulse;
-
 	/** The collision handler of this application. */
 	public final CollisionHandler collisionHandler;
 
@@ -112,9 +110,10 @@ public abstract class Application {
 		entities = new EntityMap();
 		defaultView = new ApplicationInfo(this);
 		controller = defaultView;
-		pulse = new Pulse(this::update, this::renderCurrentView, 60);
+		PULSE.setUpdateTask(this::update);
+		PULSE.setRenderTask(this::renderCurrentView);
 		collisionHandler = new CollisionHandler();
-		logger.info("Application " + getClass().getSimpleName() + " created.");
+		LOGGER.info("Application " + getClass().getSimpleName() + " created.");
 	}
 
 	/** Called when the application is initialized. */
@@ -123,22 +122,25 @@ public abstract class Application {
 	/**
 	 * Sets the given controller and optionally initializes it.
 	 * 
-	 * @param controller a controller
-	 * @param initialize if the controller should be initialized
+	 * @param controller
+	 *                     a controller
+	 * @param initialize
+	 *                     if the controller should be initialized
 	 */
 	public void setController(Controller controller, boolean initialize) {
 		this.controller = (controller == null) ? defaultView : controller;
-		logger.info("Set controller to: " + controller);
+		LOGGER.info("Set controller to: " + controller);
 		if (initialize) {
 			controller.init();
-			logger.info("Initialized controller: " + controller);
+			LOGGER.info("Initialized controller: " + controller);
 		}
 	}
 
 	/**
 	 * Sets the given controller and initializes it.
 	 * 
-	 * @param controller a controller
+	 * @param controller
+	 *                     a controller
 	 */
 	public void setController(Controller controller) {
 		setController(controller, true);
@@ -147,24 +149,24 @@ public abstract class Application {
 	/** Called after initialization and starts the pulse. */
 	private final void start() {
 		defaultView.init();
-		logger.info("Default view initialized.");
+		LOGGER.info("Default view initialized.");
 		init();
-		logger.info("Application initialized.");
-		pulse.start();
-		logger.info("Pulse started.");
+		LOGGER.info("Application initialized.");
+		PULSE.start();
+		LOGGER.info("Pulse started.");
 	}
 
 	private final void pause(boolean state) {
 		paused = state;
-		logger.info("Application" + (state ? " paused." : " resumed."));
+		LOGGER.info("Application" + (state ? " paused." : " resumed."));
 	}
 
 	/**
 	 * Exits the application and the Java VM.
 	 */
 	public final void exit() {
-		pulse.stop();
-		logger.info("Application terminated.");
+		PULSE.stop();
+		LOGGER.info("Application terminated.");
 		System.exit(0);
 	}
 

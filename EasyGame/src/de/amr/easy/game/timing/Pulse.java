@@ -1,6 +1,6 @@
 package de.amr.easy.game.timing;
 
-import static de.amr.easy.game.Application.logger;
+import static de.amr.easy.game.Application.LOGGER;
 import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -14,8 +14,8 @@ import java.beans.PropertyChangeListener;
  */
 public class Pulse {
 
-	private final Task renderTask;
-	private final Task updateTask;
+	private Task renderTask;
+	private Task updateTask;
 	private int frequency;
 	private long updateCount;
 	private long period;
@@ -23,10 +23,20 @@ public class Pulse {
 	private volatile boolean running;
 	private boolean loggingEnabled;
 
-	public Pulse(Runnable updateTask, Runnable renderTask, int frequency) {
-		this.updateTask = new Task(updateTask, "ups", SECONDS.toNanos(1));
-		this.renderTask = new Task(renderTask, "fps", SECONDS.toNanos(1));
-		setFrequency(frequency);
+	public Pulse() {
+		frequency = 60;
+		setUpdateTask(() -> {
+		});
+		setRenderTask(() -> {
+		});
+	}
+
+	public void setUpdateTask(Runnable code) {
+		updateTask = new Task(code, "ups", SECONDS.toNanos(1));
+	}
+
+	public void setRenderTask(Runnable code) {
+		renderTask = new Task(code, "fps", SECONDS.toNanos(1));
 	}
 
 	public void setLoggingEnabled(boolean enabled) {
@@ -87,8 +97,8 @@ public class Pulse {
 			updateTask.run();
 			renderTask.run();
 			if (loggingEnabled) {
-				logger.info(format("Update: %10.2f ms", updateTask.getUsedTime() / 1_000_000f));
-				logger.info(format("Render: %10.2f ms", renderTask.getUsedTime() / 1_000_000f));
+				LOGGER.info(format("Update: %10.2f ms", updateTask.getUsedTime() / 1_000_000f));
+				LOGGER.info(format("Render: %10.2f ms", renderTask.getUsedTime() / 1_000_000f));
 			}
 			++updateCount;
 			long usedTime = updateTask.getUsedTime() + renderTask.getUsedTime();
@@ -101,14 +111,14 @@ public class Pulse {
 					e.printStackTrace();
 				}
 				if (loggingEnabled) {
-					logger.info(format("Sleep:  %10.2f ms", sleepTime / 1_000_000f));
+					LOGGER.info(format("Sleep:  %10.2f ms", sleepTime / 1_000_000f));
 				}
 			} else if (timeLeft < 0) {
 				overTime += (-timeLeft);
 				for (int extraUpdates = 3; extraUpdates > 0 && overTime > period; overTime -= period, --extraUpdates) {
 					updateTask.run();
 					if (loggingEnabled) {
-						logger.info(format("Xpdate: %10.2f ms", updateTask.getUsedTime() / 1_000_000f));
+						LOGGER.info(format("Xpdate: %10.2f ms", updateTask.getUsedTime() / 1_000_000f));
 					}
 					++updateCount;
 				}

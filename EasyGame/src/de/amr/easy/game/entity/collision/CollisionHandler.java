@@ -56,7 +56,7 @@ public class CollisionHandler {
 				Collision event = new Collision(pair.either(), pair.other(), pair.getIntersection(),
 						collisionStarts.get(pair), true);
 				events.add(event);
-				Application.logger.fine(event.toString());
+				Application.LOGGER.fine(event.toString());
 			}
 		}
 		for (CollisionPair pair : collisionEnds.keySet()) {
@@ -64,7 +64,7 @@ public class CollisionHandler {
 				Collision event = new Collision(pair.either(), pair.other(), pair.getIntersection(),
 						collisionEnds.get(pair), false);
 				events.add(event);
-				Application.logger.fine(event.toString());
+				Application.LOGGER.fine(event.toString());
 			}
 		}
 	}
