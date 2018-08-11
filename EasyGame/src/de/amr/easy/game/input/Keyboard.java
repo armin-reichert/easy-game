@@ -4,6 +4,21 @@ import static de.amr.easy.game.input.KeyboardHandler.INSTANCE;
 
 public class Keyboard {
 
+	public enum Modifier { ALT, CONTROL, SHIFT }
+	
+	public static boolean keyPressedOnce(Modifier modifier, int key) {
+		if (modifier == Modifier.ALT) {
+			return isAltDown() && INSTANCE.pressedOnce(key);
+		}
+		if (modifier == Modifier.CONTROL) {
+			return isControlDown() && INSTANCE.pressedOnce(key);
+		}
+		if (modifier == Modifier.SHIFT) {
+			return isShiftDown() && INSTANCE.pressedOnce(key);
+		}
+		return false;
+	}
+	
 	public static boolean keyPressedOnce(int key) {
 		return INSTANCE.pressedOnce(key);
 	}
