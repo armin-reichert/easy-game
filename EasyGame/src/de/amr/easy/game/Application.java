@@ -67,7 +67,7 @@ public abstract class Application {
 		});
 	}
 
-	/** The pulse of this application. */
+	/** The PULSE of this application. */
 	public static final Pulse PULSE = new Pulse();
 
 	/** A logger that may be used by application subclasses. */
@@ -146,14 +146,14 @@ public abstract class Application {
 		setController(controller, true);
 	}
 
-	/** Called after initialization and starts the pulse. */
+	/** Called after initialization and starts the PULSE. */
 	private final void start() {
 		defaultView.init();
 		LOGGER.info("Default view initialized.");
 		init();
 		LOGGER.info("Application initialized.");
 		PULSE.start();
-		LOGGER.info("Pulse started.");
+		LOGGER.info("PULSE started.");
 	}
 
 	private final void pause(boolean state) {

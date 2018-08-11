@@ -8,7 +8,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import java.beans.PropertyChangeListener;
 
 /**
- * The "pulse" which runs the game loop with a specified frequency.
+ * The "PULSE" which runs the game loop with a specified frequency.
  * 
  * @author Armin Reichert
  */
