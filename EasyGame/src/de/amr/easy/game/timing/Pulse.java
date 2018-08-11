@@ -24,7 +24,7 @@ public class Pulse {
 	private boolean loggingEnabled;
 
 	public Pulse() {
-		frequency = 60;
+		setFrequency(60);
 		setUpdateTask(() -> {
 		});
 		setRenderTask(() -> {
