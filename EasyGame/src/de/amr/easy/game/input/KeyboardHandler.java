@@ -32,7 +32,7 @@ public enum KeyboardHandler implements KeyListener {
 		shiftDown = e.isShiftDown();
 		altDown = e.isAltDown();
 		controlDown = e.isControlDown();
-		Application.logger.fine(e.toString());
+		Application.LOGGER.fine(e.toString());
 	}
 
 	@Override
@@ -41,7 +41,7 @@ public enum KeyboardHandler implements KeyListener {
 		shiftDown = e.isShiftDown();
 		altDown = e.isAltDown();
 		controlDown = e.isControlDown();
-		Application.logger.fine(e.toString());
+		Application.LOGGER.fine(e.toString());
 	}
 
 	@Override
@@ -54,7 +54,7 @@ public enum KeyboardHandler implements KeyListener {
 			if (pressed.get(key)) {
 				if (!once.get(key) && !longer.get(key)) {
 					once.set(key);
-					Application.logger.fine("Pressed first time " + key);
+					Application.LOGGER.fine("Pressed first time " + key);
 				} else if (once.get(key)) {
 					once.clear(key);
 					longer.set(key);
