@@ -49,12 +49,14 @@ public abstract class GameEntity implements ViewController, CollisionSensitive {
 
 	@Override
 	public int getWidth() {
-		return currentSprite().getWidth();
+		Sprite sprite = currentSprite();
+		return sprite != null ? sprite.getWidth() : 0;
 	}
 
 	@Override
 	public int getHeight() {
-		return currentSprite().getHeight();
+		Sprite sprite = currentSprite();
+		return sprite != null ? sprite.getHeight() : 0;
 	}
 
 	@Override
@@ -102,6 +104,7 @@ public abstract class GameEntity implements ViewController, CollisionSensitive {
 	}
 
 	public void center(int width, int height) {
-		tf.moveTo((width - getWidth()) / 2, (height - getHeight()) / 2);
+		hCenter(width);
+		vCenter(height);
 	}
 }
