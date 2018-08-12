@@ -31,6 +31,9 @@ public abstract class Animation {
 	}
 
 	public void update() {
+		if (!enabled) {
+			return;
+		}
 		long now = System.currentTimeMillis();
 		if (lastUpdateTime != 0) {
 			frameTime += (now - lastUpdateTime);
@@ -43,7 +46,11 @@ public abstract class Animation {
 	}
 
 	public void setEnabled(boolean enabled) {
-		this.enabled = enabled;
+		if (this.enabled != enabled) {
+			this.enabled = enabled;
+			reset();
+		}
+		
 	}
 
 	public boolean isEnabled() {
