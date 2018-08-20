@@ -23,7 +23,7 @@ public interface View {
 	 * Called by the framework to draw the view.
 	 * 
 	 * @param g
-	 *          the graphics context used for drawing
+	 *            the graphics context used for drawing
 	 */
 	void draw(Graphics2D g);
 }

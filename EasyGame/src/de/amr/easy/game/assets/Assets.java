@@ -48,7 +48,7 @@ public class Assets {
 	 * Reads a text file from the given assets path.
 	 * 
 	 * @param path
-	 *          relative path inside "assets" folder
+	 *               relative path inside "assets" folder
 	 * @return the text file content as a single string
 	 */
 	public static String readTextFile(String path) {
@@ -77,7 +77,7 @@ public class Assets {
 	 * Reads an image from the given assets path.
 	 * 
 	 * @param path
-	 *          relative path inside "assets" folder
+	 *               relative path inside "assets" folder
 	 * @return the image
 	 */
 	public static BufferedImage readImage(String path) {
@@ -95,8 +95,8 @@ public class Assets {
 	}
 
 	private static BufferedImage createOptimizedCopy(Image image) {
-		GraphicsConfiguration conf = GraphicsEnvironment.getLocalGraphicsEnvironment()
-				.getDefaultScreenDevice().getDefaultConfiguration();
+		GraphicsConfiguration conf = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice()
+				.getDefaultConfiguration();
 		BufferedImage copy = conf.createCompatibleImage(image.getWidth(null), image.getHeight(null),
 				Transparency.TRANSLUCENT);
 		Graphics g = copy.getGraphics();
@@ -104,16 +104,16 @@ public class Assets {
 		g.dispose();
 		return copy;
 	}
-	
+
 	/**
 	 * Returns a scaled version of the given image as a buffered image.
 	 * 
 	 * @param image
-	 *          an image
+	 *                 an image
 	 * @param width
-	 *          the scaled width
+	 *                 the scaled width
 	 * @param height
-	 *          the scaled height
+	 *                 the scaled height
 	 * @return the scaled image
 	 */
 	public static BufferedImage scaledImage(Image image, int width, int height) {
@@ -152,9 +152,9 @@ public class Assets {
 	 * Stores the given image under the given path name.
 	 * 
 	 * @param path
-	 *          path names
+	 *                path names
 	 * @param image
-	 *          image
+	 *                image
 	 */
 	public static void storeImage(String path, Image image) {
 		if (imageMap.put(path, image) != null) {
@@ -166,13 +166,13 @@ public class Assets {
 	 * Stores the font with given name, size and style under the given key.
 	 * 
 	 * @param key
-	 *          key under which the font my be accessed
+	 *                   key under which the font my be accessed
 	 * @param fontName
-	 *          font name
+	 *                   font name
 	 * @param size
-	 *          font size
+	 *                   font size
 	 * @param style
-	 *          font style
+	 *                   font style
 	 * @return font as specified
 	 */
 	public static Font storeTrueTypeFont(String key, String fontName, int style, float size) {
@@ -187,13 +187,13 @@ public class Assets {
 	 * Stores the font derived from the given base font and given size and style under the given key.
 	 * 
 	 * @param key
-	 *          key under which the font my be accessed
+	 *                key under which the font my be accessed
 	 * @param font
-	 *          font from which this font is derived
+	 *                font from which this font is derived
 	 * @param size
-	 *          font size
+	 *                font size
 	 * @param style
-	 *          font style
+	 *                font style
 	 * @return derived font
 	 */
 	public static Font storeFont(String key, Font baseFont, int style, float size) {
@@ -208,7 +208,7 @@ public class Assets {
 	 * Returns the font stored with the given key.
 	 * 
 	 * @param key
-	 *          font key
+	 *              font key
 	 * @return font as requested
 	 */
 	public static Font font(String key) {
@@ -219,11 +219,11 @@ public class Assets {
 	}
 
 	/**
-	 * Returns the image with the given path. If the image is requested for the first time, it is
-	 * loaded from the specified path.
+	 * Returns the image with the given path. If the image is requested for the first time, it is loaded
+	 * from the specified path.
 	 * 
 	 * @param path
-	 *          path under assets folder or key in assets map
+	 *               path under assets folder or key in assets map
 	 * @return image as requested
 	 */
 	@SuppressWarnings("unchecked")
@@ -238,7 +238,7 @@ public class Assets {
 	 * Returns the sound with the given path.
 	 * 
 	 * @param path
-	 *          path to sound file
+	 *               path to sound file
 	 * @return sound object
 	 */
 	public static Sound sound(String path) {
@@ -259,7 +259,7 @@ public class Assets {
 	 * Returns the content of the text file under the specified path.
 	 * 
 	 * @param path
-	 *          path to text file
+	 *               path to text file
 	 * @return text file content as a single string
 	 */
 	public static String text(String path) {
@@ -286,8 +286,7 @@ public class Assets {
 		s.append("\n-- Images:\n");
 		for (String name : imageNames) {
 			Image image = image(name);
-			s.append(name).append(": ").append(image.getWidth(null) + "x" + image.getHeight(null))
-					.append("\n");
+			s.append(name).append(": ").append(image.getWidth(null) + "x" + image.getHeight(null)).append("\n");
 		}
 		s.append("\n-- Sounds:\n");
 		for (String name : soundNames) {

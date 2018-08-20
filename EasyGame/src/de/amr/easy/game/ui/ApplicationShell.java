@@ -65,8 +65,8 @@ public class ApplicationShell implements PropertyChangeListener {
 			fps = (int) e.getNewValue();
 		}
 		EventQueue.invokeLater(() -> {
-			frame.setTitle(format("%s [%d fps, %d ups, %dx%d pixel, scaling %.2f]", app.settings.title,
-					fps, ups, app.settings.width, app.settings.height, app.settings.scale));
+			frame.setTitle(format("%s [%d fps, %d ups, %dx%d pixel, scaling %.2f]", app.settings.title, fps, ups,
+					app.settings.width, app.settings.height, app.settings.scale));
 		});
 	}
 
@@ -102,14 +102,13 @@ public class ApplicationShell implements PropertyChangeListener {
 								g.translate((mode.getWidth() - scaledWidth) / 2, 0);
 							}
 						}
-						Graphics2D sg = (Graphics2D) g.create(); 
+						Graphics2D sg = (Graphics2D) g.create();
 						sg.scale(app.settings.scale, app.settings.scale);
 						view.draw(sg);
 						sg.dispose();
 						if (app.isPaused()) {
 							String text = "PAUSED (Press CTRL+P to continue)";
-							g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-									RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+							g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 							g.setColor(Color.RED);
 							g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, getWidth() / text.length()));
 							Rectangle2D bounds = g.getFontMetrics().getStringBounds(text, g);
@@ -202,8 +201,7 @@ public class ApplicationShell implements PropertyChangeListener {
 		}
 		DisplayMode mode = app.settings.fullScreenMode.getDisplayMode();
 		if (!isValidDisplayMode(mode)) {
-			LOGGER.info(
-					"Cannot enter full-screen mode: Display mode not supported: " + formatDisplayMode(mode));
+			LOGGER.info("Cannot enter full-screen mode: Display mode not supported: " + formatDisplayMode(mode));
 			return;
 		}
 		// Note: The order of the following statements is important!
@@ -242,8 +240,8 @@ public class ApplicationShell implements PropertyChangeListener {
 	}
 
 	private String formatDisplayMode(DisplayMode mode) {
-		return format("%d x %d, depth: %d, refresh rate: %d", mode.getWidth(), mode.getHeight(),
-				mode.getBitDepth(), mode.getRefreshRate());
+		return format("%d x %d, depth: %d, refresh rate: %d", mode.getWidth(), mode.getHeight(), mode.getBitDepth(),
+				mode.getRefreshRate());
 	}
 
 	// TODO: provide useful control and info dialog

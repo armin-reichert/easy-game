@@ -6,10 +6,10 @@ import java.awt.GraphicsEnvironment;
 public class FullScreen {
 
 	public static void dumpDisplayModes() {
-		for (DisplayMode mode : GraphicsEnvironment.getLocalGraphicsEnvironment()
-				.getDefaultScreenDevice().getDisplayModes()) {
-			System.out.println(mode.getWidth() + "x" + mode.getHeight() + "," + mode.getBitDepth() + ","
-					+ mode.getRefreshRate());
+		for (DisplayMode mode : GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice()
+				.getDisplayModes()) {
+			System.out
+					.println(mode.getWidth() + "x" + mode.getHeight() + "," + mode.getBitDepth() + "," + mode.getRefreshRate());
 		}
 	}
 
@@ -29,7 +29,7 @@ public class FullScreen {
 
 	@Override
 	public String toString() {
-		return String.format("FullScreen(width=%d, height=%d, depth=%d)", displayMode.getWidth(),
-				displayMode.getHeight(), displayMode.getBitDepth());
+		return String.format("FullScreen(width=%d, height=%d, depth=%d)", displayMode.getWidth(), displayMode.getHeight(),
+				displayMode.getBitDepth());
 	}
 }

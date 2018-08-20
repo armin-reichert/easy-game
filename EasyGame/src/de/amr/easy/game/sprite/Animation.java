@@ -50,7 +50,7 @@ public abstract class Animation {
 			this.enabled = enabled;
 			reset();
 		}
-		
+
 	}
 
 	public boolean isEnabled() {
@@ -65,6 +65,6 @@ public abstract class Animation {
 	public int currentFrame() {
 		return frameIndex;
 	}
-	
+
 	public abstract float getSeconds();
 }

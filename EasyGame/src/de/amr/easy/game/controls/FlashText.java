@@ -15,8 +15,8 @@ public class FlashText extends GameEntity {
 
 	private static final Font DEFAULT_FONT = new Font(Font.DIALOG, Font.BOLD, 12);
 
-	public static void show(Application app, String text, Font font, Color color, int displayTime,
-			Vector2f position, Vector2f velocity) {
+	public static void show(Application app, String text, Font font, Color color, int displayTime, Vector2f position,
+			Vector2f velocity) {
 		FlashText flash = new FlashText(app);
 		flash.setText(text);
 		flash.setFont(font);

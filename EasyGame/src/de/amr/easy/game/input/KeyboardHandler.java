@@ -73,15 +73,15 @@ public enum KeyboardHandler implements KeyListener {
 	boolean pressed(int key) {
 		return longer.get(key);
 	}
-	
+
 	boolean isShiftDown() {
 		return shiftDown;
 	}
-	
+
 	boolean isAltDown() {
 		return altDown;
 	}
-	
+
 	boolean isControlDown() {
 		return controlDown;
 	}
