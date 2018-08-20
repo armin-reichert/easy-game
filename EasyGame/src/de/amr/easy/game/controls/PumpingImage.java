@@ -60,4 +60,16 @@ public class PumpingImage extends GameEntity {
 		sprite.animate(BACK_AND_FORTH, 166);
 		sprite.enableAnimation(true);
 	}
+
+	@Override
+	public void init() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void update() {
+		// TODO Auto-generated method stub
+		
+	}
 }
