@@ -87,6 +87,9 @@ public class ApplicationShell implements PropertyChangeListener {
 	}
 
 	public void renderView(View view) {
+		if (buffer == null) {
+			return;
+		}
 		do {
 			do {
 				Graphics2D g = null;
@@ -133,7 +136,8 @@ public class ApplicationShell implements PropertyChangeListener {
 	}
 
 	private JFrame createFrame() {
-		JFrame frame = new JFrame(app.settings.title);
+		JFrame frame = new JFrame(device.getDefaultConfiguration());
+		frame.setTitle(app.settings.title);
 		frame.setBackground(app.settings.bgColor);
 		frame.setResizable(false);
 		frame.setFocusable(true);
@@ -204,14 +208,13 @@ public class ApplicationShell implements PropertyChangeListener {
 			LOGGER.info("Cannot enter full-screen mode: Display mode not supported: " + formatDisplayMode(mode));
 			return;
 		}
-		// Note: The order of the following statements is important!
-		frame.setVisible(false);
 		frame.dispose();
+		frame.setVisible(false);
 		frame.setUndecorated(true);
+		frame.validate();
+		frame.requestFocus();
 		device.setFullScreenWindow(frame);
 		device.setDisplayMode(mode);
-		frame.createBufferStrategy(2);
-		buffer = frame.getBufferStrategy();
 		LOGGER.info("Full-screen mode: " + formatDisplayMode(mode));
 	}
 
@@ -223,10 +226,11 @@ public class ApplicationShell implements PropertyChangeListener {
 		frame.pack();
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
+		frame.createBufferStrategy(2);
 		canvas.createBufferStrategy(2);
-		canvas.requestFocus();
+		frame.requestFocus();
 		buffer = canvas.getBufferStrategy();
-		LOGGER.info("Window-mode: " + app.settings.width + "x" + app.settings.height);
+		LOGGER.info(String.format("Window-mode: %dx%d", app.settings.width, app.settings.height));
 	}
 
 	private boolean isValidDisplayMode(DisplayMode displayMode) {
