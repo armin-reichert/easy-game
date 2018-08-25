@@ -20,6 +20,9 @@ public class AppSettings {
 
 	/** The application title. */
 	public String title = "My Application!";
+	
+	/** If <code>true</code>, additional info (frame rate, resolution) gets displayed in title. */
+	public boolean titleExtended;
 
 	/** The unscaled width of application area in pixel. */
 	public int width = 600;
