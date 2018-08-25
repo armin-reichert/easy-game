@@ -112,6 +112,7 @@ public abstract class Application {
 		controller = defaultView;
 		PULSE.setUpdateTask(this::update);
 		PULSE.setRenderTask(this::renderCurrentView);
+		MouseHandler.INSTANCE.fnScale = () -> settings.scale;
 		collisionHandler = new CollisionHandler();
 		LOGGER.info("Application " + getClass().getSimpleName() + " created.");
 	}

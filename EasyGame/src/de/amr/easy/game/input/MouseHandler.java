@@ -9,6 +9,7 @@ import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.util.function.Supplier;
 
 public enum MouseHandler implements MouseListener, MouseMotionListener {
 
@@ -22,7 +23,9 @@ public enum MouseHandler implements MouseListener, MouseMotionListener {
 	public static synchronized void poll() {
 		INSTANCE._poll();
 	}
-
+	
+	public Supplier<Float> fnScale = () -> 1f;
+	
 	boolean clicked;
 	boolean pressed;
 	boolean released;
@@ -31,7 +34,7 @@ public enum MouseHandler implements MouseListener, MouseMotionListener {
 	int x;
 	int y;
 	int button;
-
+	
 	private boolean clickedDetected;
 	private boolean pressedDetected;
 	private boolean releasedDetected;
@@ -45,8 +48,8 @@ public enum MouseHandler implements MouseListener, MouseMotionListener {
 		released = releasedDetected;
 		moved = movedDetected;
 		dragged = draggedDetected;
-		x = event != null ? event.getX() : -1;
-		y = event != null ? event.getY() : -1;
+		x = event != null ? Math.round(event.getX() / fnScale.get()) : -1;
+		y = event != null ? Math.round(event.getY() / fnScale.get()) : -1;
 
 		// if (event != null) {
 		// Application.LOG.info(event.toString());
