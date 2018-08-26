@@ -106,8 +106,10 @@ public class ApplicationShell implements PropertyChangeListener {
 						if (fullScreen && app.settings.fullScreenMode != null) {
 							DisplayMode mode = app.settings.fullScreenMode.getDisplayMode();
 							float scaledWidth = app.settings.width * app.settings.scale;
+							float scaledHeight = app.settings.height * app.settings.scale;
 							if (mode.getWidth() > scaledWidth) {
 								g.translate((mode.getWidth() - scaledWidth) / 2, 0);
+								g.setClip(0, 0, (int) scaledWidth, (int) scaledHeight);
 							}
 						}
 						Graphics2D sg = (Graphics2D) g.create();
