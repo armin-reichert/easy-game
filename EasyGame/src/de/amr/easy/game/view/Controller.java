@@ -10,12 +10,16 @@ public interface Controller {
 	/**
 	 * Controller intialization hook.
 	 */
-	void init();
+	default void init() {
+		
+	}
 
 	/**
 	 * Controller update hook.
 	 */
-	void update();
+	default void update() {
+		
+	}
 
 	/**
 	 * @return the currently displayed view
