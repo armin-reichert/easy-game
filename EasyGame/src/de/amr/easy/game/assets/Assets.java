@@ -251,6 +251,7 @@ public class Assets {
 			return clip;
 		} catch (Exception e) {
 			Application.LOGGER.severe("Could not read sound resource from asset path: " + path);
+			e.printStackTrace();
 			throw new RuntimeException(e);
 		}
 	}

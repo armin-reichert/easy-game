@@ -31,6 +31,7 @@ public class AudioClip implements Sound {
 				clip.open(audioStream);
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new RuntimeException();
 		}
 	}
