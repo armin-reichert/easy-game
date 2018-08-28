@@ -9,8 +9,8 @@ public abstract class GameEntityUsingSprites extends GameEntity implements Using
 	@Override
 	public void draw(Graphics2D g) {
 		Graphics2D pen = (Graphics2D) g.create();
-		pen.translate(tf.getX(), tf.getY());
-		pen.rotate(tf.getRotation());
+		pen.translate(tf().getX(), tf().getY());
+		pen.rotate(tf().getRotation());
 		currentSprite().draw(pen);
 		pen.dispose();
 	}

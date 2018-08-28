@@ -47,7 +47,7 @@ public class ApplicationInfo extends GameEntity {
 			sb.append(key + " = " + app.settings.getAsString(key)).append("\n");
 		});
 		text.setText(sb.toString());
-		text.tf.setY(app.settings.height);
+		text.tf().setY(app.settings.height);
 		text.setScrollSpeed(-0.5f);
 		text.setColor(Color.WHITE);
 		text.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 14));
@@ -56,8 +56,8 @@ public class ApplicationInfo extends GameEntity {
 	@Override
 	public void update() {
 		text.update();
-		if (text.tf.getY() < -text.getHeight()) {
-			text.tf.setY(getHeight());
+		if (text.tf().getY() < -text.getHeight()) {
+			text.tf().setY(getHeight());
 		}
 	}
 
@@ -65,7 +65,7 @@ public class ApplicationInfo extends GameEntity {
 	public void draw(Graphics2D g) {
 		g.setColor(app.settings.bgColor);
 		g.fillRect(0, 0, getWidth(), getHeight());
-		text.hCenter(getWidth());
+		text.centerHorizontally(getWidth());
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		text.draw(g);
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);

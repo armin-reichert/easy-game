@@ -4,5 +4,9 @@ import java.awt.geom.Rectangle2D;
 
 public interface CollisionSensitive {
 
-	public Rectangle2D getCollisionBox();
+	Rectangle2D getCollisionBox();
+
+	default boolean collidesWith(CollisionSensitive other) {
+		return getCollisionBox().intersects(other.getCollisionBox());
+	}
 }
