@@ -8,22 +8,17 @@ package de.amr.easy.game.view;
 public interface Controller {
 
 	/**
-	 * Controller intialization hook.
+	 * Initialization hook.
 	 */
-	default void init() {
-		
-	}
+	void init();
 
 	/**
-	 * Controller update hook.
+	 * Update hook.
 	 */
-	default void update() {
-		
-	}
+	void update();
 
 	/**
-	 * @return the currently displayed view
+	 * @return the current view
 	 */
 	View currentView();
-
 }
