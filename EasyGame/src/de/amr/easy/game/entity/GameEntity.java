@@ -34,29 +34,9 @@ public abstract class GameEntity implements ViewController, CollisionSensitive {
 		this.visibility = () -> currentSprite() != null;
 	}
 
-	// @Override
-	// public void init() {
-	// }
-	//
-	// @Override
-	// public void update() {
-	// }
-
 	@Override
 	public View currentView() {
 		return this;
-	}
-
-	@Override
-	public int getWidth() {
-		Sprite sprite = currentSprite();
-		return sprite != null ? sprite.getWidth() : 0;
-	}
-
-	@Override
-	public int getHeight() {
-		Sprite sprite = currentSprite();
-		return sprite != null ? sprite.getHeight() : 0;
 	}
 
 	@Override
