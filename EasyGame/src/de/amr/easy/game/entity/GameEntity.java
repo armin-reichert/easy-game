@@ -2,8 +2,7 @@ package de.amr.easy.game.entity;
 
 import java.awt.geom.Rectangle2D;
 
-import de.amr.easy.game.entity.collision.CollisionSensitive;
-import de.amr.easy.game.math.Vector2f;
+import de.amr.easy.game.entity.collision.Collider;
 import de.amr.easy.game.view.ViewController;
 
 /**
@@ -16,7 +15,7 @@ import de.amr.easy.game.view.ViewController;
  * 
  * @author Armin Reichert
  */
-public abstract class GameEntity implements ViewController, CollisionSensitive {
+public abstract class GameEntity implements ViewController, Collider {
 
 	protected final Transform tf = new Transform();
 
@@ -24,13 +23,17 @@ public abstract class GameEntity implements ViewController, CollisionSensitive {
 		return tf;
 	}
 
-	@Override
-	public Rectangle2D getCollisionBox() {
-		return new Rectangle2D.Float(tf().getX(), tf().getY(), getWidth(), getHeight());
+	public int getCollisionWidth() {
+		return tf.getWidth();
 	}
 
-	public Vector2f getCenter() {
-		return Vector2f.of(tf().getX() + getWidth() / 2, tf().getY() + getHeight() / 2);
+	public int getCollisionHeight() {
+		return tf.getHeight();
+	}
+
+	@Override
+	public Rectangle2D getCollisionBox() {
+		return tf.getCollisionBox();
 	}
 
 	public void centerHorizontally(int width) {

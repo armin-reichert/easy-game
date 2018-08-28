@@ -1,22 +1,44 @@
 package de.amr.easy.game.entity;
 
+import java.awt.geom.Rectangle2D;
+
 import de.amr.easy.game.math.Vector2f;
 
 /**
- * Encapsulates position, velocity and rotation of a game object.
+ * Encapsulates collision size, position, velocity and rotation of a game object.
  * 
  * @author Armin Reichert
  */
 public class Transform {
 
+	private int width;
+	private int height;
 	private Vector2f position;
 	private Vector2f velocity;
 	private double rotation;
 
 	public Transform() {
+		width = 0;
+		height = 0;
 		position = Vector2f.of(0, 0);
 		velocity = Vector2f.of(0, 0);
 		rotation = 0.0;
+	}
+
+	public int getWidth() {
+		return width;
+	}
+
+	public void setWidth(int width) {
+		this.width = width;
+	}
+
+	public int getHeight() {
+		return height;
+	}
+
+	public void setHeight(int height) {
+		this.height = height;
 	}
 
 	public float getX() {
@@ -29,6 +51,14 @@ public class Transform {
 
 	public Vector2f getPosition() {
 		return Vector2f.of(position.x, position.y);
+	}
+
+	public Rectangle2D getCollisionBox() {
+		return new Rectangle2D.Float(position.x, position.y, width, height);
+	}
+
+	public Vector2f getCenter() {
+		return Vector2f.of(position.x + width / 2, position.y + height / 2);
 	}
 
 	public void setX(float x) {
