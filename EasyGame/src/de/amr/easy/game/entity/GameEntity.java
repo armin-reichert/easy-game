@@ -18,7 +18,7 @@ import de.amr.easy.game.view.ViewController;
  */
 public abstract class GameEntity implements ViewController, CollisionSensitive {
 
-	protected Transform tf;
+	protected final Transform tf = new Transform();
 
 	public Transform tf() {
 		return tf;
