@@ -26,7 +26,7 @@ public abstract class GameEntity implements ViewController, CollisionSensitive {
 
 	@Override
 	public Rectangle2D getCollisionBox() {
-		return new Rectangle2D.Double(tf().getX(), tf().getY(), getWidth(), getHeight());
+		return new Rectangle2D.Float(tf().getX(), tf().getY(), getWidth(), getHeight());
 	}
 
 	public Vector2f getCenter() {
