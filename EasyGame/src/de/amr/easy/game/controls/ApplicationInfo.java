@@ -4,11 +4,9 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.util.stream.Stream;
 
 import de.amr.easy.game.Application;
 import de.amr.easy.game.entity.GameEntity;
-import de.amr.easy.game.sprite.Sprite;
 
 /**
  * This view displays general application info.
@@ -23,16 +21,6 @@ public class ApplicationInfo extends GameEntity {
 	public ApplicationInfo(Application app) {
 		this.app = app;
 		text = new TextArea();
-	}
-
-	@Override
-	public Sprite currentSprite() {
-		return null;
-	}
-
-	@Override
-	public Stream<Sprite> getSprites() {
-		return Stream.empty();
 	}
 
 	@Override

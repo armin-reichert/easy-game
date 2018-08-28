@@ -11,5 +11,4 @@ public interface ViewController extends View, Controller {
 	default View currentView() {
 		return this;
 	}
-
 }

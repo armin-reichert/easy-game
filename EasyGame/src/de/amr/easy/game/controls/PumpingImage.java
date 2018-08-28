@@ -5,13 +5,16 @@ import static java.lang.Math.round;
 
 import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import de.amr.easy.game.entity.GameEntity;
+import de.amr.easy.game.entity.GameEntityUsingSprites;
 import de.amr.easy.game.sprite.Sprite;
 
-public class PumpingImage extends GameEntity {
+public class PumpingImage extends GameEntityUsingSprites {
 
+	public Supplier<Boolean> fnVisibility = () -> true;
+	
 	private Sprite sprite;
 	private final int frameCount = 6;
 	private final Image image;

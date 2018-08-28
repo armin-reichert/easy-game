@@ -7,9 +7,10 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import de.amr.easy.game.entity.GameEntity;
+import de.amr.easy.game.entity.GameEntityUsingSprites;
 import de.amr.easy.game.sprite.Sprite;
 
 /**
@@ -17,8 +18,9 @@ import de.amr.easy.game.sprite.Sprite;
  * 
  * @author Armin Reichert
  */
-public class TextArea extends GameEntity {
+public class TextArea extends GameEntityUsingSprites {
 
+	public Supplier<Boolean> fnVisibility = () -> true;
 	private Sprite sprite;
 	private String[] lines;
 	private float lineSpacing;
@@ -37,7 +39,7 @@ public class TextArea extends GameEntity {
 	public TextArea() {
 		this("");
 	}
-
+	
 	@Override
 	public Sprite currentSprite() {
 		return sprite;

@@ -4,12 +4,10 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
-import java.util.stream.Stream;
 
 import de.amr.easy.game.Application;
 import de.amr.easy.game.entity.GameEntity;
 import de.amr.easy.game.math.Vector2f;
-import de.amr.easy.game.sprite.Sprite;
 
 public class FlashText extends GameEntity {
 
@@ -51,16 +49,6 @@ public class FlashText extends GameEntity {
 	@Override
 	public int getHeight() {
 		return (int) bounds.getHeight();
-	}
-
-	@Override
-	public Sprite currentSprite() {
-		return null;
-	}
-
-	@Override
-	public Stream<Sprite> getSprites() {
-		return Stream.empty();
 	}
 
 	@Override
