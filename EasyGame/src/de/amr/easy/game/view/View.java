@@ -10,16 +10,6 @@ import java.awt.Graphics2D;
 public interface View {
 
 	/**
-	 * @return the width in pixels
-	 */
-	int getWidth();
-
-	/**
-	 * @return the height in pixels
-	 */
-	int getHeight();
-
-	/**
 	 * Called by the framework to draw the view.
 	 * 
 	 * @param g

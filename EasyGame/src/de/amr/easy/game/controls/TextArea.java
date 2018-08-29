@@ -23,7 +23,6 @@ public class TextArea extends GameEntityUsingSprites {
 	private float lineSpacing;
 	private Color color;
 	private Font font;
-	private boolean imageNeedsUpdate;
 
 	public TextArea(String text) {
 		visible = true;
@@ -32,6 +31,7 @@ public class TextArea extends GameEntityUsingSprites {
 		setFont(new Font("Sans", Font.PLAIN, 40));
 		setColor(Color.BLUE);
 		setLineSpacing(1.5f);
+		updateSprite();
 	}
 
 	public TextArea() {
@@ -46,13 +46,17 @@ public class TextArea extends GameEntityUsingSprites {
 		this.visible = visible;
 	}
 
+	public int getHeight() {
+		return Math.round(lines.length * (font.getSize()) + (lines.length - 1) * lineSpacing);
+	}
+
 	public String getText() {
 		return String.join("\n", lines);
 	}
 
 	public void setText(String text) {
 		this.lines = text.split("\n");
-		imageNeedsUpdate = true;
+		updateSprite();
 	}
 
 	public void setScrollSpeed(float speed) {
@@ -61,17 +65,17 @@ public class TextArea extends GameEntityUsingSprites {
 
 	public void setFont(Font font) {
 		this.font = font;
-		imageNeedsUpdate = true;
+		updateSprite();
 	}
 
 	public void setColor(Color color) {
 		this.color = color;
-		imageNeedsUpdate = true;
+		updateSprite();
 	}
 
 	public void setLineSpacing(float lineSpacing) {
 		this.lineSpacing = lineSpacing;
-		imageNeedsUpdate = true;
+		updateSprite();
 	}
 
 	@Override
@@ -118,13 +122,12 @@ public class TextArea extends GameEntityUsingSprites {
 		}
 		addSprite("s_image", new Sprite(image));
 		setCurrentSprite("s_image");
+		tf.setWidth((int) textWidth);
+		tf.setHeight((int) textHeight);
 	}
 
 	@Override
 	public void draw(Graphics2D g) {
-		if (imageNeedsUpdate) {
-			updateSprite();
-		}
 		if (visible) {
 			super.draw(g);
 		}

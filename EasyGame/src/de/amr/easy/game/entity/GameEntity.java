@@ -24,25 +24,17 @@ public abstract class GameEntity implements Controller, Collider {
 		return tf;
 	}
 
-	public int getCollisionWidth() {
-		return tf.getWidth();
-	}
-
-	public int getCollisionHeight() {
-		return tf.getHeight();
-	}
-
 	@Override
 	public Rectangle2D getCollisionBox() {
 		return tf.getCollisionBox();
 	}
 
 	public void centerHorizontally(int width) {
-		tf().setX((width - getCollisionWidth()) / 2);
+		tf().setX((width - tf.getWidth()) / 2);
 	}
 
 	public void centerVertically(int height) {
-		tf().setY((height - getCollisionHeight()) / 2);
+		tf().setY((height - tf.getHeight()) / 2);
 	}
 
 	public void center(int width, int height) {

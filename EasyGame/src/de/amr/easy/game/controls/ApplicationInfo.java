@@ -21,17 +21,9 @@ public class ApplicationInfo extends GameEntity implements ViewController {
 
 	public ApplicationInfo(Application app) {
 		this.app = app;
+		tf.setWidth(app.settings.width);
+		tf.setHeight(app.settings.height);
 		text = new TextArea();
-	}
-
-	@Override
-	public int getWidth() {
-		return app.settings.width;
-	}
-
-	@Override
-	public int getHeight() {
-		return app.settings.height;
 	}
 
 	@Override
@@ -57,16 +49,16 @@ public class ApplicationInfo extends GameEntity implements ViewController {
 	@Override
 	public void update() {
 		text.update();
-		if (text.tf().getY() < -text.getHeight()) {
-			text.tf().setY(getHeight());
+		if (text.tf().getY() < -text.tf().getHeight()) {
+			text.tf().setY(app.settings.height);
 		}
 	}
 
 	@Override
 	public void draw(Graphics2D g) {
 		g.setColor(app.settings.bgColor);
-		g.fillRect(0, 0, getWidth(), getHeight());
-		text.centerHorizontally(getWidth());
+		g.fillRect(0, 0, tf.getWidth(), tf.getHeight());
+		text.centerHorizontally(tf.getWidth());
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
 				RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		text.draw(g);

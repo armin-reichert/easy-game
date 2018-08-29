@@ -3,7 +3,6 @@ package de.amr.easy.game.controls;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
-import java.awt.geom.Rectangle2D;
 
 import de.amr.easy.game.Application;
 import de.amr.easy.game.entity.GameEntity;
@@ -30,7 +29,6 @@ public class FlashText extends GameEntity implements ViewController {
 	private String text;
 	private Font font;
 	private Color color;
-	private Rectangle2D bounds = new Rectangle2D.Float();
 
 	public FlashText(Application app) {
 		this.app = app;
@@ -40,16 +38,6 @@ public class FlashText extends GameEntity implements ViewController {
 		font = DEFAULT_FONT;
 		color = Color.BLACK;
 		tf.setVelocity(0, 0);
-	}
-
-	@Override
-	public int getWidth() {
-		return (int) bounds.getWidth();
-	}
-
-	@Override
-	public int getHeight() {
-		return (int) bounds.getHeight();
 	}
 
 	@Override
@@ -70,7 +58,6 @@ public class FlashText extends GameEntity implements ViewController {
 	public void draw(Graphics2D g) {
 		g.setColor(color);
 		g.setFont(font);
-		bounds = g.getFontMetrics().getStringBounds(text, g);
 		g.drawString(text, tf.getX(), tf.getY());
 	}
 

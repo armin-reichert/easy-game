@@ -43,16 +43,6 @@ public abstract class GameEntityUsingSprites extends GameEntity implements ViewC
 	}
 
 	@Override
-	public final int getWidth() {
-		return currentSprite() != null ? currentSprite().getWidth() : 0;
-	}
-
-	@Override
-	public final int getHeight() {
-		return currentSprite() != null ? currentSprite().getHeight() : 0;
-	}
-
-	@Override
 	public View currentView() {
 		return this;
 	}

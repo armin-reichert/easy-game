@@ -21,12 +21,12 @@ public class PumpingImage extends GameEntityUsingSprites {
 		this.image = image;
 		scale = 2;
 		visible = true;
-		createSprite();
+		updateSprite();
 	}
 
 	public void setScale(float scale) {
 		this.scale = scale;
-		createSprite();
+		updateSprite();
 	}
 
 	public boolean isVisible() {
@@ -37,7 +37,7 @@ public class PumpingImage extends GameEntityUsingSprites {
 		this.visible = visible;
 	}
 
-	private void createSprite() {
+	private void updateSprite() {
 		Image[] frames = new Image[frameCount];
 		float delta = scale / frames.length;
 		int height = image.getHeight(null);
@@ -48,6 +48,8 @@ public class PumpingImage extends GameEntityUsingSprites {
 		Sprite sprite = new Sprite(frames);
 		sprite.animate(BACK_AND_FORTH, 166);
 		sprite.enableAnimation(true);
+		tf.setWidth(sprite.getWidth());
+		tf.setHeight(sprite.getHeight());
 		addSprite("s_image", sprite);
 		setCurrentSprite("s_image");
 	}
