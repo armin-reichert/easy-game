@@ -40,7 +40,7 @@ public class ApplicationInfo extends GameEntity implements View {
 			sb.append(key + " = " + app.settings.getAsString(key)).append("\n");
 		});
 		text.setText(sb.toString());
-		text.tf().setY(app.settings.height);
+		text.tf.setY(app.settings.height);
 		text.setScrollSpeed(-0.5f);
 		text.setColor(Color.WHITE);
 		text.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 14));
@@ -49,8 +49,8 @@ public class ApplicationInfo extends GameEntity implements View {
 	@Override
 	public void update() {
 		text.update();
-		if (text.tf().getY() < -text.tf().getHeight()) {
-			text.tf().setY(app.settings.height);
+		if (text.tf.getY() < -text.tf.getHeight()) {
+			text.tf.setY(app.settings.height);
 		}
 	}
 

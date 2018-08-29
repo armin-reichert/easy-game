@@ -120,7 +120,7 @@ public class TextArea extends GameEntityUsingSprites {
 				y += lineSpacing;
 			}
 		}
-		addSprite("s_image", new Sprite(image));
+		setSprite("s_image", new Sprite(image));
 		setCurrentSprite("s_image");
 		tf.setWidth((int) textWidth);
 		tf.setHeight((int) textHeight);
