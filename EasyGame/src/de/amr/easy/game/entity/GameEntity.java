@@ -4,7 +4,6 @@ import java.awt.geom.Rectangle2D;
 
 import de.amr.easy.game.entity.collision.Collider;
 import de.amr.easy.game.view.Controller;
-import de.amr.easy.game.view.View;
 
 /**
  * Base class for game entities.
@@ -48,10 +47,5 @@ public abstract class GameEntity implements Controller, Collider {
 
 	@Override
 	public void update() {
-	}
-
-	@Override
-	public View currentView() {
-		return null;
 	}
 }

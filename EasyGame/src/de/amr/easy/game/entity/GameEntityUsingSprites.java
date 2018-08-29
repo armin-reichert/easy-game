@@ -6,10 +6,10 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import de.amr.easy.game.sprite.Sprite;
+import de.amr.easy.game.view.Controller;
 import de.amr.easy.game.view.View;
-import de.amr.easy.game.view.ViewController;
 
-public abstract class GameEntityUsingSprites extends GameEntity implements ViewController {
+public abstract class GameEntityUsingSprites extends GameEntity implements View {
 
 	private final Map<String, Sprite> spriteMap = new HashMap<>();
 	private String currentSprite;
@@ -42,10 +42,6 @@ public abstract class GameEntityUsingSprites extends GameEntity implements ViewC
 		getSprites().forEach(sprite -> sprite.enableAnimation(enable));
 	}
 
-	@Override
-	public View currentView() {
-		return this;
-	}
 
 	@Override
 	public void draw(Graphics2D g) {

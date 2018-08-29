@@ -21,6 +21,8 @@ import de.amr.easy.game.input.MouseHandler;
 import de.amr.easy.game.timing.Pulse;
 import de.amr.easy.game.ui.ApplicationShell;
 import de.amr.easy.game.view.Controller;
+import de.amr.easy.game.view.View;
+import de.amr.easy.game.view.VisualController;
 
 /**
  * Application base class. To start an application, create an application subclass, define its
@@ -94,7 +96,7 @@ public abstract class Application {
 	/** The default view of this application. */
 	private final ApplicationInfo defaultView;
 
-	/** The current application controller. */
+	/** The current controller. */
 	private Controller controller;
 
 	/** The collision handler of this application. */
@@ -111,7 +113,7 @@ public abstract class Application {
 		defaultView = new ApplicationInfo(this);
 		controller = defaultView;
 		PULSE.setUpdateTask(this::update);
-		PULSE.setRenderTask(this::renderCurrentView);
+		PULSE.setRenderTask(this::render);
 		MouseHandler.INSTANCE.fnScale = () -> settings.scale;
 		collisionHandler = new CollisionHandler();
 		LOGGER.info("Application " + getClass().getSimpleName() + " created.");
@@ -183,9 +185,15 @@ public abstract class Application {
 		}
 	}
 
-	private void renderCurrentView() {
-		if (controller.currentView() != null) {
-			shell.renderView(controller.currentView());
+	private void render() {
+		if (controller instanceof View) {
+			View view = (View) controller;
+			shell.renderView(view);
+		} else if (controller instanceof VisualController) {
+			VisualController vc = ((VisualController) controller);
+			if (vc.currentView() != null) {
+				shell.renderView(vc.currentView());
+			}
 		}
 	}
 

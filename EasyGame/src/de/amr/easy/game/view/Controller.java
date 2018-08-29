@@ -16,9 +16,4 @@ public interface Controller {
 	 * Update hook.
 	 */
 	void update();
-
-	/**
-	 * @return the current view
-	 */
-	View currentView();
 }

@@ -7,13 +7,14 @@ import java.awt.Image;
 import java.util.Objects;
 
 import de.amr.easy.game.assets.Assets;
+import de.amr.easy.game.view.View;
 
 /**
  * A sprite.
  * 
  * @author Armin Reichert
  */
-public class Sprite {
+public class Sprite implements View {
 
 	private final Image[] frames;
 	private Animation animation;
@@ -140,6 +141,7 @@ public class Sprite {
 	 * @param g
 	 *            graphics context
 	 */
+	@Override
 	public void draw(Graphics2D g) {
 		Image frame = currentFrame();
 		if (frame != null) {
