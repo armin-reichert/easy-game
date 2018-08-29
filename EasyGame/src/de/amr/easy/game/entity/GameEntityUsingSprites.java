@@ -1,26 +1,63 @@
 package de.amr.easy.game.entity;
 
 import java.awt.Graphics2D;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import de.amr.easy.game.sprite.Sprite;
 
 public abstract class GameEntityUsingSprites extends GameEntity {
-	
-	public abstract Sprite currentSprite();
 
-	public abstract Stream<Sprite> getSprites();
+	private final Map<String, Sprite> spriteMap = new HashMap<>();
+	private String currentSprite;
+
+	public void addSprite(String name, Sprite sprite) {
+		spriteMap.put(name, sprite);
+	}
+
+	public void removeSprite(String name) {
+		spriteMap.remove(name);
+	}
+
+	public Sprite getSprite(String name) {
+		return spriteMap.get(name);
+	}
+
+	public void setCurrentSprite(String name) {
+		currentSprite = name;
+	}
+
+	public final Sprite currentSprite() {
+		return spriteMap.get(currentSprite);
+	}
+	
+	public final Stream<Sprite> getSprites() {
+		return spriteMap.values().stream();
+	}
 
 	public void enableAnimation(boolean enable) {
 		getSprites().forEach(sprite -> sprite.enableAnimation(enable));
 	}
+	
+	@Override
+	public final int getWidth() {
+		return currentSprite() != null ? currentSprite().getWidth() : 0;
+	}
+	
+	@Override
+	public final int getHeight() {
+		return currentSprite() != null ? currentSprite().getHeight() : 0;
+	}
 
 	@Override
 	public void draw(Graphics2D g) {
-		Graphics2D pen = (Graphics2D) g.create();
-		pen.translate(tf().getX(), tf().getY());
-		pen.rotate(tf().getRotation());
-		currentSprite().draw(pen);
-		pen.dispose();
+		if (spriteMap.containsKey(currentSprite)) {
+			Graphics2D pen = (Graphics2D) g.create();
+			pen.translate(tf().getX(), tf().getY());
+			pen.rotate(tf().getRotation());
+			spriteMap.get(currentSprite).draw(pen);
+			pen.dispose();
+		}
 	}
 }

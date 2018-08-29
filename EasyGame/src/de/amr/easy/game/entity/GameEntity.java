@@ -48,4 +48,12 @@ public abstract class GameEntity implements ViewController, Collider {
 		centerHorizontally(width);
 		centerVertically(height);
 	}
+
+	@Override
+	public void init() {
+	}
+
+	@Override
+	public void update() {
+	}
 }
