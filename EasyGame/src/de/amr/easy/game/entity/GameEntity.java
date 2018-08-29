@@ -3,7 +3,8 @@ package de.amr.easy.game.entity;
 import java.awt.geom.Rectangle2D;
 
 import de.amr.easy.game.entity.collision.Collider;
-import de.amr.easy.game.view.ViewController;
+import de.amr.easy.game.view.Controller;
+import de.amr.easy.game.view.View;
 
 /**
  * Base class for game entities.
@@ -15,7 +16,7 @@ import de.amr.easy.game.view.ViewController;
  * 
  * @author Armin Reichert
  */
-public abstract class GameEntity implements ViewController, Collider {
+public abstract class GameEntity implements Controller, Collider {
 
 	protected final Transform tf = new Transform();
 
@@ -37,11 +38,11 @@ public abstract class GameEntity implements ViewController, Collider {
 	}
 
 	public void centerHorizontally(int width) {
-		tf().setX((width - getWidth()) / 2);
+		tf().setX((width - getCollisionWidth()) / 2);
 	}
 
 	public void centerVertically(int height) {
-		tf().setY((height - getHeight()) / 2);
+		tf().setY((height - getCollisionHeight()) / 2);
 	}
 
 	public void center(int width, int height) {
@@ -55,5 +56,10 @@ public abstract class GameEntity implements ViewController, Collider {
 
 	@Override
 	public void update() {
+	}
+
+	@Override
+	public View currentView() {
+		return null;
 	}
 }

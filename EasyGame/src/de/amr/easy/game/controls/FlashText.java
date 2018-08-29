@@ -8,13 +8,14 @@ import java.awt.geom.Rectangle2D;
 import de.amr.easy.game.Application;
 import de.amr.easy.game.entity.GameEntity;
 import de.amr.easy.game.math.Vector2f;
+import de.amr.easy.game.view.ViewController;
 
-public class FlashText extends GameEntity {
+public class FlashText extends GameEntity implements ViewController {
 
 	private static final Font DEFAULT_FONT = new Font(Font.DIALOG, Font.BOLD, 12);
 
-	public static void show(Application app, String text, Font font, Color color, int displayTime, Vector2f position,
-			Vector2f velocity) {
+	public static void show(Application app, String text, Font font, Color color, int displayTime,
+			Vector2f position, Vector2f velocity) {
 		FlashText flash = new FlashText(app);
 		flash.setText(text);
 		flash.setFont(font);

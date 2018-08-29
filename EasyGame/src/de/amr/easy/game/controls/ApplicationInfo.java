@@ -7,13 +7,14 @@ import java.awt.RenderingHints;
 
 import de.amr.easy.game.Application;
 import de.amr.easy.game.entity.GameEntity;
+import de.amr.easy.game.view.ViewController;
 
 /**
  * This view displays general application info.
  * 
  * @author Armin Reichert
  */
-public class ApplicationInfo extends GameEntity {
+public class ApplicationInfo extends GameEntity implements ViewController {
 
 	private final Application app;
 	private final TextArea text;
@@ -66,8 +67,10 @@ public class ApplicationInfo extends GameEntity {
 		g.setColor(app.settings.bgColor);
 		g.fillRect(0, 0, getWidth(), getHeight());
 		text.centerHorizontally(getWidth());
-		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+				RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		text.draw(g);
-		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+				RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
 	}
 }

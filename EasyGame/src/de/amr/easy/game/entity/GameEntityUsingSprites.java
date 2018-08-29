@@ -6,8 +6,10 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import de.amr.easy.game.sprite.Sprite;
+import de.amr.easy.game.view.View;
+import de.amr.easy.game.view.ViewController;
 
-public abstract class GameEntityUsingSprites extends GameEntity {
+public abstract class GameEntityUsingSprites extends GameEntity implements ViewController {
 
 	private final Map<String, Sprite> spriteMap = new HashMap<>();
 	private String currentSprite;
@@ -31,7 +33,7 @@ public abstract class GameEntityUsingSprites extends GameEntity {
 	public final Sprite currentSprite() {
 		return spriteMap.get(currentSprite);
 	}
-	
+
 	public final Stream<Sprite> getSprites() {
 		return spriteMap.values().stream();
 	}
@@ -39,15 +41,20 @@ public abstract class GameEntityUsingSprites extends GameEntity {
 	public void enableAnimation(boolean enable) {
 		getSprites().forEach(sprite -> sprite.enableAnimation(enable));
 	}
-	
+
 	@Override
 	public final int getWidth() {
 		return currentSprite() != null ? currentSprite().getWidth() : 0;
 	}
-	
+
 	@Override
 	public final int getHeight() {
 		return currentSprite() != null ? currentSprite().getHeight() : 0;
+	}
+
+	@Override
+	public View currentView() {
+		return this;
 	}
 
 	@Override
