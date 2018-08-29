@@ -3,30 +3,38 @@ package de.amr.easy.game.controls;
 import static de.amr.easy.game.sprite.AnimationType.BACK_AND_FORTH;
 import static java.lang.Math.round;
 
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
-import java.util.function.Supplier;
 
 import de.amr.easy.game.entity.GameEntityUsingSprites;
 import de.amr.easy.game.sprite.Sprite;
 
 public class PumpingImage extends GameEntityUsingSprites {
 
-	public Supplier<Boolean> fnVisibility = () -> true;
-
 	private final int frameCount = 6;
 	private final Image image;
 	private float scale;
+	private boolean visible;
 
 	public PumpingImage(Image image) {
 		this.image = image;
 		scale = 2;
+		visible = true;
 		createSprite();
 	}
 
 	public void setScale(float scale) {
 		this.scale = scale;
 		createSprite();
+	}
+
+	public boolean isVisible() {
+		return visible;
+	}
+
+	public void setVisible(boolean visible) {
+		this.visible = visible;
 	}
 
 	private void createSprite() {
@@ -42,5 +50,12 @@ public class PumpingImage extends GameEntityUsingSprites {
 		sprite.enableAnimation(true);
 		addSprite("s_image", sprite);
 		setCurrentSprite("s_image");
+	}
+
+	@Override
+	public void draw(Graphics2D g) {
+		if (isVisible()) {
+			super.draw(g);
+		}
 	}
 }

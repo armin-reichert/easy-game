@@ -7,7 +7,6 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.util.function.Supplier;
 
 import de.amr.easy.game.entity.GameEntityUsingSprites;
 import de.amr.easy.game.sprite.Sprite;
@@ -19,7 +18,7 @@ import de.amr.easy.game.sprite.Sprite;
  */
 public class TextArea extends GameEntityUsingSprites {
 
-	public Supplier<Boolean> fnVisibility = () -> true;
+	private boolean visible;
 	private String[] lines;
 	private float lineSpacing;
 	private Color color;
@@ -27,6 +26,7 @@ public class TextArea extends GameEntityUsingSprites {
 	private boolean imageNeedsUpdate;
 
 	public TextArea(String text) {
+		visible = true;
 		setText(text);
 		setScrollSpeed(0);
 		setFont(new Font("Sans", Font.PLAIN, 40));
@@ -36,6 +36,14 @@ public class TextArea extends GameEntityUsingSprites {
 
 	public TextArea() {
 		this("");
+	}
+
+	public boolean isVisible() {
+		return visible;
+	}
+
+	public void setVisible(boolean visible) {
+		this.visible = visible;
 	}
 
 	public String getText() {
@@ -117,6 +125,8 @@ public class TextArea extends GameEntityUsingSprites {
 		if (imageNeedsUpdate) {
 			updateSprite();
 		}
-		super.draw(g);
+		if (visible) {
+			super.draw(g);
+		}
 	}
 }
