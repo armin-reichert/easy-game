@@ -1,10 +1,19 @@
 package de.amr.easy.game.entity;
 
 import java.awt.Graphics2D;
+import java.util.stream.Stream;
 
-import de.amr.easy.game.sprite.UsingSprites;
+import de.amr.easy.game.sprite.Sprite;
 
-public abstract class GameEntityUsingSprites extends GameEntity implements UsingSprites {
+public abstract class GameEntityUsingSprites extends GameEntity {
+	
+	public abstract Sprite currentSprite();
+
+	public abstract Stream<Sprite> getSprites();
+
+	public void enableAnimation(boolean enable) {
+		getSprites().forEach(sprite -> sprite.enableAnimation(enable));
+	}
 
 	@Override
 	public void draw(Graphics2D g) {
