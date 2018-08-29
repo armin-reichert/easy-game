@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import de.amr.easy.game.sprite.Sprite;
-import de.amr.easy.game.view.Controller;
 import de.amr.easy.game.view.View;
 
 public abstract class GameEntityUsingSprites extends GameEntity implements View {
