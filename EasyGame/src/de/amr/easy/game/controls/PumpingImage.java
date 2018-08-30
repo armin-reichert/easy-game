@@ -14,6 +14,7 @@ public class PumpingImage extends GameEntityUsingSprites {
 
 	private final int frameCount = 6;
 	private final Image image;
+	private Sprite sprite;
 	private float scale;
 	private boolean visible;
 
@@ -45,11 +46,11 @@ public class PumpingImage extends GameEntityUsingSprites {
 			int frameHeight = round(height + i * delta * height);
 			frames[i] = image.getScaledInstance(-1, frameHeight, BufferedImage.SCALE_FAST);
 		}
-		Sprite sprite = new Sprite(frames);
+		sprite = Sprite.of(frames);
 		sprite.animate(BACK_AND_FORTH, 166);
 		sprite.enableAnimation(true);
-		tf.setWidth(sprite.getWidth());
-		tf.setHeight(sprite.getHeight());
+		tf.setWidth(sprite.getMaxWidth());
+		tf.setHeight(sprite.getMaxHeight());
 		setSprite("s_image", sprite);
 		setCurrentSprite("s_image");
 	}
@@ -57,7 +58,11 @@ public class PumpingImage extends GameEntityUsingSprites {
 	@Override
 	public void draw(Graphics2D g) {
 		if (isVisible()) {
+			int dx = (tf.getWidth() - sprite.currentFrame().getWidth(null)) / 2;
+			int dy = (tf.getHeight() - sprite.currentFrame().getHeight(null)) / 2;
+			g.translate(dx, dy);
 			super.draw(g);
+			g.translate(-dx, -dy);
 		}
 	}
 }

@@ -4,6 +4,7 @@ import static de.amr.easy.game.assets.Assets.scaledImage;
 
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.util.Arrays;
 import java.util.Objects;
 
 import de.amr.easy.game.assets.Assets;
@@ -16,8 +17,11 @@ import de.amr.easy.game.view.View;
  */
 public class Sprite implements View {
 
-	private final Image[] frames;
+	private Image[] frames;
 	private Animation animation;
+
+	private Sprite() {
+	}
 
 	/**
 	 * Creates a sprite with the given frames.
@@ -25,11 +29,13 @@ public class Sprite implements View {
 	 * @param frames
 	 *                 non-empty list of animation frames
 	 */
-	public Sprite(Image... frames) {
+	public static Sprite of(Image... frames) {
 		if (frames.length == 0) {
 			throw new IllegalArgumentException("Sprite needs at least a single frame");
 		}
-		this.frames = frames;
+		Sprite sprite = new Sprite();
+		sprite.frames = Arrays.copyOf(frames, frames.length);
+		return sprite;
 	}
 
 	/**
@@ -38,14 +44,16 @@ public class Sprite implements View {
 	 * @param keys
 	 *               list of keys of the images
 	 */
-	public Sprite(String... keys) {
+	public static Sprite ofAssets(String... keys) {
 		if (keys.length == 0) {
 			throw new IllegalArgumentException("Sprite needs at least one image");
 		}
-		frames = new Image[keys.length];
+		Sprite sprite = new Sprite();
+		sprite.frames = new Image[keys.length];
 		for (int i = 0; i < keys.length; ++i) {
-			frames[i] = Assets.image(keys[i]);
+			sprite.frames[i] = Assets.image(keys[i]);
 		}
+		return sprite;
 	}
 
 	/**
@@ -126,6 +134,19 @@ public class Sprite implements View {
 	}
 
 	/**
+	 * Returns the maximum width of any frame.
+	 * 
+	 * @return maximum frame width
+	 */
+	public int getMaxWidth() {
+		int max = frames[0].getWidth(null);
+		for (int i = 1; i < frames.length; ++i) {
+			max = Math.max(max, frames[i].getWidth(null));
+		}
+		return max;
+	}
+
+	/**
 	 * Returns the height of this sprite.
 	 * 
 	 * @return height of current frame
@@ -133,6 +154,19 @@ public class Sprite implements View {
 	public int getHeight() {
 		Image frame = currentFrame();
 		return frame != null ? frame.getHeight(null) : 0;
+	}
+
+	/**
+	 * Returns the maximum height of any frame.
+	 * 
+	 * @return maximum frame height
+	 */
+	public int getMaxHeight() {
+		int max = frames[0].getHeight(null);
+		for (int i = 1; i < frames.length; ++i) {
+			max = Math.max(max, frames[i].getHeight(null));
+		}
+		return max;
 	}
 
 	/**
