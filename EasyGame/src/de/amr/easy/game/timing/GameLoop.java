@@ -8,11 +8,11 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import java.beans.PropertyChangeListener;
 
 /**
- * The "PULSE" which runs the game loop with a specified frequency.
+ * The game loop which drives the application.
  * 
  * @author Armin Reichert
  */
-public class Pulse {
+public class GameLoop {
 
 	private Task renderTask;
 	private Task updateTask;
@@ -23,7 +23,7 @@ public class Pulse {
 	private volatile boolean running;
 	private boolean loggingEnabled;
 
-	public Pulse() {
+	public GameLoop() {
 		setFrequency(60);
 		setUpdateTask(() -> {
 		});

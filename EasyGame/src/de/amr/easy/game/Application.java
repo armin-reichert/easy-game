@@ -17,7 +17,7 @@ import de.amr.easy.game.entity.collision.CollisionHandler;
 import de.amr.easy.game.input.Keyboard;
 import de.amr.easy.game.input.KeyboardHandler;
 import de.amr.easy.game.input.MouseHandler;
-import de.amr.easy.game.timing.Pulse;
+import de.amr.easy.game.timing.GameLoop;
 import de.amr.easy.game.ui.ApplicationInfoView;
 import de.amr.easy.game.ui.ApplicationShell;
 import de.amr.easy.game.view.Controller;
@@ -69,8 +69,8 @@ public abstract class Application {
 		});
 	}
 
-	/** The PULSE of this application. */
-	public static final Pulse PULSE = new Pulse();
+	/** The game loop of the application. */
+	public static final GameLoop PULSE = new GameLoop();
 
 	/** A logger that may be used by application subclasses. */
 	public static final Logger LOGGER = Logger.getLogger(Application.class.getName());
