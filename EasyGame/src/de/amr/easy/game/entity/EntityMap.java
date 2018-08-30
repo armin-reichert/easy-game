@@ -26,8 +26,8 @@ public class EntityMap {
 		map.entrySet().removeIf(entry -> entry.getValue().equals(entity));
 	}
 
-	public void removeAll(Class<? extends GameEntity> cls) {
-		map.entrySet().removeIf(entry -> cls.isAssignableFrom(entry.getClass()));
+	public void removeAll(Class<? extends GameEntity> classToDelete) {
+		map.entrySet().removeIf(entry -> classToDelete.isAssignableFrom(entry.getValue().getClass()));
 	}
 
 	public boolean contains(String key) {
