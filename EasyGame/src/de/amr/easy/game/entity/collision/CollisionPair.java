@@ -35,7 +35,8 @@ public class CollisionPair {
 			return true;
 		}
 		CollisionPair pair = (CollisionPair) obj;
-		return pair.either == either && pair.other == other || pair.either == other && pair.other == either;
+		return pair.either == either && pair.other == other
+				|| pair.either == other && pair.other == either;
 	}
 
 	@Override

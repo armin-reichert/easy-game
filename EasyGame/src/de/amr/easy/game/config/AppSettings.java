@@ -20,7 +20,7 @@ public class AppSettings {
 
 	/** The application title. */
 	public String title = "My Application!";
-	
+
 	/** If <code>true</code>, additional info (frame rate, resolution) gets displayed in title. */
 	public boolean titleExtended;
 
@@ -82,7 +82,8 @@ public class AppSettings {
 	}
 
 	/**
-	 * Returns a property value as boolean value. If property is undefined, returns <code>false</code>.
+	 * Returns a property value as boolean value. If property is undefined, returns
+	 * <code>false</code>.
 	 * 
 	 * @param key
 	 *              property name

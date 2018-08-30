@@ -95,8 +95,8 @@ public class Assets {
 	}
 
 	private static BufferedImage createOptimizedCopy(Image image) {
-		GraphicsConfiguration conf = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice()
-				.getDefaultConfiguration();
+		GraphicsConfiguration conf = GraphicsEnvironment.getLocalGraphicsEnvironment()
+				.getDefaultScreenDevice().getDefaultConfiguration();
 		BufferedImage copy = conf.createCompatibleImage(image.getWidth(null), image.getHeight(null),
 				Transparency.TRANSLUCENT);
 		Graphics g = copy.getGraphics();
@@ -219,8 +219,8 @@ public class Assets {
 	}
 
 	/**
-	 * Returns the image with the given path. If the image is requested for the first time, it is loaded
-	 * from the specified path.
+	 * Returns the image with the given path. If the image is requested for the first time, it is
+	 * loaded from the specified path.
 	 * 
 	 * @param path
 	 *               path under assets folder or key in assets map
@@ -287,7 +287,8 @@ public class Assets {
 		s.append("\n-- Images:\n");
 		for (String name : imageNames) {
 			Image image = image(name);
-			s.append(name).append(": ").append(image.getWidth(null) + "x" + image.getHeight(null)).append("\n");
+			s.append(name).append(": ").append(image.getWidth(null) + "x" + image.getHeight(null))
+					.append("\n");
 		}
 		s.append("\n-- Sounds:\n");
 		for (String name : soundNames) {

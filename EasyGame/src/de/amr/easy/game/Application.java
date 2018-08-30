@@ -76,7 +76,8 @@ public abstract class Application {
 	public static final Logger LOGGER = Logger.getLogger(Application.class.getName());
 
 	static {
-		InputStream stream = Application.class.getClassLoader().getResourceAsStream("logging.properties");
+		InputStream stream = Application.class.getClassLoader()
+				.getResourceAsStream("logging.properties");
 		try {
 			LogManager.getLogManager().readConfiguration(stream);
 		} catch (IOException e) {

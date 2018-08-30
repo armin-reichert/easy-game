@@ -23,9 +23,11 @@ public class AudioClip implements Sound {
 			AudioInputStream audioStream = AudioSystem.getAudioInputStream(stream);
 			if (audioStream.getFormat() instanceof MpegAudioFormat) {
 				AudioFormat encodedFormat = audioStream.getFormat();
-				AudioFormat decodedFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, encodedFormat.getSampleRate(), 16,
-						encodedFormat.getChannels(), encodedFormat.getChannels() * 2, encodedFormat.getSampleRate(), false);
-				AudioInputStream decodedStream = AudioSystem.getAudioInputStream(decodedFormat, audioStream);
+				AudioFormat decodedFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
+						encodedFormat.getSampleRate(), 16, encodedFormat.getChannels(),
+						encodedFormat.getChannels() * 2, encodedFormat.getSampleRate(), false);
+				AudioInputStream decodedStream = AudioSystem.getAudioInputStream(decodedFormat,
+						audioStream);
 				clip.open(decodedStream);
 			} else {
 				clip.open(audioStream);

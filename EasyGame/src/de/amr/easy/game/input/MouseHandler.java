@@ -23,9 +23,9 @@ public enum MouseHandler implements MouseListener, MouseMotionListener {
 	public static synchronized void poll() {
 		INSTANCE._poll();
 	}
-	
+
 	public Supplier<Float> fnScale = () -> 1f;
-	
+
 	boolean clicked;
 	boolean pressed;
 	boolean released;
@@ -34,7 +34,7 @@ public enum MouseHandler implements MouseListener, MouseMotionListener {
 	int x;
 	int y;
 	int button;
-	
+
 	private boolean clickedDetected;
 	private boolean pressedDetected;
 	private boolean releasedDetected;

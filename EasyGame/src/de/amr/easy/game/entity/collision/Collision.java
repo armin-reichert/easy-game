@@ -21,8 +21,8 @@ public class Collision {
 
 	@Override
 	public String toString() {
-		return "Collision" + (collisionStart ? "Start" : "End") + "(" + first.getClass().getSimpleName() + "<->"
-				+ second.getClass().getSimpleName() + ") -> " + appEvent;
+		return "Collision" + (collisionStart ? "Start" : "End") + "(" + first.getClass().getSimpleName()
+				+ "<->" + second.getClass().getSimpleName() + ") -> " + appEvent;
 	}
 
 	public Collider getFirst() {
