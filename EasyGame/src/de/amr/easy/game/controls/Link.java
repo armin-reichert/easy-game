@@ -19,21 +19,50 @@ import de.amr.easy.game.view.View;
 
 public class Link extends GameEntity implements View {
 
+	public static class Builder {
+
+		private final Link product;
+
+		public Builder() {
+			product = new Link();
+		}
+
+		public Builder text(String text) {
+			product.text = text;
+			return this;
+		}
+
+		public Builder font(Font font) {
+			product.font = font;
+			return this;
+		}
+		
+		public Builder color(Color color) {
+			product.color = color;
+			return this;
+		}
+		
+		public Builder url(URL url) {
+			product.url = url;
+			return this;
+		}
+		
+		public Link build() {
+			product.computeSize();
+			return product;
+		}
+	}
+
+	public static Builder create() {
+		return new Builder();
+	}
+
 	private String text;
 	private Font font;
 	private Color color;
 	private URL url;
 
-	public Link(String text, Font font, Color color) {
-		Objects.requireNonNull(text);
-		this.text = text;
-		this.font = font;
-		this.color = color;
-		computeSize();
-	}
-
-	public Link() {
-		this("", new Font(Font.SANS_SERIF, Font.PLAIN, 12), Color.BLUE);
+	private Link() {
 	}
 
 	public String getText() {
@@ -97,11 +126,9 @@ public class Link extends GameEntity implements View {
 		g.translate(tf.getX(), tf.getY());
 		g.setColor(color);
 		g.setFont(font);
-		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-				RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		g.drawString(text, 0, g.getFontMetrics().getAscent());
-		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-				RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
 		g.translate(-tf.getX(), -tf.getY());
 	}
 
