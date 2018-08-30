@@ -22,7 +22,7 @@ import de.amr.easy.game.ui.ApplicationInfoView;
 import de.amr.easy.game.ui.ApplicationShell;
 import de.amr.easy.game.view.Controller;
 import de.amr.easy.game.view.View;
-import de.amr.easy.game.view.VisualController;
+import de.amr.easy.game.view.ViewController;
 
 /**
  * Application base class. To start an application, create an application subclass, define its
@@ -190,8 +190,8 @@ public abstract class Application {
 		if (controller instanceof View) {
 			View view = (View) controller;
 			shell.renderView(view);
-		} else if (controller instanceof VisualController) {
-			VisualController vc = ((VisualController) controller);
+		} else if (controller instanceof ViewController) {
+			ViewController vc = ((ViewController) controller);
 			if (vc.currentView() != null) {
 				shell.renderView(vc.currentView());
 			}
