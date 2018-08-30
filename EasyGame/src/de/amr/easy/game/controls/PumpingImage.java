@@ -6,23 +6,69 @@ import static java.lang.Math.round;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.util.Objects;
 
 import de.amr.easy.game.entity.GameEntityUsingSprites;
 import de.amr.easy.game.sprite.Sprite;
 
 public class PumpingImage extends GameEntityUsingSprites {
 
-	private final int frameCount = 6;
-	private final Image image;
+	public static class Builder {
+
+		private final PumpingImage product;
+
+		private Builder() {
+			product = new PumpingImage();
+		}
+
+		public Builder image(Image image) {
+			product.image = image;
+			return this;
+		}
+
+		public Builder frameCount(int frameCount) {
+			product.frameCount = frameCount;
+			return this;
+		}
+
+		public Builder scale(int scale) {
+			product.scale = scale;
+			return this;
+		}
+
+		public Builder visible(boolean visible) {
+			product.visible = visible;
+			return this;
+		}
+
+		public Builder periodMillis(int millis) {
+			product.periodMillis = millis;
+			return this;
+		}
+
+		public PumpingImage build() {
+			Objects.requireNonNull(product.image);
+			product.updateSprite();
+			return product;
+		}
+	}
+
+	public static Builder create() {
+		return new Builder();
+	}
+
+	private Image image;
 	private Sprite sprite;
+	private int frameCount;
 	private float scale;
 	private boolean visible;
+	private int periodMillis;
 
-	public PumpingImage(Image image) {
-		this.image = image;
+	private PumpingImage() {
+		frameCount = 6;
 		scale = 2;
 		visible = true;
-		updateSprite();
+		periodMillis = 1000;
 	}
 
 	public void setScale(float scale) {
@@ -47,17 +93,17 @@ public class PumpingImage extends GameEntityUsingSprites {
 			frames[i] = image.getScaledInstance(-1, frameHeight, BufferedImage.SCALE_FAST);
 		}
 		sprite = Sprite.of(frames);
-		sprite.animate(BACK_AND_FORTH, 166);
+		sprite.animate(BACK_AND_FORTH, periodMillis / frameCount);
 		sprite.enableAnimation(true);
-		tf.setWidth(sprite.getMaxWidth());
-		tf.setHeight(sprite.getMaxHeight());
 		setSprite("s_image", sprite);
 		setCurrentSprite("s_image");
+		tf.setWidth(sprite.getMaxWidth());
+		tf.setHeight(sprite.getMaxHeight());
 	}
 
 	@Override
 	public void draw(Graphics2D g) {
-		if (isVisible()) {
+		if (visible) {
 			int dx = (tf.getWidth() - sprite.currentFrame().getWidth(null)) / 2;
 			int dy = (tf.getHeight() - sprite.currentFrame().getHeight(null)) / 2;
 			g.translate(dx, dy);
