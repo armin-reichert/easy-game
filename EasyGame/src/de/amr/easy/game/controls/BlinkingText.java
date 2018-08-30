@@ -17,32 +17,69 @@ import de.amr.easy.game.sprite.Sprite;
  */
 public class BlinkingText extends GameEntityUsingSprites {
 
+	public static class Builder {
+
+		private final BlinkingText product;
+
+		public Builder() {
+			product = new BlinkingText();
+		}
+
+		public Builder text(String text) {
+			Objects.requireNonNull(text);
+			product.text = text;
+			return this;
+		}
+
+		public Builder font(Font font) {
+			Objects.requireNonNull(font);
+			product.font = font;
+			return this;
+		}
+
+		public Builder color(Color color) {
+			Objects.requireNonNull(color);
+			product.color = color;
+			return this;
+		}
+
+		public Builder background(Color color) {
+			Objects.requireNonNull(color);
+			product.background = color;
+			return this;
+		}
+
+		public Builder spaceExpansion(int factor) {
+			if (factor < 1) {
+				throw new IllegalArgumentException("Space factor must be greater or equal one");
+			}
+			product.spaceExpansion = factor;
+			return this;
+		}
+
+		public BlinkingText build() {
+			product.createSprite();
+			return product;
+		}
+	}
+
+	public static Builder create() {
+		return new Builder();
+	}
+
 	private String text;
 	private Font font;
 	private Color background;
 	private Color color;
 	private int spaceExpansion;
 
-	public BlinkingText() {
+	private BlinkingText() {
 		this.text = "";
 		this.font = new Font(Font.SANS_SERIF, Font.BOLD, 20);
 		this.background = Color.BLACK;
 		this.color = Color.YELLOW;
 		this.spaceExpansion = 1;
 		createSprite();
-	}
-
-	public BlinkingText set(String text, Font font, Color background, Color color) {
-		Objects.requireNonNull(text);
-		Objects.requireNonNull(font);
-		Objects.requireNonNull(background);
-		Objects.requireNonNull(color);
-		this.text = text;
-		this.font = font;
-		this.background = background;
-		this.color = color;
-		createSprite();
-		return this;
 	}
 
 	public void setText(String text) {
@@ -72,7 +109,7 @@ public class BlinkingText extends GameEntityUsingSprites {
 	public void setBlinkTime(int millis) {
 		currentSprite().animate(AnimationType.BACK_AND_FORTH, millis);
 	}
-	
+
 	public void setSpaceExpansion(int spaceExpansion) {
 		this.spaceExpansion = spaceExpansion;
 		createSprite();
