@@ -11,7 +11,7 @@ import de.amr.easy.game.sprite.AnimationType;
 import de.amr.easy.game.sprite.Sprite;
 
 /**
- * Animation showing blinking text.
+ * Blinking text.
  * 
  * @author Armin Reichert
  */
@@ -31,6 +31,11 @@ public class BlinkingText extends GameEntityUsingSprites {
 			return this;
 		}
 
+		public Builder blinkTimeMillis(int millis) {
+			product.blinkTimeMillis = millis;
+			return this;
+		}
+		
 		public Builder font(Font font) {
 			Objects.requireNonNull(font);
 			product.font = font;
@@ -68,6 +73,7 @@ public class BlinkingText extends GameEntityUsingSprites {
 	}
 
 	private String text;
+	private int blinkTimeMillis;
 	private Font font;
 	private Color background;
 	private Color color;
@@ -75,6 +81,7 @@ public class BlinkingText extends GameEntityUsingSprites {
 
 	private BlinkingText() {
 		this.text = "";
+		blinkTimeMillis = 1000; 
 		this.font = new Font(Font.SANS_SERIF, Font.BOLD, 20);
 		this.background = Color.BLACK;
 		this.color = Color.YELLOW;
@@ -86,6 +93,11 @@ public class BlinkingText extends GameEntityUsingSprites {
 		Objects.requireNonNull(text);
 		this.text = text;
 		createSprite();
+	}
+	
+	public void setBlinkTimeMillis(int millis) {
+		this.blinkTimeMillis = millis;
+		currentSprite().animate(AnimationType.BACK_AND_FORTH, blinkTimeMillis);
 	}
 
 	public void setFont(Font font) {
@@ -140,7 +152,7 @@ public class BlinkingText extends GameEntityUsingSprites {
 		g.setFont(font);
 		g.drawString(patchedText, 0, height);
 		g.dispose();
-		setSprite("s_text", Sprite.of(image, null).animate(AnimationType.BACK_AND_FORTH, 500));
+		setSprite("s_text", Sprite.of(image, null).animate(AnimationType.BACK_AND_FORTH, blinkTimeMillis / 2));
 		setCurrentSprite("s_text");
 	}
 
