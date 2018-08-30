@@ -12,7 +12,7 @@ import javax.swing.UIManager;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 
 import de.amr.easy.game.config.AppSettings;
-import de.amr.easy.game.controls.ApplicationInfo;
+import de.amr.easy.game.controls.ApplicationInfoView;
 import de.amr.easy.game.entity.EntityMap;
 import de.amr.easy.game.entity.collision.CollisionHandler;
 import de.amr.easy.game.input.Keyboard;
@@ -95,7 +95,7 @@ public abstract class Application {
 	private ApplicationShell shell;
 
 	/** The default view of this application. */
-	private final ApplicationInfo defaultView;
+	private final ApplicationInfoView defaultView;
 
 	/** The current controller. */
 	private Controller controller;
@@ -111,7 +111,7 @@ public abstract class Application {
 	public Application() {
 		settings = new AppSettings();
 		entities = new EntityMap();
-		defaultView = new ApplicationInfo(this);
+		defaultView = new ApplicationInfoView(this);
 		controller = defaultView;
 		PULSE.setUpdateTask(this::update);
 		PULSE.setRenderTask(this::render);
