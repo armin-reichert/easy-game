@@ -28,7 +28,7 @@ public class ApplicationInfoView implements Controller, View {
 	public void init() {
 		text = TextArea.create().text(createText()).speedY(-0.5f).color(Color.WHITE)
 				.font(new Font(Font.SANS_SERIF, Font.BOLD, 14)).build();
-		text.centerHorizontally(app.settings.width);
+		text.tf.centerX(app.settings.width);
 		text.tf.setY(app.settings.height);
 		text.start();
 	}

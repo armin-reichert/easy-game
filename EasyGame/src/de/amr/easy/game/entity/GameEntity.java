@@ -24,19 +24,6 @@ public class GameEntity implements Controller, Collider {
 		return tf.getCollisionBox();
 	}
 
-	public void centerHorizontally(int width) {
-		tf.setX((width - tf.getWidth()) / 2);
-	}
-
-	public void centerVertically(int height) {
-		tf.setY((height - tf.getHeight()) / 2);
-	}
-
-	public void center(int width, int height) {
-		centerHorizontally(width);
-		centerVertically(height);
-	}
-
 	@Override
 	public void init() {
 	}

@@ -69,16 +69,29 @@ public class Transform {
 		position = Vector2f.of(position.x, y);
 	}
 
-	public void moveTo(float x, float y) {
+	public void setPosition(float x, float y) {
 		position = Vector2f.of(x, y);
 	}
 
-	public void moveTo(Vector2f p) {
+	public void setPosition(Vector2f p) {
 		position = Vector2f.of(p.x, p.y);
 	}
 
 	public void move() {
 		position = Vector2f.sum(position, velocity);
+	}
+
+	public void centerX(int width) {
+		setX((width - getWidth()) / 2);
+	}
+
+	public void centerY(int height) {
+		setY((height - getHeight()) / 2);
+	}
+
+	public void center(int width, int height) {
+		centerX(width);
+		centerY(height);
 	}
 
 	public void setVelocity(float vx, float vy) {
