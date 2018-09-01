@@ -158,9 +158,7 @@ public class ApplicationShell implements PropertyChangeListener {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				int key = e.getKeyCode();
-				if (key == KeyEvent.VK_ESCAPE) {
-					app.exit();
-				} else if (key == KeyEvent.VK_F11) {
+				if (key == KeyEvent.VK_F11) {
 					toggleFullScreen();
 				} else if (key == KeyEvent.VK_F2) {
 					showControlDialog();
