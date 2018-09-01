@@ -56,12 +56,12 @@ public class Clock {
 		return updateCount;
 	}
 
-	public int secToTicks(float seconds) {
+	/**
+	 * @param seconds seconds
+	 * @return number of clock ticks representing given seconds
+	 */
+	public int sec(float seconds) {
 		return Math.round(getFrequency() * seconds);
-	}
-
-	public float ticksToSec(int ticks) {
-		return (float) ticks / getFrequency();
 	}
 
 	public synchronized void addRenderListener(PropertyChangeListener observer) {
