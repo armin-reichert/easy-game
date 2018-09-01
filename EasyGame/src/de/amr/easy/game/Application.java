@@ -18,7 +18,7 @@ import de.amr.easy.game.input.Keyboard;
 import de.amr.easy.game.input.Keyboard.Modifier;
 import de.amr.easy.game.input.KeyboardHandler;
 import de.amr.easy.game.input.MouseHandler;
-import de.amr.easy.game.timing.GameLoop;
+import de.amr.easy.game.timing.Clock;
 import de.amr.easy.game.ui.ApplicationInfoView;
 import de.amr.easy.game.ui.ApplicationShell;
 import de.amr.easy.game.view.Controller;
@@ -70,21 +70,20 @@ public abstract class Application {
 		});
 	}
 
-	/** The game loop of the application. */
-	public static final GameLoop PULSE = new GameLoop();
-
 	/** A logger that may be used by application subclasses. */
 	public static final Logger LOGGER = Logger.getLogger(Application.class.getName());
 
 	static {
-		InputStream stream = Application.class.getClassLoader()
-				.getResourceAsStream("logging.properties");
+		InputStream stream = Application.class.getClassLoader().getResourceAsStream("logging.properties");
 		try {
 			LogManager.getLogManager().readConfiguration(stream);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
+
+	/** The clock of the application. */
+	public static final Clock CLOCK = new Clock();
 
 	/** The settings of this application. */
 	public final AppSettings settings;
@@ -110,14 +109,15 @@ public abstract class Application {
 	 * Base class constructor. By default, applications run at 60 frames/second.
 	 */
 	public Application() {
+		CLOCK.setUpdateTask(this::update);
+		CLOCK.setRenderTask(this::render);
+		CLOCK.setFrequency(60);
 		settings = new AppSettings();
 		entities = new EntityMap();
 		defaultView = new ApplicationInfoView(this);
 		controller = defaultView;
-		PULSE.setUpdateTask(this::update);
-		PULSE.setRenderTask(this::render);
-		MouseHandler.INSTANCE.fnScale = () -> settings.scale;
 		collisionHandler = new CollisionHandler();
+		MouseHandler.INSTANCE.fnScale = () -> settings.scale;
 		LOGGER.info("Application " + getClass().getSimpleName() + " created.");
 	}
 
@@ -151,14 +151,14 @@ public abstract class Application {
 		setController(controller, true);
 	}
 
-	/** Called after initialization and starts the PULSE. */
+	/** Called after initialization and starts the clock. */
 	private final void start() {
 		defaultView.init();
 		LOGGER.info("Default view initialized.");
 		init();
 		LOGGER.info("Application initialized.");
-		PULSE.start();
-		LOGGER.info("PULSE started.");
+		CLOCK.start();
+		LOGGER.info(String.format("Clock running with %d ticks/sec.", CLOCK.getFrequency()));
 	}
 
 	private final void pause(boolean state) {
@@ -170,7 +170,7 @@ public abstract class Application {
 	 * Exits the application and the Java VM.
 	 */
 	public final void exit() {
-		PULSE.stop();
+		CLOCK.stop();
 		LOGGER.info("Application terminated.");
 		System.exit(0);
 	}

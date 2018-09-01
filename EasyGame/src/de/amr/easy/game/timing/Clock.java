@@ -8,11 +8,11 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import java.beans.PropertyChangeListener;
 
 /**
- * The game loop which drives the application.
+ * The clock that triggers ticks and runs the game loop.
  * 
  * @author Armin Reichert
  */
-public class GameLoop {
+public class Clock {
 
 	private Task renderTask;
 	private Task updateTask;
@@ -23,8 +23,7 @@ public class GameLoop {
 	private volatile boolean running;
 	private boolean loggingEnabled;
 
-	public GameLoop() {
-		setFrequency(60);
+	public Clock() {
 		setUpdateTask(() -> {
 		});
 		setRenderTask(() -> {
@@ -46,6 +45,7 @@ public class GameLoop {
 	public void setFrequency(int fps) {
 		this.frequency = fps;
 		period = fps > 0 ? SECONDS.toNanos(1) / fps : Integer.MAX_VALUE;
+		LOGGER.info("Clock frequency set to " + frequency);
 	}
 
 	public int getFrequency() {

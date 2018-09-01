@@ -36,17 +36,21 @@ public class Link extends GameEntity implements View {
 			product.font = font;
 			return this;
 		}
-		
+
 		public Builder color(Color color) {
 			product.color = color;
 			return this;
 		}
-		
-		public Builder url(URL url) {
-			product.url = url;
+
+		public Builder url(String spec) {
+			try {
+				product.url = new URL(spec);
+			} catch (MalformedURLException e) {
+				Application.LOGGER.info("Invalid link URL: " + spec);
+			}
 			return this;
 		}
-		
+
 		public Link build() {
 			product.computeSize();
 			return product;
