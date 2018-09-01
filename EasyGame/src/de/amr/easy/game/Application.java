@@ -15,6 +15,7 @@ import de.amr.easy.game.config.AppSettings;
 import de.amr.easy.game.entity.EntityMap;
 import de.amr.easy.game.entity.collision.CollisionHandler;
 import de.amr.easy.game.input.Keyboard;
+import de.amr.easy.game.input.Keyboard.Modifier;
 import de.amr.easy.game.input.KeyboardHandler;
 import de.amr.easy.game.input.MouseHandler;
 import de.amr.easy.game.timing.GameLoop;
@@ -177,7 +178,7 @@ public abstract class Application {
 	private void update() {
 		KeyboardHandler.poll();
 		MouseHandler.poll();
-		if (Keyboard.isControlDown() && Keyboard.keyPressedOnce(VK_P)) {
+		if (Keyboard.keyPressedOnce(Modifier.CONTROL, VK_P)) {
 			pause(!paused);
 		}
 		if (!paused) {

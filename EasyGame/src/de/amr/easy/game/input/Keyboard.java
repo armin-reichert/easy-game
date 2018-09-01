@@ -22,7 +22,7 @@ public class Keyboard {
 	}
 
 	public static boolean keyPressedOnce(int key) {
-		return INSTANCE.pressedOnce(key);
+		return INSTANCE.pressedOnce(key) && !isAltDown() && !isControlDown() && !isShiftDown();
 	}
 
 	public static boolean keyDown(int key) {
