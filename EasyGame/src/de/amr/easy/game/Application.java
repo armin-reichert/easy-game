@@ -84,6 +84,9 @@ public abstract class Application {
 
 	/** The clock of the application. */
 	public static final Clock CLOCK = new Clock();
+	
+	/** Reference to the application instance. */
+	private static Application INSTANCE;
 
 	/** The settings of this application. */
 	public final AppSettings settings;
@@ -104,11 +107,17 @@ public abstract class Application {
 	public final CollisionHandler collisionHandler;
 
 	private boolean paused;
+	
+	/** The application instance via static accessor. */
+	public static Application app() {
+		return INSTANCE;
+	}
 
 	/**
 	 * Base class constructor. By default, applications run at 60 frames/second.
 	 */
 	public Application() {
+		INSTANCE = this;
 		CLOCK.setUpdateTask(this::update);
 		CLOCK.setRenderTask(this::render);
 		CLOCK.setFrequency(60);
