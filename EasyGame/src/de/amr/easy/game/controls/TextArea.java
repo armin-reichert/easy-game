@@ -119,10 +119,12 @@ public class TextArea extends GameEntityUsingSprites implements AnimationControl
 	}
 
 	public void setSpeedX(float speed) {
+		speedX = speed;
 		tf.setVelocityX(speed);
 	}
 
 	public void setSpeedY(float speed) {
+		speedY = speed;
 		tf.setVelocityY(speed);
 	}
 
