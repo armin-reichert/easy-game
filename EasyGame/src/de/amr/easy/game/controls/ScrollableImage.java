@@ -8,17 +8,17 @@ import de.amr.easy.game.math.Vector2f;
 import de.amr.easy.game.sprite.Sprite;
 
 /**
- * An animation scrolling an image.
+ * An image that can be scrolled.
  * 
  * @author Armin Reichert
  */
-public class ScrollingImage extends GameEntityUsingSprites implements AnimationController {
+public class ScrollableImage extends GameEntityUsingSprites implements AnimationController {
 
 	private float speedX;
 	private float speedY;
 	private BooleanSupplier completion;
 
-	public ScrollingImage(Image image) {
+	public ScrollableImage(Image image) {
 		completion = () -> false;
 		setSprite("s_image", Sprite.of(image));
 		setCurrentSprite("s_image");
