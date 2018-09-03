@@ -219,7 +219,7 @@ public class TextArea extends GameEntityUsingSprites implements AnimationControl
 
 		// store sprite and set collision box
 		setSprite("s_image", Sprite.of(image));
-		setCurrentSprite("s_image");
+		setSelectedSprite("s_image");
 		tf.setWidth((int) textWidth);
 		tf.setHeight((int) textHeight);
 	}

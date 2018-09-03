@@ -17,7 +17,7 @@ import de.amr.easy.game.view.View;
 public abstract class GameEntityUsingSprites extends GameEntity implements View {
 
 	private final Map<String, Sprite> spriteMap = new HashMap<>();
-	private String currentSprite;
+	private String selectedSprite;
 
 	public void setSprite(String name, Sprite sprite) {
 		spriteMap.put(name, sprite);
@@ -31,12 +31,12 @@ public abstract class GameEntityUsingSprites extends GameEntity implements View 
 		return spriteMap.get(name);
 	}
 
-	public void setCurrentSprite(String name) {
-		currentSprite = name;
+	public void setSelectedSprite(String name) {
+		selectedSprite = name;
 	}
 
-	public final Sprite currentSprite() {
-		return spriteMap.get(currentSprite);
+	public final Sprite getSelectedSprite() {
+		return spriteMap.get(selectedSprite);
 	}
 
 	public final Stream<Sprite> getSprites() {
@@ -49,11 +49,11 @@ public abstract class GameEntityUsingSprites extends GameEntity implements View 
 
 	@Override
 	public void draw(Graphics2D g) {
-		if (spriteMap.containsKey(currentSprite)) {
+		if (spriteMap.containsKey(selectedSprite)) {
 			Graphics2D pen = (Graphics2D) g.create();
 			pen.translate(tf.getX(), tf.getY());
 			pen.rotate(tf.getRotation());
-			spriteMap.get(currentSprite).draw(pen);
+			getSelectedSprite().draw(pen);
 			pen.dispose();
 		}
 	}
