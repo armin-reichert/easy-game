@@ -31,8 +31,11 @@ import de.amr.easy.game.input.MouseHandler;
 import de.amr.easy.game.view.View;
 
 /**
- * The application shell provides the window or the full-screen display where the current scene of
- * the application is shown.
+ * The application shell provides the window (optionally full-screen) where the current application
+ * view is displayed. The display canvas uses double buffering and is actively rendered depending
+ * on the frequency of the application clock.
+ * <p>
+ * Using the F11-key the user can toggle between full-screen and windowed mode.
  * 
  * @author Armin Reichert
  */
@@ -112,18 +115,10 @@ public class ApplicationShell implements PropertyChangeListener {
 								g.setClip(0, 0, (int) scaledWidth, (int) scaledHeight);
 							}
 						}
-						Graphics2D sg = (Graphics2D) g.create();
-						sg.scale(app.settings.scale, app.settings.scale);
-						view.draw(sg);
-						sg.dispose();
+						g.scale(app.settings.scale, app.settings.scale);
+						view.draw(g);
 						if (app.isPaused()) {
-							String text = "PAUSED (Press CTRL+P to continue)";
-							g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-									RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-							g.setColor(Color.RED);
-							g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, getWidth() / text.length()));
-							Rectangle2D bounds = g.getFontMetrics().getStringBounds(text, g);
-							g.drawString(text, (int) (getWidth() - bounds.getWidth()) / 2, getHeight() / 2);
+							drawPausedText(g);
 						}
 					}
 				} catch (Exception x) {
@@ -141,6 +136,16 @@ public class ApplicationShell implements PropertyChangeListener {
 				x.printStackTrace(System.err);
 			}
 		} while (buffer.contentsLost());
+	}
+
+	protected void drawPausedText(Graphics2D g) {
+		String text = "PAUSED (Press CTRL+P to continue)";
+		Rectangle2D bounds = g.getFontMetrics().getStringBounds(text, g);
+		g.setColor(Color.RED);
+		g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, getWidth() / text.length()));
+		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		g.drawString(text, (int) (getWidth() - bounds.getWidth()) / 2, getHeight() / 2);
+		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
 	}
 
 	private JFrame createFrame() {
@@ -185,9 +190,7 @@ public class ApplicationShell implements PropertyChangeListener {
 		canvas.setBackground(app.settings.bgColor);
 		canvas.setIgnoreRepaint(true);
 		canvas.setFocusable(false);
-
 		MouseHandler.handleMouseEventsFor(canvas);
-
 		return canvas;
 	}
 
@@ -211,8 +214,7 @@ public class ApplicationShell implements PropertyChangeListener {
 		}
 		DisplayMode mode = app.settings.fullScreenMode.getDisplayMode();
 		if (!isValidDisplayMode(mode)) {
-			LOGGER.info(
-					"Cannot enter full-screen mode: Display mode not supported: " + formatDisplayMode(mode));
+			LOGGER.info("Cannot enter full-screen mode: Display mode not supported: " + formatDisplayMode(mode));
 			return;
 		}
 		frame.dispose();
