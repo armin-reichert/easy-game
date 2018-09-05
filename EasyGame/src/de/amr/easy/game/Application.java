@@ -53,6 +53,11 @@ public abstract class Application {
 	/** Reference to the application instance. */
 	private static Application INSTANCE;
 
+	/** Static access to application instance. */
+	public static Application app() {
+		return INSTANCE;
+	}
+
 	/**
 	 * Launches the given application.
 	 * 
@@ -90,6 +95,9 @@ public abstract class Application {
 	/** The settings of this application. */
 	public final AppSettings settings;
 
+	/** The collision handler of this application. */
+	public final CollisionHandler collisionHandler;
+
 	/** The window displaying the application. */
 	private ApplicationShell shell;
 
@@ -99,15 +107,8 @@ public abstract class Application {
 	/** The current controller. */
 	private Controller controller;
 
-	/** The collision handler of this application. */
-	public final CollisionHandler collisionHandler;
-
+	/** Tells if the application is paused (no updates and collision checks). */
 	private boolean paused;
-
-	/** The application instance via static accessor. */
-	public static Application app() {
-		return INSTANCE;
-	}
 
 	/**
 	 * Base class constructor. By default, applications run at 60 frames/second.
@@ -119,9 +120,9 @@ public abstract class Application {
 		clock.setFrequency(60);
 		settings = new AppSettings();
 		defaultView = new ApplicationInfoView(this);
-		controller = defaultView;
 		collisionHandler = new CollisionHandler();
 		MouseHandler.INSTANCE.fnScale = () -> settings.scale;
+		controller = defaultView;
 		LOGGER.info("Application " + getClass().getSimpleName() + " created.");
 	}
 
@@ -155,19 +156,14 @@ public abstract class Application {
 		setController(controller, true);
 	}
 
-	/** Called after initialization and starts the clock. */
+	/** Initializes the application and starts the clock. */
 	private final void start() {
 		defaultView.init();
 		LOGGER.info("Default view initialized.");
 		init();
 		LOGGER.info("Application initialized.");
 		clock.start();
-		LOGGER.info(String.format("clock running with %d ticks/sec.", clock.getFrequency()));
-	}
-
-	private final void pause(boolean state) {
-		paused = state;
-		LOGGER.info("Application" + (state ? " paused." : " resumed."));
+		LOGGER.info(String.format("Clock running with %d ticks/sec.", clock.getFrequency()));
 	}
 
 	/**
@@ -177,6 +173,20 @@ public abstract class Application {
 		clock.stop();
 		LOGGER.info("Application terminated.");
 		System.exit(0);
+	}
+
+	/**
+	 * Tells if the application is paused.
+	 * 
+	 * @return if the application is paused
+	 */
+	public boolean isPaused() {
+		return paused;
+	}
+
+	private void pause(boolean state) {
+		paused = state;
+		LOGGER.info("Application" + (state ? " paused." : " resumed."));
 	}
 
 	private void update() {
@@ -201,23 +211,5 @@ public abstract class Application {
 				shell.renderView(vc.currentView());
 			}
 		}
-	}
-
-	/**
-	 * Returns the application shell.
-	 * 
-	 * @return the application shell
-	 */
-	public ApplicationShell getShell() {
-		return shell;
-	}
-
-	/**
-	 * Tells if the application is paused.
-	 * 
-	 * @return if the application is paused
-	 */
-	public boolean isPaused() {
-		return paused;
 	}
 }
