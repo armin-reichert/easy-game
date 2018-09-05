@@ -82,12 +82,12 @@ public abstract class Application {
 		}
 	}
 
-	/** The clock of the application. */
-	public static final Clock CLOCK = new Clock();
-	
 	/** Reference to the application instance. */
 	private static Application INSTANCE;
 
+	/** The clock of the application. */
+	public final Clock clock = new Clock();
+	
 	/** The settings of this application. */
 	public final AppSettings settings;
 
@@ -118,9 +118,9 @@ public abstract class Application {
 	 */
 	public Application() {
 		INSTANCE = this;
-		CLOCK.setUpdateTask(this::update);
-		CLOCK.setRenderTask(this::render);
-		CLOCK.setFrequency(60);
+		clock.setUpdateTask(this::update);
+		clock.setRenderTask(this::render);
+		clock.setFrequency(60);
 		settings = new AppSettings();
 		entities = new EntityMap();
 		defaultView = new ApplicationInfoView(this);
@@ -166,8 +166,8 @@ public abstract class Application {
 		LOGGER.info("Default view initialized.");
 		init();
 		LOGGER.info("Application initialized.");
-		CLOCK.start();
-		LOGGER.info(String.format("Clock running with %d ticks/sec.", CLOCK.getFrequency()));
+		clock.start();
+		LOGGER.info(String.format("clock running with %d ticks/sec.", clock.getFrequency()));
 	}
 
 	private final void pause(boolean state) {
@@ -179,7 +179,7 @@ public abstract class Application {
 	 * Exits the application and the Java VM.
 	 */
 	public final void exit() {
-		CLOCK.stop();
+		clock.stop();
 		LOGGER.info("Application terminated.");
 		System.exit(0);
 	}

@@ -45,7 +45,7 @@ public class Clock {
 	public void setFrequency(int fps) {
 		this.frequency = fps;
 		period = fps > 0 ? SECONDS.toNanos(1) / fps : Integer.MAX_VALUE;
-		LOGGER.info("Clock frequency set to " + frequency);
+		LOGGER.info("clock frequency set to " + frequency);
 	}
 
 	public int getFrequency() {

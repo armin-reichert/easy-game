@@ -51,8 +51,8 @@ public class ApplicationShell implements PropertyChangeListener {
 
 	public ApplicationShell(Application app) {
 		this.app = app;
-		Application.CLOCK.addRenderListener(this);
-		Application.CLOCK.addUpdateListener(this);
+		app.clock.addRenderListener(this);
+		app.clock.addUpdateListener(this);
 		fullScreen = app.settings.fullScreenOnStart;
 		device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 		canvas = createCanvas();

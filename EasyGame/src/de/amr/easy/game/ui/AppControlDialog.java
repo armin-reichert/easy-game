@@ -21,10 +21,10 @@ public class AppControlDialog extends JDialog {
 
 			@Override
 			public void stateChanged(ChangeEvent e) {
-				Application.CLOCK.setFrequency(fpsControl.getValue());
+				app.clock.setFrequency(fpsControl.getValue());
 			}
 		});
-		fpsControl.setValue(Application.CLOCK.getFrequency());
+		fpsControl.setValue(app.clock.getFrequency());
 		fpsControl.setMajorTickSpacing(10);
 		fpsControl.setMinorTickSpacing(1);
 		fpsControl.setPaintTicks(true);
