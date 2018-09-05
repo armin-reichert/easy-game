@@ -12,7 +12,6 @@ import javax.swing.UIManager;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 
 import de.amr.easy.game.config.AppSettings;
-import de.amr.easy.game.entity.EntityMap;
 import de.amr.easy.game.entity.collision.CollisionHandler;
 import de.amr.easy.game.input.Keyboard;
 import de.amr.easy.game.input.Keyboard.Modifier;
@@ -51,6 +50,9 @@ import de.amr.easy.game.view.ViewController;
  */
 public abstract class Application {
 
+	/** Reference to the application instance. */
+	private static Application INSTANCE;
+
 	/**
 	 * Launches the given application.
 	 * 
@@ -82,17 +84,11 @@ public abstract class Application {
 		}
 	}
 
-	/** Reference to the application instance. */
-	private static Application INSTANCE;
-
 	/** The clock of the application. */
 	public final Clock clock = new Clock();
-	
+
 	/** The settings of this application. */
 	public final AppSettings settings;
-
-	/** The entities of this application. */
-	public final EntityMap entities;
 
 	/** The window displaying the application. */
 	private ApplicationShell shell;
@@ -107,7 +103,7 @@ public abstract class Application {
 	public final CollisionHandler collisionHandler;
 
 	private boolean paused;
-	
+
 	/** The application instance via static accessor. */
 	public static Application app() {
 		return INSTANCE;
@@ -122,7 +118,6 @@ public abstract class Application {
 		clock.setRenderTask(this::render);
 		clock.setFrequency(60);
 		settings = new AppSettings();
-		entities = new EntityMap();
 		defaultView = new ApplicationInfoView(this);
 		controller = defaultView;
 		collisionHandler = new CollisionHandler();
