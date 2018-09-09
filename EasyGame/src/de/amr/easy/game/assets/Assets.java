@@ -1,11 +1,10 @@
 package de.amr.easy.game.assets;
 
+import static de.amr.easy.game.Application.LOGGER;
+
 import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.GraphicsConfiguration;
-import java.awt.GraphicsEnvironment;
+import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -17,8 +16,6 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
-
-import de.amr.easy.game.Application;
 
 /**
  * This class provides functionality to access assets like image, sounds, fonts etc.
@@ -38,7 +35,7 @@ public class Assets {
 	private static InputStream stream(String path) {
 		InputStream stream = Assets.class.getClassLoader().getResourceAsStream(path);
 		if (stream == null) {
-			Application.LOGGER.severe(String.format("Resource with assets path %s not found", path));
+			LOGGER.severe(String.format("Assets: Resource '%s' not found", path));
 			throw new RuntimeException();
 		}
 		return stream;
@@ -59,7 +56,7 @@ public class Assets {
 			}
 			return sb.toString();
 		} catch (IOException e) {
-			Application.LOGGER.severe("Could not read text resource: " + path);
+			LOGGER.severe(String.format("Assets: Could not read text file '%s'", path));
 			throw new RuntimeException(e);
 		}
 	}
@@ -68,7 +65,7 @@ public class Assets {
 		try (InputStream fontStream = stream(fontFilePath)) {
 			return Font.createFont(Font.TRUETYPE_FONT, fontStream);
 		} catch (Exception e) {
-			Application.LOGGER.severe("Could not read font: " + fontFilePath);
+			LOGGER.severe(String.format("Assets: Could not read font '%s'", fontFilePath));
 			throw new RuntimeException(e);
 		}
 	}
@@ -84,25 +81,14 @@ public class Assets {
 		try (InputStream stream = stream(path)) {
 			BufferedImage image = ImageIO.read(stream);
 			if (image != null) {
-				return createOptimizedCopy(image);
+				return image;
 			}
-			Application.LOGGER.severe("Image resource not found: " + path);
-			throw new IllegalArgumentException();
+			LOGGER.severe(String.format("Assets: Image '%s' not found", path));
+			throw new RuntimeException();
 		} catch (IOException e) {
-			Application.LOGGER.severe("Could not read image resource: " + path);
+			LOGGER.severe(String.format("Assets: Image '%s' could not be read", path));
 			throw new RuntimeException(e);
 		}
-	}
-
-	private static BufferedImage createOptimizedCopy(Image image) {
-		GraphicsConfiguration conf = GraphicsEnvironment.getLocalGraphicsEnvironment()
-				.getDefaultScreenDevice().getDefaultConfiguration();
-		BufferedImage copy = conf.createCompatibleImage(image.getWidth(null), image.getHeight(null),
-				Transparency.TRANSLUCENT);
-		Graphics g = copy.getGraphics();
-		g.drawImage(image, 0, 0, null);
-		g.dispose();
-		return copy;
 	}
 
 	/**
@@ -118,7 +104,11 @@ public class Assets {
 	 */
 	public static BufferedImage scaledImage(Image image, int width, int height) {
 		Image scaled = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
-		return createOptimizedCopy(scaled);
+		BufferedImage bi = new BufferedImage(scaled.getWidth(null), scaled.getHeight(null),
+				BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g = bi.createGraphics();
+		g.drawImage(scaled, 0, 0, bi.getWidth(), bi.getHeight(), null);
+		return bi;
 	}
 
 	/**
@@ -158,7 +148,7 @@ public class Assets {
 	 */
 	public static void storeImage(String path, Image image) {
 		if (imageMap.put(path, image) != null) {
-			Application.LOGGER.warning("Image with name: " + path + " has been replaced.");
+			LOGGER.warning(String.format("Assets: Image '%s' was replaced.", path));
 		}
 	}
 
@@ -219,8 +209,8 @@ public class Assets {
 	}
 
 	/**
-	 * Returns the image with the given path. If the image is requested for the first time, it is
-	 * loaded from the specified path.
+	 * Returns the image with the given path. If the image is requested for the first time, it is loaded
+	 * from the specified path.
 	 * 
 	 * @param path
 	 *               path under assets folder or key in assets map
@@ -250,8 +240,7 @@ public class Assets {
 			soundMap.put(path, clip);
 			return clip;
 		} catch (Exception e) {
-			Application.LOGGER.severe("Could not read sound resource from asset path: " + path);
-			e.printStackTrace();
+			LOGGER.severe(String.format("Assets: Could not read sound resource '%s'", path));
 			throw new RuntimeException(e);
 		}
 	}
@@ -287,8 +276,7 @@ public class Assets {
 		s.append("\n-- Images:\n");
 		for (String name : imageNames) {
 			Image image = image(name);
-			s.append(name).append(": ").append(image.getWidth(null) + "x" + image.getHeight(null))
-					.append("\n");
+			s.append(name).append(": ").append(image.getWidth(null) + "x" + image.getHeight(null)).append("\n");
 		}
 		s.append("\n-- Sounds:\n");
 		for (String name : soundNames) {
