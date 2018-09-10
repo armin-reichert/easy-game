@@ -18,7 +18,6 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferStrategy;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -115,8 +114,10 @@ public class ApplicationShell implements PropertyChangeListener {
 								g.setClip(0, 0, (int) scaledWidth, (int) scaledHeight);
 							}
 						}
-						g.scale(app.settings.scale, app.settings.scale);
-						view.draw(g);
+						Graphics2D sg = (Graphics2D) g.create();
+						sg.scale(app.settings.scale, app.settings.scale);
+						view.draw(sg);
+						sg.dispose();
 						if (app.isPaused()) {
 							drawPausedText(g);
 						}
@@ -140,11 +141,11 @@ public class ApplicationShell implements PropertyChangeListener {
 
 	protected void drawPausedText(Graphics2D g) {
 		String text = "PAUSED (Press CTRL+P to continue)";
-		Rectangle2D bounds = g.getFontMetrics().getStringBounds(text, g);
 		g.setColor(Color.RED);
 		g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, getWidth() / text.length()));
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-		g.drawString(text, (int) (getWidth() - bounds.getWidth()) / 2, getHeight() / 2);
+		int width = g.getFontMetrics().stringWidth(text);
+		g.drawString(text, (getWidth() - width) / 2, getHeight() / 2);
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
 	}
 
