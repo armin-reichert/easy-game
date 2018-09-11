@@ -16,25 +16,22 @@ public class AudioClip implements Sound {
 
 	public AudioClip(InputStream stream) {
 		if (stream == null) {
-			throw new IllegalArgumentException("Audio input is NULL");
+			throw new IllegalArgumentException("Audio input stream is NULL");
 		}
 		try {
-			clip = AudioSystem.getClip();
-			AudioInputStream audioStream = AudioSystem.getAudioInputStream(stream);
-			if (audioStream.getFormat() instanceof MpegAudioFormat) {
-				AudioFormat encodedFormat = audioStream.getFormat();
-				AudioFormat decodedFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
-						encodedFormat.getSampleRate(), 16, encodedFormat.getChannels(),
-						encodedFormat.getChannels() * 2, encodedFormat.getSampleRate(), false);
-				AudioInputStream decodedStream = AudioSystem.getAudioInputStream(decodedFormat,
-						audioStream);
+			clip = AudioSystem.getClip(null);
+			AudioInputStream audioIn = AudioSystem.getAudioInputStream(stream);
+			if (audioIn.getFormat() instanceof MpegAudioFormat) {
+				AudioFormat mp3 = audioIn.getFormat();
+				AudioFormat pcm = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, mp3.getSampleRate(), 16,
+						mp3.getChannels(), mp3.getChannels() * 2, mp3.getSampleRate(), false);
+				AudioInputStream decodedStream = AudioSystem.getAudioInputStream(pcm, audioIn);
 				clip.open(decodedStream);
 			} else {
-				clip.open(audioStream);
+				clip.open(audioIn);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-			throw new RuntimeException();
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -43,7 +40,6 @@ public class AudioClip implements Sound {
 		if (isRunning()) {
 			return;
 		}
-		// stop();
 		clip.setFramePosition(0);
 		clip.start();
 	}
