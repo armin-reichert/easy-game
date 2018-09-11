@@ -8,11 +8,18 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.FloatControl;
 
+import de.amr.easy.game.Application;
 import javazoom.spi.mpeg.sampled.file.MpegAudioFormat;
 
+/**
+ * Wrapper around AudioClip supporting playback of mp3 files. If clip construction fails it becomes
+ * a silent clip doing nothing.
+ * 
+ * @author Armin Reichert
+ */
 public class AudioClip implements Sound {
 
-	private final Clip clip;
+	private Clip clip;
 
 	public AudioClip(InputStream stream) {
 		if (stream == null) {
@@ -31,46 +38,58 @@ public class AudioClip implements Sound {
 				clip.open(audioIn);
 			}
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			clip = null;
+			e.printStackTrace(System.err);
+			Application.LOGGER.info("Could not create audio clip");
 		}
 	}
 
 	@Override
 	public void play() {
-		if (isRunning()) {
-			return;
+		if (clip != null) {
+			if (isRunning()) {
+				return;
+			}
+			clip.setFramePosition(0);
+			clip.start();
 		}
-		clip.setFramePosition(0);
-		clip.start();
 	}
 
 	@Override
 	public void loop() {
-		stop();
-		clip.setFramePosition(0);
-		clip.loop(Clip.LOOP_CONTINUOUSLY);
+		if (clip != null) {
+			stop();
+			clip.setFramePosition(0);
+			clip.loop(Clip.LOOP_CONTINUOUSLY);
+		}
 	}
 
 	@Override
 	public void stop() {
-		if (clip.isRunning()) {
-			clip.stop();
+		if (clip != null) {
+			if (clip.isRunning()) {
+				clip.stop();
+			}
 		}
 	}
 
 	@Override
 	public boolean isRunning() {
-		return clip.isRunning();
+		return clip != null ? clip.isRunning() : false;
 	}
 
 	@Override
 	public void volume(float volume) {
-		FloatControl volumeControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-		volumeControl.setValue(volume);
+		if (clip != null) {
+			FloatControl volumeControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+			volumeControl.setValue(volume);
+		}
 	}
 
 	public void close() {
-		stop();
-		clip.close();
+		if (clip != null) {
+			stop();
+			clip.close();
+		}
 	}
 }
