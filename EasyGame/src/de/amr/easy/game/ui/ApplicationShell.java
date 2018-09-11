@@ -6,6 +6,7 @@ import static java.lang.String.format;
 import java.awt.BorderLayout;
 import java.awt.Canvas;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.DisplayMode;
 import java.awt.EventQueue;
@@ -13,12 +14,16 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.Image;
+import java.awt.Point;
 import java.awt.RenderingHints;
+import java.awt.Toolkit;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
+import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -31,8 +36,8 @@ import de.amr.easy.game.view.View;
 
 /**
  * The application shell provides the window (optionally full-screen) where the current application
- * view is displayed. The display canvas uses double buffering and is actively rendered depending
- * on the frequency of the application clock.
+ * view is displayed. The display canvas uses double buffering and is actively rendered depending on
+ * the frequency of the application clock.
  * <p>
  * Using the F11-key the user can toggle between full-screen and windowed mode.
  * 
@@ -44,6 +49,7 @@ public class ApplicationShell implements PropertyChangeListener {
 	private final Canvas canvas;
 	private final JFrame frame;
 	private final GraphicsDevice device;
+	private final Cursor invisibleCursor;
 	private BufferStrategy buffer;
 	private boolean fullScreen;
 	private int ups, fps;
@@ -56,6 +62,7 @@ public class ApplicationShell implements PropertyChangeListener {
 		device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 		canvas = createCanvas();
 		frame = createFrame();
+		invisibleCursor = createInvisibleCursor();
 		LOGGER.info("Application shell created.");
 	}
 
@@ -195,6 +202,11 @@ public class ApplicationShell implements PropertyChangeListener {
 		return canvas;
 	}
 
+	private Cursor createInvisibleCursor() {
+		Image cursorImage = new BufferedImage(1, 1, BufferedImage.TRANSLUCENT);
+		return Toolkit.getDefaultToolkit().createCustomCursor(cursorImage, new Point(0, 0), "invisibleCursor");
+	}
+
 	public Canvas getCanvas() {
 		return canvas;
 	}
@@ -223,6 +235,7 @@ public class ApplicationShell implements PropertyChangeListener {
 		frame.setUndecorated(true);
 		frame.validate();
 		frame.requestFocus();
+		frame.setCursor(invisibleCursor);
 		device.setFullScreenWindow(frame);
 		device.setDisplayMode(mode);
 		LOGGER.info("Full-screen mode: " + formatDisplayMode(mode));
@@ -233,6 +246,7 @@ public class ApplicationShell implements PropertyChangeListener {
 		device.setFullScreenWindow(null);
 		frame.dispose();
 		frame.setUndecorated(false);
+		frame.setCursor(Cursor.getDefaultCursor());
 		frame.pack();
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
