@@ -225,7 +225,7 @@ public class Assets {
 	}
 
 	/**
-	 * Returns the sound with the given path.
+	 * Returns the sound (clip) with the given path.
 	 * 
 	 * @param path
 	 *               path to sound file
@@ -236,9 +236,9 @@ public class Assets {
 			return soundMap.get(path);
 		}
 		try (InputStream is = stream(path)) {
-			AudioClip clip = new AudioClip(is);
-			soundMap.put(path, clip);
-			return clip;
+			Sound sound = SoundClip.of(is);
+			soundMap.put(path, sound);
+			return sound;
 		} catch (Exception e) {
 			LOGGER.severe(String.format("Assets: Could not read sound resource '%s'", path));
 			throw new RuntimeException(e);

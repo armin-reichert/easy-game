@@ -38,16 +38,26 @@ public class MidiSound implements Sound {
 
 	@Override
 	public void loop() {
+		loop(Sequencer.LOOP_CONTINUOUSLY);
+	}
+
+	@Override
+	public void loop(int count) {
 		if (sequencer.isRunning()) {
 			sequencer.stop();
 		}
-		sequencer.setLoopCount(Sequencer.LOOP_CONTINUOUSLY);
+		sequencer.setLoopCount(count);
 		sequencer.start();
 	}
 
 	@Override
 	public boolean isRunning() {
 		return sequencer.isRunning();
+	}
+
+	@Override
+	public float volume() {
+		return 0;
 	}
 
 	@Override
