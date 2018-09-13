@@ -1,14 +1,14 @@
-package de.amr.easy.game.tests;
+package de.amr.easy.game.tests.drawing;
 
 import de.amr.easy.game.Application;
 
-public class DrawTestApp extends Application {
+public class DrawingTestApp extends Application {
 
 	public static void main(String[] args) {
-		launch(new DrawTestApp());
+		launch(new DrawingTestApp());
 	}
 
-	public DrawTestApp() {
+	public DrawingTestApp() {
 		settings.title = "Drawing Test";
 		settings.width = 800;
 		settings.height = 600;
@@ -16,7 +16,7 @@ public class DrawTestApp extends Application {
 
 	@Override
 	public void init() {
-		setController(new DrawTestScene(this));
+		setController(new DrawingTestScene(this));
 	}
 
 }

@@ -1,4 +1,4 @@
-package de.amr.games.perf;
+package de.amr.easy.game.tests.framerate;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -8,14 +8,14 @@ import java.awt.image.BufferedImage;
 import de.amr.easy.game.view.Controller;
 import de.amr.easy.game.view.View;
 
-public class MainScene implements View, Controller {
+public class FramerateTestScene implements View, Controller {
 
 	private Image bgImg;
 	private int sampleIndex;
 	private int[] fpsValues;
 	private int stepX = 20;
 
-	public MainScene(GamePerformanceApp app) {
+	public FramerateTestScene(FramerateTestApp app) {
 		app.clock.addRenderListener(e -> {
 			if ("fps".equals(e.getPropertyName())) {
 				fpsValues[sampleIndex++] = (Integer) e.getNewValue();

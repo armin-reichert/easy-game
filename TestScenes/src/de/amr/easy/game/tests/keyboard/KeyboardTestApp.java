@@ -1,4 +1,4 @@
-package de.amr.easy.game.tests;
+package de.amr.easy.game.tests.keyboard;
 
 import de.amr.easy.game.Application;
 

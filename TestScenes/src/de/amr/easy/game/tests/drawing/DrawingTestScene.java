@@ -1,4 +1,4 @@
-package de.amr.easy.game.tests;
+package de.amr.easy.game.tests.drawing;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -11,15 +11,15 @@ import de.amr.easy.game.input.Mouse;
 import de.amr.easy.game.view.Controller;
 import de.amr.easy.game.view.View;
 
-public class DrawTestScene implements View, Controller {
+public class DrawingTestScene implements View, Controller {
 
-	private DrawTestApp app;
+	private DrawingTestApp app;
 	private BufferedImage drawArea;
 	private Graphics2D pen;
 	private int penWidth;
 	private boolean randomColor;
 
-	public DrawTestScene(DrawTestApp app) {
+	public DrawingTestScene(DrawingTestApp app) {
 		this.app = app;
 	}
 

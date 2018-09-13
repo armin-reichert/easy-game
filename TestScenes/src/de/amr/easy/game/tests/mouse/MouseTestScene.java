@@ -1,4 +1,4 @@
-package de.amr.easy.game.tests;
+package de.amr.easy.game.tests.mouse;
 
 import static java.lang.String.format;
 

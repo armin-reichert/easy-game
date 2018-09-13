@@ -1,4 +1,4 @@
-package de.amr.easy.game.tests;
+package de.amr.easy.game.tests.keyboard;
 
 import java.awt.Color;
 import java.awt.Font;
