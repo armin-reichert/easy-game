@@ -35,7 +35,7 @@ public class BlinkingText extends GameEntityUsingSprites {
 			product.blinkTimeMillis = millis;
 			return this;
 		}
-		
+
 		public Builder font(Font font) {
 			Objects.requireNonNull(font);
 			product.font = font;
@@ -81,7 +81,7 @@ public class BlinkingText extends GameEntityUsingSprites {
 
 	private BlinkingText() {
 		this.text = "";
-		blinkTimeMillis = 1000; 
+		blinkTimeMillis = 1000;
 		this.font = new Font(Font.SANS_SERIF, Font.BOLD, 20);
 		this.background = Color.BLACK;
 		this.color = Color.YELLOW;
@@ -94,10 +94,10 @@ public class BlinkingText extends GameEntityUsingSprites {
 		this.text = text;
 		createSprite();
 	}
-	
+
 	public void setBlinkTimeMillis(int millis) {
 		this.blinkTimeMillis = millis;
-		getSelectedSprite().animate(AnimationType.BACK_AND_FORTH, blinkTimeMillis);
+		sprites.current().animate(AnimationType.BACK_AND_FORTH, blinkTimeMillis);
 	}
 
 	public void setFont(Font font) {
@@ -119,7 +119,7 @@ public class BlinkingText extends GameEntityUsingSprites {
 	}
 
 	public void setBlinkTime(int millis) {
-		getSelectedSprite().animate(AnimationType.BACK_AND_FORTH, millis);
+		sprites.current().animate(AnimationType.BACK_AND_FORTH, millis);
 	}
 
 	public void setSpaceExpansion(int spaceExpansion) {
@@ -152,14 +152,15 @@ public class BlinkingText extends GameEntityUsingSprites {
 		g.setFont(font);
 		g.drawString(patchedText, 0, height);
 		g.dispose();
-		setSprite("s_text", Sprite.of(image, null).animate(AnimationType.BACK_AND_FORTH, blinkTimeMillis / 2));
-		setSelectedSprite("s_text");
+		sprites.set("s_text",
+				Sprite.of(image, null).animate(AnimationType.BACK_AND_FORTH, blinkTimeMillis / 2));
+		sprites.select("s_text");
 	}
 
 	@Override
 	public void draw(Graphics2D g) {
 		g.setColor(background);
-		g.fillRect(0, 0, getSelectedSprite().getWidth(), getSelectedSprite().getHeight());
+		g.fillRect(0, 0, sprites.current().getWidth(), sprites.current().getHeight());
 		super.draw(g);
 	}
 }

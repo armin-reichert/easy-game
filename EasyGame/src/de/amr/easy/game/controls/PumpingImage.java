@@ -95,8 +95,8 @@ public class PumpingImage extends GameEntityUsingSprites {
 		sprite = Sprite.of(frames);
 		sprite.animate(BACK_AND_FORTH, periodMillis / frameCount);
 		sprite.enableAnimation(true);
-		setSprite("s_image", sprite);
-		setSelectedSprite("s_image");
+		sprites.set("s_image", sprite);
+		sprites.select("s_image");
 		tf.setWidth(sprite.getMaxWidth());
 		tf.setHeight(sprite.getMaxHeight());
 	}

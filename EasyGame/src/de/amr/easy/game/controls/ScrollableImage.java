@@ -20,10 +20,10 @@ public class ScrollableImage extends GameEntityUsingSprites implements Animation
 
 	public ScrollableImage(Image image) {
 		completion = () -> false;
-		setSprite("s_image", Sprite.of(image));
-		setSelectedSprite("s_image");
-		tf.setWidth(getSelectedSprite().getWidth());
-		tf.setHeight(getSelectedSprite().getHeight());
+		sprites.set("s_image", Sprite.of(image));
+		sprites.select("s_image");
+		tf.setWidth(sprites.current().getWidth());
+		tf.setHeight(sprites.current().getHeight());
 	}
 
 	public void setSpeedX(float speedX) {

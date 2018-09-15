@@ -1,11 +1,8 @@
 package de.amr.easy.game.entity;
 
 import java.awt.Graphics2D;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Stream;
 
-import de.amr.easy.game.sprite.Sprite;
+import de.amr.easy.game.sprite.Sprites;
 import de.amr.easy.game.view.View;
 
 /**
@@ -15,46 +12,17 @@ import de.amr.easy.game.view.View;
  * @author Armin Reichert
  */
 public abstract class GameEntityUsingSprites extends GameEntity implements View {
-
-	private final Map<String, Sprite> spriteMap = new HashMap<>();
-	private String selectedSprite;
-
-	public void setSprite(String name, Sprite sprite) {
-		spriteMap.put(name, sprite);
-	}
-
-	public void removeSprite(String name) {
-		spriteMap.remove(name);
-	}
-
-	public Sprite getSprite(String name) {
-		return spriteMap.get(name);
-	}
-
-	public void setSelectedSprite(String name) {
-		selectedSprite = name;
-	}
-
-	public final Sprite getSelectedSprite() {
-		return spriteMap.get(selectedSprite);
-	}
-
-	public final Stream<Sprite> getSprites() {
-		return spriteMap.values().stream();
-	}
-
-	public void enableSprites(boolean enable) {
-		getSprites().forEach(sprite -> sprite.enableAnimation(enable));
-	}
+	
+	public final Sprites sprites = new Sprites();
 
 	@Override
 	public void draw(Graphics2D g) {
-		if (spriteMap.containsKey(selectedSprite)) {
-			Graphics2D pen = (Graphics2D) g.create();
-			pen.translate(tf.getX(), tf.getY());
-			pen.rotate(tf.getRotation());
-			getSelectedSprite().draw(pen);
-			pen.dispose();
+		if (sprites.current() != null) {
+			Graphics2D gg = (Graphics2D) g.create();
+			gg.translate(tf.getX(), tf.getY());
+			gg.rotate(tf.getRotation());
+			sprites.current().draw(gg);
+			gg.dispose();
 		}
 	}
 }
