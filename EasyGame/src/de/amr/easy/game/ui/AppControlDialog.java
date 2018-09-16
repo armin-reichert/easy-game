@@ -32,6 +32,9 @@ public class AppControlDialog extends JDialog {
 		fpsControl.setPaintLabels(true);
 		fpsControl.setToolTipText("Rendering FPS");
 		add(fpsControl);
+		app.clock.addPropertyChangeListener(e -> {
+			fpsControl.setValue((Integer) e.getNewValue());
+		});
 	}
 
 }

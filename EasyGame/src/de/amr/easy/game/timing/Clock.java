@@ -6,6 +6,7 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 
 /**
  * The clock that triggers ticks and runs the game loop.
@@ -14,6 +15,7 @@ import java.beans.PropertyChangeListener;
  */
 public class Clock {
 
+	private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 	private Task renderTask;
 	private Task updateTask;
 	private int frequency;
@@ -42,10 +44,14 @@ public class Clock {
 		this.loggingEnabled = enabled;
 	}
 
-	public void setFrequency(int fps) {
-		this.frequency = fps;
-		period = fps > 0 ? SECONDS.toNanos(1) / fps : Integer.MAX_VALUE;
+	public void setFrequency(int value) {
+		int oldFrequency = this.frequency;
+		this.frequency = value;
+		period = value > 0 ? SECONDS.toNanos(1) / value : Integer.MAX_VALUE;
 		LOGGER.info(String.format("Clock frequency set to %d Hz", frequency));
+		if (oldFrequency != frequency) {
+			pcs.firePropertyChange("frequency", oldFrequency, frequency);
+		}
 	}
 
 	public int getFrequency() {
@@ -70,6 +76,10 @@ public class Clock {
 
 	public synchronized void addUpdateListener(PropertyChangeListener observer) {
 		updateTask.addListener(observer);
+	}
+	
+	public void addPropertyChangeListener(PropertyChangeListener l) {
+		pcs.addPropertyChangeListener(l);
 	}
 
 	public synchronized void start() {
