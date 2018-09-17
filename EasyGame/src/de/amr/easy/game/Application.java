@@ -72,7 +72,6 @@ public abstract class Application {
 		}
 		EventQueue.invokeLater(() -> {
 			app.shell = new ApplicationShell(app);
-			app.shell.showApplication();
 			app.start();
 		});
 	}

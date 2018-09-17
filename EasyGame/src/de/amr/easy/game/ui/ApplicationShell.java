@@ -35,15 +35,19 @@ import de.amr.easy.game.input.MouseHandler;
 import de.amr.easy.game.view.View;
 
 /**
- * The application shell provides the window (optionally full-screen) where the current application
- * view is displayed. The display canvas uses double buffering and is actively rendered depending on
- * the frequency of the application clock.
+ * The application shell provides the window (optionally full-screen) where the current view of the
+ * application is rendered. The display is actively rendered depending on the frequency of the
+ * application clock.
  * <p>
  * Using the F11-key the user can toggle between full-screen and windowed mode.
  * 
  * @author Armin Reichert
  */
 public class ApplicationShell implements PropertyChangeListener {
+
+	private enum Mode {
+		WINDOW_MODE, FULLSCREEN_MODE
+	}
 
 	private static final String PAUSED_TEXT = "PAUSED (Press CTRL+P to continue)";
 
@@ -53,20 +57,24 @@ public class ApplicationShell implements PropertyChangeListener {
 	private final GraphicsDevice device;
 	private final Cursor invisibleCursor;
 	private BufferStrategy buffer;
-	private boolean fullScreen;
 	private volatile boolean renderingEnabled;
 	private int ups, fps;
+	private Mode currentMode;
 
 	public ApplicationShell(Application app) {
 		this.app = app;
 		app.clock.addRenderListener(this);
 		app.clock.addUpdateListener(this);
-		fullScreen = app.settings.fullScreenOnStart;
 		device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 		canvas = createCanvas();
 		frame = createFrame();
-		invisibleCursor = createInvisibleCursor();
 		renderingEnabled = true;
+		invisibleCursor = createInvisibleCursor();
+		if (app.settings.fullScreenOnStart) {
+			enterFullScreenExclusiveMode();
+		} else {
+			enterWindowMode();
+		}
 		LOGGER.info("Application shell created.");
 	}
 
@@ -88,20 +96,12 @@ public class ApplicationShell implements PropertyChangeListener {
 		return app.settings.title;
 	}
 
-	public void showApplication() {
-		if (fullScreen) {
-			enterFullScreenExclusiveMode();
-		} else {
-			enterWindowMode();
-		}
+	private int getWidth() {
+		return currentMode == Mode.FULLSCREEN_MODE ? frame.getWidth() : canvas.getWidth();
 	}
 
-	public int getWidth() {
-		return fullScreen ? frame.getWidth() : canvas.getWidth();
-	}
-
-	public int getHeight() {
-		return fullScreen ? frame.getHeight() : canvas.getHeight();
+	private int getHeight() {
+		return currentMode == Mode.FULLSCREEN_MODE ? frame.getHeight() : canvas.getHeight();
 	}
 
 	public void renderView(View view) {
@@ -140,14 +140,19 @@ public class ApplicationShell implements PropertyChangeListener {
 	private void drawView(View view, Graphics2D g) {
 		g.setColor(app.settings.bgColor);
 		g.fillRect(0, 0, getWidth(), getHeight());
-		if (fullScreen && app.settings.fullScreenMode != null) {
-			DisplayMode mode = app.settings.fullScreenMode.getDisplayMode();
-			float scaledWidth = app.settings.width * app.settings.scale;
-			float scaledHeight = app.settings.height * app.settings.scale;
-			if (mode.getWidth() > scaledWidth) {
-				g.translate((mode.getWidth() - scaledWidth) / 2, 0);
-				g.setClip(0, 0, (int) scaledWidth, (int) scaledHeight);
+		if (currentMode == Mode.FULLSCREEN_MODE) {
+			DisplayMode fullScreenMode = app.settings.fullScreenMode.getDisplayMode();
+			int fullScreenWidth = fullScreenMode.getWidth();
+			int fullScreenHeight = fullScreenMode.getHeight();
+			int appWidth = (int) (app.settings.width * app.settings.scale);
+			int appHeight = (int) (app.settings.height * app.settings.scale);
+			if (appWidth < fullScreenWidth) {
+				g.translate((fullScreenWidth - appWidth) / 2, 0);
 			}
+			if (appHeight < fullScreenHeight) {
+				g.translate(0, (fullScreenHeight - appHeight) / 2);
+			}
+			g.setClip(0, 0, appWidth, appHeight);
 		}
 		g.scale(app.settings.scale, app.settings.scale);
 		view.draw(g);
@@ -179,10 +184,10 @@ public class ApplicationShell implements PropertyChangeListener {
 
 			@Override
 			public void keyPressed(KeyEvent e) {
-				int key = e.getKeyCode();
-				if (key == KeyEvent.VK_F11) {
+				if (e.getKeyCode() == KeyEvent.VK_F11) {
 					toggleFullScreen();
-				} else if (key == KeyEvent.VK_F2) {
+				}
+				if (e.getKeyCode() == KeyEvent.VK_F2) {
 					showControlDialog();
 				}
 			}
@@ -216,13 +221,12 @@ public class ApplicationShell implements PropertyChangeListener {
 		return Toolkit.getDefaultToolkit().createCustomCursor(cursorImage, new Point(0, 0), "invisibleCursor");
 	}
 
-	public Canvas getCanvas() {
-		return canvas;
-	}
-
 	private void toggleFullScreen() {
-		fullScreen = !fullScreen;
-		showApplication();
+		if (currentMode == Mode.FULLSCREEN_MODE) {
+			enterWindowMode();
+		} else {
+			enterFullScreenExclusiveMode();
+		}
 	}
 
 	private void enterFullScreenExclusiveMode() {
@@ -250,6 +254,7 @@ public class ApplicationShell implements PropertyChangeListener {
 		frame.requestFocus();
 		LOGGER.info("Entered full-screen exclusive mode: " + formatDisplayMode(mode));
 		renderingEnabled = true;
+		currentMode = Mode.FULLSCREEN_MODE;
 	}
 
 	private void enterWindowMode() {
@@ -267,6 +272,7 @@ public class ApplicationShell implements PropertyChangeListener {
 		frame.requestFocus();
 		LOGGER.info(String.format("Entered window-mode: %dx%d", app.settings.width, app.settings.height));
 		renderingEnabled = true;
+		currentMode = Mode.WINDOW_MODE;
 	}
 
 	private boolean isValidDisplayMode(DisplayMode displayMode) {
@@ -284,14 +290,12 @@ public class ApplicationShell implements PropertyChangeListener {
 				mode.getBitDepth(), mode.getRefreshRate());
 	}
 
-	// TODO: provide useful control and info dialog
-
-	private AppControlDialog controlDialog;
+	private ClockFrequencyDialog clockFrequencyDialog;
 
 	private void showControlDialog() {
-		if (controlDialog == null) {
-			controlDialog = new AppControlDialog(frame, app);
+		if (clockFrequencyDialog == null) {
+			clockFrequencyDialog = new ClockFrequencyDialog(frame, app);
 		}
-		controlDialog.setVisible(true);
+		clockFrequencyDialog.setVisible(true);
 	}
 }

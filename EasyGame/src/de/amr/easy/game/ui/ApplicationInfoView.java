@@ -27,7 +27,7 @@ public class ApplicationInfoView implements Controller, View {
 
 	@Override
 	public void init() {
-		text = TextArea.create().text(createText()).speedY(-0.5f).color(Color.WHITE)
+		text = TextArea.create().text(infoText()).speedY(-0.5f).color(Color.WHITE)
 				.font(new Font(Font.SANS_SERIF, Font.BOLD, 14)).build();
 		text.tf.centerX(app.settings.width);
 		text.tf.setY(app.settings.height);
@@ -36,6 +36,7 @@ public class ApplicationInfoView implements Controller, View {
 
 	@Override
 	public void update() {
+		text.setText(infoText());
 		text.update();
 		if (text.tf.getY() + text.tf.getHeight() < 0) {
 			text.tf.setY(app.settings.height);
@@ -54,9 +55,10 @@ public class ApplicationInfoView implements Controller, View {
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
 	}
 
-	private String createText() {
+	private String infoText() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(app.getClass().getSimpleName()).append("\n\n");
+		sb.append("clock frequency = " + app.clock.getFrequency()).append("\n\n");
 		sb.append("title = " + app.settings.title).append("\n");
 		sb.append("width = " + app.settings.width).append("\n");
 		sb.append("height = " + app.settings.height).append("\n");
