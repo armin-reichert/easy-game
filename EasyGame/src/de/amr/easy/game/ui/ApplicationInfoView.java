@@ -1,5 +1,6 @@
 package de.amr.easy.game.ui;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
@@ -43,8 +44,11 @@ public class ApplicationInfoView implements Controller, View {
 
 	@Override
 	public void draw(Graphics2D g) {
-		g.setColor(app.settings.bgColor);
+		g.setColor(Color.DARK_GRAY);
 		g.fillRect(0, 0, app.settings.width, app.settings.height);
+		g.setColor(Color.GREEN);
+		g.setStroke(new BasicStroke(2f));
+		g.drawRect(0, 0, app.settings.width, app.settings.height);
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		text.draw(g);
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
