@@ -154,10 +154,18 @@ public class ApplicationShell implements PropertyChangeListener {
 			}
 			g.setClip(0, 0, appWidth, appHeight);
 		}
-		g.scale(app.settings.scale, app.settings.scale);
-		view.draw(g);
+		Graphics2D scaled = (Graphics2D) g.create();
+		scaled.scale(app.settings.scale, app.settings.scale);
+		view.draw(scaled);
+		scaled.dispose();
 		if (app.isPaused()) {
-			drawTextCentered(g, PAUSED_TEXT, getWidth(), getHeight());
+			if (currentMode == Mode.FULLSCREEN_MODE) {
+				int appWidth = (int) (app.settings.width * app.settings.scale);
+				int appHeight = (int) (app.settings.height * app.settings.scale);
+				drawTextCentered(g, PAUSED_TEXT, appWidth, appHeight);
+			} else {
+				drawTextCentered(g, PAUSED_TEXT, getWidth(), getHeight());
+			}
 		}
 	}
 
