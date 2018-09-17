@@ -45,6 +45,8 @@ import de.amr.easy.game.view.View;
  */
 public class ApplicationShell implements PropertyChangeListener {
 
+	private static final String PAUSED_TEXT = "PAUSED (Press CTRL+P to continue)";
+
 	private final Application app;
 	private final Canvas canvas;
 	private final JFrame frame;
@@ -52,6 +54,7 @@ public class ApplicationShell implements PropertyChangeListener {
 	private final Cursor invisibleCursor;
 	private BufferStrategy buffer;
 	private boolean fullScreen;
+	private volatile boolean renderingEnabled;
 	private int ups, fps;
 
 	public ApplicationShell(Application app) {
@@ -63,6 +66,7 @@ public class ApplicationShell implements PropertyChangeListener {
 		canvas = createCanvas();
 		frame = createFrame();
 		invisibleCursor = createInvisibleCursor();
+		renderingEnabled = true;
 		LOGGER.info("Application shell created.");
 	}
 
@@ -86,9 +90,9 @@ public class ApplicationShell implements PropertyChangeListener {
 
 	public void showApplication() {
 		if (fullScreen) {
-			showFullScreen();
+			enterFullScreenExclusiveMode();
 		} else {
-			showAsWindow();
+			enterWindowMode();
 		}
 	}
 
@@ -101,7 +105,11 @@ public class ApplicationShell implements PropertyChangeListener {
 	}
 
 	public void renderView(View view) {
+		if (!renderingEnabled) {
+			return;
+		}
 		if (buffer == null) {
+			LOGGER.info("Could not render view: no buffer allocated");
 			return;
 		}
 		do {
@@ -110,24 +118,7 @@ public class ApplicationShell implements PropertyChangeListener {
 				try {
 					g = (Graphics2D) buffer.getDrawGraphics();
 					if (g != null) {
-						g.setColor(app.settings.bgColor);
-						g.fillRect(0, 0, getWidth(), getHeight());
-						if (fullScreen && app.settings.fullScreenMode != null) {
-							DisplayMode mode = app.settings.fullScreenMode.getDisplayMode();
-							float scaledWidth = app.settings.width * app.settings.scale;
-							float scaledHeight = app.settings.height * app.settings.scale;
-							if (mode.getWidth() > scaledWidth) {
-								g.translate((mode.getWidth() - scaledWidth) / 2, 0);
-								g.setClip(0, 0, (int) scaledWidth, (int) scaledHeight);
-							}
-						}
-						Graphics2D sg = (Graphics2D) g.create();
-						sg.scale(app.settings.scale, app.settings.scale);
-						view.draw(sg);
-						sg.dispose();
-						if (app.isPaused()) {
-							drawPausedText(g);
-						}
+						drawView(view, g);
 					}
 				} catch (Exception x) {
 					x.printStackTrace(System.err);
@@ -146,13 +137,31 @@ public class ApplicationShell implements PropertyChangeListener {
 		} while (buffer.contentsLost());
 	}
 
-	protected void drawPausedText(Graphics2D g) {
-		String text = "PAUSED (Press CTRL+P to continue)";
+	private void drawView(View view, Graphics2D g) {
+		g.setColor(app.settings.bgColor);
+		g.fillRect(0, 0, getWidth(), getHeight());
+		if (fullScreen && app.settings.fullScreenMode != null) {
+			DisplayMode mode = app.settings.fullScreenMode.getDisplayMode();
+			float scaledWidth = app.settings.width * app.settings.scale;
+			float scaledHeight = app.settings.height * app.settings.scale;
+			if (mode.getWidth() > scaledWidth) {
+				g.translate((mode.getWidth() - scaledWidth) / 2, 0);
+				g.setClip(0, 0, (int) scaledWidth, (int) scaledHeight);
+			}
+		}
+		g.scale(app.settings.scale, app.settings.scale);
+		view.draw(g);
+		if (app.isPaused()) {
+			drawTextCentered(g, PAUSED_TEXT, getWidth(), getHeight());
+		}
+	}
+
+	protected void drawTextCentered(Graphics2D g, String text, int width, int height) {
 		g.setColor(Color.RED);
-		g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, getWidth() / text.length()));
+		g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, width / text.length()));
+		int textWidth = g.getFontMetrics().stringWidth(text);
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-		int width = g.getFontMetrics().stringWidth(text);
-		g.drawString(text, (getWidth() - width) / 2, getHeight() / 2);
+		g.drawString(text, (width - textWidth) / 2, height / 2);
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
 	}
 
@@ -216,13 +225,13 @@ public class ApplicationShell implements PropertyChangeListener {
 		showApplication();
 	}
 
-	private void showFullScreen() {
-		if (!device.isFullScreenSupported()) {
-			LOGGER.info("Full-screen mode not supported for this device.");
+	private void enterFullScreenExclusiveMode() {
+		if (app.settings.fullScreenMode == null) {
+			LOGGER.info("Cannot enter full-screen mode: No full-screen mode specified for this application.");
 			return;
 		}
-		if (app.settings.fullScreenMode == null) {
-			LOGGER.info("Cannot enter full-screen mode: No full-screen mode specified.");
+		if (!device.isFullScreenSupported()) {
+			LOGGER.info("Cannot enter full-screen mode: device does not allow support full-screen mode.");
 			return;
 		}
 		DisplayMode mode = app.settings.fullScreenMode.getDisplayMode();
@@ -230,18 +239,21 @@ public class ApplicationShell implements PropertyChangeListener {
 			LOGGER.info("Cannot enter full-screen mode: Display mode not supported: " + formatDisplayMode(mode));
 			return;
 		}
+		renderingEnabled = false;
 		frame.dispose();
 		frame.setVisible(false);
 		frame.setUndecorated(true);
-		frame.validate();
-		frame.requestFocus();
 		frame.setCursor(invisibleCursor);
+		frame.validate();
 		device.setFullScreenWindow(frame);
 		device.setDisplayMode(mode);
-		LOGGER.info("Full-screen mode: " + formatDisplayMode(mode));
+		frame.requestFocus();
+		LOGGER.info("Entered full-screen exclusive mode: " + formatDisplayMode(mode));
+		renderingEnabled = true;
 	}
 
-	private void showAsWindow() {
+	private void enterWindowMode() {
+		renderingEnabled = false;
 		// Note: The order of the following statements is important!
 		device.setFullScreenWindow(null);
 		frame.dispose();
@@ -250,11 +262,11 @@ public class ApplicationShell implements PropertyChangeListener {
 		frame.pack();
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
-		frame.createBufferStrategy(2);
 		canvas.createBufferStrategy(2);
-		frame.requestFocus();
 		buffer = canvas.getBufferStrategy();
-		LOGGER.info(String.format("Window-mode: %dx%d", app.settings.width, app.settings.height));
+		frame.requestFocus();
+		LOGGER.info(String.format("Entered window-mode: %dx%d", app.settings.width, app.settings.height));
+		renderingEnabled = true;
 	}
 
 	private boolean isValidDisplayMode(DisplayMode displayMode) {
