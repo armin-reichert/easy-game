@@ -261,11 +261,9 @@ public class AppShell {
 		frame.pack();
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
-		if (buffer == null) {
-			canvas.createBufferStrategy(2);
-			buffer = canvas.getBufferStrategy();
-		}
 		frame.requestFocus();
+		canvas.createBufferStrategy(2);
+		buffer = canvas.getBufferStrategy();
 		LOGGER.info(String.format("Entered window-mode: %dx%d", app.settings.width, app.settings.height));
 		renderingEnabled = true;
 		currentMode = Mode.WINDOW_MODE;
