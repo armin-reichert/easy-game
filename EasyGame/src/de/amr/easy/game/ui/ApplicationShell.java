@@ -66,6 +66,8 @@ public class ApplicationShell implements PropertyChangeListener {
 	private volatile boolean renderingEnabled;
 	private Mode currentMode;
 	private ClockFrequencyDialog clockFrequencyDialog;
+	private int ups;
+	private int fps;
 
 	public ApplicationShell(Application app) {
 		this.app = app;
@@ -139,7 +141,6 @@ public class ApplicationShell implements PropertyChangeListener {
 
 	@Override
 	public void propertyChange(PropertyChangeEvent e) {
-		int ups = 0, fps = 0;
 		if ("ups".equals(e.getPropertyName())) {
 			ups = (int) e.getNewValue();
 		} else if ("fps".equals(e.getPropertyName())) {
