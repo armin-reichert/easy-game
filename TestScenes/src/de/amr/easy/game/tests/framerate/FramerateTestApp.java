@@ -12,12 +12,11 @@ public class FramerateTestApp extends Application {
 		settings.title = "Game performance measurement";
 		settings.titleExtended = true;
 		settings.width = 1000;
-		// PULSE.setLogger(LOG);
 		clock.setFrequency(100);
 	}
 
 	@Override
 	public void init() {
-		setController(new FramerateTestScene(this));
+		setController(new FramerateTestScene());
 	}
 }

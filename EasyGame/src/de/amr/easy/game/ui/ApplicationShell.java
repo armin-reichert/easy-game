@@ -24,8 +24,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 import javax.swing.JFrame;
 
@@ -43,7 +41,7 @@ import de.amr.easy.game.view.View;
  * 
  * @author Armin Reichert
  */
-public class ApplicationShell implements PropertyChangeListener {
+public class ApplicationShell {
 
 	private enum Mode {
 		WINDOW_MODE, FULLSCREEN_MODE
@@ -66,15 +64,12 @@ public class ApplicationShell implements PropertyChangeListener {
 	private volatile boolean renderingEnabled;
 	private Mode currentMode;
 	private ClockFrequencyDialog clockFrequencyDialog;
-	private int ups;
-	private int fps;
+	private int renderCount;
 
 	public ApplicationShell(Application app) {
 		this.app = app;
 		appSize = new Dimension((int) (app.settings.width * app.settings.scale),
 				(int) (app.settings.height * app.settings.scale));
-		app.clock.addRenderListener(this);
-		app.clock.addUpdateListener(this);
 		device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 		invisibleCursor = createInvisibleCursor();
 		canvas = createCanvas();
@@ -82,11 +77,6 @@ public class ApplicationShell implements PropertyChangeListener {
 		MouseHandler.handleMouseEventsFor(canvas);
 		KeyboardHandler.handleKeyEventsFor(frame);
 		renderingEnabled = true;
-		if (app.settings.fullScreenOnStart) {
-			enterFullScreenExclusiveMode();
-		} else {
-			enterWindowMode();
-		}
 		LOGGER.info("Application shell created.");
 	}
 
@@ -139,17 +129,6 @@ public class ApplicationShell implements PropertyChangeListener {
 		clockFrequencyDialog.setVisible(true);
 	}
 
-	@Override
-	public void propertyChange(PropertyChangeEvent e) {
-		if ("ups".equals(e.getPropertyName())) {
-			ups = (int) e.getNewValue();
-		} else if ("fps".equals(e.getPropertyName())) {
-			fps = (int) e.getNewValue();
-		}
-		String title = formatTitle(ups, fps);
-		EventQueue.invokeLater(() -> frame.setTitle(title));
-	}
-
 	private String formatTitle(int ups, int fps) {
 		if (app.settings.titleExtended) {
 			return format("%s [%d fps, %d ups, %dx%d px, scaled %.2f]", app.settings.title, fps, ups,
@@ -190,6 +169,13 @@ public class ApplicationShell implements PropertyChangeListener {
 				x.printStackTrace(System.err);
 			}
 		} while (buffer.contentsLost());
+
+		++renderCount;
+		if (renderCount == app.clock.getFrequency()) {
+			String title = formatTitle(app.clock.getUpdateRate(), app.clock.getRenderRate());
+			EventQueue.invokeLater(() -> frame.setTitle(title));
+			renderCount = 0;
+		}
 	}
 
 	private void drawView(View view, Graphics2D g) {
@@ -237,7 +223,7 @@ public class ApplicationShell implements PropertyChangeListener {
 		}
 	}
 
-	private void enterFullScreenExclusiveMode() {
+	public void enterFullScreenExclusiveMode() {
 		if (app.settings.fullScreenMode == null) {
 			LOGGER.info("Cannot enter full-screen mode: No full-screen mode specified for this application.");
 			return;
@@ -265,7 +251,7 @@ public class ApplicationShell implements PropertyChangeListener {
 		currentMode = Mode.FULLSCREEN_MODE;
 	}
 
-	private void enterWindowMode() {
+	public void enterWindowMode() {
 		renderingEnabled = false;
 		// Note: The order of the following statements is important!
 		device.setFullScreenWindow(null);

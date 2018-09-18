@@ -9,7 +9,7 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
 /**
- * The clock that triggers ticks and runs the game loop.
+ * The clock that produces the ticks for the game loop.
  * 
  * @author Armin Reichert
  */
@@ -19,77 +19,107 @@ public class Clock {
 	private Task renderTask;
 	private Task updateTask;
 	private int frequency;
-	private long updateCount;
+	private long ticks;
 	private long period;
 	private Thread thread;
 	private volatile boolean running;
 	private boolean loggingEnabled;
 
-	public Clock() {
-		setUpdateTask(() -> {
-		});
-		setRenderTask(() -> {
-		});
+	/**
+	 * Creates a clock which triggers the given update and render task according to the clock frequency.
+	 * 
+	 * @param update
+	 *                 update task
+	 * @param render
+	 *                 render task
+	 */
+	public Clock(Runnable update, Runnable render) {
+		updateTask = new Task(update, SECONDS.toNanos(1));
+		renderTask = new Task(render, SECONDS.toNanos(1));
 	}
 
-	public void setUpdateTask(Runnable code) {
-		updateTask = new Task(code, "ups", SECONDS.toNanos(1));
+	/**
+	 * @return last reported update rate (updates per second)
+	 */
+	public int getUpdateRate() {
+		return updateTask.getRate();
 	}
 
-	public void setRenderTask(Runnable code) {
-		renderTask = new Task(code, "fps", SECONDS.toNanos(1));
+	/**
+	 * @return last reported rendering rate (frames per second)
+	 */
+	public int getRenderRate() {
+		return renderTask.getRate();
 	}
 
 	public void setLoggingEnabled(boolean enabled) {
 		this.loggingEnabled = enabled;
 	}
 
-	public void setFrequency(int value) {
+	/**
+	 * @return clock frequency (ticks per second)
+	 */
+	public int getFrequency() {
+		return frequency;
+	}
+
+	/**
+	 * Sets the clock frequency to the given value (per second).
+	 * 
+	 * @param ticksPerSecond
+	 *                         number of ticks per second
+	 */
+	public void setFrequency(int ticksPerSecond) {
 		int oldFrequency = this.frequency;
-		this.frequency = value;
-		period = value > 0 ? SECONDS.toNanos(1) / value : Integer.MAX_VALUE;
-		LOGGER.info(String.format("Clock frequency set to %d Hz", frequency));
+		this.frequency = ticksPerSecond;
+		period = ticksPerSecond > 0 ? (SECONDS.toNanos(1) / ticksPerSecond) : Integer.MAX_VALUE;
+		LOGGER.info(String.format("Clock frequency has been set to %d Hz.", frequency));
 		if (oldFrequency != frequency) {
 			pcs.firePropertyChange("frequency", oldFrequency, frequency);
 		}
 	}
 
-	public int getFrequency() {
-		return frequency;
-	}
-
-	public long getUpdateCount() {
-		return updateCount;
+	/**
+	 * @return number of ticks since the clock was started
+	 */
+	public long getTicks() {
+		return ticks;
 	}
 
 	/**
-	 * @param seconds seconds
-	 * @return number of clock ticks representing given seconds
+	 * @param seconds
+	 *                  seconds
+	 * @return number of clock ticks representing the given seconds
 	 */
 	public int sec(float seconds) {
-		return Math.round(getFrequency() * seconds);
+		return Math.round(frequency * seconds);
 	}
 
-	public synchronized void addRenderListener(PropertyChangeListener observer) {
-		renderTask.addListener(observer);
+	/**
+	 * Adds a listener for frequency changes.
+	 * 
+	 * @param listener
+	 *                   frequency change listener
+	 */
+	public void addFrequencyChangeListener(PropertyChangeListener listener) {
+		pcs.addPropertyChangeListener("frequency", listener);
 	}
 
-	public synchronized void addUpdateListener(PropertyChangeListener observer) {
-		updateTask.addListener(observer);
-	}
-	
-	public void addPropertyChangeListener(PropertyChangeListener l) {
-		pcs.addPropertyChangeListener(l);
-	}
-
+	/**
+	 * Starts the clock and the game loop thread.
+	 */
 	public synchronized void start() {
 		if (!running) {
 			running = true;
 			thread = new Thread(this::gameLoop, "GameLoop");
 			thread.start();
+			ticks = 0;
 		}
 	}
 
+	/**
+	 * Stops the clock and the game loop thread.
+	 */
 	public synchronized void stop() {
 		if (running) {
 			running = false;
@@ -110,7 +140,7 @@ public class Clock {
 				logTime("Update", updateTask.getUsedTime());
 				logTime("Render", renderTask.getUsedTime());
 			}
-			++updateCount;
+			++ticks;
 			long usedTime = updateTask.getUsedTime() + renderTask.getUsedTime();
 			long timeLeft = (period - usedTime);
 			if (timeLeft > 0) {
@@ -130,7 +160,7 @@ public class Clock {
 					if (loggingEnabled) {
 						logTime("UpdateX", updateTask.getUsedTime());
 					}
-					++updateCount;
+					++ticks;
 				}
 			}
 		}

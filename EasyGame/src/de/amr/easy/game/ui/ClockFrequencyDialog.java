@@ -32,9 +32,6 @@ public class ClockFrequencyDialog extends JDialog {
 		fpsControl.setPaintLabels(true);
 		fpsControl.setToolTipText("Rendering FPS");
 		add(fpsControl);
-		app.clock.addPropertyChangeListener(e -> {
-			fpsControl.setValue((Integer) e.getNewValue());
-		});
+		app.clock.addFrequencyChangeListener(e -> fpsControl.setValue((Integer) e.getNewValue()));
 	}
-
 }

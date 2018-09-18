@@ -72,6 +72,11 @@ public abstract class Application {
 		}
 		EventQueue.invokeLater(() -> {
 			app.shell = new ApplicationShell(app);
+			if (app.settings.fullScreenOnStart) {
+				app.shell.enterFullScreenExclusiveMode();
+			} else {
+				app.shell.enterWindowMode();
+			}
 			app.start();
 		});
 	}
@@ -89,7 +94,7 @@ public abstract class Application {
 	}
 
 	/** The clock of the application. */
-	public final Clock clock = new Clock();
+	public final Clock clock;
 
 	/** The settings of this application. */
 	public final AppSettings settings;
@@ -114,8 +119,7 @@ public abstract class Application {
 	 */
 	public Application() {
 		INSTANCE = this;
-		clock.setUpdateTask(this::update);
-		clock.setRenderTask(this::render);
+		clock = new Clock(this::update, this::render);
 		clock.setFrequency(60);
 		settings = new AppSettings();
 		defaultView = new ApplicationInfoView(this);

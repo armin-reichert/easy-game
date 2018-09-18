@@ -1,5 +1,7 @@
 package de.amr.easy.game.tests.framerate;
 
+import static de.amr.easy.game.Application.app;
+
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -14,17 +16,7 @@ public class FramerateTestScene implements View, Controller {
 	private int sampleIndex;
 	private int[] fpsValues;
 	private int stepX = 20;
-
-	public FramerateTestScene(FramerateTestApp app) {
-		app.clock.addRenderListener(e -> {
-			if ("fps".equals(e.getPropertyName())) {
-				fpsValues[sampleIndex++] = (Integer) e.getNewValue();
-				if (sampleIndex * stepX >= getWidth()) {
-					sampleIndex = 0;
-				}
-			}
-		});
-	}
+	private int sampleSteps;
 
 	public int getWidth() {
 		return 1000;
@@ -42,6 +34,14 @@ public class FramerateTestScene implements View, Controller {
 
 	@Override
 	public void update() {
+		++sampleSteps;
+		if (sampleSteps == app().clock.getFrequency()) {
+			fpsValues[sampleIndex++] = app().clock.getRenderRate();
+			if (sampleIndex * stepX >= getWidth()) {
+				sampleIndex = 0;
+			}
+			sampleSteps = 0;
+		}
 	}
 
 	private Image createBgImage() {
