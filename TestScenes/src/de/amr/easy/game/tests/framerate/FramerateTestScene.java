@@ -7,6 +7,9 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 
+import com.sun.glass.events.KeyEvent;
+
+import de.amr.easy.game.input.Keyboard;
 import de.amr.easy.game.view.Controller;
 import de.amr.easy.game.view.View;
 
@@ -17,6 +20,7 @@ public class FramerateTestScene implements View, Controller {
 	private int[] fpsValues;
 	private int stepX = 20;
 	private int sampleSteps;
+	private boolean consoleLog;
 
 	public int getWidth() {
 		return 1000;
@@ -30,10 +34,19 @@ public class FramerateTestScene implements View, Controller {
 	public void init() {
 		fpsValues = new int[getWidth()];
 		bgImg = createBgImage();
+		app().clock.addFrequencyChangeListener(e -> {
+			sampleSteps = 0;
+		});
+		consoleLog = false;
+		app().clock.setLoggingEnabled(false);
 	}
 
 	@Override
 	public void update() {
+		if (Keyboard.keyPressedOnce(KeyEvent.VK_L)) {
+			consoleLog = !consoleLog;
+			app().clock.setLoggingEnabled(consoleLog);
+		}
 		++sampleSteps;
 		if (sampleSteps == app().clock.getFrequency()) {
 			fpsValues[sampleIndex++] = app().clock.getRenderRate();
