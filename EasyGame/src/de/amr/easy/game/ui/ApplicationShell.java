@@ -51,25 +51,35 @@ public class ApplicationShell implements PropertyChangeListener {
 
 	private static final String PAUSED_TEXT = "PAUSED (Press CTRL+P to continue)";
 
+	private static Cursor createInvisibleCursor() {
+		Image cursorImage = new BufferedImage(1, 1, BufferedImage.TRANSLUCENT);
+		return Toolkit.getDefaultToolkit().createCustomCursor(cursorImage, new Point(0, 0), "invisibleCursor");
+	}
+
 	private final Application app;
+	private final Dimension appSize;
 	private final Canvas canvas;
 	private final JFrame frame;
 	private final GraphicsDevice device;
 	private final Cursor invisibleCursor;
 	private BufferStrategy buffer;
 	private volatile boolean renderingEnabled;
-	private int ups, fps;
 	private Mode currentMode;
+	private ClockFrequencyDialog clockFrequencyDialog;
 
 	public ApplicationShell(Application app) {
 		this.app = app;
+		appSize = new Dimension((int) (app.settings.width * app.settings.scale),
+				(int) (app.settings.height * app.settings.scale));
 		app.clock.addRenderListener(this);
 		app.clock.addUpdateListener(this);
 		device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+		invisibleCursor = createInvisibleCursor();
 		canvas = createCanvas();
 		frame = createFrame();
+		MouseHandler.handleMouseEventsFor(canvas);
+		KeyboardHandler.handleKeyEventsFor(frame);
 		renderingEnabled = true;
-		invisibleCursor = createInvisibleCursor();
 		if (app.settings.fullScreenOnStart) {
 			enterFullScreenExclusiveMode();
 		} else {
@@ -78,17 +88,68 @@ public class ApplicationShell implements PropertyChangeListener {
 		LOGGER.info("Application shell created.");
 	}
 
+	private Canvas createCanvas() {
+		Canvas canvas = new Canvas();
+		canvas.setPreferredSize(appSize);
+		canvas.setSize(appSize);
+		canvas.setBackground(app.settings.bgColor);
+		canvas.setIgnoreRepaint(true);
+		canvas.setFocusable(false);
+		return canvas;
+	}
+
+	private JFrame createFrame() {
+		JFrame frame = new JFrame(device.getDefaultConfiguration());
+		frame.setTitle(app.settings.title);
+		frame.setBackground(app.settings.bgColor);
+		frame.setResizable(false);
+		frame.setFocusable(true);
+		frame.setIgnoreRepaint(true);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.add(canvas, BorderLayout.CENTER);
+		frame.addKeyListener(new KeyAdapter() {
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_F11) {
+					toggleDisplayMode();
+				}
+				if (e.getKeyCode() == KeyEvent.VK_F2) {
+					showFrequencyControlDialog();
+				}
+			}
+		});
+		frame.addWindowListener(new WindowAdapter() {
+
+			@Override
+			public void windowClosing(WindowEvent e) {
+				LOGGER.info("Application window closing, app will exit...");
+				app.exit();
+			}
+		});
+		return frame;
+	}
+
+	private void showFrequencyControlDialog() {
+		if (clockFrequencyDialog == null) {
+			clockFrequencyDialog = new ClockFrequencyDialog(frame, app);
+		}
+		clockFrequencyDialog.setVisible(true);
+	}
+
 	@Override
 	public void propertyChange(PropertyChangeEvent e) {
+		int ups = 0, fps = 0;
 		if ("ups".equals(e.getPropertyName())) {
 			ups = (int) e.getNewValue();
 		} else if ("fps".equals(e.getPropertyName())) {
 			fps = (int) e.getNewValue();
 		}
-		EventQueue.invokeLater(() -> frame.setTitle(formatTitle()));
+		String title = formatTitle(ups, fps);
+		EventQueue.invokeLater(() -> frame.setTitle(title));
 	}
 
-	private String formatTitle() {
+	private String formatTitle(int ups, int fps) {
 		if (app.settings.titleExtended) {
 			return format("%s [%d fps, %d ups, %dx%d px, scaled %.2f]", app.settings.title, fps, ups,
 					app.settings.width, app.settings.height, app.settings.scale);
@@ -105,11 +166,7 @@ public class ApplicationShell implements PropertyChangeListener {
 	}
 
 	public void renderView(View view) {
-		if (!renderingEnabled) {
-			return;
-		}
-		if (buffer == null) {
-			LOGGER.info("Could not render view: no buffer allocated");
+		if (!renderingEnabled || buffer == null) {
 			return;
 		}
 		do {
@@ -117,12 +174,9 @@ public class ApplicationShell implements PropertyChangeListener {
 				Graphics2D g = null;
 				try {
 					g = (Graphics2D) buffer.getDrawGraphics();
-					if (g != null) {
-						drawView(view, g);
-					}
+					drawView(view, g);
 				} catch (Exception x) {
 					x.printStackTrace(System.err);
-					LOGGER.info("Exception occured when rendering current view");
 				} finally {
 					if (g != null) {
 						g.dispose();
@@ -144,15 +198,13 @@ public class ApplicationShell implements PropertyChangeListener {
 			DisplayMode fullScreenMode = app.settings.fullScreenMode.getDisplayMode();
 			int fullScreenWidth = fullScreenMode.getWidth();
 			int fullScreenHeight = fullScreenMode.getHeight();
-			int appWidth = (int) (app.settings.width * app.settings.scale);
-			int appHeight = (int) (app.settings.height * app.settings.scale);
-			if (appWidth < fullScreenWidth) {
-				g.translate((fullScreenWidth - appWidth) / 2, 0);
+			if (appSize.width < fullScreenWidth) {
+				g.translate((fullScreenWidth - appSize.width) / 2, 0);
 			}
-			if (appHeight < fullScreenHeight) {
-				g.translate(0, (fullScreenHeight - appHeight) / 2);
+			if (appSize.height < fullScreenHeight) {
+				g.translate(0, (fullScreenHeight - appSize.height) / 2);
 			}
-			g.setClip(0, 0, appWidth, appHeight);
+			g.setClip(0, 0, appSize.width, appSize.height);
 		}
 		Graphics2D scaled = (Graphics2D) g.create();
 		scaled.scale(app.settings.scale, app.settings.scale);
@@ -160,9 +212,7 @@ public class ApplicationShell implements PropertyChangeListener {
 		scaled.dispose();
 		if (app.isPaused()) {
 			if (currentMode == Mode.FULLSCREEN_MODE) {
-				int appWidth = (int) (app.settings.width * app.settings.scale);
-				int appHeight = (int) (app.settings.height * app.settings.scale);
-				drawTextCentered(g, PAUSED_TEXT, appWidth, appHeight);
+				drawTextCentered(g, PAUSED_TEXT, appSize.width, appSize.height);
 			} else {
 				drawTextCentered(g, PAUSED_TEXT, getWidth(), getHeight());
 			}
@@ -178,58 +228,7 @@ public class ApplicationShell implements PropertyChangeListener {
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
 	}
 
-	private JFrame createFrame() {
-		JFrame frame = new JFrame(device.getDefaultConfiguration());
-		frame.setTitle(app.settings.title);
-		frame.setBackground(app.settings.bgColor);
-		frame.setResizable(false);
-		frame.setFocusable(true);
-		frame.setIgnoreRepaint(true);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(canvas, BorderLayout.CENTER);
-		KeyboardHandler.handleKeyEventsFor(frame);
-		frame.addKeyListener(new KeyAdapter() {
-
-			@Override
-			public void keyPressed(KeyEvent e) {
-				if (e.getKeyCode() == KeyEvent.VK_F11) {
-					toggleFullScreen();
-				}
-				if (e.getKeyCode() == KeyEvent.VK_F2) {
-					showControlDialog();
-				}
-			}
-		});
-		frame.addWindowListener(new WindowAdapter() {
-
-			@Override
-			public void windowClosing(WindowEvent e) {
-				LOGGER.info("Application window closing, app will exit...");
-				app.exit();
-			}
-		});
-		return frame;
-	}
-
-	private Canvas createCanvas() {
-		Canvas canvas = new Canvas();
-		Dimension size = new Dimension(Math.round(app.settings.width * app.settings.scale),
-				Math.round(app.settings.height * app.settings.scale));
-		canvas.setPreferredSize(size);
-		canvas.setSize(size);
-		canvas.setBackground(app.settings.bgColor);
-		canvas.setIgnoreRepaint(true);
-		canvas.setFocusable(false);
-		MouseHandler.handleMouseEventsFor(canvas);
-		return canvas;
-	}
-
-	private Cursor createInvisibleCursor() {
-		Image cursorImage = new BufferedImage(1, 1, BufferedImage.TRANSLUCENT);
-		return Toolkit.getDefaultToolkit().createCustomCursor(cursorImage, new Point(0, 0), "invisibleCursor");
-	}
-
-	private void toggleFullScreen() {
+	private void toggleDisplayMode() {
 		if (currentMode == Mode.FULLSCREEN_MODE) {
 			enterWindowMode();
 		} else {
@@ -243,7 +242,7 @@ public class ApplicationShell implements PropertyChangeListener {
 			return;
 		}
 		if (!device.isFullScreenSupported()) {
-			LOGGER.info("Cannot enter full-screen mode: device does not allow support full-screen mode.");
+			LOGGER.info("Cannot enter full-screen mode: device does not support full-screen mode.");
 			return;
 		}
 		DisplayMode mode = app.settings.fullScreenMode.getDisplayMode();
@@ -275,8 +274,10 @@ public class ApplicationShell implements PropertyChangeListener {
 		frame.pack();
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
-		canvas.createBufferStrategy(2);
-		buffer = canvas.getBufferStrategy();
+		if (buffer == null) {
+			canvas.createBufferStrategy(2);
+			buffer = canvas.getBufferStrategy();
+		}
 		frame.requestFocus();
 		LOGGER.info(String.format("Entered window-mode: %dx%d", app.settings.width, app.settings.height));
 		renderingEnabled = true;
@@ -296,14 +297,5 @@ public class ApplicationShell implements PropertyChangeListener {
 	private String formatDisplayMode(DisplayMode mode) {
 		return format("%d x %d, depth: %d, refresh rate: %d", mode.getWidth(), mode.getHeight(),
 				mode.getBitDepth(), mode.getRefreshRate());
-	}
-
-	private ClockFrequencyDialog clockFrequencyDialog;
-
-	private void showControlDialog() {
-		if (clockFrequencyDialog == null) {
-			clockFrequencyDialog = new ClockFrequencyDialog(frame, app);
-		}
-		clockFrequencyDialog.setVisible(true);
 	}
 }
