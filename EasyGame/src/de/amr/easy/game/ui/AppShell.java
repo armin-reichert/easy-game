@@ -41,7 +41,7 @@ import de.amr.easy.game.view.View;
  * 
  * @author Armin Reichert
  */
-public class ApplicationShell {
+public class AppShell {
 
 	private enum Mode {
 		WINDOW_MODE, FULLSCREEN_MODE
@@ -66,7 +66,7 @@ public class ApplicationShell {
 	private ClockFrequencyDialog clockFrequencyDialog;
 	private int renderCount;
 
-	public ApplicationShell(Application app) {
+	public AppShell(Application app) {
 		this.app = app;
 		appSize = new Dimension((int) (app.settings.width * app.settings.scale),
 				(int) (app.settings.height * app.settings.scale));

@@ -3,7 +3,6 @@ package de.amr.easy.game;
 import static java.awt.event.KeyEvent.VK_P;
 
 import java.awt.EventQueue;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -18,18 +17,18 @@ import de.amr.easy.game.input.Keyboard.Modifier;
 import de.amr.easy.game.input.KeyboardHandler;
 import de.amr.easy.game.input.MouseHandler;
 import de.amr.easy.game.timing.Clock;
-import de.amr.easy.game.ui.ApplicationInfoView;
-import de.amr.easy.game.ui.ApplicationShell;
+import de.amr.easy.game.ui.AppInfoView;
+import de.amr.easy.game.ui.AppShell;
 import de.amr.easy.game.view.Controller;
 import de.amr.easy.game.view.View;
 import de.amr.easy.game.view.ViewController;
 
 /**
- * Application base class. To start an application, create an application subclass, define its
- * settings in the constructor and call the {@link #launch(Application)} method.
+ * Application base class with utility method {@code launch(Application)} for starting an
+ * application.
+ * 
  * <p>
  * Example:
- * <p>
  * 
  * <pre>
  * public class MyGame extends Application {
@@ -40,9 +39,11 @@ import de.amr.easy.game.view.ViewController;
  * 
  * 	public MyGame() {
  * 		settings.title = "My Game";
- * 		settings.width = 800;
- * 		settings.height = 600;
- * 	}
+ * 		settings.width = 300;
+ * 		settings.height = 200;
+ * 		settings.scale = 2.5;
+ * 		settings.fullScreenMode = FullScreen.Mode(800, 600, 32);
+ * 		settings.fullScreenOnStart = false;
  * }
  * </pre>
  * 
@@ -50,7 +51,20 @@ import de.amr.easy.game.view.ViewController;
  */
 public abstract class Application {
 
-	/** Reference to the application instance. */
+	/** A logger that may be used by application subclasses. */
+	public static final Logger LOGGER = Logger.getLogger(Application.class.getName());
+
+	static {
+		// configuration with single line output and millisecond precision
+		InputStream stream = Application.class.getClassLoader().getResourceAsStream("logging.properties");
+		try {
+			LogManager.getLogManager().readConfiguration(stream);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	/** Static reference to the application instance. */
 	private static Application INSTANCE;
 
 	/** Static access to application instance. */
@@ -62,7 +76,7 @@ public abstract class Application {
 	 * Launches the given application.
 	 * 
 	 * @param app
-	 *              the application
+	 *              instance of application subclass
 	 */
 	public static void launch(Application app) {
 		try {
@@ -71,7 +85,7 @@ public abstract class Application {
 			LOGGER.warning("Could not set Nimbus Look&Feel");
 		}
 		EventQueue.invokeLater(() -> {
-			app.shell = new ApplicationShell(app);
+			app.shell = new AppShell(app);
 			if (app.settings.fullScreenOnStart) {
 				app.shell.enterFullScreenExclusiveMode();
 			} else {
@@ -81,37 +95,25 @@ public abstract class Application {
 		});
 	}
 
-	/** A logger that may be used by application subclasses. */
-	public static final Logger LOGGER = Logger.getLogger(Application.class.getName());
-
-	static {
-		InputStream stream = Application.class.getClassLoader().getResourceAsStream("logging.properties");
-		try {
-			LogManager.getLogManager().readConfiguration(stream);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	/** The clock of the application. */
-	public final Clock clock;
-
 	/** The settings of this application. */
 	public final AppSettings settings;
+
+	/** The window displaying the application. */
+	private AppShell shell;
+
+	/** The clock running the application. */
+	public final Clock clock;
 
 	/** The collision handler of this application. */
 	public final CollisionHandler collisionHandler;
 
-	/** The window displaying the application. */
-	private ApplicationShell shell;
-
 	/** The default view of this application. */
-	private final ApplicationInfoView defaultView;
+	private final AppInfoView defaultView;
 
 	/** The current controller. */
 	private Controller controller;
 
-	/** Tells if the application is paused (no updates and collision checks). */
+	/** Tells if the application is paused (updates and collision checks are stopped). */
 	private boolean paused;
 
 	/**
@@ -122,10 +124,10 @@ public abstract class Application {
 		clock = new Clock(this::update, this::render);
 		clock.setFrequency(60);
 		settings = new AppSettings();
-		defaultView = new ApplicationInfoView(this);
+		defaultView = new AppInfoView(this);
+		controller = defaultView;
 		collisionHandler = new CollisionHandler();
 		MouseHandler.INSTANCE.fnScale = () -> settings.scale;
-		controller = defaultView;
 		LOGGER.info("Application " + getClass().getSimpleName() + " created.");
 	}
 
@@ -133,7 +135,7 @@ public abstract class Application {
 	public abstract void init();
 
 	/**
-	 * Sets the given controller and optionally initializes it.
+	 * Makes the given controller the current one and optionally initializes it.
 	 * 
 	 * @param controller
 	 *                     a controller
@@ -142,10 +144,10 @@ public abstract class Application {
 	 */
 	public void setController(Controller controller, boolean initialize) {
 		this.controller = (controller == null) ? defaultView : controller;
-		LOGGER.info("Set controller to: " + controller);
+		LOGGER.info("Controller set: " + controller);
 		if (initialize) {
 			controller.init();
-			LOGGER.info("Initialized controller: " + controller);
+			LOGGER.info("Controller initialized.");
 		}
 	}
 
@@ -166,7 +168,7 @@ public abstract class Application {
 		init();
 		LOGGER.info("Application initialized.");
 		clock.start();
-		LOGGER.info(String.format("Clock running with %d ticks/sec.", clock.getFrequency()));
+		LOGGER.info(String.format("Clock started, running with %d ticks/sec.", clock.getFrequency()));
 	}
 
 	/**
@@ -206,8 +208,7 @@ public abstract class Application {
 
 	private void render() {
 		if (controller instanceof View) {
-			View view = (View) controller;
-			shell.renderView(view);
+			shell.renderView((View) controller);
 		} else if (controller instanceof ViewController) {
 			ViewController vc = ((ViewController) controller);
 			if (vc.currentView() != null) {

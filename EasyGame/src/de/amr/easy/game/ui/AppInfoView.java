@@ -16,12 +16,12 @@ import de.amr.easy.game.view.View;
  * 
  * @author Armin Reichert
  */
-public class ApplicationInfoView implements Controller, View {
+public class AppInfoView implements Controller, View {
 
 	private final Application app;
 	private TextArea text;
 
-	public ApplicationInfoView(Application app) {
+	public AppInfoView(Application app) {
 		this.app = app;
 	}
 

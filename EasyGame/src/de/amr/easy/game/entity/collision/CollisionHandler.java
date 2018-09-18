@@ -1,12 +1,12 @@
 package de.amr.easy.game.entity.collision;
 
+import static de.amr.easy.game.Application.LOGGER;
+
 import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import de.amr.easy.game.Application;
 
 public class CollisionHandler {
 
@@ -56,7 +56,7 @@ public class CollisionHandler {
 				Collision event = new Collision(pair.either(), pair.other(), pair.getIntersection(),
 						collisionStarts.get(pair), true);
 				events.add(event);
-				Application.LOGGER.fine(event.toString());
+				LOGGER.fine(event.toString());
 			}
 		}
 		for (CollisionPair pair : collisionEnds.keySet()) {
@@ -64,7 +64,7 @@ public class CollisionHandler {
 				Collision event = new Collision(pair.either(), pair.other(), pair.getIntersection(),
 						collisionEnds.get(pair), false);
 				events.add(event);
-				Application.LOGGER.fine(event.toString());
+				LOGGER.fine(event.toString());
 			}
 		}
 	}
@@ -78,8 +78,7 @@ public class CollisionHandler {
 	}
 
 	private boolean checkCollision(CollisionPair p) {
-		Rectangle2D intersection = p.either().getCollisionBox()
-				.createIntersection(p.other().getCollisionBox());
+		Rectangle2D intersection = p.either().getCollisionBox().createIntersection(p.other().getCollisionBox());
 		if (!intersection.isEmpty()) {
 			p.setIntersection(intersection);
 			return true;
