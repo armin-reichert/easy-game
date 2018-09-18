@@ -137,11 +137,11 @@ public class Clock {
 			updateTask.run();
 			renderTask.run();
 			if (loggingEnabled) {
-				logTime("Update", updateTask.getUsedTime());
-				logTime("Render", renderTask.getUsedTime());
+				logTime("Update", updateTask.getUsedTimeNanos());
+				logTime("Render", renderTask.getUsedTimeNanos());
 			}
 			++ticks;
-			long usedTime = updateTask.getUsedTime() + renderTask.getUsedTime();
+			long usedTime = updateTask.getUsedTimeNanos() + renderTask.getUsedTimeNanos();
 			long timeLeft = (period - usedTime);
 			if (timeLeft > 0) {
 				long sleepTime = timeLeft;
@@ -158,7 +158,7 @@ public class Clock {
 				for (int xUpdates = 3; xUpdates > 0 && overTime > period; overTime -= period, --xUpdates) {
 					updateTask.run();
 					if (loggingEnabled) {
-						logTime("UpdateX", updateTask.getUsedTime());
+						logTime("UpdateX", updateTask.getUsedTimeNanos());
 					}
 					++ticks;
 				}

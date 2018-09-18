@@ -1,38 +1,37 @@
 package de.amr.easy.game.timing;
 
-class Task implements Runnable {
+class Task {
 
 	private final Runnable work;
-	private final long reportInterval;
-	private long lastReportTime;
-	private long usedTime;
-	private int numRuns;
+	private final long reportIntervalNanos;
+	private long lastReportTimeNanos;
+	private long usedTimeNanos;
+	private int runs;
 	private int rate;
 
-	public Task(Runnable work, long reportInterval) {
+	public Task(Runnable work, long reportIntervalNanos) {
 		this.work = work;
-		this.reportInterval = reportInterval;
+		this.reportIntervalNanos = reportIntervalNanos;
 	}
 
-	public long getUsedTime() {
-		return usedTime;
+	public long getUsedTimeNanos() {
+		return usedTimeNanos;
 	}
 
 	public int getRate() {
 		return rate;
 	}
 
-	@Override
 	public void run() {
 		long startTime = System.nanoTime();
 		work.run();
 		long endTime = System.nanoTime();
-		usedTime = endTime - startTime;
-		++numRuns;
-		if (endTime >= lastReportTime + reportInterval) {
-			rate = numRuns;
-			numRuns = 0;
-			lastReportTime = System.nanoTime();
+		usedTimeNanos = endTime - startTime;
+		if (endTime >= lastReportTimeNanos + reportIntervalNanos) {
+			rate = runs;
+			runs = 0;
+			lastReportTimeNanos = System.nanoTime();
 		}
+		++runs;
 	}
 }
