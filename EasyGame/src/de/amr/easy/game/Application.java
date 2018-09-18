@@ -128,7 +128,7 @@ public abstract class Application {
 		controller = defaultView;
 		collisionHandler = new CollisionHandler();
 		MouseHandler.INSTANCE.fnScale = () -> settings.scale;
-		LOGGER.info("Application " + getClass().getSimpleName() + " created.");
+		LOGGER.info(String.format("Application '%s' created.", getClass().getSimpleName()));
 	}
 
 	/** Called when the application is initialized. */

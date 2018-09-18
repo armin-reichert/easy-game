@@ -73,7 +73,7 @@ public class Clock {
 		int oldFrequency = this.frequency;
 		this.frequency = ticksPerSecond;
 		period = ticksPerSecond > 0 ? (SECONDS.toNanos(1) / ticksPerSecond) : Integer.MAX_VALUE;
-		LOGGER.info(String.format("Clock frequency has been set to %d Hz.", frequency));
+		LOGGER.info(String.format("Clock frequency is %d ticks/sec.", frequency));
 		if (oldFrequency != frequency) {
 			pcs.firePropertyChange("frequency", oldFrequency, frequency);
 		}
