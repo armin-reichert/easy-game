@@ -18,8 +18,6 @@ import java.awt.Image;
 import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.Toolkit;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
@@ -55,15 +53,15 @@ public class AppShell {
 	}
 
 	private final Application app;
-	private final Canvas canvas;
-	private final JFrame frame;
 	private final GraphicsDevice device;
-	private final Cursor invisibleCursor;
+	private final Canvas canvas;
 	private BufferStrategy buffer;
+	private final JFrame frame;
+	private final Cursor invisibleCursor;
 	private volatile boolean renderingEnabled;
-	private Mode currentMode;
-	private ClockFrequencyDialog clockFrequencyDialog;
+	private Mode mode;
 	private int renderCount;
+	private ClockFrequencyDialog clockFrequencyDialog;
 
 	public AppShell(Application app) {
 		this.app = app;
@@ -90,7 +88,7 @@ public class AppShell {
 	}
 
 	private JFrame createFrame() {
-		JFrame frame = new JFrame(device.getDefaultConfiguration());
+		JFrame frame = new JFrame();
 		frame.setTitle(app.settings.title);
 		frame.setBackground(app.settings.bgColor);
 		frame.setResizable(false);
@@ -98,18 +96,6 @@ public class AppShell {
 		frame.setIgnoreRepaint(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.add(canvas, BorderLayout.CENTER);
-		frame.addKeyListener(new KeyAdapter() {
-
-			@Override
-			public void keyPressed(KeyEvent e) {
-				if (e.getKeyCode() == KeyEvent.VK_F11) {
-					toggleDisplayMode();
-				}
-				if (e.getKeyCode() == KeyEvent.VK_F2) {
-					showFrequencyControlDialog();
-				}
-			}
-		});
 		frame.addWindowListener(new WindowAdapter() {
 
 			@Override
@@ -121,7 +107,7 @@ public class AppShell {
 		return frame;
 	}
 
-	private void showFrequencyControlDialog() {
+	public void showFrequencyControlDialog() {
 		if (clockFrequencyDialog == null) {
 			clockFrequencyDialog = new ClockFrequencyDialog(frame, app);
 		}
@@ -137,14 +123,14 @@ public class AppShell {
 	}
 
 	private int getWidth() {
-		return currentMode == Mode.FULLSCREEN_MODE ? frame.getWidth() : canvas.getWidth();
+		return mode == Mode.FULLSCREEN_MODE ? frame.getWidth() : canvas.getWidth();
 	}
 
 	private int getHeight() {
-		return currentMode == Mode.FULLSCREEN_MODE ? frame.getHeight() : canvas.getHeight();
+		return mode == Mode.FULLSCREEN_MODE ? frame.getHeight() : canvas.getHeight();
 	}
 
-	public void renderView(View view) {
+	public void render(View view) {
 		if (!renderingEnabled || buffer == null) {
 			return;
 		}
@@ -153,7 +139,7 @@ public class AppShell {
 				Graphics2D g = null;
 				try {
 					g = (Graphics2D) buffer.getDrawGraphics();
-					drawView(view, g);
+					draw(view, g);
 				} catch (Exception x) {
 					x.printStackTrace(System.err);
 				} finally {
@@ -170,17 +156,17 @@ public class AppShell {
 		} while (buffer.contentsLost());
 
 		++renderCount;
-		if (renderCount == app.clock.getFrequency()) {
+		if (renderCount >= app.clock.getFrequency()) {
 			String title = formatTitle(app.clock.getUpdateRate(), app.clock.getRenderRate());
 			EventQueue.invokeLater(() -> frame.setTitle(title));
 			renderCount = 0;
 		}
 	}
 
-	private void drawView(View view, Graphics2D g) {
+	private void draw(View view, Graphics2D g) {
 		g.setColor(app.settings.bgColor);
 		g.fillRect(0, 0, getWidth(), getHeight());
-		if (currentMode == Mode.FULLSCREEN_MODE) {
+		if (mode == Mode.FULLSCREEN_MODE) {
 			DisplayMode fullscreen = device.getDisplayMode();
 			int fsWidth = fullscreen.getWidth();
 			int fsHeight = fullscreen.getHeight();
@@ -216,8 +202,8 @@ public class AppShell {
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
 	}
 
-	private void toggleDisplayMode() {
-		if (currentMode == Mode.FULLSCREEN_MODE) {
+	public void toggleDisplayMode() {
+		if (mode == Mode.FULLSCREEN_MODE) {
 			enterWindowMode();
 		} else {
 			enterFullScreenMode();
@@ -226,16 +212,16 @@ public class AppShell {
 
 	public void enterFullScreenMode() {
 		if (app.settings.fullScreenMode == null) {
-			LOGGER.info("Cannot enter full-screen mode: No full-screen mode specified for this application.");
+			LOGGER.info("Cannot enter full-screen mode: No full-screen mode specified in application settings.");
 			return;
 		}
 		if (!device.isFullScreenSupported()) {
 			LOGGER.info("Cannot enter full-screen mode: device does not support full-screen mode.");
 			return;
 		}
-		DisplayMode mode = app.settings.fullScreenMode.getDisplayMode();
-		if (!isValidDisplayMode(mode)) {
-			LOGGER.info("Cannot enter full-screen mode: Display mode not supported: " + formatDisplayMode(mode));
+		DisplayMode dm = app.settings.fullScreenMode.getDisplayMode();
+		if (!isValidDisplayMode(dm)) {
+			LOGGER.info("Cannot enter full-screen mode: Display mode not supported: " + formatDisplayMode(dm));
 			return;
 		}
 		renderingEnabled = false;
@@ -245,11 +231,11 @@ public class AppShell {
 		frame.setCursor(invisibleCursor);
 		frame.validate();
 		device.setFullScreenWindow(frame);
-		device.setDisplayMode(mode);
+		device.setDisplayMode(dm);
 		frame.requestFocus();
+		mode = Mode.FULLSCREEN_MODE;
 		renderingEnabled = true;
-		currentMode = Mode.FULLSCREEN_MODE;
-		LOGGER.info("Entered full-screen mode " + formatDisplayMode(mode));
+		LOGGER.info("Entered full-screen mode " + formatDisplayMode(dm));
 	}
 
 	public void enterWindowMode() {
@@ -265,8 +251,8 @@ public class AppShell {
 		frame.requestFocus();
 		canvas.createBufferStrategy(2);
 		buffer = canvas.getBufferStrategy();
+		mode = Mode.WINDOW_MODE;
 		renderingEnabled = true;
-		currentMode = Mode.WINDOW_MODE;
 		LOGGER.info(String.format("Entered window mode (%dx%d)", app.settings.width, app.settings.height));
 	}
 

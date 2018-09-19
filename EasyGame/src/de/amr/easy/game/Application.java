@@ -3,6 +3,7 @@ package de.amr.easy.game;
 import static java.awt.event.KeyEvent.VK_P;
 
 import java.awt.EventQueue;
+import java.awt.event.KeyEvent;
 import java.io.InputStream;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -200,6 +201,12 @@ public abstract class Application {
 		if (Keyboard.keyPressedOnce(Modifier.CONTROL, VK_P)) {
 			pause(!paused);
 		}
+		if (Keyboard.keyPressedOnce(KeyEvent.VK_F11)) {
+			shell.toggleDisplayMode();
+		}
+		if (Keyboard.keyPressedOnce(KeyEvent.VK_F2)) {
+			shell.showFrequencyControlDialog();
+		}
 		if (!paused) {
 			collisionHandler.update();
 			controller.update();
@@ -208,11 +215,11 @@ public abstract class Application {
 
 	private void render() {
 		if (controller instanceof View) {
-			shell.renderView((View) controller);
+			shell.render((View) controller);
 		} else if (controller instanceof ViewController) {
 			ViewController vc = ((ViewController) controller);
 			if (vc.currentView() != null) {
-				shell.renderView(vc.currentView());
+				shell.render(vc.currentView());
 			}
 		}
 	}
