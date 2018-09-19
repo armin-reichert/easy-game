@@ -87,7 +87,7 @@ public abstract class Application {
 		EventQueue.invokeLater(() -> {
 			app.shell = new AppShell(app);
 			if (app.settings.fullScreenOnStart) {
-				app.shell.enterFullScreenExclusiveMode();
+				app.shell.enterFullScreenMode();
 			} else {
 				app.shell.enterWindowMode();
 			}
