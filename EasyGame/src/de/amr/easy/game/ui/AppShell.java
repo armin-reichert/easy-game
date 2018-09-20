@@ -71,6 +71,7 @@ public class AppShell {
 		frame = createFrame();
 		MouseHandler.handleMouseEventsFor(canvas);
 		KeyboardHandler.handleKeyEventsFor(frame);
+		enterWindowMode();
 		renderingEnabled = true;
 		LOGGER.info("Application shell created.");
 	}
