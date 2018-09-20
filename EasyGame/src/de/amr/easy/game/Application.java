@@ -27,17 +27,35 @@ import de.amr.easy.game.view.View;
 import de.amr.easy.game.view.ViewController;
 
 /**
- * Application base class with utility method {@code launch(Application)} for starting an
- * application.
+ * Application base class with utility methods {@code launch(Application)} and
+ * {@code launch(Application, String[])} for starting the application.
+ * <p>
+ * The second variant reads the command line arguments and overrides the corresponding application
+ * settings. The following command-line arguments are supported:
+ * <ul>
+ * <li>-width <i>pixels</i>
+ * <li>-height <i>pixels</i>
+ * <li>-scale <i>float value</i>
+ * <li>-title <i>text</i>
+ * <li>-titleExtended
+ * <li>-bgColor <i>rgbcolor</i>
+ * <li>-fullscreen
+ * <li>-fullscreenMode <i>width,height,bitdepth</i>
+ * </ul>
  * 
  * <p>
  * Example:
+ * <pre>
+ * java -jar mygame.jar -scale 2.5 -fullscreen -fullscreenMode 800,600,32
+ * </pre>
+ * 
+ * The application class might look like this:
  * 
  * <pre>
  * public class MyGame extends Application {
  * 
  * 	public static void main(String... args) {
- * 		launch(new MyGame());
+ * 		launch(new MyGame(), args);
  * 	}
  * 
  * 	public MyGame() {
