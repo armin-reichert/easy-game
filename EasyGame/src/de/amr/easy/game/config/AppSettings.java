@@ -7,8 +7,9 @@ import java.util.stream.Stream;
 
 import com.beust.jcommander.IStringConverter;
 import com.beust.jcommander.Parameter;
+import com.beust.jcommander.ParameterException;
 
-import de.amr.easy.game.ui.FullScreen;
+import de.amr.easy.game.ui.FullScreenMode;
 
 /**
  * Application settings. Contains named properties and a generic map.
@@ -24,6 +25,25 @@ public class AppSettings {
 		@Override
 		public Color convert(String rgb) {
 			return Color.decode(rgb);
+		}
+	}
+
+	private static class FullScreenModeConverter implements IStringConverter<FullScreenMode> {
+
+		@Override
+		public FullScreenMode convert(String str) {
+			String[] parts = str.split(",");
+			if (parts.length != 3) {
+				throw new ParameterException("Illegal display mode");
+			}
+			try {
+				int width = Integer.parseInt(parts[0]);
+				int height = Integer.parseInt(parts[1]);
+				int bitDepth = Integer.parseInt(parts[2]);
+				return new FullScreenMode(width, height, bitDepth);
+			} catch (Exception e) {
+				throw new ParameterException(e);
+			}
 		}
 	}
 
@@ -55,8 +75,10 @@ public class AppSettings {
 	@Parameter(names = { "-fullscreen" }, description = "start app in fullscreen mode")
 	public boolean fullScreenOnStart = false;
 
-	/** The full-screen mode (resolution, depth), see {@link FullScreen}. */
-	public FullScreen fullScreenMode = FullScreen.Mode(800, 600, 32);
+	/** The full-screen mode (resolution, depth), see {@link FullScreenMode}. */
+	@Parameter(names = {
+			"-fullscreenMode" }, converter = FullScreenModeConverter.class, description = "fullscreen display mode")
+	public FullScreenMode fullScreenMode = new FullScreenMode(800, 600, 32);
 
 	/** The background color of the application. */
 	@Parameter(names = { "-bgColor" }, converter = ColorConverter.class, description = "application background")
