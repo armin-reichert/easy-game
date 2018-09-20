@@ -11,6 +11,8 @@ import java.util.logging.Logger;
 import javax.swing.UIManager;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 
+import com.beust.jcommander.JCommander;
+
 import de.amr.easy.game.config.AppSettings;
 import de.amr.easy.game.entity.collision.CollisionHandler;
 import de.amr.easy.game.input.Keyboard;
@@ -94,6 +96,20 @@ public abstract class Application {
 			}
 			app.start();
 		});
+	}
+
+	/**
+	 * Launches the specified application. The arguments are parsed and assigned to the application
+	 * settings.
+	 * 
+	 * @param app
+	 *               application instance
+	 * @param args
+	 *               command-line arguments
+	 */
+	public static void launch(Application app, String[] args) {
+		JCommander.newBuilder().addObject(app.settings).build().parse(args);
+		launch(app);
 	}
 
 	/** The settings of this application. */

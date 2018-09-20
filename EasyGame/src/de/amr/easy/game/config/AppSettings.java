@@ -5,43 +5,66 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import com.beust.jcommander.IStringConverter;
+import com.beust.jcommander.Parameter;
+
 import de.amr.easy.game.ui.FullScreen;
 
 /**
- * Application settings. Contains predefined properties and a generic map.
+ * Application settings. Contains named properties and a generic map.
+ * <p>
+ * The named settings can be overwritten by corresponding command line parameters.
  * 
  * @author Armin Reichert
  */
 public class AppSettings {
+
+	private static class ColorConverter implements IStringConverter<Color> {
+
+		@Override
+		public Color convert(String rgb) {
+			return Color.decode(rgb);
+		}
+	}
 
 	private final Map<String, Object> settings = new HashMap<>();
 
 	// Predefined properties
 
 	/** The application title. */
+	@Parameter(names = { "-title" }, description = "application title")
 	public String title = "My Application!";
 
 	/** If <code>true</code>, additional info (frame rate, resolution) gets displayed in title. */
+	@Parameter(names = { "-titleExtended" }, description = "extended application title")
 	public boolean titleExtended;
 
 	/** The unscaled width of application area in pixel. */
+	@Parameter(names = { "-width" }, description = "application width (unscaled)")
 	public int width = 600;
 
 	/** The unscaled height of the application area in pixel. */
+	@Parameter(names = { "-height" }, description = "application height (unscaled)")
 	public int height = 400;
 
 	/** The scale factor for the screen. */
+	@Parameter(names = { "-scale" }, description = "application scaling factor")
 	public float scale = 1f;
 
 	/** If <code>true</code>, the application starts in full-screen mode. */
+	@Parameter(names = { "-fullscreen" }, description = "start app in fullscreen mode")
 	public boolean fullScreenOnStart = false;
 
 	/** The full-screen mode (resolution, depth), see {@link FullScreen}. */
 	public FullScreen fullScreenMode = FullScreen.Mode(800, 600, 32);
 
 	/** The background color of the application. */
+	@Parameter(names = { "-bgColor" }, converter = ColorConverter.class, description = "application background")
 	public Color bgColor = Color.BLACK;
 
+	/**
+	 * @return stream of all keys of the generic settings
+	 */
 	public Stream<String> keys() {
 		return settings.keySet().stream();
 	}
@@ -82,8 +105,7 @@ public class AppSettings {
 	}
 
 	/**
-	 * Returns a property value as boolean value. If property is undefined, returns
-	 * <code>false</code>.
+	 * Returns a property value as boolean value. If property is undefined, returns <code>false</code>.
 	 * 
 	 * @param key
 	 *              property name
