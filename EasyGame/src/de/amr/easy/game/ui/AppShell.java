@@ -72,7 +72,6 @@ public class AppShell {
 		MouseHandler.handleMouseEventsFor(canvas);
 		KeyboardHandler.handleKeyEventsFor(frame);
 		enterWindowMode();
-		renderingEnabled = true;
 		LOGGER.info("Application shell created.");
 	}
 
@@ -212,6 +211,9 @@ public class AppShell {
 	}
 
 	public void enterFullScreenMode() {
+		if (mode == Mode.FULLSCREEN_MODE) {
+			return;
+		}
 		if (app.settings.fullScreenMode == null) {
 			LOGGER.info("Cannot enter full-screen mode: No full-screen mode specified in application settings.");
 			return;
@@ -240,6 +242,9 @@ public class AppShell {
 	}
 
 	public void enterWindowMode() {
+		if (mode == Mode.WINDOW_MODE) {
+			return;
+		}
 		renderingEnabled = false;
 		// Note: The order of the following statements is important!
 		device.setFullScreenWindow(null);
