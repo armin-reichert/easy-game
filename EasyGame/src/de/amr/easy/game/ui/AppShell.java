@@ -172,9 +172,11 @@ public class AppShell {
 			int fsHeight = fullscreen.getHeight();
 			int viewWidth = app.settings.width;
 			int viewHeight = app.settings.height;
-			double scale = (1.0 * fsHeight) / viewHeight;
+			double xScale = (1.0 * fsWidth) / viewWidth;
+			double yScale = (1.0 * fsHeight) / viewHeight;
+			double scale = Math.min(xScale, yScale);
 			Graphics2D scaled = (Graphics2D) g.create();
-			scaled.translate((fsWidth - scale * viewWidth) / 2.0, 0);
+			scaled.translate((fsWidth - scale * viewWidth) / 2.0, (fsHeight - scale * viewHeight) / 2.0);
 			scaled.setClip(0, 0, (int) (scale * viewWidth), (int) (scale * viewHeight));
 			scaled.scale(scale, scale);
 			view.draw(scaled);
