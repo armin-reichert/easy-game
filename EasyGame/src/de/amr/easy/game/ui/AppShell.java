@@ -93,7 +93,6 @@ public class AppShell {
 		frame.setBackground(app.settings.bgColor);
 		frame.setResizable(false);
 		frame.setFocusable(true);
-		frame.setIgnoreRepaint(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.add(canvas, BorderLayout.CENTER);
 		frame.addWindowListener(new WindowAdapter() {
@@ -122,14 +121,6 @@ public class AppShell {
 		return app.settings.title;
 	}
 
-	private int getWidth() {
-		return mode == Mode.FULLSCREEN_MODE ? frame.getWidth() : canvas.getWidth();
-	}
-
-	private int getHeight() {
-		return mode == Mode.FULLSCREEN_MODE ? frame.getHeight() : canvas.getHeight();
-	}
-
 	public void render(View view) {
 		if (!renderingEnabled || buffer == null) {
 			return;
@@ -139,7 +130,7 @@ public class AppShell {
 				Graphics2D g = null;
 				try {
 					g = (Graphics2D) buffer.getDrawGraphics();
-					draw(view, g);
+					drawScaledView(view, g);
 				} catch (Exception x) {
 					x.printStackTrace(System.err);
 				} finally {
@@ -163,36 +154,33 @@ public class AppShell {
 		}
 	}
 
-	private void draw(View view, Graphics2D g) {
-		g.setColor(app.settings.bgColor);
-		g.fillRect(0, 0, getWidth(), getHeight());
+	private void drawScaledView(View view, Graphics2D g) {
+		Graphics2D sg = (Graphics2D) g.create();
+		sg.setColor(app.settings.bgColor);
 		if (mode == Mode.FULLSCREEN_MODE) {
-			DisplayMode fullscreen = device.getDisplayMode();
-			int fsWidth = fullscreen.getWidth();
-			int fsHeight = fullscreen.getHeight();
-			int viewWidth = app.settings.width;
-			int viewHeight = app.settings.height;
-			double xScale = (1.0 * fsWidth) / viewWidth;
-			double yScale = (1.0 * fsHeight) / viewHeight;
-			double scale = Math.min(xScale, yScale);
-			Graphics2D scaled = (Graphics2D) g.create();
-			scaled.translate((fsWidth - scale * viewWidth) / 2.0, (fsHeight - scale * viewHeight) / 2.0);
-			scaled.setClip(0, 0, (int) (scale * viewWidth), (int) (scale * viewHeight));
-			scaled.scale(scale, scale);
-			view.draw(scaled);
+			sg.fillRect(0, 0, frame.getWidth(), frame.getHeight());
+			int unscaledWidth = app.settings.width;
+			int unscaledHeight = app.settings.height;
+			double zoom = Math.min(((double) frame.getWidth()) / unscaledWidth,
+					((double) frame.getHeight()) / unscaledHeight);
+			double scaledWidth = zoom * unscaledWidth;
+			double scaledHeight = zoom * unscaledHeight;
+			sg.translate((frame.getWidth() - scaledWidth) / 2, (frame.getHeight() - scaledHeight) / 2);
+			sg.setClip(0, 0, (int) scaledWidth, (int) scaledHeight);
+			sg.scale(zoom, zoom);
+			view.draw(sg);
 			if (app.isPaused()) {
-				drawTextCentered(scaled, PAUSED_TEXT, viewWidth, viewHeight);
+				drawTextCentered(sg, PAUSED_TEXT, unscaledWidth, unscaledHeight);
 			}
-			scaled.dispose();
-		} else {
-			Graphics2D scaled = (Graphics2D) g.create();
-			scaled.scale(app.settings.scale, app.settings.scale);
-			view.draw(scaled);
-			scaled.dispose();
+		} else if (mode == Mode.WINDOW_MODE) {
+			sg.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+			sg.scale(app.settings.scale, app.settings.scale);
+			view.draw(sg);
 			if (app.isPaused()) {
-				drawTextCentered(g, PAUSED_TEXT, getWidth(), getHeight());
+				drawTextCentered(g, PAUSED_TEXT, canvas.getWidth(), canvas.getHeight());
 			}
 		}
+		sg.dispose();
 	}
 
 	protected void drawTextCentered(Graphics2D g, String text, int width, int height) {
@@ -233,6 +221,7 @@ public class AppShell {
 		frame.dispose();
 		frame.setVisible(false);
 		frame.setUndecorated(true);
+		frame.setIgnoreRepaint(true);
 		frame.setCursor(invisibleCursor);
 		frame.validate();
 		device.setFullScreenWindow(frame);
@@ -252,6 +241,7 @@ public class AppShell {
 		device.setFullScreenWindow(null);
 		frame.dispose();
 		frame.setUndecorated(false);
+		frame.setIgnoreRepaint(false);
 		frame.setCursor(Cursor.getDefaultCursor());
 		frame.pack();
 		frame.setLocationRelativeTo(null);
@@ -261,7 +251,7 @@ public class AppShell {
 		buffer = canvas.getBufferStrategy();
 		mode = Mode.WINDOW_MODE;
 		renderingEnabled = true;
-		LOGGER.info(String.format("Entered window mode (%dx%d)", app.settings.width, app.settings.height));
+		LOGGER.info(String.format("Entered window mode %dx%d", app.settings.width, app.settings.height));
 	}
 
 	private boolean isValidDisplayMode(DisplayMode displayMode) {
