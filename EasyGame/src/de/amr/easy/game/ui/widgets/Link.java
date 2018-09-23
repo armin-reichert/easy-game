@@ -1,4 +1,4 @@
-package de.amr.easy.game.controls;
+package de.amr.easy.game.ui.widgets;
 
 import java.awt.Color;
 import java.awt.Font;

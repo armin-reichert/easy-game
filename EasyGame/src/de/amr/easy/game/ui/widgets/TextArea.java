@@ -1,4 +1,4 @@
-package de.amr.easy.game.controls;
+package de.amr.easy.game.ui.widgets;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -10,7 +10,8 @@ import java.awt.image.BufferedImage;
 import java.util.function.BooleanSupplier;
 
 import de.amr.easy.game.entity.GameEntityUsingSprites;
-import de.amr.easy.game.sprite.Sprite;
+import de.amr.easy.game.ui.sprites.Sprite;
+import de.amr.easy.game.view.AnimationController;
 
 /**
  * A multi-line text that can be scrolled over the screen.

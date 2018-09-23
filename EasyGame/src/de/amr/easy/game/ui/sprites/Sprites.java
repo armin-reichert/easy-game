@@ -1,4 +1,4 @@
-package de.amr.easy.game.sprite;
+package de.amr.easy.game.ui.sprites;
 
 import java.util.HashMap;
 import java.util.Iterator;

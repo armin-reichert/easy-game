@@ -2,7 +2,7 @@ package de.amr.easy.game.entity;
 
 import java.awt.Graphics2D;
 
-import de.amr.easy.game.sprite.Sprites;
+import de.amr.easy.game.ui.sprites.Sprites;
 import de.amr.easy.game.view.View;
 
 /**

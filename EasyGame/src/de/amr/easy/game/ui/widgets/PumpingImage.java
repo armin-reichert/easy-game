@@ -1,6 +1,6 @@
-package de.amr.easy.game.controls;
+package de.amr.easy.game.ui.widgets;
 
-import static de.amr.easy.game.sprite.AnimationType.BACK_AND_FORTH;
+import static de.amr.easy.game.ui.sprites.AnimationType.BACK_AND_FORTH;
 import static java.lang.Math.round;
 
 import java.awt.Graphics2D;
@@ -9,7 +9,7 @@ import java.awt.image.BufferedImage;
 import java.util.Objects;
 
 import de.amr.easy.game.entity.GameEntityUsingSprites;
-import de.amr.easy.game.sprite.Sprite;
+import de.amr.easy.game.ui.sprites.Sprite;
 
 public class PumpingImage extends GameEntityUsingSprites {
 

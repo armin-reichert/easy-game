@@ -1,4 +1,4 @@
-package de.amr.easy.game.controls;
+package de.amr.easy.game.ui.widgets;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -7,8 +7,8 @@ import java.awt.image.BufferedImage;
 import java.util.Objects;
 
 import de.amr.easy.game.entity.GameEntityUsingSprites;
-import de.amr.easy.game.sprite.AnimationType;
-import de.amr.easy.game.sprite.Sprite;
+import de.amr.easy.game.ui.sprites.AnimationType;
+import de.amr.easy.game.ui.sprites.Sprite;
 
 /**
  * Blinking text.

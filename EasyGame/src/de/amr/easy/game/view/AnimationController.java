@@ -1,6 +1,4 @@
-package de.amr.easy.game.controls;
-
-import de.amr.easy.game.view.Controller;
+package de.amr.easy.game.view;
 
 public interface AnimationController extends Controller {
 

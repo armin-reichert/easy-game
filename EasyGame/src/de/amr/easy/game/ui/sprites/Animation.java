@@ -1,4 +1,4 @@
-package de.amr.easy.game.sprite;
+package de.amr.easy.game.ui.sprites;
 
 /**
  * Animation for a sprite. Loops through the image sequence of a sprite in a way defined by the

@@ -7,7 +7,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 
 import de.amr.easy.game.Application;
-import de.amr.easy.game.controls.TextArea;
+import de.amr.easy.game.ui.widgets.TextArea;
 import de.amr.easy.game.view.Controller;
 import de.amr.easy.game.view.View;
 
