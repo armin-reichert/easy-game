@@ -15,14 +15,9 @@ import de.amr.easy.game.view.Controller;
  * 
  * @author Armin Reichert
  */
-public class GameEntity implements Controller, Collider {
+public abstract class GameEntity implements Controller, Collider {
 
 	public final Transform tf = new Transform();
-
-	@Override
-	public Rectangle2D getCollisionBox() {
-		return tf.getCollisionBox();
-	}
 
 	@Override
 	public void init() {
@@ -30,5 +25,10 @@ public class GameEntity implements Controller, Collider {
 
 	@Override
 	public void update() {
+	}
+
+	@Override
+	public Rectangle2D getCollisionBox() {
+		return tf.getCollisionBox();
 	}
 }
