@@ -2,6 +2,7 @@ package de.amr.easy.game.entity;
 
 import java.awt.Graphics2D;
 
+import de.amr.easy.game.math.Vector2f;
 import de.amr.easy.game.ui.sprites.Sprites;
 import de.amr.easy.game.view.View;
 
@@ -12,17 +13,29 @@ import de.amr.easy.game.view.View;
  * @author Armin Reichert
  */
 public abstract class GameEntityUsingSprites extends GameEntity implements View {
-	
+
 	public final Sprites sprites = new Sprites();
+	private boolean visible = true;
+
+	public boolean isVisible() {
+		return visible;
+	}
+
+	public void setVisible(boolean visible) {
+		this.visible = visible;
+	}
 
 	@Override
 	public void draw(Graphics2D g) {
-		if (sprites.current() != null) {
-			Graphics2D gg = (Graphics2D) g.create();
-			gg.translate(tf.getX(), tf.getY());
-			gg.rotate(tf.getRotation());
-			sprites.current().draw(gg);
-			gg.dispose();
+		if (visible && sprites.current() != null) {
+			Vector2f center = tf.getCenter();
+			float dx = center.x - sprites.current().getWidth() / 2;
+			float dy = center.y - sprites.current().getHeight() / 2;
+			g.translate(dx, dy);
+			g.rotate(tf.getRotation());
+			sprites.current().draw(g);
+			g.translate(-dx, -dy);
 		}
+
 	}
 }
