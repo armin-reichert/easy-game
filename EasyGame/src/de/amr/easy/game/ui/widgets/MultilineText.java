@@ -10,6 +10,7 @@ import java.awt.image.BufferedImage;
 import java.util.function.BooleanSupplier;
 
 import de.amr.easy.game.entity.GameEntityUsingSprites;
+import de.amr.easy.game.math.Vector2f;
 import de.amr.easy.game.ui.sprites.Sprite;
 import de.amr.easy.game.view.AnimationController;
 
@@ -18,59 +19,54 @@ import de.amr.easy.game.view.AnimationController;
  * 
  * @author Armin Reichert
  */
-public class TextArea extends GameEntityUsingSprites implements AnimationController {
+public class MultilineText extends GameEntityUsingSprites implements AnimationController {
 
 	public static class Builder {
 
-		private final TextArea product;
+		private final MultilineText widget;
 
 		public Builder() {
-			product = new TextArea();
+			widget = new MultilineText();
 		}
 
 		public Builder visible(boolean visible) {
-			product.visible = visible;
+			widget.setVisible(visible);
 			return this;
 		}
 
 		public Builder text(String text) {
-			product.lines = text.split("\n");
+			widget.lines = text.split("\n");
 			return this;
 		}
 
 		public Builder lineSpacing(float value) {
-			product.lineSpacing = value;
+			widget.lineSpacing = value;
 			return this;
 		}
 
 		public Builder background(Color color) {
-			product.background = color;
+			widget.background = color;
 			return this;
 		}
 
 		public Builder color(Color color) {
-			product.color = color;
+			widget.color = color;
 			return this;
 		}
 
 		public Builder font(Font font) {
-			product.font = font;
+			widget.font = font;
 			return this;
 		}
 
-		public Builder speedX(float speed) {
-			product.speedX = speed;
+		public Builder velocity(float vx, float vy) {
+			widget.velocity = Vector2f.of(vx, vy);
 			return this;
 		}
 
-		public Builder speedY(float speed) {
-			product.speedY = speed;
-			return this;
-		}
-
-		public TextArea build() {
-			product.updateSprite();
-			return product;
+		public MultilineText build() {
+			widget.updateSprite();
+			return widget;
 		}
 	}
 
@@ -80,30 +76,20 @@ public class TextArea extends GameEntityUsingSprites implements AnimationControl
 
 	private String[] lines;
 	private BooleanSupplier completion;
-	private boolean visible;
 	private float lineSpacing;
 	private Color background;
 	private Color color;
 	private Font font;
-	private float speedX;
-	private float speedY;
+	private Vector2f velocity;
 
-	private TextArea() {
-		visible = true;
+	private MultilineText() {
 		completion = () -> false;
 		lines = new String[0];
 		font = new Font(Font.SANS_SERIF, Font.PLAIN, 16);
 		background = null; // transparent
 		color = Color.BLUE;
 		lineSpacing = 1.5f;
-	}
-
-	public boolean isVisible() {
-		return visible;
-	}
-
-	public void setVisible(boolean visible) {
-		this.visible = visible;
+		velocity = Vector2f.NULL;
 	}
 
 	public int getHeight() {
@@ -117,16 +103,6 @@ public class TextArea extends GameEntityUsingSprites implements AnimationControl
 	public void setText(String text) {
 		this.lines = text.split("\n");
 		updateSprite();
-	}
-
-	public void setSpeedX(float speed) {
-		speedX = speed;
-		tf.setVelocityX(speed);
-	}
-
-	public void setSpeedY(float speed) {
-		speedY = speed;
-		tf.setVelocityY(speed);
 	}
 
 	public void setFont(Font font) {
@@ -168,7 +144,7 @@ public class TextArea extends GameEntityUsingSprites implements AnimationControl
 
 	@Override
 	public void start() {
-		tf.setVelocity(speedX, speedY);
+		tf.setVelocity(velocity);
 	}
 
 	@Override
@@ -223,12 +199,5 @@ public class TextArea extends GameEntityUsingSprites implements AnimationControl
 		sprites.select("s_image");
 		tf.setWidth((int) textWidth);
 		tf.setHeight((int) textHeight);
-	}
-
-	@Override
-	public void draw(Graphics2D g) {
-		if (visible) {
-			super.draw(g);
-		}
 	}
 }

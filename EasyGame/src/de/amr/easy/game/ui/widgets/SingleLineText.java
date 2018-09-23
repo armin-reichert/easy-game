@@ -11,46 +11,47 @@ import de.amr.easy.game.ui.sprites.AnimationType;
 import de.amr.easy.game.ui.sprites.Sprite;
 
 /**
- * Blinking text.
+ * A single-line text widget with the ability to set background color, text color, font and blink
+ * time.
  * 
  * @author Armin Reichert
  */
-public class BlinkingText extends GameEntityUsingSprites {
+public class SingleLineText extends GameEntityUsingSprites {
 
 	public static class Builder {
 
-		private final BlinkingText product;
+		private final SingleLineText widget;
 
 		public Builder() {
-			product = new BlinkingText();
+			widget = new SingleLineText();
 		}
 
 		public Builder text(String text) {
 			Objects.requireNonNull(text);
-			product.text = text;
+			widget.text = text;
 			return this;
 		}
 
 		public Builder blinkTimeMillis(int millis) {
-			product.blinkTimeMillis = millis;
+			widget.blinkTimeMillis = millis;
 			return this;
 		}
 
 		public Builder font(Font font) {
 			Objects.requireNonNull(font);
-			product.font = font;
+			widget.font = font;
 			return this;
 		}
 
 		public Builder color(Color color) {
 			Objects.requireNonNull(color);
-			product.color = color;
+			widget.color = color;
 			return this;
 		}
 
 		public Builder background(Color color) {
 			Objects.requireNonNull(color);
-			product.background = color;
+			widget.background = color;
 			return this;
 		}
 
@@ -58,13 +59,13 @@ public class BlinkingText extends GameEntityUsingSprites {
 			if (factor < 1) {
 				throw new IllegalArgumentException("Space factor must be greater or equal one");
 			}
-			product.spaceExpansion = factor;
+			widget.spaceExpansion = factor;
 			return this;
 		}
 
-		public BlinkingText build() {
-			product.createSprite();
-			return product;
+		public SingleLineText build() {
+			widget.createSprite();
+			return widget;
 		}
 	}
 
@@ -79,20 +80,22 @@ public class BlinkingText extends GameEntityUsingSprites {
 	private Color color;
 	private int spaceExpansion;
 
-	private BlinkingText() {
-		this.text = "";
-		blinkTimeMillis = 1000;
-		this.font = new Font(Font.SANS_SERIF, Font.BOLD, 20);
-		this.background = Color.BLACK;
-		this.color = Color.YELLOW;
-		this.spaceExpansion = 1;
+	private SingleLineText() {
+		text = "";
+		blinkTimeMillis = Integer.MAX_VALUE;
+		font = new Font(Font.SANS_SERIF, Font.BOLD, 20);
+		background = Color.BLACK;
+		color = Color.YELLOW;
+		spaceExpansion = 1;
 		createSprite();
 	}
 
 	public void setText(String text) {
 		Objects.requireNonNull(text);
-		this.text = text;
-		createSprite();
+		if (!this.text.equals(text)) {
+			this.text = text;
+			createSprite();
+		}
 	}
 
 	public void setBlinkTimeMillis(int millis) {
@@ -102,20 +105,26 @@ public class BlinkingText extends GameEntityUsingSprites {
 
 	public void setFont(Font font) {
 		Objects.requireNonNull(font);
-		this.font = font;
-		createSprite();
+		if (!this.font.equals(font)) {
+			this.font = font;
+			createSprite();
+		}
 	}
 
 	public void setColor(Color color) {
 		Objects.requireNonNull(color);
-		this.color = color;
-		createSprite();
+		if (!this.color.equals(color)) {
+			this.color = color;
+			createSprite();
+		}
 	}
 
 	public void setBackground(Color background) {
 		Objects.requireNonNull(background);
-		this.background = background;
-		createSprite();
+		if (!this.background.equals(background)) {
+			this.background = background;
+			createSprite();
+		}
 	}
 
 	public void setBlinkTime(int millis) {
@@ -152,8 +161,7 @@ public class BlinkingText extends GameEntityUsingSprites {
 		g.setFont(font);
 		g.drawString(patchedText, 0, height);
 		g.dispose();
-		sprites.set("s_text",
-				Sprite.of(image, null).animate(AnimationType.BACK_AND_FORTH, blinkTimeMillis / 2));
+		sprites.set("s_text", Sprite.of(image, null).animate(AnimationType.BACK_AND_FORTH, blinkTimeMillis / 2));
 		sprites.select("s_text");
 	}
 
