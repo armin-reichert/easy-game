@@ -45,6 +45,7 @@ import de.amr.easy.game.view.ViewController;
  * 
  * <p>
  * Example:
+ * 
  * <pre>
  * java -jar mygame.jar -scale 2.5 -fullscreen -fullscreenMode 800,600,32
  * </pre>
@@ -67,6 +68,14 @@ import de.amr.easy.game.view.ViewController;
  * 		settings.fullScreenOnStart = false;
  * }
  * </pre>
+ * 
+ * <p>
+ * The following keyboard shortcuts are predefined:
+ * <ul>
+ * <li>{@code F11}: Toggles between window and full-screen mode
+ * <li>{@code F2}: Opens a dialog for changing the clock speed
+ * <li>{@code CTRL+P}: Pauses/resumes the application
+ * </ul>
  * 
  * @author Armin Reichert
  */
@@ -112,6 +121,7 @@ public abstract class Application {
 			} else {
 				app.shell.enterWindowMode();
 			}
+			app._init();
 			app.start();
 		});
 	}
@@ -133,17 +143,14 @@ public abstract class Application {
 	/** The settings of this application. */
 	public final AppSettings settings;
 
-	/** The window displaying the application. */
-	private AppShell shell;
-
-	/** The clock running the application. */
+	/** The clock defining the speed of the application. */
 	public final Clock clock;
 
 	/** The collision handler of this application. */
 	public final CollisionHandler collisionHandler;
 
-	/** The default view of this application. */
-	private final AppInfoView defaultView;
+	/** The window displaying the current view of the application. */
+	private AppShell shell;
 
 	/** The current controller. */
 	private Controller controller;
@@ -156,18 +163,22 @@ public abstract class Application {
 	 */
 	public Application() {
 		INSTANCE = this;
-		clock = new Clock(this::update, this::render);
-		clock.setFrequency(60);
 		settings = new AppSettings();
-		defaultView = new AppInfoView(this);
-		controller = defaultView;
 		collisionHandler = new CollisionHandler();
 		MouseHandler.INSTANCE.fnScale = () -> settings.scale;
+		clock = new Clock(this::update, this::render);
 		LOGGER.info(String.format("Application '%s' created.", getClass().getSimpleName()));
 	}
 
 	/** Called when the application is initialized. */
 	public abstract void init();
+
+	private void _init() {
+		controller = new AppInfoView(this);
+		controller.init();
+		init();
+		LOGGER.info("Application initialized.");
+	}
 
 	/**
 	 * Makes the given controller the current one and optionally initializes it.
@@ -178,7 +189,10 @@ public abstract class Application {
 	 *                     if the controller should be initialized
 	 */
 	public void setController(Controller controller, boolean initialize) {
-		this.controller = (controller == null) ? defaultView : controller;
+		if (controller == null) {
+			throw new IllegalArgumentException("Controller cannot be null");
+		}
+		this.controller = controller;
 		LOGGER.info("Controller set: " + controller);
 		if (initialize) {
 			controller.init();
@@ -196,12 +210,8 @@ public abstract class Application {
 		setController(controller, true);
 	}
 
-	/** Initializes the application and starts the clock. */
+	/** Sarts the application. */
 	private final void start() {
-		defaultView.init();
-		LOGGER.info("Default view initialized.");
-		init();
-		LOGGER.info("Application initialized.");
 		clock.start();
 		LOGGER.info(String.format("Clock started, running with %d ticks/sec.", clock.getFrequency()));
 	}

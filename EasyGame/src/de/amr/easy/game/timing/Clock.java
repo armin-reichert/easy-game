@@ -34,6 +34,7 @@ public class Clock {
 	 *                 render task
 	 */
 	public Clock(Runnable update, Runnable render) {
+		setFrequency(60);
 		updateTask = new Task(update, SECONDS.toNanos(1));
 		renderTask = new Task(render, SECONDS.toNanos(1));
 	}
