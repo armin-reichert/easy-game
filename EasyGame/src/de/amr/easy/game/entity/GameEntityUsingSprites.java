@@ -31,11 +31,11 @@ public abstract class GameEntityUsingSprites extends GameEntity implements View 
 			Vector2f center = tf.getCenter();
 			float dx = center.x - sprites.current().getWidth() / 2;
 			float dy = center.y - sprites.current().getHeight() / 2;
-			g.translate(dx, dy);
-			g.rotate(tf.getRotation());
-			sprites.current().draw(g);
-			g.translate(-dx, -dy);
+			Graphics2D g2 = (Graphics2D) g.create();
+			g2.translate(dx, dy);
+			g2.rotate(tf.getRotation());
+			sprites.current().draw(g2);
+			g2.dispose();
 		}
-
 	}
 }
