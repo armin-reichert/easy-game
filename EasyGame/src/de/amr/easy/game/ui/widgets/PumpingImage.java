@@ -3,7 +3,6 @@ package de.amr.easy.game.ui.widgets;
 import static de.amr.easy.game.ui.sprites.AnimationType.BACK_AND_FORTH;
 import static java.lang.Math.round;
 
-import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.util.Objects;
@@ -37,7 +36,7 @@ public class PumpingImage extends GameEntityUsingSprites {
 		}
 
 		public Builder visible(boolean visible) {
-			product.visible = visible;
+			product.setVisible(visible);
 			return this;
 		}
 
@@ -61,27 +60,17 @@ public class PumpingImage extends GameEntityUsingSprites {
 	private Sprite sprite;
 	private int frameCount;
 	private float scale;
-	private boolean visible;
 	private int periodMillis;
 
 	private PumpingImage() {
 		frameCount = 6;
 		scale = 2;
-		visible = true;
 		periodMillis = 1000;
 	}
 
 	public void setScale(float scale) {
 		this.scale = scale;
 		updateSprite();
-	}
-
-	public boolean isVisible() {
-		return visible;
-	}
-
-	public void setVisible(boolean visible) {
-		this.visible = visible;
 	}
 
 	private void updateSprite() {
@@ -99,16 +88,5 @@ public class PumpingImage extends GameEntityUsingSprites {
 		sprites.select("s_image");
 		tf.setWidth(sprite.getMaxWidth());
 		tf.setHeight(sprite.getMaxHeight());
-	}
-
-	@Override
-	public void draw(Graphics2D g) {
-		if (visible) {
-			int dx = (tf.getWidth() - sprite.currentFrame().getWidth(null)) / 2;
-			int dy = (tf.getHeight() - sprite.currentFrame().getHeight(null)) / 2;
-			g.translate(dx, dy);
-			super.draw(g);
-			g.translate(-dx, -dy);
-		}
 	}
 }
