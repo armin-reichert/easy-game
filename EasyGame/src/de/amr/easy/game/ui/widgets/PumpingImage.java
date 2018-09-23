@@ -57,7 +57,6 @@ public class PumpingImage extends GameEntityUsingSprites {
 	}
 
 	private Image image;
-	private Sprite sprite;
 	private int frameCount;
 	private float scale;
 	private int periodMillis;
@@ -81,7 +80,7 @@ public class PumpingImage extends GameEntityUsingSprites {
 			int frameHeight = round(height + i * delta * height);
 			frames[i] = image.getScaledInstance(-1, frameHeight, BufferedImage.SCALE_FAST);
 		}
-		sprite = Sprite.of(frames);
+		Sprite sprite = Sprite.of(frames);
 		sprite.animate(BACK_AND_FORTH, periodMillis / frameCount);
 		sprite.enableAnimation(true);
 		sprites.set("s_image", sprite);
