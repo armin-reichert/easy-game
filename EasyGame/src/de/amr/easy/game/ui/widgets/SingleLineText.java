@@ -6,7 +6,7 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.Objects;
 
-import de.amr.easy.game.entity.GameEntityUsingSprites;
+import de.amr.easy.game.entity.SpriteBasedGameEntity;
 import de.amr.easy.game.ui.sprites.AnimationType;
 import de.amr.easy.game.ui.sprites.Sprite;
 
@@ -16,7 +16,7 @@ import de.amr.easy.game.ui.sprites.Sprite;
  * 
  * @author Armin Reichert
  */
-public class SingleLineText extends GameEntityUsingSprites {
+public class SingleLineText extends SpriteBasedGameEntity {
 
 	public static class Builder {
 

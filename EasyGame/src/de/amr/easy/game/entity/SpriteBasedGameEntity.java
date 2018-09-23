@@ -12,22 +12,13 @@ import de.amr.easy.game.view.View;
  * 
  * @author Armin Reichert
  */
-public abstract class GameEntityUsingSprites extends GameEntity implements View {
+public abstract class SpriteBasedGameEntity extends AbstractGameEntity implements View {
 
 	public final Sprites sprites = new Sprites();
-	private boolean visible = true;
-
-	public boolean isVisible() {
-		return visible;
-	}
-
-	public void setVisible(boolean visible) {
-		this.visible = visible;
-	}
 
 	@Override
 	public void draw(Graphics2D g) {
-		if (visible && sprites.current() != null) {
+		if (isVisible() && sprites.current() != null) {
 			Vector2f center = tf.getCenter();
 			float dx = center.x - sprites.current().getWidth() / 2;
 			float dy = center.y - sprites.current().getHeight() / 2;

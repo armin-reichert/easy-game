@@ -13,11 +13,11 @@ import java.net.URL;
 import java.util.Objects;
 
 import de.amr.easy.game.Application;
-import de.amr.easy.game.entity.GameEntity;
+import de.amr.easy.game.entity.AbstractGameEntity;
 import de.amr.easy.game.input.Mouse;
 import de.amr.easy.game.view.View;
 
-public class Link extends GameEntity implements View {
+public class Link extends AbstractGameEntity implements View {
 
 	public static class Builder {
 

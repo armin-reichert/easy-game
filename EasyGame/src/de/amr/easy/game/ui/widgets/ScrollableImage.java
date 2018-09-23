@@ -3,7 +3,7 @@ package de.amr.easy.game.ui.widgets;
 import java.awt.Image;
 import java.util.function.BooleanSupplier;
 
-import de.amr.easy.game.entity.GameEntityUsingSprites;
+import de.amr.easy.game.entity.SpriteBasedGameEntity;
 import de.amr.easy.game.math.Vector2f;
 import de.amr.easy.game.ui.sprites.Sprite;
 import de.amr.easy.game.view.AnimationController;
@@ -13,7 +13,7 @@ import de.amr.easy.game.view.AnimationController;
  * 
  * @author Armin Reichert
  */
-public class ScrollableImage extends GameEntityUsingSprites implements AnimationController {
+public class ScrollableImage extends SpriteBasedGameEntity implements AnimationController {
 
 	private float speedX;
 	private float speedY;
