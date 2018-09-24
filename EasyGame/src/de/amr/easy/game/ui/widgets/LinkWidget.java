@@ -5,11 +5,14 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.font.TextAttribute;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Objects;
 
 import de.amr.easy.game.Application;
@@ -129,7 +132,9 @@ public class LinkWidget extends AbstractGameEntity implements View {
 	public void draw(Graphics2D g) {
 		g.translate(tf.getX(), tf.getY());
 		g.setColor(color);
-		g.setFont(font);
+		Map<TextAttribute, Integer> attributes = Collections.singletonMap(TextAttribute.UNDERLINE,
+				TextAttribute.UNDERLINE_ON);
+		g.setFont(font.deriveFont(attributes));
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		g.drawString(text, 0, g.getFontMetrics().getAscent());
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
