@@ -7,16 +7,16 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.util.Objects;
 import java.util.function.BooleanSupplier;
 
 import de.amr.easy.game.entity.SpriteBasedGameEntity;
-import de.amr.easy.game.math.Vector2f;
 import de.amr.easy.game.ui.sprites.AnimationType;
 import de.amr.easy.game.ui.sprites.Sprite;
 import de.amr.easy.game.view.AnimationController;
 
 /**
- * A multi-line text that can be scrolled over the screen.
+ * A multi-line text that can be moved over the screen.
  * 
  * @author Armin Reichert
  */
@@ -36,6 +36,7 @@ public class TextWidget extends SpriteBasedGameEntity implements AnimationContro
 		}
 
 		public Builder text(String text) {
+			Objects.requireNonNull(text);
 			widget.lines = text.split("\n");
 			return this;
 		}
@@ -61,6 +62,7 @@ public class TextWidget extends SpriteBasedGameEntity implements AnimationContro
 		}
 
 		public Builder font(Font font) {
+			Objects.requireNonNull(font);
 			widget.font = font;
 			return this;
 		}
@@ -70,11 +72,6 @@ public class TextWidget extends SpriteBasedGameEntity implements AnimationContro
 				throw new IllegalArgumentException("Space factor must be greater or equal one");
 			}
 			widget.spaceExpansion = factor;
-			return this;
-		}
-
-		public Builder velocity(float vx, float vy) {
-			widget.velocity = Vector2f.of(vx, vy);
 			return this;
 		}
 
@@ -89,29 +86,78 @@ public class TextWidget extends SpriteBasedGameEntity implements AnimationContro
 	}
 
 	private String[] lines;
-	private BooleanSupplier completion;
 	private float lineSpacing;
 	private Color background;
 	private Color color;
 	private Font font;
+	private BooleanSupplier fnCompleted;
 	private int blinkTimeMillis;
 	private int spaceExpansion;
-
-	private Vector2f velocity;
+	private boolean moving;
 
 	private TextWidget() {
-		completion = () -> false;
+//		debug_draw = true;
+		moving = false;
+		fnCompleted = () -> false;
 		lines = new String[0];
 		font = new Font(Font.SANS_SERIF, Font.PLAIN, 16);
 		background = null; // transparent
 		color = Color.BLUE;
 		lineSpacing = 1.5f;
 		blinkTimeMillis = Integer.MAX_VALUE;
-		velocity = Vector2f.NULL;
+		updateSprite();
 	}
 
-	public int getHeight() {
-		return Math.round(lines.length * (font.getSize()) + (lines.length - 1) * lineSpacing);
+	private void updateSprite() {
+		String spaces = " ";
+		for (int j = 1; j < spaceExpansion; ++j) {
+			spaces += " ";
+		}
+
+		tf.setWidth(0);
+		tf.setHeight(0);
+		BufferedImage image = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g = image.createGraphics();
+		g.setFont(font);
+		for (int i = 0; i < lines.length; ++i) {
+			String line = lines[i].replace(" ", spaces);
+			Rectangle2D lineBounds = g.getFontMetrics().getStringBounds(line, g);
+			tf.setHeight(tf.getHeight() + (int)Math.ceil(lineBounds.getHeight()));
+			if (i < lines.length - 1) {
+				tf.setHeight(tf.getHeight() + (int) Math.ceil(lineSpacing));
+			}
+			tf.setWidth(Math.max(tf.getWidth(), (int) Math.ceil(lineBounds.getWidth())));
+		}
+
+		// create correctly sized image
+		tf.setWidth(Math.max(tf.getWidth(), 1));
+		tf.setHeight(Math.max(tf.getHeight(), 1));
+		image = new BufferedImage(tf.getWidth(), tf.getHeight(), BufferedImage.TYPE_INT_ARGB);
+		g = image.createGraphics();
+		if (background != null) {
+			g.setColor(background);
+			g.fillRect(0, 0, tf.getWidth(), tf.getHeight());
+		}
+		g.setFont(font);
+		g.setColor(color);
+		FontMetrics fm = g.getFontMetrics();
+		float y = 0;
+		for (int i = 0; i < lines.length; ++i) {
+			String text = lines[i];
+			text = text.replace(" ", spaces);
+			Rectangle2D lineBounds = fm.getStringBounds(text, g);
+			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+			g.drawString(text, (float) (tf.getWidth() - lineBounds.getWidth()) / 2, y + fm.getMaxAscent());
+			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+			y += lineBounds.getHeight();
+			if (i < lines.length - 1) {
+				y += lineSpacing;
+			}
+		}
+
+		// store sprite and set collision box
+		sprites.set("s_text", Sprite.of(image, null).animate(AnimationType.BACK_AND_FORTH, blinkTimeMillis / 2));
+		sprites.select("s_text");
 	}
 
 	public String getText() {
@@ -153,82 +199,31 @@ public class TextWidget extends SpriteBasedGameEntity implements AnimationContro
 	}
 
 	public void setCompletion(BooleanSupplier completion) {
-		this.completion = completion;
+		this.fnCompleted = completion;
 	}
 
 	@Override
 	public void update() {
-		tf.move();
-		if (isCompleted()) {
-			stop();
+		if (moving) {
+			tf.move();
+			if (isCompleted()) {
+				stop();
+			}
 		}
 	}
 
 	@Override
 	public boolean isCompleted() {
-		return completion.getAsBoolean();
+		return fnCompleted.getAsBoolean();
 	}
 
 	@Override
 	public void start() {
-		tf.setVelocity(velocity);
+		moving = true;
 	}
 
 	@Override
 	public void stop() {
-		tf.setVelocity(0, 0);
-	}
-
-	private void updateSprite() {
-		// compute bounds
-		BufferedImage image = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
-		Graphics2D g = image.createGraphics();
-		g.setFont(font);
-		double textWidth = 1;
-		double textHeight = 1;
-		String spaces = " ";
-		for (int j = 1; j < spaceExpansion; ++j) {
-			spaces += " ";
-		}
-		for (int i = 0; i < lines.length; ++i) {
-			String text = lines[i];
-			text = text.replace(" ", spaces);
-			Rectangle2D lineBounds = g.getFontMetrics().getStringBounds(text, g);
-			textHeight += lineBounds.getHeight();
-			if (i < lines.length - 1) {
-				textHeight += lineSpacing;
-			}
-			textWidth = Math.max(textWidth, lineBounds.getWidth());
-		}
-
-		// correctly sized image which will be used as sprite
-		image = new BufferedImage((int) Math.ceil(textWidth), (int) Math.ceil(textHeight),
-				BufferedImage.TYPE_INT_ARGB);
-		g = image.createGraphics();
-		if (background != null) {
-			g.setColor(background);
-			g.fillRect(0, 0, image.getWidth(), image.getHeight());
-		}
-		g.setFont(font);
-		g.setColor(color);
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		FontMetrics fm = g.getFontMetrics();
-		float y = 0;
-		for (int i = 0; i < lines.length; ++i) {
-			String text = lines[i];
-			text = text.replace(" ", spaces);
-			Rectangle2D lineBounds = fm.getStringBounds(text, g);
-			g.drawString(text, (float) (textWidth - lineBounds.getWidth()) / 2, y + fm.getMaxAscent());
-			y += lineBounds.getHeight();
-			if (i < lines.length - 1) {
-				y += lineSpacing;
-			}
-		}
-
-		// store sprite and set collision box
-		sprites.set("s_text", Sprite.of(image, null).animate(AnimationType.BACK_AND_FORTH, blinkTimeMillis / 2));
-		sprites.select("s_text");
-		tf.setWidth((int) textWidth);
-		tf.setHeight((int) textHeight);
+		moving = false;
 	}
 }

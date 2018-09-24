@@ -27,10 +27,11 @@ public class AppInfoView implements Controller, View {
 
 	@Override
 	public void init() {
-		text = TextWidget.create().text(infoText()).velocity(0, -0.5f).color(Color.WHITE)
+		text = TextWidget.create().text(infoText()).color(Color.WHITE)
 				.font(new Font(Font.SANS_SERIF, Font.BOLD, 14)).build();
 		text.tf.centerX(app.settings.width);
 		text.tf.setY(app.settings.height);
+		text.tf.setVelocityY(-0.5f);
 		text.start();
 	}
 

@@ -1,5 +1,6 @@
 package de.amr.easy.game.entity;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 
 import de.amr.easy.game.math.Vector2f;
@@ -14,11 +15,20 @@ import de.amr.easy.game.view.View;
  */
 public abstract class SpriteBasedGameEntity extends AbstractGameEntity implements View {
 
+	public boolean debug_draw = false;
+	
 	public final Sprites sprites = new Sprites();
 
 	@Override
 	public void draw(Graphics2D g) {
 		if (isVisible() && sprites.current() != null) {
+			if (debug_draw) {
+				Graphics2D g2 = (Graphics2D) g.create();
+				g2.translate(tf.getX(), tf.getY());
+				g2.setColor(Color.RED);
+				g2.drawRect(0, 0, tf.getWidth(), tf.getHeight());
+				g2.dispose();
+			}
 			Vector2f center = tf.getCenter();
 			float dx = center.x - sprites.current().getWidth() / 2;
 			float dy = center.y - sprites.current().getHeight() / 2;
