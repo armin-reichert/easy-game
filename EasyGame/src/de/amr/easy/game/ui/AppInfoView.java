@@ -2,8 +2,11 @@ package de.amr.easy.game.ui;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.DisplayMode;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.RenderingHints;
 
 import de.amr.easy.game.Application;
@@ -59,7 +62,7 @@ public class AppInfoView implements Controller, View {
 	private String infoText() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(app.getClass().getSimpleName()).append("\n\n");
-		sb.append("clock frequency = " + app.clock.getFrequency()).append("\n\n");
+		sb.append("clock frequency = " + app.clock.getFrequency()).append(" Hz\n\n");
 		sb.append("title = " + app.settings.title).append("\n");
 		sb.append("width = " + app.settings.width).append("\n");
 		sb.append("height = " + app.settings.height).append("\n");
@@ -69,6 +72,12 @@ public class AppInfoView implements Controller, View {
 		app.settings.keys().forEach(key -> {
 			sb.append(key + " = " + app.settings.getAsString(key)).append("\n");
 		});
+		sb.append("Available display modes:\n\n");
+		GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+		for (DisplayMode dm : device.getDisplayModes()) {
+			sb.append(String.format("%dx%d %d bit %d Hz\n", dm.getWidth(), dm.getHeight(), dm.getBitDepth(),
+					dm.getRefreshRate()));
+		}
 		return sb.toString();
 	}
 }
