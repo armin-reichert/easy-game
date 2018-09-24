@@ -7,7 +7,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 
 import de.amr.easy.game.Application;
-import de.amr.easy.game.ui.widgets.MultilineText;
+import de.amr.easy.game.ui.widgets.TextWidget;
 import de.amr.easy.game.view.Controller;
 import de.amr.easy.game.view.View;
 
@@ -19,7 +19,7 @@ import de.amr.easy.game.view.View;
 public class AppInfoView implements Controller, View {
 
 	private final Application app;
-	private MultilineText text;
+	private TextWidget text;
 
 	public AppInfoView(Application app) {
 		this.app = app;
@@ -27,7 +27,7 @@ public class AppInfoView implements Controller, View {
 
 	@Override
 	public void init() {
-		text = MultilineText.create().text(infoText()).velocity(0, -0.5f).color(Color.WHITE)
+		text = TextWidget.create().text(infoText()).velocity(0, -0.5f).color(Color.WHITE)
 				.font(new Font(Font.SANS_SERIF, Font.BOLD, 14)).build();
 		text.tf.centerX(app.settings.width);
 		text.tf.setY(app.settings.height);

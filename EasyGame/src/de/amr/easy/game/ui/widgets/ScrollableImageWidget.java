@@ -13,13 +13,13 @@ import de.amr.easy.game.view.AnimationController;
  * 
  * @author Armin Reichert
  */
-public class ScrollableImage extends SpriteBasedGameEntity implements AnimationController {
+public class ScrollableImageWidget extends SpriteBasedGameEntity implements AnimationController {
 
 	private float speedX;
 	private float speedY;
 	private BooleanSupplier completion;
 
-	public ScrollableImage(Image image) {
+	public ScrollableImageWidget(Image image) {
 		completion = () -> false;
 		sprites.set("s_image", Sprite.of(image));
 		sprites.select("s_image");

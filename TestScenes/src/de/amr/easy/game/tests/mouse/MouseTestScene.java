@@ -6,14 +6,14 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 
 import de.amr.easy.game.input.Mouse;
-import de.amr.easy.game.ui.widgets.MultilineText;
+import de.amr.easy.game.ui.widgets.TextWidget;
 import de.amr.easy.game.view.Controller;
 import de.amr.easy.game.view.View;
 
 public class MouseTestScene implements View, Controller {
 
 	private final MouseTestApp app;
-	private MultilineText messageDisplay;
+	private TextWidget messageDisplay;
 
 	public MouseTestScene(MouseTestApp app) {
 		this.app = app;
@@ -29,7 +29,7 @@ public class MouseTestScene implements View, Controller {
 
 	@Override
 	public void init() {
-		messageDisplay = MultilineText.create().build();
+		messageDisplay = TextWidget.create().build();
 	}
 
 	@Override

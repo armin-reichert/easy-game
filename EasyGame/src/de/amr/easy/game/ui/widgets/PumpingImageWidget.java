@@ -10,14 +10,14 @@ import java.util.Objects;
 import de.amr.easy.game.entity.SpriteBasedGameEntity;
 import de.amr.easy.game.ui.sprites.Sprite;
 
-public class PumpingImage extends SpriteBasedGameEntity {
+public class PumpingImageWidget extends SpriteBasedGameEntity {
 
 	public static class Builder {
 
-		private final PumpingImage product;
+		private final PumpingImageWidget product;
 
 		private Builder() {
-			product = new PumpingImage();
+			product = new PumpingImageWidget();
 		}
 
 		public Builder image(Image image) {
@@ -45,7 +45,7 @@ public class PumpingImage extends SpriteBasedGameEntity {
 			return this;
 		}
 
-		public PumpingImage build() {
+		public PumpingImageWidget build() {
 			Objects.requireNonNull(product.image);
 			product.updateSprite();
 			return product;
@@ -61,7 +61,7 @@ public class PumpingImage extends SpriteBasedGameEntity {
 	private float scale;
 	private int periodMillis;
 
-	private PumpingImage() {
+	private PumpingImageWidget() {
 		frameCount = 6;
 		scale = 2;
 		periodMillis = 1000;

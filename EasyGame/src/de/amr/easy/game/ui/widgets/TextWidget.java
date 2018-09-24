@@ -11,6 +11,7 @@ import java.util.function.BooleanSupplier;
 
 import de.amr.easy.game.entity.SpriteBasedGameEntity;
 import de.amr.easy.game.math.Vector2f;
+import de.amr.easy.game.ui.sprites.AnimationType;
 import de.amr.easy.game.ui.sprites.Sprite;
 import de.amr.easy.game.view.AnimationController;
 
@@ -19,14 +20,14 @@ import de.amr.easy.game.view.AnimationController;
  * 
  * @author Armin Reichert
  */
-public class MultilineText extends SpriteBasedGameEntity implements AnimationController {
+public class TextWidget extends SpriteBasedGameEntity implements AnimationController {
 
 	public static class Builder {
 
-		private final MultilineText widget;
+		private final TextWidget widget;
 
 		public Builder() {
-			widget = new MultilineText();
+			widget = new TextWidget();
 		}
 
 		public Builder visible(boolean visible) {
@@ -36,6 +37,11 @@ public class MultilineText extends SpriteBasedGameEntity implements AnimationCon
 
 		public Builder text(String text) {
 			widget.lines = text.split("\n");
+			return this;
+		}
+
+		public Builder blinkTimeMillis(int millis) {
+			widget.blinkTimeMillis = millis;
 			return this;
 		}
 
@@ -59,12 +65,20 @@ public class MultilineText extends SpriteBasedGameEntity implements AnimationCon
 			return this;
 		}
 
+		public Builder spaceExpansion(int factor) {
+			if (factor < 1) {
+				throw new IllegalArgumentException("Space factor must be greater or equal one");
+			}
+			widget.spaceExpansion = factor;
+			return this;
+		}
+
 		public Builder velocity(float vx, float vy) {
 			widget.velocity = Vector2f.of(vx, vy);
 			return this;
 		}
 
-		public MultilineText build() {
+		public TextWidget build() {
 			widget.updateSprite();
 			return widget;
 		}
@@ -80,15 +94,19 @@ public class MultilineText extends SpriteBasedGameEntity implements AnimationCon
 	private Color background;
 	private Color color;
 	private Font font;
+	private int blinkTimeMillis;
+	private int spaceExpansion;
+
 	private Vector2f velocity;
 
-	private MultilineText() {
+	private TextWidget() {
 		completion = () -> false;
 		lines = new String[0];
 		font = new Font(Font.SANS_SERIF, Font.PLAIN, 16);
 		background = null; // transparent
 		color = Color.BLUE;
 		lineSpacing = 1.5f;
+		blinkTimeMillis = Integer.MAX_VALUE;
 		velocity = Vector2f.NULL;
 	}
 
@@ -125,6 +143,15 @@ public class MultilineText extends SpriteBasedGameEntity implements AnimationCon
 		updateSprite();
 	}
 
+	public void setBlinkTime(int millis) {
+		sprites.current().animate(AnimationType.BACK_AND_FORTH, millis);
+	}
+
+	public void setSpaceExpansion(int spaceExpansion) {
+		this.spaceExpansion = spaceExpansion;
+		updateSprite();
+	}
+
 	public void setCompletion(BooleanSupplier completion) {
 		this.completion = completion;
 	}
@@ -153,17 +180,20 @@ public class MultilineText extends SpriteBasedGameEntity implements AnimationCon
 	}
 
 	private void updateSprite() {
-		// helper image for computing bounds
-		BufferedImage helperImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
-		Graphics2D g = helperImage.createGraphics();
+		// compute bounds
+		BufferedImage image = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g = image.createGraphics();
 		g.setFont(font);
-		g.setColor(color);
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		double textWidth = 1;
 		double textHeight = 1;
+		String spaces = " ";
+		for (int j = 1; j < spaceExpansion; ++j) {
+			spaces += " ";
+		}
 		for (int i = 0; i < lines.length; ++i) {
-			String line = lines[i];
-			Rectangle2D lineBounds = g.getFontMetrics().getStringBounds(line, g);
+			String text = lines[i];
+			text = text.replace(" ", spaces);
+			Rectangle2D lineBounds = g.getFontMetrics().getStringBounds(text, g);
 			textHeight += lineBounds.getHeight();
 			if (i < lines.length - 1) {
 				textHeight += lineSpacing;
@@ -172,7 +202,7 @@ public class MultilineText extends SpriteBasedGameEntity implements AnimationCon
 		}
 
 		// correctly sized image which will be used as sprite
-		BufferedImage image = new BufferedImage((int) Math.ceil(textWidth), (int) Math.ceil(textHeight),
+		image = new BufferedImage((int) Math.ceil(textWidth), (int) Math.ceil(textHeight),
 				BufferedImage.TYPE_INT_ARGB);
 		g = image.createGraphics();
 		if (background != null) {
@@ -185,9 +215,10 @@ public class MultilineText extends SpriteBasedGameEntity implements AnimationCon
 		FontMetrics fm = g.getFontMetrics();
 		float y = 0;
 		for (int i = 0; i < lines.length; ++i) {
-			String line = lines[i];
-			Rectangle2D lineBounds = fm.getStringBounds(line, g);
-			g.drawString(line, (float) (textWidth - lineBounds.getWidth()) / 2, y + fm.getMaxAscent());
+			String text = lines[i];
+			text = text.replace(" ", spaces);
+			Rectangle2D lineBounds = fm.getStringBounds(text, g);
+			g.drawString(text, (float) (textWidth - lineBounds.getWidth()) / 2, y + fm.getMaxAscent());
 			y += lineBounds.getHeight();
 			if (i < lines.length - 1) {
 				y += lineSpacing;
@@ -195,8 +226,8 @@ public class MultilineText extends SpriteBasedGameEntity implements AnimationCon
 		}
 
 		// store sprite and set collision box
-		sprites.set("s_image", Sprite.of(image));
-		sprites.select("s_image");
+		sprites.set("s_text", Sprite.of(image, null).animate(AnimationType.BACK_AND_FORTH, blinkTimeMillis / 2));
+		sprites.select("s_text");
 		tf.setWidth((int) textWidth);
 		tf.setHeight((int) textHeight);
 	}

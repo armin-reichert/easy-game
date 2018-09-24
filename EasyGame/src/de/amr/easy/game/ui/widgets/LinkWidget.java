@@ -17,14 +17,14 @@ import de.amr.easy.game.entity.AbstractGameEntity;
 import de.amr.easy.game.input.Mouse;
 import de.amr.easy.game.view.View;
 
-public class Link extends AbstractGameEntity implements View {
+public class LinkWidget extends AbstractGameEntity implements View {
 
 	public static class Builder {
 
-		private final Link product;
+		private final LinkWidget product;
 
 		public Builder() {
-			product = new Link();
+			product = new LinkWidget();
 		}
 
 		public Builder text(String text) {
@@ -51,7 +51,7 @@ public class Link extends AbstractGameEntity implements View {
 			return this;
 		}
 
-		public Link build() {
+		public LinkWidget build() {
 			product.computeSize();
 			return product;
 		}
@@ -66,7 +66,7 @@ public class Link extends AbstractGameEntity implements View {
 	private Color color;
 	private URL url;
 
-	private Link() {
+	private LinkWidget() {
 	}
 
 	public String getText() {
