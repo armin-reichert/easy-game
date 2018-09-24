@@ -1,4 +1,4 @@
-package de.amr.easy.game.math.test;
+package de.amr.easy.game.tests.math;
 
 import static de.amr.easy.game.math.Vector2f.angle;
 import static de.amr.easy.game.math.Vector2f.diff;
