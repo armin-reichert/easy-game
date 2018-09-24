@@ -2,11 +2,11 @@ package de.amr.easy.game.ui.widgets;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.font.TextAttribute;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -20,34 +20,46 @@ import de.amr.easy.game.entity.AbstractGameEntity;
 import de.amr.easy.game.input.Mouse;
 import de.amr.easy.game.view.View;
 
+/**
+ * A link widget.
+ * 
+ * <p>
+ * TODO: Opening a link works only under Windows.
+ * 
+ * @author Armin Reichert
+ */
 public class LinkWidget extends AbstractGameEntity implements View {
 
 	public static class Builder {
 
-		private final LinkWidget product;
+		private final LinkWidget link;
 
 		public Builder() {
-			product = new LinkWidget();
+			link = new LinkWidget();
 		}
 
 		public Builder text(String text) {
-			product.text = text;
+			Objects.requireNonNull(text);
+			link.text = text;
 			return this;
 		}
 
 		public Builder font(Font font) {
-			product.font = font;
+			Objects.requireNonNull(font);
+			link.font = underlined(font);
 			return this;
 		}
 
 		public Builder color(Color color) {
-			product.color = color;
+			Objects.requireNonNull(color);
+			link.color = color;
 			return this;
 		}
 
 		public Builder url(String spec) {
+			Objects.requireNonNull(spec);
 			try {
-				product.url = new URL(spec);
+				link.url = new URL(spec);
 			} catch (MalformedURLException e) {
 				Application.LOGGER.info("Invalid link URL: " + spec);
 			}
@@ -55,13 +67,19 @@ public class LinkWidget extends AbstractGameEntity implements View {
 		}
 
 		public LinkWidget build() {
-			product.computeSize();
-			return product;
+			link.computeTextBounds();
+			return link;
 		}
 	}
 
 	public static Builder create() {
 		return new Builder();
+	}
+
+	private static Font underlined(Font font) {
+		Map<TextAttribute, Integer> attributes = Collections.singletonMap(TextAttribute.UNDERLINE,
+				TextAttribute.UNDERLINE_ON);
+		return font.deriveFont(attributes);
 	}
 
 	private String text;
@@ -77,9 +95,10 @@ public class LinkWidget extends AbstractGameEntity implements View {
 	}
 
 	public void setText(String text) {
+		Objects.requireNonNull(text);
 		if (!this.text.equals(text)) {
 			this.text = text;
-			computeSize();
+			computeTextBounds();
 		}
 	}
 
@@ -90,8 +109,8 @@ public class LinkWidget extends AbstractGameEntity implements View {
 	public void setFont(Font font) {
 		Objects.requireNonNull(font);
 		if (!this.font.equals(font)) {
-			this.font = font;
-			computeSize();
+			this.font = underlined(font);
+			computeTextBounds();
 		}
 	}
 
@@ -100,13 +119,15 @@ public class LinkWidget extends AbstractGameEntity implements View {
 	}
 
 	public void setColor(Color color) {
+		Objects.requireNonNull(color);
 		if (this.color != color) {
 			this.color = color;
-			computeSize();
+			computeTextBounds();
 		}
 	}
 
 	public void setURL(String spec) {
+		Objects.requireNonNull(spec);
 		try {
 			url = new URL(spec);
 		} catch (MalformedURLException e) {
@@ -115,16 +136,9 @@ public class LinkWidget extends AbstractGameEntity implements View {
 	}
 
 	@Override
-	public void init() {
-	}
-
-	@Override
 	public void update() {
-		if (Mouse.clicked()) {
-			int x = Mouse.getX(), y = Mouse.getY();
-			if (getCollisionBox().contains(new Point2D.Float(x, y))) {
-				openURL();
-			}
+		if (Mouse.clicked() && getCollisionBox().contains(new Point2D.Float(Mouse.getX(), Mouse.getY()))) {
+			openURL();
 		}
 	}
 
@@ -141,13 +155,13 @@ public class LinkWidget extends AbstractGameEntity implements View {
 		g.translate(-tf.getX(), -tf.getY());
 	}
 
-	private void computeSize() {
+	private void computeTextBounds() {
 		BufferedImage img = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
 		Graphics2D g = img.createGraphics();
 		g.setFont(font);
-		FontMetrics fm = g.getFontMetrics();
-		tf.setWidth(fm.stringWidth(text));
-		tf.setHeight(fm.getHeight());
+		Rectangle2D bounds = g.getFontMetrics().getStringBounds(text, g);
+		tf.setWidth((int) bounds.getWidth());
+		tf.setHeight((int) bounds.getHeight());
 		g.dispose();
 	}
 
