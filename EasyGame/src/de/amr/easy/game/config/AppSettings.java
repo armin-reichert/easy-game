@@ -78,7 +78,7 @@ public class AppSettings {
 	/** The full-screen mode (resolution, depth), see {@link FullScreenMode}. */
 	@Parameter(names = {
 			"-fullscreenMode" }, converter = FullScreenModeConverter.class, description = "fullscreen display mode")
-	public FullScreenMode fullScreenMode = new FullScreenMode(640, 400, 32);
+	public FullScreenMode fullScreenMode = new FullScreenMode(640, 480, 32);
 
 	/** The background color of the application. */
 	@Parameter(names = { "-bgColor" }, converter = ColorConverter.class, description = "application background")
