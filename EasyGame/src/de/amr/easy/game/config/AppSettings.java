@@ -72,14 +72,18 @@ public class AppSettings {
 	public float scale = 1f;
 
 	/** If <code>true</code>, the application starts in full-screen mode. */
-	@Parameter(names = { "-fullscreen" }, description = "start app in fullscreen mode")
+	@Parameter(names = { "-fullScreenOnStart" }, description = "start app in fullscreen mode")
 	public boolean fullScreenOnStart = false;
 
 	/** The full-screen mode (resolution, depth), see {@link FullScreenMode}. */
 	@Parameter(names = {
-			"-fullscreenMode" }, converter = FullScreenModeConverter.class, description = "fullscreen display mode")
+			"-fullScreenMode" }, converter = FullScreenModeConverter.class, description = "fullscreen display mode")
 	public FullScreenMode fullScreenMode = new FullScreenMode(640, 480, 32);
 
+	/** If <code>true</code>, the cursor is visible in full-screen mode. */
+	@Parameter(names = { "-fullScreenCursor" }, description = "cursor visible in fullscreen mode")
+	public boolean fullScreenCursor = false;
+	
 	/** The background color of the application. */
 	@Parameter(names = { "-bgColor" }, converter = ColorConverter.class, description = "application background")
 	public Color bgColor = Color.BLACK;

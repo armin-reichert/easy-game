@@ -5,7 +5,7 @@ import de.amr.easy.game.Application;
 public class DrawingTestApp extends Application {
 
 	public static void main(String[] args) {
-		launch(new DrawingTestApp());
+		launch(new DrawingTestApp(), args);
 	}
 
 	public DrawingTestApp() {

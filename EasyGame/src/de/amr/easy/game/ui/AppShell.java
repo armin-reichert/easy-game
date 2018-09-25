@@ -250,7 +250,9 @@ public class AppShell {
 		device.setFullScreenWindow(fullScreenWindow);
 		device.setDisplayMode(dm);
 		fullScreenWindow.createBufferStrategy(2);
-		fullScreenWindow.setCursor(invisibleCursor);
+		if (app.settings.fullScreenCursor == false) {
+			fullScreenWindow.setCursor(invisibleCursor);
+		}
 		fullScreenWindow.requestFocus();
 		LOGGER.info("Entered full-screen mode " + formatDisplayMode(dm));
 	}
