@@ -113,7 +113,6 @@ public class AppShell {
 	private Canvas canvas;
 	private Window fullscreenWindow;
 	private Cursor invisibleCursor;
-	private volatile boolean renderingEnabled;
 	private int renderCount;
 	private ClockFrequencyDialog clockFrequencyDialog;
 
@@ -160,7 +159,7 @@ public class AppShell {
 	}
 
 	private void render(BufferStrategy buffer, View view) {
-		if (!renderingEnabled || buffer == null) {
+		if (buffer == null) {
 			return;
 		}
 		do {
@@ -257,14 +256,12 @@ public class AppShell {
 			LOGGER.info("Cannot enter full-screen mode: Display mode not supported: " + formatDisplayMode(dm));
 			return;
 		}
-		renderingEnabled = false;
 		device.setFullScreenWindow(fullscreenWindow);
 		device.setDisplayMode(dm);
 		fullscreenWindow.createBufferStrategy(2);
 		fullscreenWindow.setCursor(invisibleCursor);
 		fullscreenWindow.requestFocus();
 		mode = Mode.FULLSCREEN_MODE;
-		renderingEnabled = true;
 		LOGGER.info("Entered full-screen mode " + formatDisplayMode(dm));
 	}
 
@@ -272,13 +269,11 @@ public class AppShell {
 		if (mode == Mode.WINDOW_MODE) {
 			return;
 		}
-		renderingEnabled = false;
 		device.setFullScreenWindow(null);
 		appFrame.setVisible(true);
 		appFrame.requestFocus();
 		canvas.createBufferStrategy(2);
 		mode = Mode.WINDOW_MODE;
-		renderingEnabled = true;
 		LOGGER.info(String.format("Entered window mode %dx%d", app.settings.width, app.settings.height));
 	}
 
