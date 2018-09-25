@@ -61,7 +61,7 @@ public class AppSettings {
 
 	/** The unscaled width of application area in pixel. */
 	@Parameter(names = { "-width" }, description = "application width (unscaled)")
-	public int width = 600;
+	public int width = 640;
 
 	/** The unscaled height of the application area in pixel. */
 	@Parameter(names = { "-height" }, description = "application height (unscaled)")
@@ -78,7 +78,7 @@ public class AppSettings {
 	/** The full-screen mode (resolution, depth), see {@link FullScreenMode}. */
 	@Parameter(names = {
 			"-fullscreenMode" }, converter = FullScreenModeConverter.class, description = "fullscreen display mode")
-	public FullScreenMode fullScreenMode = new FullScreenMode(800, 600, 32);
+	public FullScreenMode fullScreenMode = new FullScreenMode(640, 400, 32);
 
 	/** The background color of the application. */
 	@Parameter(names = { "-bgColor" }, converter = ColorConverter.class, description = "application background")
