@@ -18,6 +18,7 @@ import java.awt.Image;
 import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
@@ -31,9 +32,10 @@ import de.amr.easy.game.input.MouseHandler;
 import de.amr.easy.game.view.View;
 
 /**
- * The application shell provides the window (optionally full-screen) where the current view of the
- * application is rendered. The display is actively rendered depending on the frequency of the
- * application clock.
+ * The application shell provides the window where the current view of the application is rendered.
+ * In window mode, the view is rendered to a double-buffered canvas which is the single child of the
+ * application frame. In fullscreen mode, the view is rendered to a fullscreen-exclusive frame. In
+ * both cases, active rendering with the frequency of the application clock is performed.
  * <p>
  * Using the F11-key the user can toggle between full-screen and windowed mode.
  * 
@@ -52,47 +54,20 @@ public class AppShell {
 		return Toolkit.getDefaultToolkit().createCustomCursor(cursorImage, new Point(0, 0), "invisibleCursor");
 	}
 
-	private final Application app;
-	private final GraphicsDevice device;
-	private final Canvas canvas;
-	private BufferStrategy buffer;
-	private final JFrame frame;
-	private final Cursor invisibleCursor;
-	private volatile boolean renderingEnabled;
-	private Mode mode;
-	private int renderCount;
-	private ClockFrequencyDialog clockFrequencyDialog;
+	private static JFrame createAppFrame(Application app) {
+		Dimension size = new Dimension((int) Math.ceil(app.settings.width * app.settings.scale),
+				(int) Math.ceil(app.settings.height * app.settings.scale));
 
-	public AppShell(Application app) {
-		this.app = app;
-		device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-		invisibleCursor = createInvisibleCursor();
-		canvas = createCanvas();
-		frame = createFrame();
-		MouseHandler.handleMouseEventsFor(canvas);
-		KeyboardHandler.handleKeyEventsFor(frame);
-		enterWindowMode();
-		LOGGER.info("Application shell created.");
-	}
-
-	private Canvas createCanvas() {
 		Canvas canvas = new Canvas();
-		Dimension size = new Dimension((int) (app.settings.width * app.settings.scale),
-				(int) (app.settings.height * app.settings.scale));
 		canvas.setPreferredSize(size);
 		canvas.setSize(size);
 		canvas.setBackground(app.settings.bgColor);
 		canvas.setIgnoreRepaint(true);
 		canvas.setFocusable(false);
-		return canvas;
-	}
 
-	private JFrame createFrame() {
 		JFrame frame = new JFrame();
 		frame.setTitle(app.settings.title);
-		frame.setBackground(app.settings.bgColor);
 		frame.setResizable(false);
-		frame.setFocusable(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.add(canvas, BorderLayout.CENTER);
 		frame.addWindowListener(new WindowAdapter() {
@@ -103,14 +78,69 @@ public class AppShell {
 				app.exit();
 			}
 		});
+		MouseHandler.handleMouseEventsFor(canvas);
+		KeyboardHandler.handleKeyEventsFor(frame);
+
+		frame.pack();
+		frame.setLocationRelativeTo(null);
+
 		return frame;
+	}
+
+	private static Window createFullscreenWindow(Application app) {
+		JFrame window = new JFrame();
+		window.setBackground(app.settings.bgColor);
+		window.setUndecorated(true);
+		window.setIgnoreRepaint(true);
+		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		window.addWindowListener(new WindowAdapter() {
+
+			@Override
+			public void windowClosing(WindowEvent e) {
+				LOGGER.info("Application window closing, app will exit...");
+				app.exit();
+			}
+		});
+		MouseHandler.handleMouseEventsFor(window);
+		KeyboardHandler.handleKeyEventsFor(window);
+		return window;
+	}
+
+	private Mode mode;
+	private Application app;
+	private GraphicsDevice device;
+	private JFrame appFrame;
+	private Canvas canvas;
+	private Window fullscreenWindow;
+	private Cursor invisibleCursor;
+	private volatile boolean renderingEnabled;
+	private int renderCount;
+	private ClockFrequencyDialog clockFrequencyDialog;
+
+	public AppShell(Application app) {
+		this.app = app;
+		device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+		invisibleCursor = createInvisibleCursor();
+		appFrame = createAppFrame(app);
+		canvas = (Canvas) appFrame.getContentPane().getComponent(0);
+		fullscreenWindow = createFullscreenWindow(app);
+		if (app.settings.fullScreenOnStart) {
+			enterFullScreenMode();
+		} else {
+			enterWindowMode();
+		}
+		LOGGER.info("Application shell created.");
 	}
 
 	public void showFrequencyControlDialog() {
 		if (clockFrequencyDialog == null) {
-			clockFrequencyDialog = new ClockFrequencyDialog(frame, app);
+			clockFrequencyDialog = new ClockFrequencyDialog(appFrame, app);
 		}
-		clockFrequencyDialog.setVisible(true);
+		if (mode == Mode.WINDOW_MODE) {
+			clockFrequencyDialog.setVisible(true);
+		} else {
+			LOGGER.info("Clock frequency dialog cannot be opened in full-screen mode");
+		}
 	}
 
 	private String formatTitle(int ups, int fps) {
@@ -122,6 +152,14 @@ public class AppShell {
 	}
 
 	public void render(View view) {
+		if (mode == Mode.WINDOW_MODE) {
+			render(canvas.getBufferStrategy(), view);
+		} else {
+			render(fullscreenWindow.getBufferStrategy(), view);
+		}
+	}
+
+	private void render(BufferStrategy buffer, View view) {
 		if (!renderingEnabled || buffer == null) {
 			return;
 		}
@@ -149,7 +187,7 @@ public class AppShell {
 		++renderCount;
 		if (renderCount >= app.clock.getFrequency()) {
 			String title = formatTitle(app.clock.getUpdateRate(), app.clock.getRenderRate());
-			EventQueue.invokeLater(() -> frame.setTitle(title));
+			EventQueue.invokeLater(() -> appFrame.setTitle(title));
 			renderCount = 0;
 		}
 	}
@@ -158,14 +196,15 @@ public class AppShell {
 		Graphics2D sg = (Graphics2D) g.create();
 		sg.setColor(app.settings.bgColor);
 		if (mode == Mode.FULLSCREEN_MODE) {
-			sg.fillRect(0, 0, frame.getWidth(), frame.getHeight());
+			sg.fillRect(0, 0, fullscreenWindow.getWidth(), fullscreenWindow.getHeight());
 			int unscaledWidth = app.settings.width;
 			int unscaledHeight = app.settings.height;
-			double zoom = Math.min(((double) frame.getWidth()) / unscaledWidth,
-					((double) frame.getHeight()) / unscaledHeight);
+			double zoom = Math.min(((double) fullscreenWindow.getWidth()) / unscaledWidth,
+					((double) fullscreenWindow.getHeight()) / unscaledHeight);
 			double scaledWidth = zoom * unscaledWidth;
 			double scaledHeight = zoom * unscaledHeight;
-			sg.translate((frame.getWidth() - scaledWidth) / 2, (frame.getHeight() - scaledHeight) / 2);
+			sg.translate((fullscreenWindow.getWidth() - scaledWidth) / 2,
+					(fullscreenWindow.getHeight() - scaledHeight) / 2);
 			sg.setClip(0, 0, (int) scaledWidth, (int) scaledHeight);
 			sg.scale(zoom, zoom);
 			view.draw(sg);
@@ -173,11 +212,12 @@ public class AppShell {
 				drawTextCentered(sg, PAUSED_TEXT, unscaledWidth, unscaledHeight);
 			}
 		} else if (mode == Mode.WINDOW_MODE) {
-			sg.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+			int width = canvas.getWidth(), height = canvas.getHeight();
+			sg.fillRect(0, 0, width, height);
 			sg.scale(app.settings.scale, app.settings.scale);
 			view.draw(sg);
 			if (app.isPaused()) {
-				drawTextCentered(g, PAUSED_TEXT, canvas.getWidth(), canvas.getHeight());
+				drawTextCentered(g, PAUSED_TEXT, width, height);
 			}
 		}
 		sg.dispose();
@@ -200,7 +240,7 @@ public class AppShell {
 		}
 	}
 
-	public void enterFullScreenMode() {
+	private void enterFullScreenMode() {
 		if (mode == Mode.FULLSCREEN_MODE) {
 			return;
 		}
@@ -218,37 +258,25 @@ public class AppShell {
 			return;
 		}
 		renderingEnabled = false;
-		frame.dispose();
-		frame.setVisible(false);
-		frame.setUndecorated(true);
-		frame.setIgnoreRepaint(true);
-		frame.setCursor(invisibleCursor);
-		frame.validate();
-		device.setFullScreenWindow(frame);
+		device.setFullScreenWindow(fullscreenWindow);
 		device.setDisplayMode(dm);
-		frame.requestFocus();
+		fullscreenWindow.createBufferStrategy(2);
+		fullscreenWindow.setCursor(invisibleCursor);
+		fullscreenWindow.requestFocus();
 		mode = Mode.FULLSCREEN_MODE;
 		renderingEnabled = true;
 		LOGGER.info("Entered full-screen mode " + formatDisplayMode(dm));
 	}
 
-	public void enterWindowMode() {
+	private void enterWindowMode() {
 		if (mode == Mode.WINDOW_MODE) {
 			return;
 		}
 		renderingEnabled = false;
-		// Note: The order of the following statements is important!
 		device.setFullScreenWindow(null);
-		frame.dispose();
-		frame.setUndecorated(false);
-		frame.setIgnoreRepaint(false);
-		frame.setCursor(Cursor.getDefaultCursor());
-		frame.pack();
-		frame.setLocationRelativeTo(null);
-		frame.setVisible(true);
-		frame.requestFocus();
+		appFrame.setVisible(true);
+		appFrame.requestFocus();
 		canvas.createBufferStrategy(2);
-		buffer = canvas.getBufferStrategy();
 		mode = Mode.WINDOW_MODE;
 		renderingEnabled = true;
 		LOGGER.info(String.format("Entered window mode %dx%d", app.settings.width, app.settings.height));

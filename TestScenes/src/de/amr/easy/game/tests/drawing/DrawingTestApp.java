@@ -10,8 +10,6 @@ public class DrawingTestApp extends Application {
 
 	public DrawingTestApp() {
 		settings.title = "Drawing Test";
-		settings.width = 800;
-		settings.height = 600;
 	}
 
 	@Override

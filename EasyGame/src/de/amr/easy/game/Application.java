@@ -116,11 +116,6 @@ public abstract class Application {
 		}
 		EventQueue.invokeLater(() -> {
 			app.shell = new AppShell(app);
-			if (app.settings.fullScreenOnStart) {
-				app.shell.enterFullScreenMode();
-			} else {
-				app.shell.enterWindowMode();
-			}
 			app._init();
 			app.start();
 		});
@@ -166,7 +161,7 @@ public abstract class Application {
 		settings = new AppSettings();
 		collisionHandler = new CollisionHandler();
 		MouseHandler.INSTANCE.fnScale = () -> settings.scale;
-		clock = new Clock(this::update, this::render);
+		clock = new Clock(this::update, this::renderCurrentView);
 		LOGGER.info(String.format("Application '%s' created.", getClass().getSimpleName()));
 	}
 
@@ -198,6 +193,13 @@ public abstract class Application {
 			controller.init();
 			LOGGER.info("Controller initialized.");
 		}
+	}
+
+	/**
+	 * @return the current controller
+	 */
+	public Controller getController() {
+		return controller;
 	}
 
 	/**
@@ -257,14 +259,15 @@ public abstract class Application {
 		}
 	}
 
-	private void render() {
+	private void renderCurrentView() {
+		View currentView = null;
 		if (controller instanceof View) {
-			shell.render((View) controller);
+			currentView = (View) controller;
 		} else if (controller instanceof ViewController) {
-			ViewController vc = ((ViewController) controller);
-			if (vc.currentView() != null) {
-				shell.render(vc.currentView());
-			}
+			currentView = ((ViewController) controller).currentView();
+		}
+		if (currentView != null) {
+			shell.render(currentView);
 		}
 	}
 }

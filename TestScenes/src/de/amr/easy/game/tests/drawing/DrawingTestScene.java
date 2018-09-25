@@ -1,5 +1,6 @@
 package de.amr.easy.game.tests.drawing;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
@@ -34,6 +35,9 @@ public class DrawingTestScene implements View, Controller {
 	@Override
 	public void draw(Graphics2D g) {
 		g.drawImage(drawArea, 0, 0, null);
+		g.setColor(Color.GREEN);
+		g.setStroke(new BasicStroke(6));
+		g.drawRect(0, 0, getWidth(), getHeight());
 	}
 
 	@Override
