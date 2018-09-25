@@ -35,7 +35,7 @@ public class AppInfoView implements Controller, View {
 		text.tf.centerX(app.settings.width);
 		text.tf.setY(app.settings.height);
 		text.tf.setVelocityY(-0.5f);
-		text.start();
+		text.startAnimation();
 	}
 
 	@Override

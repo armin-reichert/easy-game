@@ -206,24 +206,24 @@ public class TextWidget extends SpriteBasedGameEntity implements AnimationContro
 	public void update() {
 		if (moving) {
 			tf.move();
-			if (isCompleted()) {
-				stop();
+			if (isAnimationCompleted()) {
+				stopAnimation();
 			}
 		}
 	}
 
 	@Override
-	public boolean isCompleted() {
+	public boolean isAnimationCompleted() {
 		return fnCompleted.getAsBoolean();
 	}
 
 	@Override
-	public void start() {
+	public void startAnimation() {
 		moving = true;
 	}
 
 	@Override
-	public void stop() {
+	public void stopAnimation() {
 		moving = false;
 	}
 }

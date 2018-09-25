@@ -34,17 +34,17 @@ public class ImageWidget extends SpriteBasedGameEntity implements AnimationContr
 	}
 
 	@Override
-	public void start() {
+	public void startAnimation() {
 		moving = true;
 	}
 
 	@Override
-	public void stop() {
+	public void stopAnimation() {
 		moving = false;
 	}
 
 	@Override
-	public boolean isCompleted() {
+	public boolean isAnimationCompleted() {
 		return fnCompleted.getAsBoolean();
 	}
 
@@ -52,8 +52,8 @@ public class ImageWidget extends SpriteBasedGameEntity implements AnimationContr
 	public void update() {
 		if (moving) {
 			tf.move();
-			if (isCompleted()) {
-				stop();
+			if (isAnimationCompleted()) {
+				stopAnimation();
 			}
 		}
 	}

@@ -2,9 +2,9 @@ package de.amr.easy.game.view;
 
 public interface AnimationController extends Controller {
 
-	void start();
+	void startAnimation();
 
-	void stop();
+	void stopAnimation();
 
-	boolean isCompleted();
+	boolean isAnimationCompleted();
 }
