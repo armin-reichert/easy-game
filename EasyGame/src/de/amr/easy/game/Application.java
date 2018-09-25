@@ -161,7 +161,7 @@ public abstract class Application {
 		settings = new AppSettings();
 		collisionHandler = new CollisionHandler();
 		MouseHandler.INSTANCE.fnScale = () -> settings.scale;
-		clock = new Clock(this::update, this::renderCurrentView);
+		clock = new Clock(this::update, this::render);
 		LOGGER.info(String.format("Application '%s' created.", getClass().getSimpleName()));
 	}
 
@@ -258,16 +258,21 @@ public abstract class Application {
 			controller.update();
 		}
 	}
+	
+	private void render() {
+		View view = getCurrentView();
+		if (view != null) {
+			shell.render(view);
+		}
+	}
 
-	private void renderCurrentView() {
-		View currentView = null;
+	public View getCurrentView() {
 		if (controller instanceof View) {
-			currentView = (View) controller;
-		} else if (controller instanceof ViewController) {
-			currentView = ((ViewController) controller).currentView();
+			return (View) controller;
 		}
-		if (currentView != null) {
-			shell.render(currentView);
+		if (controller instanceof ViewController) {
+			return ((ViewController) controller).currentView();
 		}
+		return null;
 	}
 }
