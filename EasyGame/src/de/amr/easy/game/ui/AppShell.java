@@ -108,14 +108,12 @@ public class AppShell {
 	private JFrame appFrame;
 	private Canvas canvas;
 	private Window fullScreenWindow;
-	private Cursor invisibleCursor;
 	private int renderCount;
 	private ClockFrequencyDialog clockFrequencyDialog;
 
 	public AppShell(Application app) {
 		this.app = app;
 		device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-		invisibleCursor = createInvisibleCursor();
 		appFrame = createAppFrame(app);
 		canvas = (Canvas) appFrame.getContentPane().getComponent(0);
 		fullScreenWindow = createFullscreenWindow(app);
@@ -251,7 +249,7 @@ public class AppShell {
 		device.setDisplayMode(dm);
 		fullScreenWindow.createBufferStrategy(2);
 		if (app.settings.fullScreenCursor == false) {
-			fullScreenWindow.setCursor(invisibleCursor);
+			fullScreenWindow.setCursor(createInvisibleCursor());
 		}
 		fullScreenWindow.requestFocus();
 		LOGGER.info("Entered full-screen mode " + formatDisplayMode(dm));
