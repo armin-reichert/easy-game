@@ -87,6 +87,9 @@ public class AppShell {
 	private static Window createFullscreenWindow(Application app) {
 		JFrame window = new JFrame();
 		window.setBackground(app.settings.bgColor);
+		if (app.settings.fullScreenCursor == false) {
+			window.setCursor(createInvisibleCursor());
+		}
 		window.setUndecorated(true);
 		window.setIgnoreRepaint(true);
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -248,9 +251,6 @@ public class AppShell {
 		device.setFullScreenWindow(fullScreenWindow);
 		device.setDisplayMode(dm);
 		fullScreenWindow.createBufferStrategy(2);
-		if (app.settings.fullScreenCursor == false) {
-			fullScreenWindow.setCursor(createInvisibleCursor());
-		}
 		fullScreenWindow.requestFocus();
 		LOGGER.info("Entered full-screen mode " + formatDisplayMode(dm));
 	}
