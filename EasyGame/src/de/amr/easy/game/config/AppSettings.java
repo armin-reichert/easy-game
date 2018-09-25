@@ -65,7 +65,7 @@ public class AppSettings {
 
 	/** The unscaled height of the application area in pixel. */
 	@Parameter(names = { "-height" }, description = "application height (unscaled)")
-	public int height = 400;
+	public int height = 480;
 
 	/** The scale factor for the screen. */
 	@Parameter(names = { "-scale" }, description = "application scaling factor")
