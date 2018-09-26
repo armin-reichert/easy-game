@@ -36,6 +36,7 @@ public class FramerateTestScene implements View, Controller {
 		bgImg = createBgImage();
 		app().clock.addFrequencyChangeListener(e -> {
 			sampleSteps = 0;
+			bgImg = createBgImage();
 		});
 		consoleLog = false;
 		app().clock.setLoggingEnabled(false);
@@ -66,6 +67,9 @@ public class FramerateTestScene implements View, Controller {
 			g.drawLine(xOffset, getHeight() - y, getWidth(), getHeight() - y);
 			g.drawString(String.valueOf(y), 0, getHeight() - y);
 		}
+		int freq = app().clock.getFrequency();
+		g.setColor(Color.YELLOW);
+		g.drawLine(xOffset, getHeight() - freq, getWidth(), getHeight() - freq);
 		return img;
 	}
 
