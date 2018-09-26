@@ -27,11 +27,11 @@ import de.amr.easy.game.view.View;
 import de.amr.easy.game.view.ViewController;
 
 /**
- * Application base class with utility methods {@code launch(Application)} and
- * {@code launch(Application, String[])} for starting the application.
+ * Application base class.
  * <p>
- * The second variant reads the command line arguments and overrides the corresponding application
- * settings. The following command-line arguments are supported:
+ * Static method {@code launch(Application, String[])} shows the application UI and starts the
+ * application. Command-line arguments override the corresponding application settings. The
+ * following arguments are supported:
  * <ul>
  * <li>-width <i>pixels</i>
  * <li>-height <i>pixels</i>
@@ -48,7 +48,7 @@ import de.amr.easy.game.view.ViewController;
  * Example:
  * 
  * <pre>
- * java -jar mygame.jar -scale 2.5 -fullscreen -fullscreenMode 800,600,32
+ * java -jar mygame.jar -scale 1 -title "My Awesome Game" -fullScreenOnStart -fullScreenMode 800,600,32
  * </pre>
  * 
  * The application class might look like this:
@@ -64,8 +64,8 @@ import de.amr.easy.game.view.ViewController;
  * 		settings.title = "My Game";
  * 		settings.width = 300;
  * 		settings.height = 200;
- * 		settings.scale = 2.5;
- * 		settings.fullScreenMode = FullScreen.Mode(800, 600, 32);
+ * 		settings.scale = 2;
+ * 		settings.fullScreenMode = FullScreen.Mode(640, 480, 32);
  * 		settings.fullScreenOnStart = false;
  * }
  * </pre>
@@ -104,25 +104,6 @@ public abstract class Application {
 	}
 
 	/**
-	 * Launches the given application.
-	 * 
-	 * @param app
-	 *              instance of application subclass
-	 */
-	public static void launch(Application app) {
-		try {
-			UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
-		} catch (Exception e) {
-			LOGGER.warning("Could not set Nimbus Look&Feel");
-		}
-		EventQueue.invokeLater(() -> {
-			app.shell = new AppShell(app);
-			app._init();
-			app.start();
-		});
-	}
-
-	/**
 	 * Launches the specified application. The arguments are parsed and assigned to the application
 	 * settings.
 	 * 
@@ -133,7 +114,16 @@ public abstract class Application {
 	 */
 	public static void launch(Application app, String[] args) {
 		JCommander.newBuilder().addObject(app.settings).build().parse(args);
-		launch(app);
+		try {
+			UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
+		} catch (Exception e) {
+			LOGGER.warning("Could not set Nimbus Look&Feel");
+		}
+		EventQueue.invokeLater(() -> {
+			app.shell = new AppShell(app);
+			app._init();
+			app.start();
+		});
 	}
 
 	/** The settings of this application. */
@@ -259,7 +249,7 @@ public abstract class Application {
 			controller.update();
 		}
 	}
-	
+
 	private void render() {
 		View view = getCurrentView();
 		if (view != null) {
