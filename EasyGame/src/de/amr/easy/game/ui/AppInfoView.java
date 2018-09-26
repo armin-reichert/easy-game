@@ -67,12 +67,14 @@ public class AppInfoView implements Controller, View {
 		sb.append("width = " + app.settings.width).append("\n");
 		sb.append("height = " + app.settings.height).append("\n");
 		sb.append("scale = " + app.settings.scale).append("\n");
-		sb.append("fullScreenMode = " + app.settings.fullScreenMode).append("\n");
+		sb.append("fullScreenMode = ");
+		DisplayMode mode = app.settings.fullScreenMode;
+		sb.append(String.format("%d x %d %d Bit", mode.getWidth(), mode.getHeight(), mode.getBitDepth())).append("\n");
 		sb.append("bgColor = " + app.settings.bgColor).append("\n");
 		app.settings.keys().forEach(key -> {
 			sb.append(key + " = " + app.settings.getAsString(key)).append("\n");
 		});
-		sb.append("Available display modes:\n\n");
+		sb.append("\n\nAvailable display modes:\n\n");
 		GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 		for (DisplayMode dm : device.getDisplayModes()) {
 			sb.append(String.format("%dx%d %d bit %d Hz\n", dm.getWidth(), dm.getHeight(), dm.getBitDepth(),
