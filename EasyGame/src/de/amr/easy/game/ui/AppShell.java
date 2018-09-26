@@ -112,7 +112,7 @@ public class AppShell {
 	private Canvas canvas;
 	private Window fullScreenWindow;
 	private int renderCount;
-	private ClockFrequencyDialog clockFrequencyDialog;
+	private AppSettingsDialog settingsDialog;
 
 	public AppShell(Application app) {
 		this.app = app;
@@ -132,14 +132,14 @@ public class AppShell {
 		return device.getFullScreenWindow() != null;
 	}
 
-	public void showFrequencyControlDialog() {
-		if (clockFrequencyDialog == null) {
-			clockFrequencyDialog = new ClockFrequencyDialog(appFrame, app);
+	public void showSettingsDialog() {
+		if (settingsDialog == null) {
+			settingsDialog = new AppSettingsDialog(appFrame, app);
 		}
 		if (fullScreenMode()) {
-			LOGGER.info("Clock frequency dialog cannot be opened in full-screen mode");
+			LOGGER.info("Settings dialog cannot be opened in full-screen mode");
 		} else {
-			clockFrequencyDialog.setVisible(true);
+			settingsDialog.setVisible(true);
 		}
 	}
 
@@ -239,20 +239,20 @@ public class AppShell {
 			LOGGER.info("Cannot enter full-screen mode: device does not support full-screen mode.");
 			return;
 		}
-		if (app.settings.fullScreenMode == null) {
+		DisplayMode mode = app.settings.fullScreenMode;
+		if (mode == null) {
 			LOGGER.info("Cannot enter full-screen mode: No full-screen mode specified in application settings.");
 			return;
 		}
-		DisplayMode dm = app.settings.fullScreenMode;
-		if (!isValidDisplayMode(dm)) {
-			LOGGER.info("Cannot enter full-screen mode: Display mode not supported: " + formatDisplayMode(dm));
+		if (!isValidDisplayMode(mode)) {
+			LOGGER.info("Cannot enter full-screen mode: Display mode not supported: " + formatDisplayMode(mode));
 			return;
 		}
 		device.setFullScreenWindow(fullScreenWindow);
-		device.setDisplayMode(dm);
+		device.setDisplayMode(mode);
 		fullScreenWindow.createBufferStrategy(2);
 		fullScreenWindow.requestFocus();
-		LOGGER.info("Entered full-screen mode " + formatDisplayMode(dm));
+		LOGGER.info("Entered full-screen mode " + formatDisplayMode(mode));
 	}
 
 	private void enterWindowMode() {

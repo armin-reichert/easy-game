@@ -242,7 +242,7 @@ public abstract class Application {
 			shell.toggleDisplayMode();
 		}
 		if (Keyboard.keyPressedOnce(KeyEvent.VK_F2)) {
-			shell.showFrequencyControlDialog();
+			shell.showSettingsDialog();
 		}
 		if (!paused) {
 			collisionHandler.update();

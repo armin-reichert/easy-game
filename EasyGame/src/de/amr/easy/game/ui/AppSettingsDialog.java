@@ -8,11 +8,11 @@ import javax.swing.event.ChangeListener;
 
 import de.amr.easy.game.Application;
 
-public class ClockFrequencyDialog extends JDialog {
+public class AppSettingsDialog extends JDialog {
 
 	private JSlider fpsControl;
 
-	public ClockFrequencyDialog(JFrame parent, Application app) {
+	public AppSettingsDialog(JFrame parent, Application app) {
 		super(parent);
 		setSize(600, 100);
 		setTitle("Change clock frequency for application: " + app.settings.title);
