@@ -5,7 +5,7 @@ import de.amr.easy.game.Application;
 public class MouseTestApp extends Application {
 
 	public static void main(String[] args) {
-		launch(new MouseTestApp());
+		launch(new MouseTestApp(), args);
 	}
 
 	public MouseTestApp() {

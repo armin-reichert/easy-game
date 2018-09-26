@@ -5,7 +5,7 @@ import de.amr.easy.game.Application;
 public class FramerateTestApp extends Application {
 
 	public static void main(String[] args) {
-		launch(new FramerateTestApp());
+		launch(new FramerateTestApp(), args);
 	}
 
 	public FramerateTestApp() {
