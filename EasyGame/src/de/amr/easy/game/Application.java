@@ -39,8 +39,9 @@ import de.amr.easy.game.view.ViewController;
  * <li>-title <i>text</i>
  * <li>-titleExtended
  * <li>-bgColor <i>rgbcolor</i>
- * <li>-fullscreen
- * <li>-fullscreenMode <i>width,height,bitdepth</i>
+ * <li>-fullScreenOnStart
+ * <li>-fullScreenMode <i>width,height,bitdepth</i>
+ * <li>-fullScreenCursor
  * </ul>
  * 
  * <p>
