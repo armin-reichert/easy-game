@@ -1,6 +1,7 @@
 package de.amr.easy.game.config;
 
 import java.awt.Color;
+import java.awt.DisplayMode;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -8,8 +9,6 @@ import java.util.stream.Stream;
 import com.beust.jcommander.IStringConverter;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
-
-import de.amr.easy.game.ui.FullScreenMode;
 
 /**
  * Application settings. Contains named properties and a generic map.
@@ -28,10 +27,10 @@ public class AppSettings {
 		}
 	}
 
-	private static class FullScreenModeConverter implements IStringConverter<FullScreenMode> {
+	private static class DisplayModeConverter implements IStringConverter<DisplayMode> {
 
 		@Override
-		public FullScreenMode convert(String str) {
+		public DisplayMode convert(String str) {
 			String[] parts = str.split(",");
 			if (parts.length != 3) {
 				throw new ParameterException("Illegal display mode");
@@ -40,7 +39,7 @@ public class AppSettings {
 				int width = Integer.parseInt(parts[0]);
 				int height = Integer.parseInt(parts[1]);
 				int bitDepth = Integer.parseInt(parts[2]);
-				return new FullScreenMode(width, height, bitDepth);
+				return new DisplayMode(width, height, bitDepth, DisplayMode.REFRESH_RATE_UNKNOWN);
 			} catch (Exception e) {
 				throw new ParameterException(e);
 			}
@@ -77,13 +76,13 @@ public class AppSettings {
 
 	/** The full-screen mode (resolution, depth), see {@link FullScreenMode}. */
 	@Parameter(names = {
-			"-fullScreenMode" }, converter = FullScreenModeConverter.class, description = "fullscreen display mode")
-	public FullScreenMode fullScreenMode = new FullScreenMode(640, 480, 32);
+			"-fullScreenMode" }, converter = DisplayModeConverter.class, description = "fullscreen display mode")
+	public DisplayMode fullScreenMode = new DisplayMode(640, 480, 32, DisplayMode.REFRESH_RATE_UNKNOWN);
 
 	/** If <code>true</code>, the cursor is visible in full-screen mode. */
 	@Parameter(names = { "-fullScreenCursor" }, description = "cursor visible in fullscreen mode")
 	public boolean fullScreenCursor = false;
-	
+
 	/** The background color of the application. */
 	@Parameter(names = { "-bgColor" }, converter = ColorConverter.class, description = "application background")
 	public Color bgColor = Color.BLACK;

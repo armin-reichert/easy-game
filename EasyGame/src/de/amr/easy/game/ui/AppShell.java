@@ -243,7 +243,7 @@ public class AppShell {
 			LOGGER.info("Cannot enter full-screen mode: No full-screen mode specified in application settings.");
 			return;
 		}
-		DisplayMode dm = app.settings.fullScreenMode.getDisplayMode();
+		DisplayMode dm = app.settings.fullScreenMode;
 		if (!isValidDisplayMode(dm)) {
 			LOGGER.info("Cannot enter full-screen mode: Display mode not supported: " + formatDisplayMode(dm));
 			return;
