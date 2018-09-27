@@ -4,7 +4,6 @@ import java.awt.Component;
 import java.awt.DisplayMode;
 import java.awt.GraphicsEnvironment;
 
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -37,8 +36,7 @@ public class AppSettingsDialog extends JDialog {
 	}
 
 	private JSlider fpsControl;
-	private DefaultComboBoxModel<DisplayMode> displayModeItems;
-	private DisplayModeItemRenderer displayModeItemRenderer = new DisplayModeItemRenderer();
+	private DisplayModeItemRenderer displayModeComboRenderer = new DisplayModeItemRenderer();
 
 	public AppSettingsDialog(JFrame parent, Application app) {
 		super(parent);
@@ -68,11 +66,21 @@ public class AppSettingsDialog extends JDialog {
 		JLabel lblDisplayMode = new JLabel("Display Mode");
 		getContentPane().add(lblDisplayMode, "cell 0 1,alignx trailing");
 
-		displayModeItems = new DefaultComboBoxModel<>(
+		JComboBox<DisplayMode> displayModeCombo = new JComboBox<>(
 				GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayModes());
-		JComboBox<DisplayMode> displayModeCombo = new JComboBox<>(displayModeItems);
-		displayModeCombo.setMaximumRowCount(displayModeItems.getSize());
-		displayModeCombo.setRenderer(displayModeItemRenderer);
+		displayModeCombo.setMaximumRowCount(displayModeCombo.getItemCount());
+		displayModeCombo.setRenderer(displayModeComboRenderer);
+		DisplayMode fullScreenMode = app.settings.fullScreenMode;
+		if (fullScreenMode != null) {
+			for (int i = 0; i < displayModeCombo.getItemCount(); ++i) {
+				DisplayMode mode = displayModeCombo.getItemAt(i);
+				if (mode.getWidth() == fullScreenMode.getWidth() && mode.getHeight() == fullScreenMode.getHeight()
+						&& mode.getBitDepth() == fullScreenMode.getBitDepth()) {
+					displayModeCombo.setSelectedIndex(i);
+					break;
+				}
+			}
+		}
 		displayModeCombo.addActionListener(e -> {
 			app.settings.fullScreenMode = (DisplayMode) displayModeCombo.getSelectedItem();
 		});

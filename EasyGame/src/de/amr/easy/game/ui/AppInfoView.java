@@ -34,7 +34,7 @@ public class AppInfoView implements Controller, View {
 				.font(new Font(Font.SANS_SERIF, Font.BOLD, 14)).build();
 		text.tf.centerX(app.settings.width);
 		text.tf.setY(app.settings.height);
-		text.tf.setVelocityY(-0.5f);
+		text.tf.setVelocityY(-1.0f);
 		text.startAnimation();
 	}
 
@@ -69,7 +69,8 @@ public class AppInfoView implements Controller, View {
 		sb.append("scale = " + app.settings.scale).append("\n");
 		sb.append("fullScreenMode = ");
 		DisplayMode mode = app.settings.fullScreenMode;
-		sb.append(String.format("%d x %d %d Bit", mode.getWidth(), mode.getHeight(), mode.getBitDepth())).append("\n");
+		sb.append(String.format("%d x %d %d Bit", mode.getWidth(), mode.getHeight(), mode.getBitDepth()))
+				.append("\n");
 		sb.append("bgColor = " + app.settings.bgColor).append("\n");
 		app.settings.keys().forEach(key -> {
 			sb.append(key + " = " + app.settings.getAsString(key)).append("\n");
