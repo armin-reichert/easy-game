@@ -21,6 +21,7 @@ import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
@@ -260,7 +261,7 @@ public class AppShell {
 			sg.scale(zoom, zoom);
 			view.draw(sg);
 			if (app.isPaused()) {
-				drawTextCentered(sg, PAUSED_TEXT, unscaledWidth, unscaledHeight);
+				drawCenteredText(sg, PAUSED_TEXT, unscaledWidth, unscaledHeight);
 			}
 		} else {
 			int width = canvas.getWidth(), height = canvas.getHeight();
@@ -268,18 +269,24 @@ public class AppShell {
 			sg.scale(app.settings.scale, app.settings.scale);
 			view.draw(sg);
 			if (app.isPaused()) {
-				drawTextCentered(g, PAUSED_TEXT, width, height);
+				drawCenteredText(g, PAUSED_TEXT, width, height);
 			}
 		}
 		sg.dispose();
 	}
 
-	private void drawTextCentered(Graphics2D g, String text, int width, int height) {
-		g.setColor(Color.RED);
-		g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, width / text.length()));
-		int textWidth = g.getFontMetrics().stringWidth(text);
+	private void drawCenteredText(Graphics2D g, String text, int containerWidth, int containerHeight) {
+		g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, containerWidth / text.length()));
+		Rectangle2D bounds = g.getFontMetrics().getStringBounds(text, g);
+		int dx = (containerWidth - (int) bounds.getWidth()) / 2;
+		int dy = containerHeight / 2;
+		g.setColor(Color.WHITE);
+		g.translate(dx, dy);
+		g.fill(bounds);
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-		g.drawString(text, (width - textWidth) / 2, height / 2);
+		g.setColor(Color.RED);
+		g.drawString(text, 0, 0);
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+		g.translate(-dx, -dy);
 	}
 }
