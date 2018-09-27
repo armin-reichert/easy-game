@@ -3,7 +3,10 @@ package de.amr.easy.game.ui;
 import java.awt.Component;
 import java.awt.DisplayMode;
 import java.awt.GraphicsEnvironment;
+import java.util.Vector;
 
+import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -66,8 +69,7 @@ public class AppSettingsDialog extends JDialog {
 		JLabel lblDisplayMode = new JLabel("Display Mode");
 		getContentPane().add(lblDisplayMode, "cell 0 1,alignx trailing");
 
-		JComboBox<DisplayMode> displayModeCombo = new JComboBox<>(
-				GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayModes());
+		JComboBox<DisplayMode> displayModeCombo = new JComboBox<>(createComboModel());
 		displayModeCombo.setMaximumRowCount(displayModeCombo.getItemCount());
 		displayModeCombo.setRenderer(displayModeComboRenderer);
 		DisplayMode fullScreenMode = app.settings.fullScreenMode;
@@ -87,4 +89,23 @@ public class AppSettingsDialog extends JDialog {
 		getContentPane().add(displayModeCombo, "cell 1 1,growx");
 		app.clock.addFrequencyChangeListener(e -> fpsControl.setValue((Integer) e.getNewValue()));
 	}
+
+	private ComboBoxModel<DisplayMode> createComboModel() {
+		DisplayMode[] modes = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice()
+				.getDisplayModes();
+		Vector<DisplayMode> withoutDuplicates = new Vector<>();
+		boolean duplicate = false;
+		for (int i = 0; i < modes.length; ++i) {
+			if (i > 0) {
+				duplicate = modes[i - 1].getWidth() == modes[i].getWidth()
+						&& modes[i - 1].getHeight() == modes[i].getHeight()
+						&& modes[i - 1].getBitDepth() == modes[i].getBitDepth();
+			}
+			if (!duplicate) {
+				withoutDuplicates.add(modes[i]);
+			}
+		}
+		return new DefaultComboBoxModel<>(withoutDuplicates);
+	}
+
 }
