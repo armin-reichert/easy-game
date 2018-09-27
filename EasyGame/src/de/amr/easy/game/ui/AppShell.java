@@ -23,6 +23,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
+import java.util.Arrays;
 import java.util.Objects;
 
 import javax.swing.JFrame;
@@ -90,6 +91,7 @@ public class AppShell {
 		if (app.settings.fullScreenCursor == false) {
 			window.setCursor(createInvisibleCursor());
 		}
+		window.setResizable(false);
 		window.setUndecorated(true);
 		window.setIgnoreRepaint(true);
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -256,7 +258,7 @@ public class AppShell {
 			LOGGER.info("Entered full-screen mode " + formatDisplayMode(mode));
 		} else {
 			device.setFullScreenWindow(null);
-			LOGGER.info("Cannot enter full-screen mode: Display mode change not supported: " + formatDisplayMode(mode));
+			LOGGER.info("Cannot enter full-screen mode: Display change not supported: " + formatDisplayMode(mode));
 		}
 	}
 
@@ -268,18 +270,13 @@ public class AppShell {
 		LOGGER.info(String.format("Entered window mode %dx%d", app.settings.width, app.settings.height));
 	}
 
-	private boolean isValidDisplayMode(DisplayMode displayMode) {
-		for (DisplayMode dm : device.getDisplayModes()) {
-			if (dm.getWidth() == displayMode.getWidth() && dm.getHeight() == displayMode.getHeight()
-					&& dm.getBitDepth() == displayMode.getBitDepth()) {
-				return true;
-			}
-		}
-		return false;
+	private boolean isValidDisplayMode(DisplayMode mode) {
+		return Arrays.stream(device.getDisplayModes()).anyMatch(dm -> dm.getWidth() == mode.getWidth()
+				&& dm.getHeight() == mode.getHeight() && dm.getBitDepth() == mode.getBitDepth());
 	}
 
 	private String formatDisplayMode(DisplayMode mode) {
-		return format("%d x %d, depth: %d, refresh rate: %d", mode.getWidth(), mode.getHeight(),
-				mode.getBitDepth(), mode.getRefreshRate());
+		return format("%d x %d, depth: %d, refresh rate: %s", mode.getWidth(), mode.getHeight(),
+				mode.getBitDepth(), mode.getRefreshRate() == 0 ? "unknown" : mode.getRefreshRate() + " Hz");
 	}
 }
