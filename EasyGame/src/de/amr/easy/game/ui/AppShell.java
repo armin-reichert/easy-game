@@ -249,10 +249,15 @@ public class AppShell {
 			return;
 		}
 		device.setFullScreenWindow(fullScreenWindow);
-		device.setDisplayMode(mode);
-		fullScreenWindow.createBufferStrategy(2);
-		fullScreenWindow.requestFocus();
-		LOGGER.info("Entered full-screen mode " + formatDisplayMode(mode));
+		if (device.isDisplayChangeSupported()) {
+			device.setDisplayMode(mode);
+			fullScreenWindow.createBufferStrategy(2);
+			fullScreenWindow.requestFocus();
+			LOGGER.info("Entered full-screen mode " + formatDisplayMode(mode));
+		} else {
+			device.setFullScreenWindow(null);
+			LOGGER.info("Cannot enter full-screen mode: Display mode change not supported: " + formatDisplayMode(mode));
+		}
 	}
 
 	private void enterWindowMode() {
