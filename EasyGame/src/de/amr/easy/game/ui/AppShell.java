@@ -79,6 +79,9 @@ public class AppShell {
 		fullScreenWindow = createFullscreenWindow();
 		if (app.settings.fullScreenOnStart) {
 			enterFullScreenMode();
+			if (!inFullScreenMode()) {
+				enterWindowMode();
+			}
 		} else {
 			enterWindowMode();
 		}
@@ -124,11 +127,11 @@ public class AppShell {
 			LOGGER.info("Cannot enter full-screen mode: device does not support full-screen mode.");
 			return;
 		}
-		DisplayMode mode = app.settings.fullScreenMode;
-		if (mode == null) {
-			LOGGER.info("Cannot enter full-screen mode: No full-screen mode specified in application settings.");
-			return;
+		if (app.settings.fullScreenMode == null) {
+			DisplayMode[] modes = device.getDisplayModes();
+			app.settings.fullScreenMode = modes[modes.length - 1];
 		}
+		final DisplayMode mode = app.settings.fullScreenMode;
 		if (!isValid(mode)) {
 			LOGGER.info("Cannot enter full-screen mode: Display mode not supported: " + getText(mode));
 			return;

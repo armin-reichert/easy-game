@@ -11,4 +11,9 @@ public class EmptyApp extends Application {
 	public static void main(String[] args) {
 		launch(new EmptyApp(), args);
 	}
+	
+	
+	public EmptyApp() {
+		settings.fullScreenMode = null;
+	}
 }
