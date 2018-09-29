@@ -87,6 +87,10 @@ public class AppSettings {
 	@Parameter(names = { "-bgColor" }, converter = ColorConverter.class, description = "application background")
 	public Color bgColor = Color.BLACK;
 
+	/** The volume (in percent) of the background music. */
+	@Parameter(names = { "-bgMusicVolume" }, description = "background music volume in percent")
+	public int bgMusicVolume = 75;
+	
 	/**
 	 * @return stream of all keys of the generic settings
 	 */
