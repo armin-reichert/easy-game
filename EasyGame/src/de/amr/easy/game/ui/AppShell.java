@@ -112,10 +112,6 @@ public class AppShell {
 		}
 	}
 	
-	public void setIcon(Image icon) {
-		appFrame.setIconImage(icon);
-	}
-
 	private void enterWindowMode() {
 		renderingEnabled = false;
 		device.setFullScreenWindow(null);
@@ -166,6 +162,7 @@ public class AppShell {
 		canvas.setFocusable(false);
 
 		JFrame frame = new JFrame();
+		frame.setIconImage(app.getIcon());
 		frame.setTitle(app.settings.title);
 		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

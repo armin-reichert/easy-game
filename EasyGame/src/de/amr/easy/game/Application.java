@@ -145,6 +145,9 @@ public abstract class Application {
 	/** Tells if the application is paused (updates and collision checks are stopped). */
 	private boolean paused;
 
+	/** The application icon. */
+	private Image icon;
+
 	/**
 	 * Base class constructor. By default, applications run at 60 frames/second.
 	 */
@@ -203,14 +206,19 @@ public abstract class Application {
 	public void setController(Controller controller) {
 		setController(controller, true);
 	}
-	
+
 	/**
 	 * Sets the icon used by the application shell.
 	 * 
-	 * @param icon application icon
+	 * @param icon
+	 *               application icon
 	 */
 	public void setIcon(Image icon) {
-		shell.setIcon(icon);
+		this.icon = icon;
+	}
+
+	public Image getIcon() {
+		return icon;
 	}
 
 	/** Sarts the application. */
