@@ -3,6 +3,7 @@ package de.amr.easy.game;
 import static java.awt.event.KeyEvent.VK_P;
 
 import java.awt.EventQueue;
+import java.awt.Image;
 import java.awt.event.KeyEvent;
 import java.io.InputStream;
 import java.util.logging.LogManager;
@@ -201,6 +202,15 @@ public abstract class Application {
 	 */
 	public void setController(Controller controller) {
 		setController(controller, true);
+	}
+	
+	/**
+	 * Sets the icon used by the application shell.
+	 * 
+	 * @param icon application icon
+	 */
+	public void setIcon(Image icon) {
+		shell.setIcon(icon);
 	}
 
 	/** Sarts the application. */

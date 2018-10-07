@@ -111,6 +111,10 @@ public class AppShell {
 			settingsDialog.setVisible(true);
 		}
 	}
+	
+	public void setIcon(Image icon) {
+		appFrame.setIconImage(icon);
+	}
 
 	private void enterWindowMode() {
 		renderingEnabled = false;
