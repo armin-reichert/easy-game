@@ -3,6 +3,7 @@ package de.amr.easy.game.assets;
 import static de.amr.easy.game.Application.LOGGER;
 import static de.amr.easy.game.assets.Silence.SILENCE;
 
+import java.io.BufferedInputStream;
 import java.io.InputStream;
 
 import javax.sound.sampled.AudioFormat;
@@ -28,7 +29,7 @@ public class SoundClip implements Sound {
 
 	public static Sound of(InputStream is) {
 		try {
-			AudioInputStream ais = AudioSystem.getAudioInputStream(is);
+			AudioInputStream ais = AudioSystem.getAudioInputStream(new BufferedInputStream(is));
 			if (ais.getFormat() instanceof MpegAudioFormat) {
 				AudioFormat mp3 = ais.getFormat();
 				AudioFormat pcm = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, mp3.getSampleRate(), 16,
