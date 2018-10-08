@@ -26,31 +26,30 @@ public class SoundClip implements Sound {
 		this.clip = clip;
 	}
 
-	public static Sound of(InputStream stream) {
+	public static Sound of(InputStream is) {
 		try {
-			AudioInputStream audioStream = AudioSystem.getAudioInputStream(stream);
-			if (audioStream.getFormat() instanceof MpegAudioFormat) {
-				AudioFormat mp3 = audioStream.getFormat();
+			AudioInputStream ais = AudioSystem.getAudioInputStream(is);
+			if (ais.getFormat() instanceof MpegAudioFormat) {
+				AudioFormat mp3 = ais.getFormat();
 				AudioFormat pcm = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, mp3.getSampleRate(), 16,
 						mp3.getChannels(), mp3.getChannels() * 2, mp3.getSampleRate(), false);
-				audioStream = AudioSystem.getAudioInputStream(pcm, audioStream);
+				ais = AudioSystem.getAudioInputStream(pcm, ais);
 			}
 			Clip clip = AudioSystem.getClip(null);
-			clip.open(audioStream);
+			clip.open(ais);
 			return new SoundClip(clip);
 		} catch (Exception e) {
-			e.printStackTrace(System.err);
 			LOGGER.info("Could not create audio clip, will be silent.");
+			e.printStackTrace(System.err);
 			return SILENCE;
 		}
 	}
 
 	@Override
 	public void play() {
-		if (!isRunning()) {
-			clip.setFramePosition(0);
-			clip.start();
-		}
+		clip.stop();
+		clip.setFramePosition(0);
+		clip.start();
 	}
 
 	@Override
@@ -60,6 +59,7 @@ public class SoundClip implements Sound {
 
 	@Override
 	public void loop(int count) {
+		clip.stop();
 		clip.setFramePosition(0);
 		clip.loop(count);
 	}
@@ -76,13 +76,16 @@ public class SoundClip implements Sound {
 
 	@Override
 	public float volume() {
-		return clip.getLevel();
+		FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+		return (float) Math.pow(10f, gainControl.getValue() / 20f);
 	}
 
 	@Override
 	public void volume(float volume) {
-		FloatControl volumeControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-		volumeControl.setValue(volume);
+		if (volume < 0f || volume > 1f)
+			throw new IllegalArgumentException("Volume not valid: " + volume);
+		FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+		gainControl.setValue(20f * (float) Math.log10(volume));
 	}
 
 	public void close() {
