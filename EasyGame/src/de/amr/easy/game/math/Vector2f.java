@@ -1,7 +1,6 @@
 package de.amr.easy.game.math;
 
 import static java.lang.Math.acos;
-import static java.lang.Math.sqrt;
 import static java.lang.Math.toDegrees;
 
 /**
@@ -98,6 +97,6 @@ public class Vector2f {
 	}
 
 	public float length() {
-		return (float) sqrt(dot(this, this));
+		return (float) Math.hypot(x, y);
 	}
 }
