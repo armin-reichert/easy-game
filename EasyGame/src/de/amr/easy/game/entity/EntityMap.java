@@ -7,14 +7,14 @@ import java.util.stream.Stream;
 
 public class EntityMap {
 
-	private final Map<String, AbstractGameEntity> map = new ConcurrentHashMap<>();
+	private final Map<String, Entity> map = new ConcurrentHashMap<>();
 
-	public <E extends AbstractGameEntity> E store(String key, E entity) {
+	public <E extends Entity> E store(String key, E entity) {
 		map.put(key, entity);
 		return entity;
 	}
 
-	public <E extends AbstractGameEntity> E store(E entity) {
+	public <E extends Entity> E store(E entity) {
 		return store("" + entity.hashCode(), entity);
 	}
 
@@ -22,11 +22,11 @@ public class EntityMap {
 		map.remove(key);
 	}
 
-	public void removeEntity(AbstractGameEntity entity) {
+	public void removeEntity(Entity entity) {
 		map.entrySet().removeIf(entry -> entry.getValue().equals(entity));
 	}
 
-	public void removeAll(Class<? extends AbstractGameEntity> classToDelete) {
+	public void removeAll(Class<? extends Entity> classToDelete) {
 		map.entrySet().removeIf(entry -> classToDelete.isAssignableFrom(entry.getValue().getClass()));
 	}
 
@@ -34,16 +34,16 @@ public class EntityMap {
 		return map.containsKey(key);
 	}
 
-	public Stream<AbstractGameEntity> all() {
+	public Stream<Entity> all() {
 		return map.values().stream();
 	}
 
-	public Stream<AbstractGameEntity> filter(Predicate<? super AbstractGameEntity> predicate) {
+	public Stream<Entity> filter(Predicate<? super Entity> predicate) {
 		return map.values().stream().filter(predicate);
 	}
 
 	@SuppressWarnings("unchecked")
-	public <E extends AbstractGameEntity> E ofName(String name) {
+	public <E extends Entity> E ofName(String name) {
 		return (E) map.get(name);
 	}
 

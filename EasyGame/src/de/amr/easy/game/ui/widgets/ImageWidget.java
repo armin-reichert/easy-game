@@ -4,7 +4,7 @@ import java.awt.Image;
 import java.util.Objects;
 import java.util.function.BooleanSupplier;
 
-import de.amr.easy.game.entity.SpriteBasedGameEntity;
+import de.amr.easy.game.entity.SpriteEntity;
 import de.amr.easy.game.ui.sprites.Sprite;
 import de.amr.easy.game.view.AnimationController;
 
@@ -13,7 +13,7 @@ import de.amr.easy.game.view.AnimationController;
  * 
  * @author Armin Reichert
  */
-public class ImageWidget extends SpriteBasedGameEntity implements AnimationController {
+public class ImageWidget extends SpriteEntity implements AnimationController {
 
 	private boolean moving;
 	private BooleanSupplier fnCompleted;

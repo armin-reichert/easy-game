@@ -7,10 +7,10 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.util.Objects;
 
-import de.amr.easy.game.entity.SpriteBasedGameEntity;
+import de.amr.easy.game.entity.SpriteEntity;
 import de.amr.easy.game.ui.sprites.Sprite;
 
-public class PumpingImageWidget extends SpriteBasedGameEntity {
+public class PumpingImageWidget extends SpriteEntity {
 
 	public static class Builder {
 

@@ -3,7 +3,6 @@ package de.amr.easy.game.entity;
 import java.awt.geom.Rectangle2D;
 
 import de.amr.easy.game.entity.collision.Collider;
-import de.amr.easy.game.view.Controller;
 
 /**
  * Base class for game entities.
@@ -15,7 +14,7 @@ import de.amr.easy.game.view.Controller;
  * 
  * @author Armin Reichert
  */
-public abstract class AbstractGameEntity implements Controller, Collider {
+public abstract class Entity implements Collider {
 
 	public final Transform tf = new Transform();
 
@@ -29,16 +28,14 @@ public abstract class AbstractGameEntity implements Controller, Collider {
 		this.visible = visible;
 	}
 
-	@Override
 	public void init() {
 	}
 
-	@Override
 	public void update() {
 	}
 
 	@Override
 	public Rectangle2D getCollisionBox() {
-		return isVisible() ? tf.getCollisionBox() : new Rectangle2D.Float(tf.getX(), tf.getY(), 0, 0);
+		return visible ? tf.getCollisionBox() : new Rectangle2D.Float(tf.getX(), tf.getY(), 0, 0);
 	}
 }
