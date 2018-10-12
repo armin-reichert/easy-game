@@ -111,14 +111,18 @@ public class AppShell {
 			settingsDialog.setVisible(true);
 		}
 	}
-	
+
 	private void enterWindowMode() {
 		renderingEnabled = false;
 		device.setFullScreenWindow(null);
 		appFrame.setVisible(true);
 		appFrame.requestFocus();
 		canvas.createBufferStrategy(2);
-		LOGGER.info(String.format("Entered window mode %dx%d", app.settings.width, app.settings.height));
+		LOGGER.info(String.format("Entered window mode, resolution %dx%d (%dx%d scaled by %.2f)", 
+				(int) (app.settings.width * app.settings.scale),
+				(int) (app.settings.height * app.settings.scale), 
+				app.settings.width, app.settings.height, 
+				app.settings.scale));
 		renderingEnabled = true;
 	}
 
