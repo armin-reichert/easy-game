@@ -77,7 +77,7 @@ public class AppSettings {
 	/** The full-screen mode (resolution, depth), see {@link FullScreenMode}. */
 	@Parameter(names = {
 			"-fullScreenMode" }, converter = DisplayModeConverter.class, description = "fullscreen display mode")
-	public DisplayMode fullScreenMode = new DisplayMode(640, 480, 32, DisplayMode.REFRESH_RATE_UNKNOWN);
+	public DisplayMode fullScreenMode = null;
 
 	/** If <code>true</code>, the cursor is visible in full-screen mode. */
 	@Parameter(names = { "-fullScreenCursor" }, description = "cursor visible in fullscreen mode")
@@ -90,7 +90,7 @@ public class AppSettings {
 	/** The volume (in percent) of the background music. */
 	@Parameter(names = { "-bgMusicVolume" }, description = "background music volume in percent")
 	public int bgMusicVolume = 75;
-	
+
 	/**
 	 * @return stream of all keys of the generic settings
 	 */

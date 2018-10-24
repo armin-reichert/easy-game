@@ -74,6 +74,10 @@ public class AppShell {
 	public AppShell(Application app) {
 		this.app = app;
 		device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+		if (app.settings.fullScreenMode == null) {
+			DisplayMode[] modes = device.getDisplayModes();
+			app.settings.fullScreenMode = modes[modes.length - 1];
+		}
 		appFrame = createAppFrame();
 		canvas = (Canvas) appFrame.getContentPane().getComponent(0);
 		fullScreenWindow = createFullscreenWindow();
@@ -128,10 +132,6 @@ public class AppShell {
 		if (!device.isFullScreenSupported()) {
 			LOGGER.info("Cannot enter full-screen mode: device does not support full-screen mode.");
 			return;
-		}
-		if (app.settings.fullScreenMode == null) {
-			DisplayMode[] modes = device.getDisplayModes();
-			app.settings.fullScreenMode = modes[modes.length - 1];
 		}
 		final DisplayMode mode = app.settings.fullScreenMode;
 		if (!isValid(mode)) {

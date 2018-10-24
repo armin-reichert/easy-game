@@ -69,8 +69,10 @@ public class AppInfoView implements Controller, View {
 		sb.append("scale = " + app.settings.scale).append("\n");
 		sb.append("fullScreenMode = ");
 		DisplayMode mode = app.settings.fullScreenMode;
-		sb.append(String.format("%d x %d %d Bit", mode.getWidth(), mode.getHeight(), mode.getBitDepth()))
-				.append("\n");
+		if (mode != null) {
+			sb.append(String.format("%d x %d %d Bit", mode.getWidth(), mode.getHeight(), mode.getBitDepth()))
+					.append("\n");
+		}
 		sb.append("bgColor = " + app.settings.bgColor).append("\n");
 		app.settings.keys().forEach(key -> {
 			sb.append(key + " = " + app.settings.getAsString(key)).append("\n");
