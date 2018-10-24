@@ -118,11 +118,9 @@ public class AppShell {
 		appFrame.setVisible(true);
 		appFrame.requestFocus();
 		canvas.createBufferStrategy(2);
-		LOGGER.info(String.format("Entered window mode, resolution %dx%d (%dx%d scaled by %.2f)", 
-				(int) (app.settings.width * app.settings.scale),
-				(int) (app.settings.height * app.settings.scale), 
-				app.settings.width, app.settings.height, 
-				app.settings.scale));
+		LOGGER.info(String.format("Entered window mode, resolution %dx%d (%dx%d scaled by %.2f)",
+				(int) (app.settings.width * app.settings.scale), (int) (app.settings.height * app.settings.scale),
+				app.settings.width, app.settings.height, app.settings.scale));
 		renderingEnabled = true;
 	}
 
@@ -284,17 +282,26 @@ public class AppShell {
 	}
 
 	private void drawCenteredText(Graphics2D g, String text, int containerWidth, int containerHeight) {
-		g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, containerWidth / text.length()));
+		int fontSize = (containerWidth / text.length()) + 3;
+		g.setFont(new Font(Font.MONOSPACED, Font.BOLD, fontSize));
 		Rectangle2D bounds = g.getFontMetrics().getStringBounds(text, g);
 		int dx = (containerWidth - (int) bounds.getWidth()) / 2;
-		int dy = containerHeight / 2;
-		g.setColor(Color.WHITE);
+		int dy = containerHeight / 2 + fontSize / 2;
+
 		g.translate(dx, dy);
-		g.fill(bounds);
+
+		int padding = 3 * fontSize;
+		Rectangle2D box = new Rectangle2D.Double(0, 0, bounds.getWidth() + padding, bounds.getHeight() + padding);
+		g.setColor(new Color(255, 255, 255, 222));
+		g.translate(-padding / 2, -box.getHeight() / 2);
+		g.fill(box);
+		g.translate(padding / 2, box.getHeight() / 2);
+
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		g.setColor(Color.RED);
 		g.drawString(text, 0, 0);
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+
 		g.translate(-dx, -dy);
 	}
 }
