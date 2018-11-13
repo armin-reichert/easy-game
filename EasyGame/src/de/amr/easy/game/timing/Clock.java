@@ -44,14 +44,14 @@ public class Clock {
 	 * @return last reported update rate (updates per second)
 	 */
 	public int getUpdateRate() {
-		return updateTask.getRate();
+		return updateTask.getFrameRate();
 	}
 
 	/**
 	 * @return last reported rendering rate (frames per second)
 	 */
 	public int getRenderRate() {
-		return renderTask.getRate();
+		return renderTask.getFrameRate();
 	}
 
 	public void setLoggingEnabled(boolean enabled) {
@@ -139,11 +139,11 @@ public class Clock {
 			updateTask.run();
 			renderTask.run();
 			if (loggingEnabled) {
-				logTime("Update", updateTask.getUsedTimeNanos());
-				logTime("Render", renderTask.getUsedTimeNanos());
+				logTime("Update", updateTask.getRunningTime());
+				logTime("Render", renderTask.getRunningTime());
 			}
 			++ticks;
-			long usedTime = updateTask.getUsedTimeNanos() + renderTask.getUsedTimeNanos();
+			long usedTime = updateTask.getRunningTime() + renderTask.getRunningTime();
 			long timeLeft = (period - usedTime);
 			if (timeLeft > 0) {
 				long sleepTime = timeLeft;
@@ -160,7 +160,7 @@ public class Clock {
 				for (int xUpdates = 3; xUpdates > 0 && overTime > period; overTime -= period, --xUpdates) {
 					updateTask.run();
 					if (loggingEnabled) {
-						logTime("UpdateX", updateTask.getUsedTimeNanos());
+						logTime("UpdateX", updateTask.getRunningTime());
 					}
 					++ticks;
 				}
