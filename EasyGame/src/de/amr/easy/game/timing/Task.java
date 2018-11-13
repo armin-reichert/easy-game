@@ -1,17 +1,17 @@
 package de.amr.easy.game.timing;
 
+import java.util.concurrent.TimeUnit;
+
 class Task {
 
 	private final Runnable work;
-	private final long reportIntervalNanos;
 	private long lastReportTimeNanos;
 	private long usedTimeNanos;
 	private int runs;
 	private int rate;
 
-	public Task(Runnable work, long reportIntervalNanos) {
+	public Task(Runnable work) {
 		this.work = work;
-		this.reportIntervalNanos = reportIntervalNanos;
 	}
 
 	public long getUsedTimeNanos() {
@@ -27,7 +27,7 @@ class Task {
 		work.run();
 		long endTime = System.nanoTime();
 		usedTimeNanos = endTime - startTime;
-		if (endTime >= lastReportTimeNanos + reportIntervalNanos) {
+		if (endTime >= lastReportTimeNanos + TimeUnit.SECONDS.toNanos(1)) {
 			rate = runs;
 			runs = 0;
 			lastReportTimeNanos = System.nanoTime();

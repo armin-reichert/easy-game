@@ -26,17 +26,18 @@ public class Clock {
 	private boolean loggingEnabled;
 
 	/**
-	 * Creates a clock which triggers the given update and render task according to the clock frequency.
+	 * Creates a clock which triggers execution of the given update and render code according to the
+	 * clock frequency.
 	 * 
 	 * @param update
-	 *                 update task
+	 *                 update code
 	 * @param render
-	 *                 render task
+	 *                 render code
 	 */
 	public Clock(Runnable update, Runnable render) {
 		setFrequency(60);
-		updateTask = new Task(update, SECONDS.toNanos(1));
-		renderTask = new Task(render, SECONDS.toNanos(1));
+		updateTask = new Task(update);
+		renderTask = new Task(render);
 	}
 
 	/**
