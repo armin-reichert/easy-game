@@ -55,27 +55,21 @@ public class Vector2f {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + Float.floatToIntBits(x);
-		result = prime * result + Float.floatToIntBits(y);
-		return result;
+		int bits = 7;
+		bits = 31 * bits + java.lang.Float.floatToIntBits(x);
+		bits = 31 * bits + java.lang.Float.floatToIntBits(y);
+		return bits;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (obj == this)
 			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Vector2f other = (Vector2f) obj;
-		if (Float.floatToIntBits(x) != Float.floatToIntBits(other.x))
-			return false;
-		if (Float.floatToIntBits(y) != Float.floatToIntBits(other.y))
-			return false;
-		return true;
+		if (obj instanceof Vector2f) {
+			Vector2f v = (Vector2f) obj;
+			return (x == v.x) && (y == v.y);
+		}
+		return false;
 	}
 
 	@Override
