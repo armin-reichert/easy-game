@@ -144,6 +144,7 @@ public class Clock {
 			++ticks;
 			long usedTime = updateTask.getUsedTimeNanos() + renderTask.getUsedTimeNanos();
 			long timeLeft = (period - usedTime);
+			timeLeft = Math.round(0.98f * timeLeft); // improve FPS a bit
 			if (timeLeft > 0) {
 				long sleepTime = timeLeft;
 				try {
