@@ -3,7 +3,7 @@ package de.amr.easy.game.view;
 import java.awt.Graphics2D;
 
 /**
- * A drawable area of a certain size.
+ * A drawable screen area.
  * 
  * @author Armin Reichert
  */
