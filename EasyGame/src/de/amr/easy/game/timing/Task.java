@@ -1,37 +1,48 @@
 package de.amr.easy.game.timing;
 
+import java.util.concurrent.TimeUnit;
+
+/**
+ * Encapsulates some "work" and measures the frame rate of its execution.
+ * 
+ * @author Armin Reichert
+ */
 class Task {
 
 	private final Runnable work;
-	private final long reportIntervalNanos;
-	private long lastReportTimeNanos;
-	private long usedTimeNanos;
-	private int runs;
-	private int rate;
+	private long runningTime; // nanoseconds
+	private long measurementStartTime; // nanoseconds
+	private int frames;
+	private int frameRate;
 
-	public Task(Runnable work, long reportIntervalNanos) {
+	public Task(Runnable work) {
 		this.work = work;
-		this.reportIntervalNanos = reportIntervalNanos;
 	}
 
-	public long getUsedTimeNanos() {
-		return usedTimeNanos;
+	/**
+	 * @return last running time of this task
+	 */
+	public long getRunningTime() {
+		return runningTime;
 	}
 
-	public int getRate() {
-		return rate;
+	/**
+	 * @return number of times this task has been run during the last measurement period ("frame rate")
+	 */
+	public int getFrameRate() {
+		return frameRate;
 	}
 
 	public void run() {
-		long startTime = System.nanoTime();
+		long start = System.nanoTime();
 		work.run();
-		long endTime = System.nanoTime();
-		usedTimeNanos = endTime - startTime;
-		if (endTime >= lastReportTimeNanos + reportIntervalNanos) {
-			rate = runs;
-			runs = 0;
-			lastReportTimeNanos = System.nanoTime();
+		long end = System.nanoTime();
+		runningTime = end - start;
+		++frames;
+		if (end - measurementStartTime >= TimeUnit.SECONDS.toNanos(1)) {
+			frameRate = frames;
+			frames = 0;
+			measurementStartTime = System.nanoTime();
 		}
-		++runs;
 	}
 }

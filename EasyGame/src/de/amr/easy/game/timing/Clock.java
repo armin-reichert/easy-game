@@ -26,31 +26,32 @@ public class Clock {
 	private boolean loggingEnabled;
 
 	/**
-	 * Creates a clock which triggers the given update and render task according to the clock frequency.
+	 * Creates a clock which triggers execution of the given update and render code according to the
+	 * clock frequency.
 	 * 
 	 * @param update
-	 *                 update task
+	 *                 update code
 	 * @param render
-	 *                 render task
+	 *                 render code
 	 */
 	public Clock(Runnable update, Runnable render) {
 		setFrequency(60);
-		updateTask = new Task(update, SECONDS.toNanos(1));
-		renderTask = new Task(render, SECONDS.toNanos(1));
+		updateTask = new Task(update);
+		renderTask = new Task(render);
 	}
 
 	/**
 	 * @return last reported update rate (updates per second)
 	 */
 	public int getUpdateRate() {
-		return updateTask.getRate();
+		return updateTask.getFrameRate();
 	}
 
 	/**
 	 * @return last reported rendering rate (frames per second)
 	 */
 	public int getRenderRate() {
-		return renderTask.getRate();
+		return renderTask.getFrameRate();
 	}
 
 	public void setLoggingEnabled(boolean enabled) {
@@ -138,11 +139,11 @@ public class Clock {
 			updateTask.run();
 			renderTask.run();
 			if (loggingEnabled) {
-				logTime("Update", updateTask.getUsedTimeNanos());
-				logTime("Render", renderTask.getUsedTimeNanos());
+				logTime("Update", updateTask.getRunningTime());
+				logTime("Render", renderTask.getRunningTime());
 			}
 			++ticks;
-			long usedTime = updateTask.getUsedTimeNanos() + renderTask.getUsedTimeNanos();
+			long usedTime = updateTask.getRunningTime() + renderTask.getRunningTime();
 			long timeLeft = (period - usedTime);
 			timeLeft = Math.round(0.98f * timeLeft); // improve FPS a bit
 			if (timeLeft > 0) {
@@ -160,7 +161,7 @@ public class Clock {
 				for (int xUpdates = 3; xUpdates > 0 && overTime > period; overTime -= period, --xUpdates) {
 					updateTask.run();
 					if (loggingEnabled) {
-						logTime("UpdateX", updateTask.getUsedTimeNanos());
+						logTime("UpdateX", updateTask.getRunningTime());
 					}
 					++ticks;
 				}
