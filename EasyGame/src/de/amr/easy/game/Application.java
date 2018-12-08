@@ -114,6 +114,7 @@ public abstract class Application {
 	 *               command-line arguments
 	 */
 	public static void launch(Application app, String[] args) {
+		LOGGER.info(String.format("Launching application '%s' ", app.getClass().getSimpleName()));
 		JCommander.newBuilder().addObject(app.settings).build().parse(args);
 		try {
 			UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
@@ -157,7 +158,6 @@ public abstract class Application {
 		collisionHandler = new CollisionHandler();
 		MouseHandler.INSTANCE.fnScale = () -> settings.scale;
 		clock = new Clock(this::update, this::render);
-		LOGGER.info(String.format("Application '%s' created.", getClass().getSimpleName()));
 	}
 
 	/** Called when the application is initialized. */
