@@ -5,12 +5,12 @@ import java.awt.geom.Rectangle2D;
 import de.amr.easy.game.entity.collision.Collider;
 
 /**
- * Base class for game entities.
+ * Base class for (game) entities.
  * <p>
- * A game entity provides a {@link Transform transform} object that stores the position, velocity
- * and rotation of the object. Game objects are also sensitive to collisions. By default, the
- * transform position denotes the left upper corner of the rectangle defining the bounding box of
- * the object. Invisible entities do not trigger collisions.
+ * An entity provides a {@link Transform transform} object that stores the position, velocity and
+ * rotation of the object. Entities are also sensitive to collisions. By default, the transform's
+ * position denotes the left upper corner of the collision box. Invisible entities do not trigger
+ * collisions.
  * 
  * @author Armin Reichert
  */
