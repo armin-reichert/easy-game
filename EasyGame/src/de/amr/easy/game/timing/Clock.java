@@ -9,15 +9,15 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
 /**
- * The clock that produces the ticks for the game loop.
+ * The clock that drives the game loop.
  * 
  * @author Armin Reichert
  */
 public class Clock {
 
 	private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
-	private Task renderTask;
-	private Task updateTask;
+	private Task render;
+	private Task update;
 	private int frequency;
 	private long ticks;
 	private long period;
@@ -36,24 +36,29 @@ public class Clock {
 	 */
 	public Clock(Runnable update, Runnable render) {
 		setFrequency(60);
-		updateTask = new Task(update);
-		renderTask = new Task(render);
+		this.update = new Task(update);
+		this.render = new Task(render);
 	}
 
 	/**
 	 * @return last reported update rate (updates per second)
 	 */
 	public int getUpdateRate() {
-		return updateTask.getFrameRate();
+		return update.getFrameRate();
 	}
 
 	/**
 	 * @return last reported rendering rate (frames per second)
 	 */
 	public int getRenderRate() {
-		return renderTask.getFrameRate();
+		return render.getFrameRate();
 	}
 
+	/**
+	 * 
+	 * @param enabled
+	 *                  iff logging should be enabled
+	 */
 	public void setLoggingEnabled(boolean enabled) {
 		this.loggingEnabled = enabled;
 	}
@@ -113,7 +118,7 @@ public class Clock {
 	public synchronized void start() {
 		if (!running) {
 			running = true;
-			thread = new Thread(this::gameLoop, "GameLoop");
+			thread = new Thread(this::loop, "GameLoop");
 			thread.start();
 			ticks = 0;
 		}
@@ -133,35 +138,34 @@ public class Clock {
 		}
 	}
 
-	private void gameLoop() {
+	private void loop() {
 		long overTime = 0;
 		while (running) {
-			updateTask.run();
-			renderTask.run();
+			update.run();
+			render.run();
 			if (loggingEnabled) {
-				logTime("Update", updateTask.getRunningTime());
-				logTime("Render", renderTask.getRunningTime());
+				log("Update", update.getRunningTime());
+				log("Render", render.getRunningTime());
 			}
 			++ticks;
-			long usedTime = updateTask.getRunningTime() + renderTask.getRunningTime();
+			long usedTime = update.getRunningTime() + render.getRunningTime();
 			long timeLeft = (period - usedTime);
 			timeLeft = Math.round(0.98f * timeLeft); // improve FPS a bit
 			if (timeLeft > 0) {
-				long sleepTime = timeLeft;
 				try {
-					NANOSECONDS.sleep(sleepTime);
+					NANOSECONDS.sleep(timeLeft);
+					if (loggingEnabled) {
+						log("Slept", timeLeft);
+					}
 				} catch (InterruptedException e) {
 					e.printStackTrace();
-				}
-				if (loggingEnabled) {
-					logTime("Sleep", sleepTime);
 				}
 			} else if (timeLeft < 0) {
 				overTime += (-timeLeft);
 				for (int xUpdates = 3; xUpdates > 0 && overTime > period; overTime -= period, --xUpdates) {
-					updateTask.run();
+					update.run();
 					if (loggingEnabled) {
-						logTime("UpdateX", updateTask.getRunningTime());
+						log("UpdateX", update.getRunningTime());
 					}
 					++ticks;
 				}
@@ -169,7 +173,7 @@ public class Clock {
 		}
 	}
 
-	private void logTime(String taskName, long nanos) {
-		LOGGER.info(format("%-7s: %10.2f ms", taskName, nanos / 1_000_000f));
+	private static void log(String task, long nanos) {
+		LOGGER.info(format("%-7s: %10.2f ms", task, nanos / 1_000_000f));
 	}
 }
