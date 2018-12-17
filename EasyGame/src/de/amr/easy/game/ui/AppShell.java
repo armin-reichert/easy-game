@@ -28,6 +28,8 @@ import java.util.Arrays;
 import java.util.Objects;
 
 import javax.swing.JFrame;
+import javax.swing.UIManager;
+import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 
 import de.amr.easy.game.Application;
 import de.amr.easy.game.input.KeyboardHandler;
@@ -77,6 +79,11 @@ public class AppShell {
 		if (app.settings.fullScreenMode == null) {
 			DisplayMode[] modes = device.getDisplayModes();
 			app.settings.fullScreenMode = modes[modes.length - 1];
+		}
+		try {
+			UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
+		} catch (Exception e) {
+			LOGGER.warning("Could not set Nimbus Look&Feel");
 		}
 		appFrame = createAppFrame();
 		canvas = (Canvas) appFrame.getContentPane().getComponent(0);

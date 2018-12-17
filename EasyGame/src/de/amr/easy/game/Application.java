@@ -6,11 +6,9 @@ import java.awt.EventQueue;
 import java.awt.Image;
 import java.awt.event.KeyEvent;
 import java.io.InputStream;
+import java.util.Optional;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
-
-import javax.swing.UIManager;
-import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 
 import com.beust.jcommander.JCommander;
 
@@ -83,18 +81,22 @@ import de.amr.easy.game.view.ViewController;
  */
 public abstract class Application {
 
-	/** A logger that may be used by application subclasses. */
-	public static final Logger LOGGER = Logger.getLogger(Application.class.getName());
-
-	static {
-		// configuration with single line output and millisecond precision
+	/** Creates a logger with single line output and millisecond precision. */
+	private static Logger createLogger() {
 		InputStream stream = Application.class.getClassLoader().getResourceAsStream("logging.properties");
+		if (stream == null) {
+			throw new RuntimeException("Could not load logging property file");
+		}
 		try {
 			LogManager.getLogManager().readConfiguration(stream);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		return Logger.getLogger(Application.class.getName());
 	}
+
+	/** A logger that may be used by application subclasses. */
+	public static final Logger LOGGER = createLogger();
 
 	/** Static reference to the application instance. */
 	private static Application INSTANCE;
@@ -116,11 +118,6 @@ public abstract class Application {
 	public static void launch(Application app, String[] args) {
 		LOGGER.info(String.format("Launching application '%s' ", app.getClass().getSimpleName()));
 		JCommander.newBuilder().addObject(app.settings).build().parse(args);
-		try {
-			UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
-		} catch (Exception e) {
-			LOGGER.warning("Could not set Nimbus Look&Feel");
-		}
 		EventQueue.invokeLater(() -> {
 			app.shell = new AppShell(app);
 			app._init();
@@ -208,7 +205,7 @@ public abstract class Application {
 	}
 
 	/**
-	 * Sets the icon used by the application shell.
+	 * Sets the icon shown in the application window.
 	 * 
 	 * @param icon
 	 *               application icon
@@ -217,11 +214,14 @@ public abstract class Application {
 		this.icon = icon;
 	}
 
+	/**
+	 * @return the application's icon
+	 */
 	public Image getIcon() {
 		return icon;
 	}
 
-	/** Sarts the application. */
+	/** Starts the application. */
 	private final void start() {
 		clock.start();
 		LOGGER.info(String.format("Clock started, running with %d ticks/sec.", clock.getFrequency()));
@@ -269,19 +269,16 @@ public abstract class Application {
 	}
 
 	private void render() {
-		View view = getCurrentView();
-		if (view != null) {
-			shell.render(view);
-		}
+		getCurrentView().ifPresent(view -> shell.render(view));
 	}
 
-	public View getCurrentView() {
+	private Optional<View> getCurrentView() {
 		if (controller instanceof View) {
-			return (View) controller;
+			return Optional.ofNullable((View) controller);
 		}
 		if (controller instanceof ViewController) {
-			return ((ViewController) controller).currentView();
+			return Optional.ofNullable(((ViewController) controller).currentView());
 		}
-		return null;
+		return Optional.empty();
 	}
 }
