@@ -5,7 +5,7 @@ A home-grown library for programming Java 2D games and other applications using 
 At runtime, the animation frequency ("frame rate") can be changed using a dialog. This allows for example to run an application in slow motion.
 
 Example applications:
-- [https://github.com/armin-reichert/pacman]PacMan
-- [https://github.com/armin-reichert/birdy]Bird
-- [https://github.com/armin-reichert/nine-mens-morris]Nine-mens morris
-- [https://github.com/armin-reichert/pong]Pong
+- [PacMan](https://github.com/armin-reichert/pacman)
+- [Bird](https://github.com/armin-reichert/birdy)
+- [Nine-mens morris](https://github.com/armin-reichert/nine-mens-morris)
+- [Pong](https://github.com/armin-reichert/pong)
