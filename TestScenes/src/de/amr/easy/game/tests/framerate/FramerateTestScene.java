@@ -23,11 +23,11 @@ public class FramerateTestScene implements View, Controller {
 	private boolean consoleLog;
 
 	public int getWidth() {
-		return 1000;
+		return app().settings.width;
 	}
 
 	public int getHeight() {
-		return 400;
+		return app().settings.height;
 	}
 
 	@Override

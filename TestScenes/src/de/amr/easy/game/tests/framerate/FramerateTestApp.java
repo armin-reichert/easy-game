@@ -12,6 +12,7 @@ public class FramerateTestApp extends Application {
 		settings.title = "Game performance measurement";
 		settings.titleExtended = true;
 		settings.width = 1000;
+		settings.height = 200;
 		clock.setFrequency(60);
 	}
 
