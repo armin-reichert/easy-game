@@ -9,3 +9,18 @@ Example applications:
 - [Bird](https://github.com/armin-reichert/birdy)
 - [Nine-mens morris](https://github.com/armin-reichert/nine-mens-morris)
 - [Pong](https://github.com/armin-reichert/pong)
+
+A minimal (empty) application can be created by the following code:
+
+```java
+public class EmptyApp extends Application {
+
+	public static void main(String[] args) {
+		launch(new EmptyApp(), args);
+	}
+
+	@Override
+	public void init() {
+	}
+}
+```
