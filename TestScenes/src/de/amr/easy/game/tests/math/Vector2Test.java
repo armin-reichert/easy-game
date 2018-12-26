@@ -2,7 +2,7 @@ package de.amr.easy.game.tests.math;
 
 import static de.amr.easy.game.math.Vector2f.angle;
 import static de.amr.easy.game.math.Vector2f.diff;
-import static de.amr.easy.game.math.Vector2f.dist;
+import static de.amr.easy.game.math.Vector2f.euclideanDist;
 import static de.amr.easy.game.math.Vector2f.dot;
 import static de.amr.easy.game.math.Vector2f.inverse;
 import static de.amr.easy.game.math.Vector2f.smul;
@@ -101,11 +101,11 @@ public class Vector2Test {
 
 	@Test
 	public void testDistance() {
-		assertTrue(dist(v, w) * dist(v, w) == dot(diff(v, w), diff(v, w)));
-		assertTrue(dist(v, v) == 0);
-		assertTrue(dist(v, w) > 0);
-		assertTrue(dist(v, w) + dist(w, x) >= dist(v, x));
-		assertTrue(dist(v, w) == dist(w, v));
+		assertTrue(euclideanDist(v, w) * euclideanDist(v, w) == dot(diff(v, w), diff(v, w)));
+		assertTrue(euclideanDist(v, v) == 0);
+		assertTrue(euclideanDist(v, w) > 0);
+		assertTrue(euclideanDist(v, w) + euclideanDist(w, x) >= euclideanDist(v, x));
+		assertTrue(euclideanDist(v, w) == euclideanDist(w, v));
 	}
 
 	@Test

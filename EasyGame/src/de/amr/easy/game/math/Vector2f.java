@@ -19,7 +19,7 @@ public class Vector2f {
 	/**
 	 * The NULL vector.
 	 */
-	public static final Vector2f NULL = Vector2f.of(0, 0);
+	public static final Vector2f NULL = new Vector2f(0, 0);
 
 	/**
 	 * Creates a vector with given x and y coordinates.
@@ -100,8 +100,20 @@ public class Vector2f {
 	 *            second vector
 	 * @return the Euclidean distance between the points defined by the vectors
 	 */
-	public static float dist(Vector2f v, Vector2f w) {
+	public static float euclideanDist(Vector2f v, Vector2f w) {
 		return diff(v, w).length();
+	}
+
+	/**
+	 * 
+	 * @param v
+	 *            first vector
+	 * @param w
+	 *            second vector
+	 * @return the Manhattan distance between the points defined by the vectors
+	 */
+	public static float manhattanDist(Vector2f v, Vector2f w) {
+		return Math.abs(v.x - w.x) + Math.abs(v.y - w.y);
 	}
 
 	/**
