@@ -31,11 +31,6 @@
 			<version>1.72</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/com.googlecode.soundlibs/tritonus-share -->
-		<dependency>
-			<groupId>com.googlecode.soundlibs</groupId>
-			<artifactId>tritonus-share</artifactId>
-			<version>0.3.7.4</version>
-		</dependency>
 		<!-- https://mvnrepository.com/artifact/com.googlecode.soundlibs/mp3spi -->
 		<dependency>
 			<groupId>com.googlecode.soundlibs</groupId>
