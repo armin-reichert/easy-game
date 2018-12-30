@@ -65,7 +65,7 @@ public class AppSettingsDialog extends JDialog {
 		fpsControl.setLabelTable(fpsControl.createStandardLabels(10));
 		getContentPane().setLayout(new MigLayout("", "[][grow]", "[][]"));
 
-		JLabel lblClockFrequency = new JLabel("Clock frequency");
+		JLabel lblClockFrequency = new JLabel("Ticks/sec");
 		getContentPane().add(lblClockFrequency, "cell 0 0");
 		fpsControl.setPaintLabels(true);
 		setFpsTooltip();
