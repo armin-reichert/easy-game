@@ -31,9 +31,13 @@ public class AppSettingsDialog extends JDialog {
 		@Override
 		public Component getListCellRendererComponent(JList<? extends DisplayMode> list, DisplayMode mode,
 				int index, boolean isSelected, boolean cellHasFocus) {
-			setText(
-					String.format("%d x %d Pixel, %d Bit, %s Hz", mode.getWidth(), mode.getHeight(), mode.getBitDepth(),
-							mode.getRefreshRate() == 0 ? "unknown" : String.valueOf(mode.getRefreshRate())));
+			String text = "";
+			if (mode != null) {
+				text = String.format("%d x %d Pixel, %d Bit, %s Hz", mode.getWidth(), mode.getHeight(),
+						mode.getBitDepth(),
+						mode.getRefreshRate() == 0 ? "unknown" : String.valueOf(mode.getRefreshRate()));
+			}
+			setText(text);
 			return this;
 		}
 	}
@@ -43,27 +47,28 @@ public class AppSettingsDialog extends JDialog {
 
 	public AppSettingsDialog(JFrame parent, Application app) {
 		super(parent);
-		setSize(600, 290);
+		setSize(600, 150);
 		setTitle("Settings for app: " + app.settings.title);
-		fpsControl = new JSlider(0, 100);
+		fpsControl = new JSlider(0, 120);
 		fpsControl.addChangeListener(new ChangeListener() {
 
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				app.clock.setFrequency(fpsControl.getValue());
+				setFpsTooltip();
 			}
 		});
 		fpsControl.setValue(app.clock.getFrequency());
-		fpsControl.setMajorTickSpacing(10);
-		fpsControl.setMinorTickSpacing(1);
+		fpsControl.setMajorTickSpacing(50);
+		fpsControl.setMinorTickSpacing(10);
 		fpsControl.setPaintTicks(true);
-		fpsControl.setLabelTable(fpsControl.createStandardLabels(5));
+		fpsControl.setLabelTable(fpsControl.createStandardLabels(10));
 		getContentPane().setLayout(new MigLayout("", "[][grow]", "[][]"));
 
 		JLabel lblClockFrequency = new JLabel("Clock frequency");
 		getContentPane().add(lblClockFrequency, "cell 0 0");
 		fpsControl.setPaintLabels(true);
-		fpsControl.setToolTipText("Rendering FPS");
+		setFpsTooltip();
 		getContentPane().add(fpsControl, "cell 1 0,growx");
 
 		JLabel lblDisplayMode = new JLabel("Display Mode");
@@ -88,6 +93,10 @@ public class AppSettingsDialog extends JDialog {
 		});
 		getContentPane().add(displayModeCombo, "cell 1 1,growx");
 		app.clock.addFrequencyChangeListener(e -> fpsControl.setValue((Integer) e.getNewValue()));
+	}
+
+	private void setFpsTooltip() {
+		fpsControl.setToolTipText("Frame rate = " + fpsControl.getValue());
 	}
 
 	private ComboBoxModel<DisplayMode> createComboModel() {
