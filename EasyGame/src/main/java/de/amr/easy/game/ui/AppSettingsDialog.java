@@ -20,6 +20,12 @@ import javax.swing.event.ChangeListener;
 import de.amr.easy.game.Application;
 import net.miginfocom.swing.MigLayout;
 
+/**
+ * Dialog for changing clock frequency and full-screen display mode.
+ * 
+ * @author Armin Reichert
+ *
+ */
 public class AppSettingsDialog extends JDialog {
 
 	private static class DisplayModeItemRenderer extends JLabel implements ListCellRenderer<DisplayMode> {
@@ -42,61 +48,61 @@ public class AppSettingsDialog extends JDialog {
 		}
 	}
 
-	private JSlider fpsControl;
+	private JSlider sliderFPS;
 	private DisplayModeItemRenderer displayModeComboRenderer = new DisplayModeItemRenderer();
 
 	public AppSettingsDialog(JFrame parent, Application app) {
 		super(parent);
 		setSize(600, 150);
 		setTitle("Settings for app: " + app.settings.title);
-		fpsControl = new JSlider(0, 120);
-		fpsControl.addChangeListener(new ChangeListener() {
+		sliderFPS = new JSlider(0, 120);
+		sliderFPS.addChangeListener(new ChangeListener() {
 
 			@Override
 			public void stateChanged(ChangeEvent e) {
-				app.clock.setFrequency(fpsControl.getValue());
+				app.clock.setFrequency(sliderFPS.getValue());
 				setFpsTooltip();
 			}
 		});
-		fpsControl.setValue(app.clock.getFrequency());
-		fpsControl.setMajorTickSpacing(50);
-		fpsControl.setMinorTickSpacing(10);
-		fpsControl.setPaintTicks(true);
-		fpsControl.setLabelTable(fpsControl.createStandardLabels(10));
+		sliderFPS.setValue(app.clock.getFrequency());
+		sliderFPS.setMajorTickSpacing(50);
+		sliderFPS.setMinorTickSpacing(10);
+		sliderFPS.setPaintTicks(true);
+		sliderFPS.setLabelTable(sliderFPS.createStandardLabels(10));
 		getContentPane().setLayout(new MigLayout("", "[][grow]", "[][]"));
 
-		JLabel lblClockFrequency = new JLabel("Ticks/sec");
-		getContentPane().add(lblClockFrequency, "cell 0 0");
-		fpsControl.setPaintLabels(true);
+		JLabel lblFPS = new JLabel("Ticks/sec");
+		getContentPane().add(lblFPS, "cell 0 0");
+		sliderFPS.setPaintLabels(true);
 		setFpsTooltip();
-		getContentPane().add(fpsControl, "cell 1 0,growx");
+		getContentPane().add(sliderFPS, "cell 1 0,growx");
 
 		JLabel lblDisplayMode = new JLabel("Display Mode");
 		getContentPane().add(lblDisplayMode, "cell 0 1,alignx trailing");
 
-		JComboBox<DisplayMode> displayModeCombo = new JComboBox<>(createComboModel());
-		displayModeCombo.setMaximumRowCount(displayModeCombo.getItemCount());
-		displayModeCombo.setRenderer(displayModeComboRenderer);
+		JComboBox<DisplayMode> cbDisplayMode = new JComboBox<>(createComboModel());
+		cbDisplayMode.setMaximumRowCount(cbDisplayMode.getItemCount());
+		cbDisplayMode.setRenderer(displayModeComboRenderer);
 		DisplayMode fullScreenMode = app.settings.fullScreenMode;
 		if (fullScreenMode != null) {
-			for (int i = 0; i < displayModeCombo.getItemCount(); ++i) {
-				DisplayMode mode = displayModeCombo.getItemAt(i);
+			for (int i = 0; i < cbDisplayMode.getItemCount(); ++i) {
+				DisplayMode mode = cbDisplayMode.getItemAt(i);
 				if (mode.getWidth() == fullScreenMode.getWidth() && mode.getHeight() == fullScreenMode.getHeight()
 						&& mode.getBitDepth() == fullScreenMode.getBitDepth()) {
-					displayModeCombo.setSelectedIndex(i);
+					cbDisplayMode.setSelectedIndex(i);
 					break;
 				}
 			}
 		}
-		displayModeCombo.addActionListener(e -> {
-			app.settings.fullScreenMode = (DisplayMode) displayModeCombo.getSelectedItem();
+		cbDisplayMode.addActionListener(e -> {
+			app.settings.fullScreenMode = (DisplayMode) cbDisplayMode.getSelectedItem();
 		});
-		getContentPane().add(displayModeCombo, "cell 1 1,growx");
-		app.clock.addFrequencyChangeListener(e -> fpsControl.setValue((Integer) e.getNewValue()));
+		getContentPane().add(cbDisplayMode, "cell 1 1,growx");
+		app.clock.addFrequencyChangeListener(e -> sliderFPS.setValue((Integer) e.getNewValue()));
 	}
 
 	private void setFpsTooltip() {
-		fpsControl.setToolTipText("Frame rate = " + fpsControl.getValue());
+		sliderFPS.setToolTipText("Frame rate = " + sliderFPS.getValue());
 	}
 
 	private ComboBoxModel<DisplayMode> createComboModel() {
