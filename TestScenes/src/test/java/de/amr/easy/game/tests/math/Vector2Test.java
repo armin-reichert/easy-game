@@ -2,8 +2,8 @@ package de.amr.easy.game.tests.math;
 
 import static de.amr.easy.game.math.Vector2f.angle;
 import static de.amr.easy.game.math.Vector2f.diff;
-import static de.amr.easy.game.math.Vector2f.euclideanDist;
 import static de.amr.easy.game.math.Vector2f.dot;
+import static de.amr.easy.game.math.Vector2f.euclideanDist;
 import static de.amr.easy.game.math.Vector2f.inverse;
 import static de.amr.easy.game.math.Vector2f.smul;
 import static de.amr.easy.game.math.Vector2f.sum;
