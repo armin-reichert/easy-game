@@ -54,7 +54,7 @@ public class AppSettingsDialog extends JDialog {
 	public AppSettingsDialog(JFrame parent, Application app) {
 		super(parent);
 		setSize(600, 150);
-		setTitle("Settings for app: " + app.settings.title);
+		setTitle(String.format("Application '%s'", app.settings.title));
 		sliderFPS = new JSlider(0, 120);
 		sliderFPS.addChangeListener(new ChangeListener() {
 
