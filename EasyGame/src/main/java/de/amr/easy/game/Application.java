@@ -150,6 +150,7 @@ public abstract class Application {
 	/** The application state. */
 	private State state;
 
+	/** State change listeners. */
 	private final Set<BiConsumer<State, State>> stateChangeListeners = new LinkedHashSet<>();
 
 	/** The application icon. */
@@ -199,7 +200,7 @@ public abstract class Application {
 		controller = new AppInfoView(this);
 		controller.init();
 		init();
-		state = State.INITIALIZED;
+		changeState(State.INITIALIZED);
 		LOGGER.info("Application initialized.");
 	}
 
@@ -259,11 +260,9 @@ public abstract class Application {
 
 	/** Starts the application. */
 	private final void start() {
-		if (state != State.RUNNING) {
-			clock.start();
-			LOGGER.info(String.format("Clock started, running with %d ticks/sec.", clock.getFrequency()));
-			changeState(State.RUNNING);
-		}
+		clock.start();
+		LOGGER.info(String.format("Clock started, running with %d ticks/sec.", clock.getFrequency()));
+		changeState(State.RUNNING);
 	}
 
 	/**
