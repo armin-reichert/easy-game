@@ -6,7 +6,10 @@ import java.awt.EventQueue;
 import java.awt.Image;
 import java.awt.event.KeyEvent;
 import java.io.InputStream;
+import java.util.LinkedHashSet;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
@@ -81,6 +84,10 @@ import de.amr.easy.game.view.ViewController;
  */
 public abstract class Application {
 
+	public enum State {
+		NEW, INITIALIZED, RUNNING, PAUSED;
+	}
+
 	/** Creates a logger with single line output and millisecond precision. */
 	private static Logger createLogger() {
 		InputStream stream = Application.class.getClassLoader().getResourceAsStream("logging.properties");
@@ -140,8 +147,10 @@ public abstract class Application {
 	/** The current controller. */
 	private Controller controller;
 
-	/** Tells if the application is paused (updates and collision checks are stopped). */
-	private boolean paused;
+	/** The application state. */
+	private State state;
+
+	private final Set<BiConsumer<State, State>> stateChangeListeners = new LinkedHashSet<>();
 
 	/** The application icon. */
 	private Image icon;
@@ -155,6 +164,32 @@ public abstract class Application {
 		collisionHandler = new CollisionHandler();
 		MouseHandler.INSTANCE.fnScale = () -> settings.scale;
 		clock = new Clock(this::update, this::render);
+		state = State.NEW;
+	}
+
+	public State getState() {
+		return state;
+	}
+
+	public synchronized void addStateChangeListener(BiConsumer<State, State> listener) {
+		stateChangeListeners.add(listener);
+	}
+
+	public synchronized void removeStateChangeListener(BiConsumer<State, State> listener) {
+		stateChangeListeners.remove(listener);
+	}
+
+	private void fireStateChange(State oldState, State newState) {
+		stateChangeListeners.forEach(listener -> listener.accept(oldState, newState));
+	}
+
+	private void changeState(State newState) {
+		State oldState = state;
+		if (oldState != newState) {
+			state = newState;
+			LOGGER.info(String.format("Application state changes from '%s' to '%s'", oldState, newState));
+			fireStateChange(oldState, newState);
+		}
 	}
 
 	/** Called when the application is initialized. */
@@ -164,6 +199,7 @@ public abstract class Application {
 		controller = new AppInfoView(this);
 		controller.init();
 		init();
+		state = State.INITIALIZED;
 		LOGGER.info("Application initialized.");
 	}
 
@@ -223,8 +259,11 @@ public abstract class Application {
 
 	/** Starts the application. */
 	private final void start() {
-		clock.start();
-		LOGGER.info(String.format("Clock started, running with %d ticks/sec.", clock.getFrequency()));
+		if (state != State.RUNNING) {
+			clock.start();
+			LOGGER.info(String.format("Clock started, running with %d ticks/sec.", clock.getFrequency()));
+			changeState(State.RUNNING);
+		}
 	}
 
 	/**
@@ -242,29 +281,39 @@ public abstract class Application {
 	 * @return if the application is paused
 	 */
 	public boolean isPaused() {
-		return paused;
-	}
-
-	private void pause(boolean state) {
-		paused = state;
-		LOGGER.info("Application" + (state ? " paused." : " resumed."));
+		return state == State.PAUSED;
 	}
 
 	private void update() {
-		KeyboardHandler.poll();
-		MouseHandler.poll();
-		if (Keyboard.keyPressedOnce(Modifier.CONTROL, VK_P)) {
-			pause(!paused);
-		}
 		if (Keyboard.keyPressedOnce(KeyEvent.VK_F11)) {
 			shell.toggleDisplayMode();
 		}
-		if (Keyboard.keyPressedOnce(KeyEvent.VK_F2)) {
-			shell.showSettingsDialog();
-		}
-		if (!paused) {
+		switch (state) {
+		case NEW:
+			throw new IllegalStateException("Application not initialized");
+		case INITIALIZED:
+		case RUNNING:
+			KeyboardHandler.poll();
+			if (Keyboard.keyPressedOnce(Modifier.CONTROL, VK_P)) {
+				changeState(State.PAUSED);
+				return;
+			}
+			MouseHandler.poll();
 			collisionHandler.update();
 			controller.update();
+			break;
+		case PAUSED:
+			KeyboardHandler.poll();
+			if (Keyboard.keyPressedOnce(KeyEvent.VK_F2)) {
+				shell.showSettingsDialog();
+			}
+			if (Keyboard.keyPressedOnce(Modifier.CONTROL, VK_P)) {
+				changeState(State.RUNNING);
+				return;
+			}
+			break;
+		default:
+			throw new IllegalStateException();
 		}
 	}
 
