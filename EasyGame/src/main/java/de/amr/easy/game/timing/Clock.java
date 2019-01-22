@@ -150,7 +150,6 @@ public class Clock {
 			++ticks;
 			long usedTime = update.getRunningTime() + render.getRunningTime();
 			long timeLeft = (period - usedTime);
-			timeLeft = Math.round(0.98f * timeLeft); // improve FPS a bit
 			if (timeLeft > 0) {
 				try {
 					NANOSECONDS.sleep(timeLeft);

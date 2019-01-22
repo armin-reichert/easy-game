@@ -297,6 +297,10 @@ public abstract class Application {
 				changeState(State.PAUSED);
 				return;
 			}
+			if (Keyboard.keyPressedOnce(KeyEvent.VK_F2)) {
+				shell.showSettingsDialog();
+				return;
+			}
 			MouseHandler.poll();
 			collisionHandler.update();
 			controller.update();
