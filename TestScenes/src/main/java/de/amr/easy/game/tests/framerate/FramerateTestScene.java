@@ -5,9 +5,8 @@ import static de.amr.easy.game.Application.app;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
-
-import com.sun.glass.events.KeyEvent;
 
 import de.amr.easy.game.input.Keyboard;
 import de.amr.easy.game.view.Controller;
