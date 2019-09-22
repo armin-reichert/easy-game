@@ -96,7 +96,7 @@ public class TextWidget extends SpriteEntity implements AnimationController {
 	private boolean moving;
 
 	private TextWidget() {
-//		debug_draw = true;
+		// debug_draw = true;
 		moving = false;
 		fnCompleted = () -> false;
 		lines = new String[0];
@@ -122,7 +122,7 @@ public class TextWidget extends SpriteEntity implements AnimationController {
 		for (int i = 0; i < lines.length; ++i) {
 			String line = lines[i].replace(" ", spaces);
 			Rectangle2D lineBounds = g.getFontMetrics().getStringBounds(line, g);
-			tf.setHeight(tf.getHeight() + (int)Math.ceil(lineBounds.getHeight()));
+			tf.setHeight(tf.getHeight() + (int) Math.ceil(lineBounds.getHeight()));
 			if (i < lines.length - 1) {
 				tf.setHeight(tf.getHeight() + (int) Math.ceil(lineSpacing));
 			}
@@ -147,7 +147,8 @@ public class TextWidget extends SpriteEntity implements AnimationController {
 			text = text.replace(" ", spaces);
 			Rectangle2D lineBounds = fm.getStringBounds(text, g);
 			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-			g.drawString(text, (float) (tf.getWidth() - lineBounds.getWidth()) / 2, y + fm.getMaxAscent());
+			g.drawString(text, (float) (tf.getWidth() - lineBounds.getWidth()) / 2,
+					y + fm.getMaxAscent());
 			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
 			y += lineBounds.getHeight();
 			if (i < lines.length - 1) {
@@ -156,7 +157,8 @@ public class TextWidget extends SpriteEntity implements AnimationController {
 		}
 
 		// store sprite and set collision box
-		sprites.set("s_text", Sprite.of(image, null).animate(AnimationType.BACK_AND_FORTH, blinkTimeMillis / 2));
+		sprites.set("s_text",
+				Sprite.of(image, null).animate(AnimationType.BACK_AND_FORTH, blinkTimeMillis / 2));
 		sprites.select("s_text");
 	}
 
@@ -190,7 +192,9 @@ public class TextWidget extends SpriteEntity implements AnimationController {
 	}
 
 	public void setBlinkTime(int millis) {
-		sprites.current().animate(AnimationType.BACK_AND_FORTH, millis);
+		sprites.current().ifPresent(sprite -> {
+			sprite.animate(AnimationType.BACK_AND_FORTH, millis);
+		});
 	}
 
 	public void setSpaceExpansion(int spaceExpansion) {

@@ -3,6 +3,7 @@ package de.amr.easy.game.ui.sprites;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
@@ -75,8 +76,8 @@ public class SpriteMap implements Iterable<Sprite> {
 	/**
 	 * @return the currently selected sprite
 	 */
-	public final Sprite current() {
-		return spriteMap.get(selectedKey);
+	public final Optional<Sprite> current() {
+		return Optional.ofNullable(spriteMap.get(selectedKey));
 	}
 
 	/**
