@@ -7,7 +7,6 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
-import java.awt.RenderingHints;
 
 import de.amr.easy.game.Application;
 import de.amr.easy.game.ui.widgets.TextWidget;
@@ -54,9 +53,7 @@ public class AppInfoView implements Controller, View {
 		g.setColor(Color.GREEN);
 		g.setStroke(new BasicStroke(2f));
 		g.drawRect(0, 0, app.settings.width, app.settings.height);
-		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		text.draw(g);
-		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
 	}
 
 	private String infoText() {
@@ -70,7 +67,8 @@ public class AppInfoView implements Controller, View {
 		sb.append("fullScreenMode = ");
 		DisplayMode mode = app.settings.fullScreenMode;
 		if (mode != null) {
-			sb.append(String.format("%d x %d %d Bit", mode.getWidth(), mode.getHeight(), mode.getBitDepth()))
+			sb.append(
+					String.format("%d x %d %d Bit", mode.getWidth(), mode.getHeight(), mode.getBitDepth()))
 					.append("\n");
 		}
 		sb.append("bgColor = " + app.settings.bgColor).append("\n");
@@ -78,10 +76,11 @@ public class AppInfoView implements Controller, View {
 			sb.append(key + " = " + app.settings.getAsString(key)).append("\n");
 		});
 		sb.append("\n\nAvailable display modes:\n\n");
-		GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+		GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment()
+				.getDefaultScreenDevice();
 		for (DisplayMode dm : device.getDisplayModes()) {
-			sb.append(String.format("%dx%d %d bit %d Hz\n", dm.getWidth(), dm.getHeight(), dm.getBitDepth(),
-					dm.getRefreshRate()));
+			sb.append(String.format("%dx%d %d bit %d Hz\n", dm.getWidth(), dm.getHeight(),
+					dm.getBitDepth(), dm.getRefreshRate()));
 		}
 		return sb.toString();
 	}

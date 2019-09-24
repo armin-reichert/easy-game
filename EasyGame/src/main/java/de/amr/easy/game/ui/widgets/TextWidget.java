@@ -140,21 +140,23 @@ public class TextWidget extends SpriteEntity implements AnimationController {
 		}
 		g.setFont(font);
 		g.setColor(color);
+		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+				RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		FontMetrics fm = g.getFontMetrics();
 		float y = 0;
 		for (int i = 0; i < lines.length; ++i) {
 			String text = lines[i];
 			text = text.replace(" ", spaces);
 			Rectangle2D lineBounds = fm.getStringBounds(text, g);
-			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 			g.drawString(text, (float) (tf.getWidth() - lineBounds.getWidth()) / 2,
 					y + fm.getMaxAscent());
-			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
 			y += lineBounds.getHeight();
 			if (i < lines.length - 1) {
 				y += lineSpacing;
 			}
 		}
+		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+				RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
 
 		// store sprite and set collision box
 		sprites.set("s_text",
