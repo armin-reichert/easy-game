@@ -90,7 +90,8 @@ public abstract class Application {
 
 	/** Creates a logger with single line output and millisecond precision. */
 	private static Logger createLogger() {
-		InputStream stream = Application.class.getClassLoader().getResourceAsStream("logging.properties");
+		InputStream stream = Application.class.getClassLoader()
+				.getResourceAsStream("logging.properties");
 		if (stream == null) {
 			throw new RuntimeException("Could not load logging property file");
 		}
@@ -249,7 +250,9 @@ public abstract class Application {
 	 */
 	public void setIcon(Image icon) {
 		this.icon = icon;
-		shell.setIcon(icon);
+		if (shell != null) {
+			shell.setIcon(icon);
+		}
 	}
 
 	/**
