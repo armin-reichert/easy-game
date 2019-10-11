@@ -249,6 +249,7 @@ public abstract class Application {
 	 */
 	public void setIcon(Image icon) {
 		this.icon = icon;
+		shell.setIcon(icon);
 	}
 
 	/**

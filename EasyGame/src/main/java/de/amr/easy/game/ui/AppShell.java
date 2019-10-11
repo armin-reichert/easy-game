@@ -93,7 +93,8 @@ public class AppShell {
 			if (!inFullScreenMode()) {
 				enterWindowMode();
 			}
-		} else {
+		}
+		else {
 			enterWindowMode();
 		}
 		LOGGER.info("Application shell created.");
@@ -101,13 +102,15 @@ public class AppShell {
 
 	public void render(View view) {
 		Objects.requireNonNull(view);
-		render(inFullScreenMode() ? fullScreenWindow.getBufferStrategy() : canvas.getBufferStrategy(), view);
+		render(inFullScreenMode() ? fullScreenWindow.getBufferStrategy() : canvas.getBufferStrategy(),
+				view);
 	}
 
 	public void toggleDisplayMode() {
 		if (inFullScreenMode()) {
 			enterWindowMode();
-		} else {
+		}
+		else {
 			enterFullScreenMode();
 		}
 	}
@@ -118,7 +121,8 @@ public class AppShell {
 		}
 		if (inFullScreenMode()) {
 			LOGGER.info("Settings dialog cannot be opened in full-screen mode");
-		} else {
+		}
+		else {
 			settingsDialog.setVisible(true);
 		}
 	}
@@ -130,8 +134,9 @@ public class AppShell {
 		appFrame.requestFocus();
 		canvas.createBufferStrategy(2);
 		LOGGER.info(String.format("Entered window mode, resolution %dx%d (%dx%d scaled by %.2f)",
-				(int) (app.settings.width * app.settings.scale), (int) (app.settings.height * app.settings.scale),
-				app.settings.width, app.settings.height, app.settings.scale));
+				(int) (app.settings.width * app.settings.scale),
+				(int) (app.settings.height * app.settings.scale), app.settings.width, app.settings.height,
+				app.settings.scale));
 		renderingEnabled = true;
 	}
 
@@ -152,11 +157,16 @@ public class AppShell {
 			fullScreenWindow.createBufferStrategy(2);
 			fullScreenWindow.requestFocus();
 			LOGGER.info("Entered full-screen mode " + getText(mode));
-		} else {
+		}
+		else {
 			device.setFullScreenWindow(null);
 			LOGGER.info("Cannot enter full-screen mode: Display change not supported: " + getText(mode));
 		}
 		renderingEnabled = true;
+	}
+
+	public void setIcon(Image icon) {
+		appFrame.setIconImage(icon);
 	}
 
 	private JFrame createAppFrame() {
@@ -276,7 +286,8 @@ public class AppShell {
 			if (app.isPaused()) {
 				drawCenteredText(sg, PAUSED_TEXT, unscaledWidth, unscaledHeight);
 			}
-		} else {
+		}
+		else {
 			int width = canvas.getWidth(), height = canvas.getHeight();
 			sg.fillRect(0, 0, width, height);
 			sg.scale(app.settings.scale, app.settings.scale);
@@ -288,7 +299,8 @@ public class AppShell {
 		sg.dispose();
 	}
 
-	private void drawCenteredText(Graphics2D g, String text, int containerWidth, int containerHeight) {
+	private void drawCenteredText(Graphics2D g, String text, int containerWidth,
+			int containerHeight) {
 		int fontSize = (containerWidth / text.length()) + 3;
 		g.setFont(new Font(Font.MONOSPACED, Font.BOLD, fontSize));
 		Rectangle2D bounds = g.getFontMetrics().getStringBounds(text, g);
@@ -298,16 +310,19 @@ public class AppShell {
 		g.translate(dx, dy);
 
 		int padding = 3 * fontSize;
-		Rectangle2D box = new Rectangle2D.Double(0, 0, bounds.getWidth() + padding, bounds.getHeight() + padding);
+		Rectangle2D box = new Rectangle2D.Double(0, 0, bounds.getWidth() + padding,
+				bounds.getHeight() + padding);
 		g.setColor(new Color(255, 255, 255, 222));
 		g.translate(-padding / 2, -box.getHeight() / 2);
 		g.fill(box);
 		g.translate(padding / 2, box.getHeight() / 2);
 
-		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+				RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		g.setColor(Color.RED);
 		g.drawString(text, 0, 0);
-		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+				RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
 
 		g.translate(-dx, -dy);
 	}
