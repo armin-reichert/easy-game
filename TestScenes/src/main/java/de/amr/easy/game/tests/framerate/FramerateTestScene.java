@@ -7,8 +7,12 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import de.amr.easy.game.Application;
 import de.amr.easy.game.input.Keyboard;
+import de.amr.easy.game.timing.Clock;
 import de.amr.easy.game.view.Controller;
 import de.amr.easy.game.view.View;
 
@@ -19,7 +23,6 @@ public class FramerateTestScene implements View, Controller {
 	private int[] fpsValues;
 	private int stepX = 20;
 	private int sampleSteps;
-	private boolean consoleLog;
 
 	public int getWidth() {
 		return app().settings.width;
@@ -37,15 +40,14 @@ public class FramerateTestScene implements View, Controller {
 			sampleSteps = 0;
 			bgImg = createBgImage();
 		});
-		consoleLog = false;
-		app().clock.setLoggingEnabled(false);
 	}
 
 	@Override
 	public void update() {
 		if (Keyboard.keyPressedOnce(KeyEvent.VK_L)) {
-			consoleLog = !consoleLog;
-			app().clock.setLoggingEnabled(consoleLog);
+			Logger logger = Logger.getLogger(Clock.class.getName());
+			logger.setLevel(logger.getLevel() == Level.INFO ? Level.OFF : Level.INFO);
+			Application.LOGGER.info("Clock logging is now " + logger.getLevel());
 		}
 		++sampleSteps;
 		if (sampleSteps == app().clock.getFrequency()) {

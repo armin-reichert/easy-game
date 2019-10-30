@@ -10,6 +10,7 @@ import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
@@ -90,8 +91,7 @@ public abstract class Application {
 
 	/** Creates a logger with single line output and millisecond precision. */
 	private static Logger createLogger() {
-		InputStream stream = Application.class.getClassLoader()
-				.getResourceAsStream("logging.properties");
+		InputStream stream = Application.class.getClassLoader().getResourceAsStream("logging.properties");
 		if (stream == null) {
 			throw new RuntimeException("Could not load logging property file");
 		}
@@ -166,6 +166,7 @@ public abstract class Application {
 		collisionHandler = new CollisionHandler();
 		MouseHandler.INSTANCE.fnScale = () -> settings.scale;
 		clock = new Clock(this::update, this::render);
+		Logger.getLogger(Clock.class.getName()).setLevel(Level.OFF);
 		state = State.NEW;
 	}
 

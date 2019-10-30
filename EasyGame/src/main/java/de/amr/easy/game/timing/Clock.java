@@ -1,12 +1,12 @@
 package de.amr.easy.game.timing;
 
-import static de.amr.easy.game.Application.LOGGER;
 import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.logging.Logger;
 
 /**
  * The clock that drives the game loop.
@@ -14,6 +14,12 @@ import java.beans.PropertyChangeSupport;
  * @author Armin Reichert
  */
 public class Clock {
+
+	private static final Logger LOGGER = Logger.getLogger(Clock.class.getName());
+
+	private static void log(String task, long nanos) {
+		LOGGER.info(format("%-7s: %10.2f ms", task, nanos / 1_000_000f));
+	}
 
 	private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 	private Task render;
@@ -23,7 +29,6 @@ public class Clock {
 	private long period;
 	private Thread thread;
 	private volatile boolean running;
-	private boolean loggingEnabled;
 
 	/**
 	 * Creates a clock which triggers execution of the given update and render code according to the
@@ -52,15 +57,6 @@ public class Clock {
 	 */
 	public int getRenderRate() {
 		return render.getFrameRate();
-	}
-
-	/**
-	 * 
-	 * @param enabled
-	 *                  iff logging should be enabled
-	 */
-	public void setLoggingEnabled(boolean enabled) {
-		this.loggingEnabled = enabled;
 	}
 
 	/**
@@ -143,36 +139,27 @@ public class Clock {
 		while (running) {
 			update.run();
 			render.run();
-			if (loggingEnabled) {
-				log("Update", update.getRunningTime());
-				log("Render", render.getRunningTime());
-			}
+			log("Update", update.getRunningTime());
+			log("Render", render.getRunningTime());
 			++ticks;
 			long usedTime = update.getRunningTime() + render.getRunningTime();
 			long timeLeft = (period - usedTime);
 			if (timeLeft > 0) {
 				try {
-					NANOSECONDS.sleep(timeLeft);
-					if (loggingEnabled) {
-						log("Slept", timeLeft);
-					}
+					NANOSECONDS.sleep(timeLeft * 92 / 100);
+					log("Slept", timeLeft);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-			} else if (timeLeft < 0) {
+			}
+			else if (timeLeft < 0) {
 				overTime += (-timeLeft);
 				for (int xUpdates = 3; xUpdates > 0 && overTime > period; overTime -= period, --xUpdates) {
 					update.run();
-					if (loggingEnabled) {
-						log("UpdateX", update.getRunningTime());
-					}
+					log("UpdateX", update.getRunningTime());
 					++ticks;
 				}
 			}
 		}
-	}
-
-	private static void log(String task, long nanos) {
-		LOGGER.info(format("%-7s: %10.2f ms", task, nanos / 1_000_000f));
 	}
 }
