@@ -6,6 +6,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.function.Supplier;
 import java.util.logging.Logger;
 
 /**
@@ -17,8 +18,8 @@ public class Clock {
 
 	private static final Logger LOGGER = Logger.getLogger(Clock.class.getName());
 
-	private static void log(String task, long nanos) {
-		LOGGER.info(format("%-7s: %10.2f ms", task, nanos / 1_000_000f));
+	private static void log(Supplier<String> task, long nanos) {
+		LOGGER.info(() -> format("%-7s: %10.2f ms", task.get(), nanos / 1_000_000f));
 	}
 
 	private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
@@ -139,15 +140,15 @@ public class Clock {
 		while (running) {
 			update.run();
 			render.run();
-			log("Update", update.getRunningTime());
-			log("Render", render.getRunningTime());
+			log(() -> "Update", update.getRunningTime());
+			log(() -> "Render", render.getRunningTime());
 			++ticks;
 			long usedTime = update.getRunningTime() + render.getRunningTime();
 			long timeLeft = (period - usedTime);
 			if (timeLeft > 0) {
 				try {
 					NANOSECONDS.sleep(timeLeft * 92 / 100);
-					log("Slept", timeLeft);
+					log(() -> "Slept", timeLeft);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -156,7 +157,7 @@ public class Clock {
 				overTime += (-timeLeft);
 				for (int xUpdates = 3; xUpdates > 0 && overTime > period; overTime -= period, --xUpdates) {
 					update.run();
-					log("UpdateX", update.getRunningTime());
+					log(() -> "UpdateX", update.getRunningTime());
 					++ticks;
 				}
 			}
