@@ -21,6 +21,7 @@ public class Sprite implements View {
 	private Animation animation;
 
 	private Sprite() {
+		/* use static factory method instead */
 	}
 
 	/**
@@ -195,12 +196,14 @@ public class Sprite implements View {
 	 *                 the time in milliseconds for each animation frame
 	 */
 	public Sprite animate(AnimationType type, int millis) {
-		Objects.nonNull(type);
+		Objects.requireNonNull(type);
 		if (type == AnimationType.LINEAR) {
 			animation = new LinearAnimation(frames.length);
-		} else if (type == AnimationType.BACK_AND_FORTH) {
+		}
+		else if (type == AnimationType.BACK_AND_FORTH) {
 			animation = new BackForthAnimation(frames.length);
-		} else if (type == AnimationType.CYCLIC) {
+		}
+		else if (type == AnimationType.CYCLIC) {
 			animation = new CyclicAnimation(frames.length);
 		}
 		animation.setFrameDuration(millis);
