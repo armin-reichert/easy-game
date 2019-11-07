@@ -6,7 +6,6 @@ import java.awt.geom.Rectangle2D;
 
 import de.amr.easy.game.entity.collision.Collider;
 import de.amr.easy.game.math.Vector2f;
-import de.amr.easy.game.ui.sprites.Sprite;
 import de.amr.easy.game.ui.sprites.SpriteMap;
 import de.amr.easy.game.view.View;
 
@@ -32,21 +31,44 @@ public abstract class Entity implements Collider, View {
 	public final SpriteMap sprites = new SpriteMap();
 
 	/** Visibility of this entity. Invisible entities are not rendered and do not cause collisions. */
-	public boolean visible = true;
+	protected boolean visible = true;
 
 	/** If <code>true</code> the collision box is drawn (for debugging). */
 	public boolean showCollisionBox = false;
 
+	/**
+	 * Makes this entity visible.
+	 */
+	public void show() {
+		visible = true;
+	}
+
+	/**
+	 * Makes this entity invisible.
+	 */
+	public void hide() {
+		visible = false;
+	}
+
+	/**
+	 * @return if this entity is visible
+	 */
+	public boolean visible() {
+		return visible;
+	}
+
 	@Override
 	public void draw(Graphics2D g) {
-		if (sprites.current().isPresent() && visible) {
-			if (showCollisionBox) {
-				g.translate(tf.getX(), tf.getY());
-				g.setColor(Color.RED);
-				g.drawRect(0, 0, tf.getWidth(), tf.getHeight());
-				g.translate(-tf.getX(), -tf.getY());
-			}
-			Sprite sprite = sprites.current().get();
+		if (!visible) {
+			return;
+		}
+		if (showCollisionBox) {
+			g.translate(tf.getX(), tf.getY());
+			g.setColor(Color.RED);
+			g.drawRect(0, 0, tf.getWidth(), tf.getHeight());
+			g.translate(-tf.getX(), -tf.getY());
+		}
+		sprites.current().ifPresent(sprite -> {
 			Vector2f center = tf.getCenter();
 			float dx = center.x - sprite.getWidth() / 2;
 			float dy = center.y - sprite.getHeight() / 2;
@@ -55,7 +77,7 @@ public abstract class Entity implements Collider, View {
 			g2.rotate(tf.getRotation());
 			sprite.draw(g2);
 			g2.dispose();
-		}
+		});
 	}
 
 	/**
