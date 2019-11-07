@@ -1,8 +1,14 @@
 package de.amr.easy.game.entity;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 
 import de.amr.easy.game.entity.collision.Collider;
+import de.amr.easy.game.math.Vector2f;
+import de.amr.easy.game.ui.sprites.Sprite;
+import de.amr.easy.game.ui.sprites.SpriteMap;
+import de.amr.easy.game.view.View;
 
 /**
  * Base class for (game) entities.
@@ -12,13 +18,43 @@ import de.amr.easy.game.entity.collision.Collider;
  * position denotes the left upper corner of the collision box. Invisible entities do not trigger
  * collisions.
  * 
+ * <p>
+ * Optionally, it can store sprites which can be referenced by string keys.
+ * 
  * @author Armin Reichert
  */
-public abstract class Entity implements Collider {
+public abstract class Entity implements Collider, View {
 
 	public final Transform tf = new Transform();
 
 	private boolean visible = true;
+
+	/** The sprite map for this entity. */
+	public final SpriteMap sprites = new SpriteMap();
+
+	/** If <code>true</code> the collision box is drawn (for debugging). */
+	public boolean showCollisionBox = false;
+
+	@Override
+	public void draw(Graphics2D g) {
+		if (sprites.current().isPresent() && isVisible()) {
+			if (showCollisionBox) {
+				g.translate(tf.getX(), tf.getY());
+				g.setColor(Color.RED);
+				g.drawRect(0, 0, tf.getWidth(), tf.getHeight());
+				g.translate(-tf.getX(), -tf.getY());
+			}
+			Sprite sprite = sprites.current().get();
+			Vector2f center = tf.getCenter();
+			float dx = center.x - sprite.getWidth() / 2;
+			float dy = center.y - sprite.getHeight() / 2;
+			Graphics2D g2 = (Graphics2D) g.create();
+			g2.translate(dx, dy);
+			g2.rotate(tf.getRotation());
+			sprite.draw(g2);
+			g2.dispose();
+		}
+	}
 
 	public boolean isVisible() {
 		return visible;

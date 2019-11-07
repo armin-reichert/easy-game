@@ -10,7 +10,7 @@ import java.awt.image.BufferedImage;
 import java.util.Objects;
 import java.util.function.BooleanSupplier;
 
-import de.amr.easy.game.entity.SpriteEntity;
+import de.amr.easy.game.entity.Entity;
 import de.amr.easy.game.ui.sprites.AnimationType;
 import de.amr.easy.game.ui.sprites.Sprite;
 import de.amr.easy.game.view.AnimationController;
@@ -20,7 +20,7 @@ import de.amr.easy.game.view.AnimationController;
  * 
  * @author Armin Reichert
  */
-public class TextWidget extends SpriteEntity implements AnimationController {
+public class TextWidget extends Entity implements AnimationController {
 
 	public static class Builder {
 
