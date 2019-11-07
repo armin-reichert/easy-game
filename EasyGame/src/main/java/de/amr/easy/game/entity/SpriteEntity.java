@@ -4,13 +4,13 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 
 import de.amr.easy.game.math.Vector2f;
-import de.amr.easy.game.ui.sprites.Sprite;
 import de.amr.easy.game.ui.sprites.SpriteMap;
 import de.amr.easy.game.view.View;
 
 /**
- * A game entity using sprites. Sprites are stored in a map and can be referenced by name. The
- * collision box of the entity may be different from the sprite size and has to be set explicitly.
+ * A game entity using sprites. Sprites are stored in a map and can be
+ * referenced by name. The collision box of the entity may be different from the
+ * sprite size and has to be set explicitly.
  * 
  * @author Armin Reichert
  */
@@ -24,14 +24,16 @@ public abstract class SpriteEntity extends Entity implements View {
 
 	@Override
 	public void draw(Graphics2D g) {
-		if (sprites.current().isPresent() && isVisible()) {
-			if (showCollisionBox) {
-				g.translate(tf.getX(), tf.getY());
-				g.setColor(Color.RED);
-				g.drawRect(0, 0, tf.getWidth(), tf.getHeight());
-				g.translate(-tf.getX(), -tf.getY());
-			}
-			Sprite sprite = sprites.current().get();
+		if (!isVisible()) {
+			return;
+		}
+		if (showCollisionBox) {
+			g.translate(tf.getX(), tf.getY());
+			g.setColor(Color.RED);
+			g.drawRect(0, 0, tf.getWidth(), tf.getHeight());
+			g.translate(-tf.getX(), -tf.getY());
+		}
+		sprites.current().ifPresent(sprite -> {
 			Vector2f center = tf.getCenter();
 			float dx = center.x - sprite.getWidth() / 2;
 			float dy = center.y - sprite.getHeight() / 2;
@@ -40,6 +42,6 @@ public abstract class SpriteEntity extends Entity implements View {
 			g2.rotate(tf.getRotation());
 			sprite.draw(g2);
 			g2.dispose();
-		}
+		});
 	}
 }
