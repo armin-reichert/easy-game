@@ -31,7 +31,7 @@ public class TextWidget extends Entity implements AnimationController {
 		}
 
 		public Builder visible(boolean visible) {
-			widget.setVisible(visible);
+			widget.visible = visible;
 			return this;
 		}
 

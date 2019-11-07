@@ -36,7 +36,7 @@ public class PumpingImageWidget extends Entity {
 		}
 
 		public Builder visible(boolean visible) {
-			product.setVisible(visible);
+			product.visible = visible;
 			return this;
 		}
 

@@ -25,19 +25,21 @@ import de.amr.easy.game.view.View;
  */
 public abstract class Entity implements Collider, View {
 
+	/** The transform for this entity. */
 	public final Transform tf = new Transform();
-
-	private boolean visible = true;
 
 	/** The sprite map for this entity. */
 	public final SpriteMap sprites = new SpriteMap();
+
+	/** Visibility of this entity. Invisible entities are not rendered and do not cause collisions. */
+	public boolean visible = true;
 
 	/** If <code>true</code> the collision box is drawn (for debugging). */
 	public boolean showCollisionBox = false;
 
 	@Override
 	public void draw(Graphics2D g) {
-		if (sprites.current().isPresent() && isVisible()) {
+		if (sprites.current().isPresent() && visible) {
 			if (showCollisionBox) {
 				g.translate(tf.getX(), tf.getY());
 				g.setColor(Color.RED);
@@ -56,17 +58,15 @@ public abstract class Entity implements Collider, View {
 		}
 	}
 
-	public boolean isVisible() {
-		return visible;
-	}
-
-	public void setVisible(boolean visible) {
-		this.visible = visible;
-	}
-
+	/**
+	 * Initialization hook method.
+	 */
 	public void init() {
 	}
 
+	/**
+	 * Update ("tick") hook method.
+	 */
 	public void update() {
 	}
 
