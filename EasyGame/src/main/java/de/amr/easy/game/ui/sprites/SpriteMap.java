@@ -1,5 +1,6 @@
 package de.amr.easy.game.ui.sprites;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -13,12 +14,13 @@ import java.util.stream.Stream;
  */
 public class SpriteMap implements Iterable<Sprite> {
 
-	private final Map<String, Sprite> spriteMap = new HashMap<>();
+	private Map<String, Sprite> spriteByName = Collections.emptyMap();
+
 	private String selectedKey;
 
 	@Override
 	public Iterator<Sprite> iterator() {
-		return spriteMap.values().iterator();
+		return spriteByName.values().iterator();
 	}
 
 	/**
@@ -27,7 +29,7 @@ public class SpriteMap implements Iterable<Sprite> {
 	 * @return sprite with given name
 	 */
 	public Sprite get(String name) {
-		return spriteMap.get(name);
+		return spriteByName.get(name);
 	}
 
 	/**
@@ -39,7 +41,10 @@ public class SpriteMap implements Iterable<Sprite> {
 	 *                 a sprite
 	 */
 	public void set(String name, Sprite sprite) {
-		spriteMap.put(name, sprite);
+		if (spriteByName == Collections.EMPTY_MAP) {
+			spriteByName = new HashMap<>();
+		}
+		spriteByName.put(name, sprite);
 	}
 
 	/**
@@ -49,7 +54,7 @@ public class SpriteMap implements Iterable<Sprite> {
 	 *               sprite name
 	 */
 	public void remove(String name) {
-		spriteMap.remove(name);
+		spriteByName.remove(name);
 	}
 
 	/**
@@ -60,7 +65,7 @@ public class SpriteMap implements Iterable<Sprite> {
 	 * @return {@code true} if sprite with given name exists
 	 */
 	public boolean exists(String name) {
-		return spriteMap.containsKey(name);
+		return spriteByName.containsKey(name);
 	}
 
 	/**
@@ -77,7 +82,7 @@ public class SpriteMap implements Iterable<Sprite> {
 	 * @return the currently selected sprite
 	 */
 	public final Optional<Sprite> current() {
-		return Optional.ofNullable(spriteMap.get(selectedKey));
+		return Optional.ofNullable(spriteByName.get(selectedKey));
 	}
 
 	/**
@@ -85,7 +90,7 @@ public class SpriteMap implements Iterable<Sprite> {
 	 * @return stream of all sprites stored in this map
 	 */
 	public final Stream<Sprite> stream() {
-		return spriteMap.values().stream();
+		return spriteByName.values().stream();
 	}
 
 	/**
