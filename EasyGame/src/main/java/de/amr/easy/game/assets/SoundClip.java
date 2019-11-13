@@ -86,7 +86,12 @@ public class SoundClip implements Sound {
 		if (volume < 0f || volume > 1f)
 			throw new IllegalArgumentException("Volume not valid: " + volume);
 		FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-		gainControl.setValue(20f * (float) Math.log10(volume));
+		
+		float range = gainControl.getMaximum() - gainControl.getMinimum();
+		float gain = (range * volume) + gainControl.getMinimum();
+		gainControl.setValue(gain);
+		
+//		gainControl.setValue(20f * (float) Math.log10(volume));
 	}
 
 	public void close() {
