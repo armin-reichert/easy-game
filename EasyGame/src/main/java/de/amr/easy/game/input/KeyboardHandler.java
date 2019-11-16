@@ -28,11 +28,14 @@ public enum KeyboardHandler implements KeyListener {
 
 	@Override
 	public synchronized void keyPressed(KeyEvent e) {
-		pressed.set(e.getKeyCode());
+		if (e.getKeyCode() != KeyEvent.VK_SHIFT && e.getKeyCode() != KeyEvent.VK_ALT
+				&& e.getKeyCode() != KeyEvent.VK_CONTROL) {
+			pressed.set(e.getKeyCode());
+			Application.LOGGER.fine("Key pressed: " + e.getKeyCode() + "," + e.toString());
+		}
 		shiftDown = e.isShiftDown();
 		altDown = e.isAltDown();
 		controlDown = e.isControlDown();
-		Application.LOGGER.fine(e.toString());
 	}
 
 	@Override
