@@ -32,13 +32,14 @@ import de.amr.easy.game.view.ViewController;
 /**
  * Application base class.
  * <p>
- * Static method {@code launch(Application, String[])} shows the application UI and starts the
- * application. Command-line arguments override the corresponding application settings. The
- * following arguments are supported:
+ * Static method {@code launch(Application, String[])} shows the application UI
+ * and starts the application. Command-line arguments override the corresponding
+ * application settings. The following arguments are supported:
  * <ul>
  * <li>-width <i>pixels</i>
  * <li>-height <i>pixels</i>
  * <li>-scale <i>float value</i>
+ * <li>-fps <i>frames</i>
  * <li>-title <i>text</i>
  * <li>-titleExtended
  * <li>-bgColor <i>rgbcolor</i>
@@ -115,13 +116,11 @@ public abstract class Application {
 	}
 
 	/**
-	 * Launches the specified application. The arguments are parsed and assigned to the application
-	 * settings.
+	 * Launches the specified application. The arguments are parsed and assigned to
+	 * the application settings.
 	 * 
-	 * @param app
-	 *               application instance
-	 * @param args
-	 *               command-line arguments
+	 * @param app  application instance
+	 * @param args command-line arguments
 	 */
 	public static void launch(Application app, String[] args) {
 		LOGGER.info(String.format("Launching application '%s' ", app.getClass().getSimpleName()));
@@ -137,7 +136,7 @@ public abstract class Application {
 	public final AppSettings settings;
 
 	/** The clock defining the speed of the application. */
-	public final Clock clock;
+	public Clock clock;
 
 	/** The collision handler of this application. */
 	public final CollisionHandler collisionHandler;
@@ -165,8 +164,6 @@ public abstract class Application {
 		settings = new AppSettings();
 		collisionHandler = new CollisionHandler();
 		MouseHandler.INSTANCE.fnScale = () -> settings.scale;
-		clock = new Clock(this::update, this::render);
-		Logger.getLogger(Clock.class.getName()).setLevel(Level.OFF);
 		state = State.NEW;
 	}
 
@@ -199,6 +196,8 @@ public abstract class Application {
 	public abstract void init();
 
 	private void _init() {
+		clock = new Clock(settings.fps, this::update, this::render);
+		Logger.getLogger(Clock.class.getName()).setLevel(Level.OFF);
 		controller = new AppInfoView(this);
 		controller.init();
 		init();
@@ -209,10 +208,8 @@ public abstract class Application {
 	/**
 	 * Makes the given controller the current one and optionally initializes it.
 	 * 
-	 * @param controller
-	 *                     a controller
-	 * @param initialize
-	 *                     if the controller should be initialized
+	 * @param controller a controller
+	 * @param initialize if the controller should be initialized
 	 */
 	public void setController(Controller controller, boolean initialize) {
 		if (controller == null) {
@@ -236,8 +233,7 @@ public abstract class Application {
 	/**
 	 * Sets the given controller and initializes it.
 	 * 
-	 * @param controller
-	 *                     a controller
+	 * @param controller a controller
 	 */
 	public void setController(Controller controller) {
 		setController(controller, true);
@@ -246,8 +242,7 @@ public abstract class Application {
 	/**
 	 * Sets the icon shown in the application window.
 	 * 
-	 * @param icon
-	 *               application icon
+	 * @param icon application icon
 	 */
 	public void setIcon(Image icon) {
 		this.icon = icon;

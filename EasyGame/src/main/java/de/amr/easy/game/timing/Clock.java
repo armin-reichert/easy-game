@@ -40,8 +40,8 @@ public class Clock {
 	 * @param render
 	 *                 render code
 	 */
-	public Clock(Runnable update, Runnable render) {
-		setFrequency(60);
+	public Clock(int fps, Runnable update, Runnable render) {
+		setFrequency(fps);
 		this.update = new Task(update);
 		this.render = new Task(render);
 	}

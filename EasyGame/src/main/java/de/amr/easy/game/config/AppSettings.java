@@ -58,6 +58,10 @@ public class AppSettings {
 	@Parameter(names = { "-titleExtended" }, description = "extended application title")
 	public boolean titleExtended;
 
+	/** Frame rate of clock. */
+	@Parameter(names = { "-fps" }, description = "Frames/sec")
+	public int fps = 60;
+	
 	/** The unscaled width of application area in pixel. */
 	@Parameter(names = { "-width" }, description = "application width (unscaled)")
 	public int width = 640;
