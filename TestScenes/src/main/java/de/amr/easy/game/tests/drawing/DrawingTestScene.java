@@ -38,6 +38,7 @@ public class DrawingTestScene implements View, Controller {
 		g.setColor(Color.GREEN);
 		g.setStroke(new BasicStroke(6));
 		g.drawRect(0, 0, getWidth(), getHeight());
+		g.drawString("Pen width: " + penWidth + " (Press +/- to change)", 20, 20);
 	}
 
 	@Override
