@@ -13,11 +13,11 @@ public class FramerateTestApp extends Application {
 		settings.titleExtended = true;
 		settings.width = 1000;
 		settings.height = 200;
-		clock.setFrequency(60);
 	}
 
 	@Override
 	public void init() {
+		clock.setFrequency(60);
 		setController(new FramerateTestScene());
 	}
 }
