@@ -16,9 +16,14 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.BooleanControl;
+import javax.sound.sampled.Line;
+import javax.sound.sampled.Mixer;
 
 /**
- * This class provides functionality to access assets like image, sounds, fonts etc.
+ * This class provides functionality to access assets like image, sounds, fonts
+ * etc.
  * 
  * @author Armin Reichert
  */
@@ -44,8 +49,7 @@ public class Assets {
 	/**
 	 * Reads a text file from the given assets path.
 	 * 
-	 * @param path
-	 *               relative path inside "assets" folder
+	 * @param path relative path inside "assets" folder
 	 * @return the text file content as a single string
 	 */
 	public static String readTextFile(String path) {
@@ -73,8 +77,7 @@ public class Assets {
 	/**
 	 * Reads an image from the given assets path.
 	 * 
-	 * @param path
-	 *               relative path inside "assets" folder
+	 * @param path relative path inside "assets" folder
 	 * @return the image
 	 */
 	public static BufferedImage readImage(String path) {
@@ -94,18 +97,14 @@ public class Assets {
 	/**
 	 * Returns a scaled version of the given image as a buffered image.
 	 * 
-	 * @param image
-	 *                 an image
-	 * @param width
-	 *                 the scaled width
-	 * @param height
-	 *                 the scaled height
+	 * @param image  an image
+	 * @param width  the scaled width
+	 * @param height the scaled height
 	 * @return the scaled image
 	 */
 	public static BufferedImage scaledImage(Image image, int width, int height) {
 		Image scaled = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
-		BufferedImage bi = new BufferedImage(scaled.getWidth(null), scaled.getHeight(null),
-				BufferedImage.TYPE_INT_ARGB);
+		BufferedImage bi = new BufferedImage(scaled.getWidth(null), scaled.getHeight(null), BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g = bi.createGraphics();
 		g.drawImage(scaled, 0, 0, bi.getWidth(), bi.getHeight(), null);
 		return bi;
@@ -139,12 +138,28 @@ public class Assets {
 	}
 
 	/**
+	 * Mutes all currently open lines.
+	 * 
+	 * @param muted if the line should get muted
+	 */
+	public static void muteAll(boolean muted) {
+		Mixer.Info[] infos = AudioSystem.getMixerInfo();
+		for (Mixer.Info info : infos) {
+			Mixer mixer = AudioSystem.getMixer(info);
+			for (Line line : mixer.getSourceLines()) {
+				BooleanControl bc = (BooleanControl) line.getControl(BooleanControl.Type.MUTE);
+				if (bc != null) {
+					bc.setValue(muted);
+				}
+			}
+		}
+	}
+
+	/**
 	 * Stores the given image under the given path name.
 	 * 
-	 * @param path
-	 *                path names
-	 * @param image
-	 *                image
+	 * @param path  path names
+	 * @param image image
 	 */
 	public static void storeImage(String path, Image image) {
 		if (imageMap.put(path, image) != null) {
@@ -155,14 +170,10 @@ public class Assets {
 	/**
 	 * Stores the font with given name, size and style under the given key.
 	 * 
-	 * @param key
-	 *                   key under which the font my be accessed
-	 * @param fontName
-	 *                   font name
-	 * @param size
-	 *                   font size
-	 * @param style
-	 *                   font style
+	 * @param key      key under which the font my be accessed
+	 * @param fontName font name
+	 * @param size     font size
+	 * @param style    font style
 	 * @return font as specified
 	 */
 	public static Font storeTrueTypeFont(String key, String fontName, int style, float size) {
@@ -174,16 +185,13 @@ public class Assets {
 	}
 
 	/**
-	 * Stores the font derived from the given base font and given size and style under the given key.
+	 * Stores the font derived from the given base font and given size and style
+	 * under the given key.
 	 * 
-	 * @param key
-	 *                key under which the font my be accessed
-	 * @param font
-	 *                font from which this font is derived
-	 * @param size
-	 *                font size
-	 * @param style
-	 *                font style
+	 * @param key   key under which the font my be accessed
+	 * @param font  font from which this font is derived
+	 * @param size  font size
+	 * @param style font style
 	 * @return derived font
 	 */
 	public static Font storeFont(String key, Font baseFont, int style, float size) {
@@ -197,8 +205,7 @@ public class Assets {
 	/**
 	 * Returns the font stored with the given key.
 	 * 
-	 * @param key
-	 *              font key
+	 * @param key font key
 	 * @return font as requested
 	 */
 	public static Font font(String key) {
@@ -209,11 +216,10 @@ public class Assets {
 	}
 
 	/**
-	 * Returns the image with the given path. If the image is requested for the first time, it is loaded
-	 * from the specified path.
+	 * Returns the image with the given path. If the image is requested for the
+	 * first time, it is loaded from the specified path.
 	 * 
-	 * @param path
-	 *               path under assets folder or key in assets map
+	 * @param path path under assets folder or key in assets map
 	 * @return image as requested
 	 */
 	@SuppressWarnings("unchecked")
@@ -227,8 +233,7 @@ public class Assets {
 	/**
 	 * Returns the sound (clip) with the given path.
 	 * 
-	 * @param path
-	 *               path to sound file
+	 * @param path path to sound file
 	 * @return sound object
 	 */
 	public static Sound sound(String path) {
@@ -248,8 +253,7 @@ public class Assets {
 	/**
 	 * Returns the content of the text file under the specified path.
 	 * 
-	 * @param path
-	 *               path to text file
+	 * @param path path to text file
 	 * @return text file content as a single string
 	 */
 	public static String text(String path) {
