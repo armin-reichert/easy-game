@@ -27,7 +27,7 @@ import de.amr.easy.game.ui.AppInfoView;
 import de.amr.easy.game.ui.AppShell;
 import de.amr.easy.game.view.Controller;
 import de.amr.easy.game.view.View;
-import de.amr.easy.game.view.ViewController;
+import de.amr.easy.game.view.VisualController;
 
 /**
  * Application base class.
@@ -328,8 +328,8 @@ public abstract class Application {
 		if (controller instanceof View) {
 			return Optional.ofNullable((View) controller);
 		}
-		if (controller instanceof ViewController) {
-			return Optional.ofNullable(((ViewController) controller).currentView());
+		if (controller instanceof VisualController) {
+			return Optional.ofNullable(((VisualController) controller).currentView());
 		}
 		return Optional.empty();
 	}
