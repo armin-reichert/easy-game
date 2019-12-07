@@ -4,47 +4,53 @@ import java.awt.Component;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.BitSet;
+import java.util.logging.Logger;
 
-import de.amr.easy.game.Application;
-
+/**
+ * Listens to keyboard events and stores their state in bitmaps. The game loop
+ * polls the state at each clock tick.
+ * 
+ * @author Armin Reichert
+ *
+ */
 public enum KeyboardHandler implements KeyListener {
 
-	INSTANCE;
+	KEYBOARD; // singleton
 
 	public static void handleKeyEventsFor(Component component) {
-		component.addKeyListener(INSTANCE);
+		component.addKeyListener(KEYBOARD);
 	}
 
 	public static synchronized void poll() {
-		INSTANCE._poll();
+		KEYBOARD.pollKeyboard();
 	}
 
-	private boolean shiftDown;
-	private boolean altDown;
-	private boolean controlDown;
+	private Logger LOGGER = Logger.getLogger(Keyboard.class.getName());
+
+	public boolean shift;
+	public boolean alt;
+	public boolean control;
+
 	private final BitSet pressed = new BitSet();
-	private final BitSet once = new BitSet();
-	private final BitSet longer = new BitSet();
+	private final BitSet pressedOneFrame = new BitSet();
+	private final BitSet pressedTwoFramesOrMore = new BitSet();
 
 	@Override
 	public synchronized void keyPressed(KeyEvent e) {
-		if (e.getKeyCode() != KeyEvent.VK_SHIFT && e.getKeyCode() != KeyEvent.VK_ALT
-				&& e.getKeyCode() != KeyEvent.VK_CONTROL) {
-			pressed.set(e.getKeyCode());
-			Application.LOGGER.fine("Key pressed: " + e.getKeyCode() + "," + e.toString());
-		}
-		shiftDown = e.isShiftDown();
-		altDown = e.isAltDown();
-		controlDown = e.isControlDown();
+		int keyCode = e.getKeyCode();
+		shift = e.isShiftDown();
+		alt = e.isAltDown();
+		control = e.isControlDown();
+		pressed.set(keyCode);
 	}
 
 	@Override
 	public synchronized void keyReleased(KeyEvent e) {
-		pressed.clear(e.getKeyCode());
-		shiftDown = e.isShiftDown();
-		altDown = e.isAltDown();
-		controlDown = e.isControlDown();
-		Application.LOGGER.fine(e.toString());
+		int keyCode = e.getKeyCode();
+		shift = e.isShiftDown();
+		alt = e.isAltDown();
+		control = e.isControlDown();
+		pressed.clear(keyCode);
 	}
 
 	@Override
@@ -52,40 +58,32 @@ public enum KeyboardHandler implements KeyListener {
 		// not used
 	}
 
-	private void _poll() {
-		for (int key = 0; key < pressed.size(); ++key) {
-			if (pressed.get(key)) {
-				if (!once.get(key) && !longer.get(key)) {
-					once.set(key);
-					Application.LOGGER.fine("Pressed first time " + key);
-				} else if (once.get(key)) {
-					once.clear(key);
-					longer.set(key);
-				}
+	private void pollKeyboard() {
+		for (int keyCode = 0; keyCode < pressed.size(); ++keyCode) {
+			if (Keyboard.isModifier(keyCode)) {
+				continue;
+			}
+			if (!pressed.get(keyCode)) { // 0 frames
+				pressedOneFrame.clear(keyCode);
+				pressedTwoFramesOrMore.clear(keyCode);
+			} else if (!pressedOneFrame.get(keyCode) && !pressedTwoFramesOrMore.get(keyCode)) { // one frame
+				pressedOneFrame.set(keyCode, true);
+				pressedTwoFramesOrMore.set(keyCode, false);
+				LOGGER.info("Pressed once " + keyCode);
+			} else if (pressedOneFrame.get(keyCode)) { // two frames
+				pressedOneFrame.set(keyCode, false);
+				pressedTwoFramesOrMore.set(keyCode, true);
 			} else {
-				once.clear(key);
-				longer.clear(key);
+				pressedTwoFramesOrMore.set(keyCode, true); // more than two frames
 			}
 		}
 	}
 
 	boolean pressedOnce(int key) {
-		return once.get(key);
+		return pressedOneFrame.get(key);
 	}
 
-	boolean pressed(int key) {
-		return longer.get(key);
-	}
-
-	boolean isShiftDown() {
-		return shiftDown;
-	}
-
-	boolean isAltDown() {
-		return altDown;
-	}
-
-	boolean isControlDown() {
-		return controlDown;
+	boolean pressedLonger(int key) {
+		return pressedTwoFramesOrMore.get(key);
 	}
 }
