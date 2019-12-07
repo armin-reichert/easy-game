@@ -29,6 +29,7 @@ public enum KeyboardHandler implements KeyListener {
 
 	public boolean shift;
 	public boolean alt;
+	public boolean altGraph;
 	public boolean control;
 
 	private final BitSet pressed = new BitSet();
@@ -40,6 +41,7 @@ public enum KeyboardHandler implements KeyListener {
 		int keyCode = e.getKeyCode();
 		shift = e.isShiftDown();
 		alt = e.isAltDown();
+		altGraph = e.isAltGraphDown();
 		control = e.isControlDown();
 		pressed.set(keyCode);
 	}

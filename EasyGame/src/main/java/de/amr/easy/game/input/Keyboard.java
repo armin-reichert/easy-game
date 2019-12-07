@@ -12,43 +12,60 @@ import java.awt.event.KeyEvent;
 public class Keyboard {
 
 	public enum Modifier {
-		ALT, CONTROL, SHIFT
+		ALT, ALT_GRAPH, CONTROL, SHIFT
 	}
 
-	public static boolean keyPressedOnce(Modifier modifier, int key) {
+	public static boolean isModifier(int keyCode) {
+		return keyCode == KeyEvent.VK_SHIFT || keyCode == KeyEvent.VK_CONTROL || keyCode == KeyEvent.VK_ALT
+				|| keyCode == KeyEvent.VK_ALT_GRAPH;
+	}
+
+	public static boolean isModifierDown() {
+		return isShiftDown() || isControlDown() || isAltDown() || isAltGraphDown();
+	}
+
+	public static boolean keyPressedOnce(int keyCode) {
+		if (isModifierDown()) {
+			return false;
+		}
+		return KEYBOARD.pressedOnce(keyCode);
+	}
+
+	public static boolean keyPressedOnce(Modifier modifier, int keyCode) {
+		if (!KEYBOARD.pressedOnce(keyCode)) {
+			return false;
+		}
 		switch (modifier) {
 		case ALT:
-			return isAltDown() && KEYBOARD.pressedOnce(key);
+			return isAltDown();
+		case ALT_GRAPH:
+			return isAltGraphDown();
 		case CONTROL:
-			return isControlDown() && KEYBOARD.pressedOnce(key);
+			return isControlDown();
 		case SHIFT:
-			return isShiftDown() && KEYBOARD.pressedOnce(key);
+			return isShiftDown();
 		default:
 			return false;
 		}
 	}
 
-	public static boolean isModifier(int keyCode) {
-		return keyCode == KeyEvent.VK_SHIFT || keyCode == KeyEvent.VK_CONTROL || keyCode == KeyEvent.VK_ALT;
-	}
-
-	public static boolean keyPressedOnce(int key) {
-		return KEYBOARD.pressedOnce(key) && !isAltDown() && !isControlDown() && !isShiftDown();
-	}
-
 	public static boolean keyDown(int key) {
-		return KEYBOARD.pressedLonger(key) || KEYBOARD.pressedOnce(key);
+		return !isModifierDown() && (KEYBOARD.pressedLonger(key) || KEYBOARD.pressedOnce(key));
 	}
 
 	public static boolean isShiftDown() {
 		return KEYBOARD.shift;
 	}
 
+	public static boolean isControlDown() {
+		return KEYBOARD.control;
+	}
+
 	public static boolean isAltDown() {
 		return KEYBOARD.alt;
 	}
 
-	public static boolean isControlDown() {
-		return KEYBOARD.control;
+	public static boolean isAltGraphDown() {
+		return KEYBOARD.altGraph;
 	}
 }
