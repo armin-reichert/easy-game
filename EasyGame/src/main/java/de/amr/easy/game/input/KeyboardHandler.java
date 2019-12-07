@@ -1,5 +1,8 @@
 package de.amr.easy.game.input;
 
+import static java.awt.event.KeyEvent.getKeyModifiersText;
+import static java.awt.event.KeyEvent.getKeyText;
+
 import java.awt.Component;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -27,6 +30,7 @@ public enum KeyboardHandler implements KeyListener {
 
 	private Logger LOGGER = Logger.getLogger(Keyboard.class.getName());
 
+	private int modifiers;
 	public boolean shift;
 	public boolean alt;
 	public boolean altGraph;
@@ -39,6 +43,7 @@ public enum KeyboardHandler implements KeyListener {
 	@Override
 	public synchronized void keyPressed(KeyEvent e) {
 		int keyCode = e.getKeyCode();
+		modifiers = e.getModifiers();
 		shift = e.isShiftDown();
 		alt = e.isAltDown();
 		altGraph = e.isAltGraphDown();
@@ -49,6 +54,7 @@ public enum KeyboardHandler implements KeyListener {
 	@Override
 	public synchronized void keyReleased(KeyEvent e) {
 		int keyCode = e.getKeyCode();
+		modifiers = 0;
 		shift = e.isShiftDown();
 		alt = e.isAltDown();
 		control = e.isControlDown();
@@ -71,7 +77,7 @@ public enum KeyboardHandler implements KeyListener {
 			} else if (!pressedOneFrame.get(keyCode) && !pressedTwoFramesOrMore.get(keyCode)) { // one frame
 				pressedOneFrame.set(keyCode, true);
 				pressedTwoFramesOrMore.set(keyCode, false);
-				LOGGER.info("Pressed once " + keyCode);
+				LOGGER.info(String.format("Key pressed once: '%s'", text(keyCode)));
 			} else if (pressedOneFrame.get(keyCode)) { // two frames
 				pressedOneFrame.set(keyCode, false);
 				pressedTwoFramesOrMore.set(keyCode, true);
@@ -79,6 +85,10 @@ public enum KeyboardHandler implements KeyListener {
 				pressedTwoFramesOrMore.set(keyCode, true); // more than two frames
 			}
 		}
+	}
+
+	private String text(int keyCode) {
+		return modifiers != 0 ? getKeyModifiersText(modifiers) + "+" + getKeyText(keyCode) : getKeyText(keyCode);
 	}
 
 	boolean pressedOnce(int key) {
