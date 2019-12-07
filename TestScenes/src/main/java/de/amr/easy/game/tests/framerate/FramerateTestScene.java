@@ -85,7 +85,16 @@ public class FramerateTestScene implements View, Controller {
 			int y1 = fpsValues[j];
 			int x2 = xOffset + stepX * (j + 1);
 			int y2 = fpsValues[j + 1];
-			g.setColor(Color.GREEN);
+			Color color = Color.GREEN;
+			if (j > 0) {
+				int fps = app().clock.getFrequency();
+				int deviation = fpsValues[j] - fps;
+				int percent = (100 * deviation) / fps;
+				if (Math.abs(percent) > 3) {
+					color = Color.RED;
+				}
+			}
+			g.setColor(color);
 			g.drawLine(x1, y1, x2, y2);
 			x1 = x2;
 			y1 = y2;

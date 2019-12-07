@@ -13,7 +13,7 @@ import de.amr.easy.game.view.View;
 
 public class KeyboardTestScene implements View, Controller {
 
-	private boolean altDown, controlDown, shiftDown;
+	private boolean alt, control, shift;
 	private int keyCode;
 
 	public int getWidth() {
@@ -30,9 +30,9 @@ public class KeyboardTestScene implements View, Controller {
 
 	@Override
 	public void update() {
-		altDown = Keyboard.isAltDown();
-		controlDown = Keyboard.isControlDown();
-		shiftDown = Keyboard.isShiftDown();
+		alt = Keyboard.isAltDown();
+		control = Keyboard.isControlDown();
+		shift = Keyboard.isShiftDown();
 		keyCode = 0;
 		for (int code = 0; code < 0xFFFF; ++code) {
 			if (Keyboard.keyDown(code)) {
@@ -46,21 +46,21 @@ public class KeyboardTestScene implements View, Controller {
 		g.setColor(Color.WHITE);
 		g.setFont(new Font("Arial", Font.BOLD, 30));
 		String text = "";
-		if (altDown)
+		if (alt)
 			text += "Alt ";
-		if (controlDown)
+		if (control)
 			text += "Control ";
-		if (shiftDown)
+		if (shift)
 			text += "Shift ";
-		if (keyCode != 0)
+		if (keyCode != 0 && !Keyboard.isModifier(keyCode)) {
 			text += KeyEvent.getKeyText(keyCode);
+		}
 		if ("".equals(text)) {
 			text = "Hold some key and some modifier keys!";
 		}
 		FontMetrics fm = g.getFontMetrics();
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-		g.drawString(text, (getWidth() - fm.stringWidth(text)) / 2,
-				(getHeight() - fm.getHeight()) / 2 + fm.getAscent());
+		g.drawString(text, (getWidth() - fm.stringWidth(text)) / 2, (getHeight() - fm.getHeight()) / 2 + fm.getAscent());
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
 	}
 }
