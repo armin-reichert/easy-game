@@ -7,7 +7,6 @@ import java.awt.Component;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.BitSet;
-import java.util.logging.Logger;
 
 /**
  * Listens to keyboard events and stores their state in bitmaps. The game loop
@@ -27,8 +26,6 @@ public enum KeyboardHandler implements KeyListener {
 	public static synchronized void poll() {
 		KEYBOARD.pollKeyboard();
 	}
-
-	private Logger LOGGER = Logger.getLogger(Keyboard.class.getName());
 
 	private int modifiers;
 	public boolean shift;
@@ -77,7 +74,7 @@ public enum KeyboardHandler implements KeyListener {
 			} else if (!pressedOneFrame.get(keyCode) && !pressedTwoFramesOrMore.get(keyCode)) { // one frame
 				pressedOneFrame.set(keyCode, true);
 				pressedTwoFramesOrMore.set(keyCode, false);
-				LOGGER.info(String.format("Key pressed once: '%s'", text(keyCode)));
+				Keyboard.LOGGER.info(String.format("Key pressed once: '%s'", text(keyCode)));
 			} else if (pressedOneFrame.get(keyCode)) { // two frames
 				pressedOneFrame.set(keyCode, false);
 				pressedTwoFramesOrMore.set(keyCode, true);

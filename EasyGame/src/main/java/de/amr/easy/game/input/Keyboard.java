@@ -3,6 +3,8 @@ package de.amr.easy.game.input;
 import static de.amr.easy.game.input.KeyboardHandler.KEYBOARD;
 
 import java.awt.event.KeyEvent;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * The keyboard state. This state is updated at each clock tick.
@@ -10,6 +12,12 @@ import java.awt.event.KeyEvent;
  * @author Armin Reichert
  */
 public class Keyboard {
+
+	static final Logger LOGGER = Logger.getLogger(Keyboard.class.getName());
+
+	static {
+		LOGGER.setLevel(Level.OFF);
+	}
 
 	public enum Modifier {
 		ALT, ALT_GRAPH, CONTROL, SHIFT
