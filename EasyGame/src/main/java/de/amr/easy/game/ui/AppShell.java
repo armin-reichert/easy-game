@@ -6,7 +6,6 @@ import static java.lang.String.format;
 import java.awt.BorderLayout;
 import java.awt.Canvas;
 import java.awt.Color;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.DisplayMode;
 import java.awt.EventQueue;
@@ -15,15 +14,12 @@ import java.awt.Graphics2D;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Image;
-import java.awt.Point;
 import java.awt.RenderingHints;
-import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferStrategy;
-import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -49,11 +45,6 @@ import de.amr.easy.game.view.View;
 public class AppShell {
 
 	private static final String PAUSED_TEXT = "PAUSED (Press CTRL+P to continue)";
-
-	private static Cursor createInvisibleCursor() {
-		Image dot = new BufferedImage(1, 1, BufferedImage.TRANSLUCENT);
-		return Toolkit.getDefaultToolkit().createCustomCursor(dot, new Point(0, 0), "invisibleCursor");
-	}
 
 	private class WindowClosingHandler extends WindowAdapter {
 
@@ -102,8 +93,7 @@ public class AppShell {
 
 	public void render(View view) {
 		Objects.requireNonNull(view);
-		render(inFullScreenMode() ? fullScreenWindow.getBufferStrategy() : canvas.getBufferStrategy(),
-				view);
+		render(inFullScreenMode() ? fullScreenWindow.getBufferStrategy() : canvas.getBufferStrategy(), view);
 	}
 
 	public void toggleDisplayMode() {
@@ -134,9 +124,8 @@ public class AppShell {
 		appFrame.requestFocus();
 		canvas.createBufferStrategy(2);
 		LOGGER.info(String.format("Entered window mode, resolution %dx%d (%dx%d scaled by %.2f)",
-				(int) (app.settings.width * app.settings.scale),
-				(int) (app.settings.height * app.settings.scale), app.settings.width, app.settings.height,
-				app.settings.scale));
+				(int) (app.settings.width * app.settings.scale), (int) (app.settings.height * app.settings.scale),
+				app.settings.width, app.settings.height, app.settings.scale));
 		renderingEnabled = true;
 	}
 
@@ -199,9 +188,6 @@ public class AppShell {
 	private Window createFullscreenWindow() {
 		JFrame window = new JFrame();
 		window.setBackground(app.settings.bgColor);
-		if (!app.settings.fullScreenCursor) {
-			window.setCursor(createInvisibleCursor());
-		}
 		window.setResizable(false);
 		window.setUndecorated(true);
 		window.setIgnoreRepaint(true);
@@ -228,8 +214,8 @@ public class AppShell {
 
 	private String getTitle(int ups, int fps) {
 		if (app.settings.titleExtended) {
-			return format("%s [%dfps %dups %d x %dpx * %.2f]", app.settings.title, fps, ups,
-					app.settings.width, app.settings.height, app.settings.scale);
+			return format("%s [%dfps %dups %d x %dpx * %.2f]", app.settings.title, fps, ups, app.settings.width,
+					app.settings.height, app.settings.scale);
 		}
 		return app.settings.title;
 	}
@@ -299,8 +285,7 @@ public class AppShell {
 		sg.dispose();
 	}
 
-	private void drawCenteredText(Graphics2D g, String text, int containerWidth,
-			int containerHeight) {
+	private void drawCenteredText(Graphics2D g, String text, int containerWidth, int containerHeight) {
 		int fontSize = (containerWidth / text.length()) + 3;
 		g.setFont(new Font(Font.MONOSPACED, Font.BOLD, fontSize));
 		Rectangle2D bounds = g.getFontMetrics().getStringBounds(text, g);
@@ -310,19 +295,16 @@ public class AppShell {
 		g.translate(dx, dy);
 
 		int padding = 3 * fontSize;
-		Rectangle2D box = new Rectangle2D.Double(0, 0, bounds.getWidth() + padding,
-				bounds.getHeight() + padding);
+		Rectangle2D box = new Rectangle2D.Double(0, 0, bounds.getWidth() + padding, bounds.getHeight() + padding);
 		g.setColor(new Color(255, 255, 255, 222));
 		g.translate(-padding / 2, -box.getHeight() / 2);
 		g.fill(box);
 		g.translate(padding / 2, box.getHeight() / 2);
 
-		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-				RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		g.setColor(Color.RED);
 		g.drawString(text, 0, 0);
-		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-				RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
 
 		g.translate(-dx, -dy);
 	}
