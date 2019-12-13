@@ -228,7 +228,7 @@ public class AppShell {
 
 	private String getTitle(int ups, int fps) {
 		if (app.settings.titleExtended) {
-			return format("%s [%d fps, %d ups, %dx%d px, scaled %.2f]", app.settings.title, fps, ups,
+			return format("%s [%dfps %dups %d x %dpx * %.2f]", app.settings.title, fps, ups,
 					app.settings.width, app.settings.height, app.settings.scale);
 		}
 		return app.settings.title;
