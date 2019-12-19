@@ -14,12 +14,14 @@ import java.awt.Graphics2D;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferStrategy;
+import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -33,10 +35,12 @@ import de.amr.easy.game.input.MouseHandler;
 import de.amr.easy.game.view.View;
 
 /**
- * The application shell provides the window where the current view of the application is rendered.
- * In window mode, the view is rendered to a double-buffered canvas which is the single child of the
- * application frame. In fullscreen mode, the view is rendered to a fullscreen-exclusive frame. In
- * both cases, active rendering with the frequency of the application clock is performed.
+ * The application shell provides the window where the current view of the
+ * application is rendered. In window mode, the view is rendered to a
+ * double-buffered canvas which is the single child of the application frame. In
+ * fullscreen mode, the view is rendered to a fullscreen-exclusive frame. In
+ * both cases, active rendering with the frequency of the application clock is
+ * performed.
  * <p>
  * Using the F11-key the user can toggle between full-screen and windowed mode.
  * 
@@ -79,13 +83,14 @@ public class AppShell {
 		appFrame = createAppFrame();
 		canvas = (Canvas) appFrame.getContentPane().getComponent(0);
 		fullScreenWindow = createFullscreenWindow();
+		fullScreenWindow.setCursor(fullScreenWindow.getToolkit()
+				.createCustomCursor(new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB), new Point(), null));
 		if (app.settings.fullScreenOnStart) {
 			enterFullScreenMode();
 			if (!inFullScreenMode()) {
 				enterWindowMode();
 			}
-		}
-		else {
+		} else {
 			enterWindowMode();
 		}
 		LOGGER.info("Application shell created.");
@@ -99,8 +104,7 @@ public class AppShell {
 	public void toggleDisplayMode() {
 		if (inFullScreenMode()) {
 			enterWindowMode();
-		}
-		else {
+		} else {
 			enterFullScreenMode();
 		}
 	}
@@ -111,8 +115,7 @@ public class AppShell {
 		}
 		if (inFullScreenMode()) {
 			LOGGER.info("Settings dialog cannot be opened in full-screen mode");
-		}
-		else {
+		} else {
 			settingsDialog.setVisible(true);
 		}
 	}
@@ -146,8 +149,7 @@ public class AppShell {
 			fullScreenWindow.createBufferStrategy(2);
 			fullScreenWindow.requestFocus();
 			LOGGER.info("Entered full-screen mode " + getText(mode));
-		}
-		else {
+		} else {
 			device.setFullScreenWindow(null);
 			LOGGER.info("Cannot enter full-screen mode: Display change not supported: " + getText(mode));
 		}
@@ -208,8 +210,8 @@ public class AppShell {
 	}
 
 	private String getText(DisplayMode mode) {
-		return format("%d x %d, depth: %d, refresh rate: %s", mode.getWidth(), mode.getHeight(),
-				mode.getBitDepth(), mode.getRefreshRate() == 0 ? "unknown" : mode.getRefreshRate() + " Hz");
+		return format("%d x %d, depth: %d, refresh rate: %s", mode.getWidth(), mode.getHeight(), mode.getBitDepth(),
+				mode.getRefreshRate() == 0 ? "unknown" : mode.getRefreshRate() + " Hz");
 	}
 
 	private String getTitle(int ups, int fps) {
@@ -264,16 +266,14 @@ public class AppShell {
 					((double) fullScreenWindow.getHeight()) / unscaledHeight);
 			double scaledWidth = zoom * unscaledWidth;
 			double scaledHeight = zoom * unscaledHeight;
-			sg.translate((fullScreenWindow.getWidth() - scaledWidth) / 2,
-					(fullScreenWindow.getHeight() - scaledHeight) / 2);
+			sg.translate((fullScreenWindow.getWidth() - scaledWidth) / 2, (fullScreenWindow.getHeight() - scaledHeight) / 2);
 			sg.setClip(0, 0, (int) scaledWidth, (int) scaledHeight);
 			sg.scale(zoom, zoom);
 			view.draw(sg);
 			if (app.isPaused()) {
 				drawCenteredText(sg, PAUSED_TEXT, unscaledWidth, unscaledHeight);
 			}
-		}
-		else {
+		} else {
 			int width = canvas.getWidth(), height = canvas.getHeight();
 			sg.fillRect(0, 0, width, height);
 			sg.scale(app.settings.scale, app.settings.scale);
