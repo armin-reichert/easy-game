@@ -147,7 +147,7 @@ public class Clock {
 			long timeLeft = (period - usedTime);
 			if (timeLeft > 0) {
 				try {
-					NANOSECONDS.sleep(timeLeft * 95 / 100);
+					NANOSECONDS.sleep(timeLeft * 98 / 100);
 					log(() -> "Slept", timeLeft);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
