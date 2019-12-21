@@ -32,13 +32,11 @@ public class Clock {
 	private volatile boolean running;
 
 	/**
-	 * Creates a clock which triggers execution of the given update and render code according to the
-	 * clock frequency.
+	 * Creates a clock which triggers execution of the given update and render code
+	 * according to the clock frequency.
 	 * 
-	 * @param update
-	 *                 update code
-	 * @param render
-	 *                 render code
+	 * @param update update code
+	 * @param render render code
 	 */
 	public Clock(int fps, Runnable update, Runnable render) {
 		setFrequency(fps);
@@ -70,8 +68,7 @@ public class Clock {
 	/**
 	 * Sets the clock frequency to the given value (per second).
 	 * 
-	 * @param ticksPerSecond
-	 *                         number of ticks per second
+	 * @param ticksPerSecond number of ticks per second
 	 */
 	public void setFrequency(int ticksPerSecond) {
 		int oldFrequency = this.frequency;
@@ -91,8 +88,7 @@ public class Clock {
 	}
 
 	/**
-	 * @param seconds
-	 *                  seconds
+	 * @param seconds seconds
 	 * @return number of clock ticks representing the given seconds
 	 */
 	public int sec(float seconds) {
@@ -102,8 +98,7 @@ public class Clock {
 	/**
 	 * Adds a listener for frequency changes.
 	 * 
-	 * @param listener
-	 *                   frequency change listener
+	 * @param listener frequency change listener
 	 */
 	public void addFrequencyChangeListener(PropertyChangeListener listener) {
 		pcs.addPropertyChangeListener("frequency", listener);
@@ -147,13 +142,13 @@ public class Clock {
 			long timeLeft = (period - usedTime);
 			if (timeLeft > 0) {
 				try {
-					NANOSECONDS.sleep(timeLeft * 98 / 100);
+					// removing 5% sleep time seems to lead to better fps
+					NANOSECONDS.sleep(timeLeft * 95 / 100);
 					log(() -> "Slept", timeLeft);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-			}
-			else if (timeLeft < 0) {
+			} else if (timeLeft < 0) {
 				overTime += (-timeLeft);
 				for (int xUpdates = 3; xUpdates > 0 && overTime > period; overTime -= period, --xUpdates) {
 					update.run();
