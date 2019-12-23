@@ -7,7 +7,7 @@ import java.awt.geom.Rectangle2D;
 import de.amr.easy.game.entity.collision.Collider;
 import de.amr.easy.game.math.Vector2f;
 import de.amr.easy.game.ui.sprites.SpriteMap;
-import de.amr.easy.game.view.Controller;
+import de.amr.easy.game.view.Lifecycle;
 import de.amr.easy.game.view.View;
 
 /**
@@ -23,7 +23,7 @@ import de.amr.easy.game.view.View;
  * 
  * @author Armin Reichert
  */
-public abstract class Entity implements Collider, View, Controller {
+public abstract class Entity implements Collider, View, Lifecycle {
 
 	/** The transform for this entity. */
 	public final Transform tf = new Transform();

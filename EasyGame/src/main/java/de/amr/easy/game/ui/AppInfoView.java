@@ -10,7 +10,7 @@ import java.awt.GraphicsEnvironment;
 
 import de.amr.easy.game.Application;
 import de.amr.easy.game.ui.widgets.TextWidget;
-import de.amr.easy.game.view.Controller;
+import de.amr.easy.game.view.Lifecycle;
 import de.amr.easy.game.view.View;
 
 /**
@@ -18,7 +18,7 @@ import de.amr.easy.game.view.View;
  * 
  * @author Armin Reichert
  */
-public class AppInfoView implements Controller, View {
+public class AppInfoView implements Lifecycle, View {
 
 	private final Application app;
 	private TextWidget text;
@@ -34,7 +34,7 @@ public class AppInfoView implements Controller, View {
 		text.tf.centerX(app.settings.width);
 		text.tf.setY(app.settings.height);
 		text.tf.setVelocityY(-1.0f);
-		text.startAnimation();
+		text.start();
 	}
 
 	@Override

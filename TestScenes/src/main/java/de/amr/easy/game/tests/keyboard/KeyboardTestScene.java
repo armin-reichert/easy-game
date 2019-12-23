@@ -8,10 +8,10 @@ import java.awt.RenderingHints;
 import java.awt.event.KeyEvent;
 
 import de.amr.easy.game.input.Keyboard;
-import de.amr.easy.game.view.Controller;
+import de.amr.easy.game.view.Lifecycle;
 import de.amr.easy.game.view.View;
 
-public class KeyboardTestScene implements View, Controller {
+public class KeyboardTestScene implements View, Lifecycle {
 
 	private boolean alt, control, shift;
 	private int keyCode;

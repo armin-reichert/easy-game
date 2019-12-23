@@ -18,7 +18,7 @@ import java.util.Objects;
 import de.amr.easy.game.Application;
 import de.amr.easy.game.entity.Entity;
 import de.amr.easy.game.input.Mouse;
-import de.amr.easy.game.view.Controller;
+import de.amr.easy.game.view.Lifecycle;
 import de.amr.easy.game.view.View;
 
 /**
@@ -29,7 +29,7 @@ import de.amr.easy.game.view.View;
  * 
  * @author Armin Reichert
  */
-public class LinkWidget extends Entity implements View, Controller {
+public class LinkWidget extends Entity implements View, Lifecycle {
 
 	public static class Builder {
 

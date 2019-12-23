@@ -7,10 +7,10 @@ import java.awt.Graphics2D;
 
 import de.amr.easy.game.input.Mouse;
 import de.amr.easy.game.ui.widgets.TextWidget;
-import de.amr.easy.game.view.Controller;
+import de.amr.easy.game.view.Lifecycle;
 import de.amr.easy.game.view.View;
 
-public class MouseTestScene implements View, Controller {
+public class MouseTestScene implements View, Lifecycle {
 
 	private final MouseTestApp app;
 	private TextWidget messageDisplay;

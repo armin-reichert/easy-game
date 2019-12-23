@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 import de.amr.easy.game.Application;
 import de.amr.easy.game.input.Keyboard;
 import de.amr.easy.game.timing.Clock;
-import de.amr.easy.game.view.Controller;
+import de.amr.easy.game.view.Lifecycle;
 import de.amr.easy.game.view.View;
 
 public class FramerateTestApp extends Application {
@@ -36,7 +36,7 @@ public class FramerateTestApp extends Application {
 	}
 }
 
-class FramerateTestScene implements View, Controller {
+class FramerateTestScene implements View, Lifecycle {
 
 	private Image bgImg;
 	private int sampleIndex;

@@ -9,10 +9,10 @@ import java.util.Random;
 
 import de.amr.easy.game.input.Keyboard;
 import de.amr.easy.game.input.Mouse;
-import de.amr.easy.game.view.Controller;
+import de.amr.easy.game.view.Lifecycle;
 import de.amr.easy.game.view.View;
 
-public class DrawingTestScene implements View, Controller {
+public class DrawingTestScene implements View, Lifecycle {
 
 	private DrawingTestApp app;
 	private BufferedImage drawArea;

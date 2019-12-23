@@ -25,7 +25,7 @@ import de.amr.easy.game.input.MouseHandler;
 import de.amr.easy.game.timing.Clock;
 import de.amr.easy.game.ui.AppInfoView;
 import de.amr.easy.game.ui.AppShell;
-import de.amr.easy.game.view.Controller;
+import de.amr.easy.game.view.Lifecycle;
 import de.amr.easy.game.view.View;
 import de.amr.easy.game.view.VisualController;
 
@@ -145,7 +145,7 @@ public abstract class Application {
 	private AppShell shell;
 
 	/** The current controller. */
-	private Controller controller;
+	private Lifecycle controller;
 
 	/** The application state. */
 	private State state;
@@ -211,7 +211,7 @@ public abstract class Application {
 	 * @param controller a controller
 	 * @param initialize if the controller should be initialized
 	 */
-	public void setController(Controller controller, boolean initialize) {
+	public void setController(Lifecycle controller, boolean initialize) {
 		if (controller == null) {
 			throw new IllegalArgumentException("Controller cannot be null");
 		}
@@ -226,7 +226,7 @@ public abstract class Application {
 	/**
 	 * @return the current controller
 	 */
-	public Controller getController() {
+	public Lifecycle getController() {
 		return controller;
 	}
 
@@ -235,7 +235,7 @@ public abstract class Application {
 	 * 
 	 * @param controller a controller
 	 */
-	public void setController(Controller controller) {
+	public void setController(Lifecycle controller) {
 		setController(controller, true);
 	}
 

@@ -6,14 +6,14 @@ import java.util.function.BooleanSupplier;
 
 import de.amr.easy.game.entity.Entity;
 import de.amr.easy.game.ui.sprites.Sprite;
-import de.amr.easy.game.view.AnimationController;
+import de.amr.easy.game.view.AnimationLifecycle;
 
 /**
  * An image that can be moved over the screen.
  * 
  * @author Armin Reichert
  */
-public class ImageWidget extends Entity implements AnimationController {
+public class ImageWidget extends Entity implements AnimationLifecycle {
 
 	private boolean moving;
 	private BooleanSupplier fnCompleted;
@@ -34,17 +34,17 @@ public class ImageWidget extends Entity implements AnimationController {
 	}
 
 	@Override
-	public void startAnimation() {
+	public void start() {
 		moving = true;
 	}
 
 	@Override
-	public void stopAnimation() {
+	public void stop() {
 		moving = false;
 	}
 
 	@Override
-	public boolean isAnimationCompleted() {
+	public boolean complete() {
 		return fnCompleted.getAsBoolean();
 	}
 
@@ -52,8 +52,8 @@ public class ImageWidget extends Entity implements AnimationController {
 	public void update() {
 		if (moving) {
 			tf.move();
-			if (isAnimationCompleted()) {
-				stopAnimation();
+			if (complete()) {
+				stop();
 			}
 		}
 	}

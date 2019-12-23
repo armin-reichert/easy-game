@@ -13,14 +13,14 @@ import java.util.function.BooleanSupplier;
 import de.amr.easy.game.entity.Entity;
 import de.amr.easy.game.ui.sprites.AnimationType;
 import de.amr.easy.game.ui.sprites.Sprite;
-import de.amr.easy.game.view.AnimationController;
+import de.amr.easy.game.view.AnimationLifecycle;
 
 /**
  * A multi-line text that can be moved over the screen.
  * 
  * @author Armin Reichert
  */
-public class TextWidget extends Entity implements AnimationController {
+public class TextWidget extends Entity implements AnimationLifecycle {
 
 	public static class Builder {
 
@@ -140,27 +140,23 @@ public class TextWidget extends Entity implements AnimationController {
 		}
 		g.setFont(font);
 		g.setColor(color);
-		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-				RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		FontMetrics fm = g.getFontMetrics();
 		float y = 0;
 		for (int i = 0; i < lines.length; ++i) {
 			String text = lines[i];
 			text = text.replace(" ", spaces);
 			Rectangle2D lineBounds = fm.getStringBounds(text, g);
-			g.drawString(text, (float) (tf.getWidth() - lineBounds.getWidth()) / 2,
-					y + fm.getMaxAscent());
+			g.drawString(text, (float) (tf.getWidth() - lineBounds.getWidth()) / 2, y + fm.getMaxAscent());
 			y += lineBounds.getHeight();
 			if (i < lines.length - 1) {
 				y += lineSpacing;
 			}
 		}
-		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-				RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
 
 		// store sprite and set collision box
-		sprites.set("s_text",
-				Sprite.of(image, null).animate(AnimationType.BACK_AND_FORTH, blinkTimeMillis / 2));
+		sprites.set("s_text", Sprite.of(image, null).animate(AnimationType.BACK_AND_FORTH, blinkTimeMillis / 2));
 		sprites.select("s_text");
 	}
 
@@ -212,24 +208,24 @@ public class TextWidget extends Entity implements AnimationController {
 	public void update() {
 		if (moving) {
 			tf.move();
-			if (isAnimationCompleted()) {
-				stopAnimation();
+			if (complete()) {
+				stop();
 			}
 		}
 	}
 
 	@Override
-	public boolean isAnimationCompleted() {
+	public boolean complete() {
 		return fnCompleted.getAsBoolean();
 	}
 
 	@Override
-	public void startAnimation() {
+	public void start() {
 		moving = true;
 	}
 
 	@Override
-	public void stopAnimation() {
+	public void stop() {
 		moving = false;
 	}
 }
