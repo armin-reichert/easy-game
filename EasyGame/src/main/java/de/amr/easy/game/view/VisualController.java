@@ -1,5 +1,7 @@
 package de.amr.easy.game.view;
 
+import java.util.Optional;
+
 /**
  * A visual controller additionally provides a view to be displayed.
  * 
@@ -10,6 +12,6 @@ public interface VisualController extends Lifecycle {
 	/**
 	 * @return the current view to be displayed
 	 */
-	View currentView();
+	Optional<View> currentView();
 
 }
