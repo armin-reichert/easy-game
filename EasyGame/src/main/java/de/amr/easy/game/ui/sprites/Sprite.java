@@ -8,14 +8,13 @@ import java.util.Arrays;
 import java.util.Objects;
 
 import de.amr.easy.game.assets.Assets;
-import de.amr.easy.game.view.View;
 
 /**
  * A sprite.
  * 
  * @author Armin Reichert
  */
-public class Sprite implements View {
+public class Sprite {
 
 	private Image[] frames;
 	private Animation animation;
@@ -27,8 +26,7 @@ public class Sprite implements View {
 	/**
 	 * Creates a sprite with the given frames.
 	 * 
-	 * @param frames
-	 *                 non-empty list of animation frames
+	 * @param frames non-empty list of animation frames
 	 */
 	public static Sprite of(Image... frames) {
 		if (frames.length == 0) {
@@ -42,8 +40,7 @@ public class Sprite implements View {
 	/**
 	 * Creates a sprite from the frames stored in the assets with the given keys.
 	 * 
-	 * @param keys
-	 *               list of keys of the images
+	 * @param keys list of keys of the images
 	 */
 	public static Sprite ofAssets(String... keys) {
 		if (keys.length == 0) {
@@ -60,12 +57,9 @@ public class Sprite implements View {
 	/**
 	 * Scales the i'th frame of this sprite to the given size.
 	 * 
-	 * @param i
-	 *                 index of frame to be scaled
-	 * @param width
-	 *                 target width
-	 * @param height
-	 *                 target height
+	 * @param i      index of frame to be scaled
+	 * @param width  target width
+	 * @param height target height
 	 * @return this sprite to allow method chaining
 	 */
 	public Sprite scaleFrame(int i, int width, int height) {
@@ -81,10 +75,8 @@ public class Sprite implements View {
 	/**
 	 * Scales all images of this sprite to the given size.
 	 * 
-	 * @param width
-	 *                 target width
-	 * @param height
-	 *                 target height
+	 * @param width  target width
+	 * @param height target height
 	 * @return this sprite to allow method chaining
 	 */
 	public Sprite scale(int width, int height) {
@@ -97,8 +89,7 @@ public class Sprite implements View {
 	/**
 	 * Scales all frames to the same size (width = height).
 	 * 
-	 * @param size
-	 *               the frame size
+	 * @param size the frame size
 	 * @return the sprite
 	 */
 	public Sprite scale(int size) {
@@ -116,8 +107,7 @@ public class Sprite implements View {
 
 	/**
 	 * 
-	 * @param i
-	 *            frame index
+	 * @param i frame index
 	 * @return i'th frame of the sprite
 	 */
 	public Image frame(int i) {
@@ -173,10 +163,8 @@ public class Sprite implements View {
 	/**
 	 * Draws the current animation frame and moves to the next animation frame.
 	 * 
-	 * @param g
-	 *            graphics context
+	 * @param g graphics context
 	 */
-	@Override
 	public void draw(Graphics2D g) {
 		Image frame = currentFrame();
 		if (frame != null) {
@@ -190,20 +178,16 @@ public class Sprite implements View {
 	/**
 	 * Creates an animation for this sprite.
 	 * 
-	 * @param type
-	 *                 the animation type
-	 * @param millis
-	 *                 the time in milliseconds for each animation frame
+	 * @param type   the animation type
+	 * @param millis the time in milliseconds for each animation frame
 	 */
 	public Sprite animate(AnimationType type, int millis) {
 		Objects.requireNonNull(type);
 		if (type == AnimationType.LINEAR) {
 			animation = new LinearAnimation(frames.length);
-		}
-		else if (type == AnimationType.BACK_AND_FORTH) {
+		} else if (type == AnimationType.BACK_AND_FORTH) {
 			animation = new BackForthAnimation(frames.length);
-		}
-		else if (type == AnimationType.CYCLIC) {
+		} else if (type == AnimationType.CYCLIC) {
 			animation = new CyclicAnimation(frames.length);
 		}
 		animation.setFrameDuration(millis);
@@ -218,8 +202,7 @@ public class Sprite implements View {
 	/**
 	 * Enables or disables the animation of this sprite.
 	 * 
-	 * @param enabled
-	 *                  the enabling state
+	 * @param enabled the enabling state
 	 */
 	public void enableAnimation(boolean enabled) {
 		if (animation != null) {

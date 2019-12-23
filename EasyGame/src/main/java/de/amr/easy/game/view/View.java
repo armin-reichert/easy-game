@@ -7,13 +7,12 @@ import java.awt.Graphics2D;
  * 
  * @author Armin Reichert
  */
-public interface View {
+public interface View extends Lifecycle {
 
 	/**
 	 * Called by the framework to draw the view.
 	 * 
-	 * @param g
-	 *            the graphics context used for drawing
+	 * @param g the graphics context used for drawing
 	 */
 	void draw(Graphics2D g);
 }
