@@ -7,22 +7,23 @@ import java.awt.geom.Rectangle2D;
 import de.amr.easy.game.entity.collision.Collider;
 import de.amr.easy.game.math.Vector2f;
 import de.amr.easy.game.ui.sprites.SpriteMap;
+import de.amr.easy.game.view.Controller;
 import de.amr.easy.game.view.View;
 
 /**
  * Base class for (game) entities.
  * <p>
- * An entity provides a {@link Transform transform} object that stores the position, velocity and
- * rotation of the object. Entities are also sensitive to collisions. By default, the transform's
- * position denotes the left upper corner of the collision box. Invisible entities do not trigger
- * collisions.
+ * An entity provides a {@link Transform transform} object that stores the
+ * position, velocity and rotation of the object. Entities are also sensitive to
+ * collisions. By default, the transform's position denotes the left upper
+ * corner of the collision box. Invisible entities do not trigger collisions.
  * 
  * <p>
  * Optionally, it can store sprites which can be referenced by string keys.
  * 
  * @author Armin Reichert
  */
-public abstract class Entity implements Collider, View {
+public abstract class Entity implements Collider, View, Controller {
 
 	/** The transform for this entity. */
 	public final Transform tf = new Transform();
@@ -30,7 +31,10 @@ public abstract class Entity implements Collider, View {
 	/** The sprite map for this entity. */
 	public final SpriteMap sprites = new SpriteMap();
 
-	/** Visibility of this entity. Invisible entities are not rendered and do not cause collisions. */
+	/**
+	 * Visibility of this entity. Invisible entities are not rendered and do not
+	 * cause collisions.
+	 */
 	protected boolean visible = true;
 
 	/** If <code>true</code> the collision box is drawn (for debugging). */
@@ -83,12 +87,14 @@ public abstract class Entity implements Collider, View {
 	/**
 	 * Initialization hook method.
 	 */
+	@Override
 	public void init() {
 	}
 
 	/**
 	 * Update ("tick") hook method.
 	 */
+	@Override
 	public void update() {
 	}
 
