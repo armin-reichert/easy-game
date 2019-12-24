@@ -46,7 +46,7 @@ public interface Sound {
 	/**
 	 * Sets the volume level of this sound.
 	 * 
-	 * @param v
+	 * @param v value between 0 and 1
 	 */
 	void volume(float v);
 }
