@@ -13,14 +13,14 @@ import java.util.function.BooleanSupplier;
 import de.amr.easy.game.entity.Entity;
 import de.amr.easy.game.ui.sprites.AnimationType;
 import de.amr.easy.game.ui.sprites.Sprite;
-import de.amr.easy.game.view.AnimationLifecycle;
+import de.amr.easy.game.view.Animation;
 
 /**
  * A multi-line text that can be moved over the screen.
  * 
  * @author Armin Reichert
  */
-public class TextWidget extends Entity implements AnimationLifecycle {
+public class TextWidget extends Entity implements Animation {
 
 	public static class Builder {
 

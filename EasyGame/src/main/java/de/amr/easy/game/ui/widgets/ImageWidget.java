@@ -6,14 +6,14 @@ import java.util.function.BooleanSupplier;
 
 import de.amr.easy.game.entity.Entity;
 import de.amr.easy.game.ui.sprites.Sprite;
-import de.amr.easy.game.view.AnimationLifecycle;
+import de.amr.easy.game.view.Animation;
 
 /**
  * An image that can be moved over the screen.
  * 
  * @author Armin Reichert
  */
-public class ImageWidget extends Entity implements AnimationLifecycle {
+public class ImageWidget extends Entity implements Animation {
 
 	private boolean moving;
 	private BooleanSupplier fnCompleted;
