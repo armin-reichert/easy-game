@@ -10,9 +10,12 @@ import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
-import java.util.logging.Level;
+import java.util.function.Consumer;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
+
+import javax.swing.UIManager;
+import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 
 import com.beust.jcommander.JCommander;
 
@@ -127,21 +130,48 @@ public abstract class Application {
 	public static void launch(Application app, String[] args) {
 		LOGGER.info(String.format("Launching application '%s' ", app.getClass().getSimpleName()));
 		JCommander.newBuilder().addObject(app.settings).build().parse(args);
+		try {
+			UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
+		} catch (Exception e) {
+			LOGGER.warning("Could not set Nimbus Look&Feel.");
+			e.printStackTrace();
+		}
+		app.init();
+		if (app.controller == null) {
+			app.controller = new AppInfoView(app);
+			app.controller.init();
+		}
+		app.changeState(State.INITIALIZED);
+		LOGGER.info("Application initialized.");
+		app.shell = new AppShell(app);
 		EventQueue.invokeLater(() -> {
-			app.shell = new AppShell(app);
-			app._init();
+			app.shell.display(app.settings.fullScreenOnStart);
 			app.start();
 		});
+	}
+
+	/**
+	 * Base class constructor. By default, applications run at 60 frames/second.
+	 */
+	public Application() {
+		INSTANCE = this;
+		settings = new AppSettings();
+		clock = new Clock(settings.fps, this::update, this::render);
+		collisionHandler = new CollisionHandler();
+		MouseHandler.INSTANCE.fnScale = () -> settings.scale;
+		state = State.NEW;
 	}
 
 	/** The settings of this application. */
 	public final AppSettings settings;
 
 	/** The clock defining the speed of the application. */
-	public Clock clock;
+	public final Clock clock;
 
 	/** The collision handler of this application. */
 	public final CollisionHandler collisionHandler;
+
+	public Consumer<Application> exitHandler;
 
 	/** The window displaying the current view of the application. */
 	private AppShell shell;
@@ -154,20 +184,6 @@ public abstract class Application {
 
 	/** State change listeners. */
 	private final Set<BiConsumer<State, State>> stateChangeListeners = new LinkedHashSet<>();
-
-	/** The application icon. */
-	private Image icon;
-
-	/**
-	 * Base class constructor. By default, applications run at 60 frames/second.
-	 */
-	public Application() {
-		INSTANCE = this;
-		settings = new AppSettings();
-		collisionHandler = new CollisionHandler();
-		MouseHandler.INSTANCE.fnScale = () -> settings.scale;
-		state = State.NEW;
-	}
 
 	public State getState() {
 		return state;
@@ -196,16 +212,6 @@ public abstract class Application {
 
 	/** Called when the application is initialized. */
 	public abstract void init();
-
-	private void _init() {
-		clock = new Clock(settings.fps, this::update, this::render);
-		Logger.getLogger(Clock.class.getName()).setLevel(Level.OFF);
-		controller = new AppInfoView(this);
-		controller.init();
-		init();
-		changeState(State.INITIALIZED);
-		LOGGER.info("Application initialized.");
-	}
 
 	/**
 	 * Makes the given controller the current one and optionally initializes it.
@@ -247,13 +253,12 @@ public abstract class Application {
 	/**
 	 * Sets the icon shown in the application window.
 	 * 
-	 * @param icon
-	 *               application icon
+	 * @param image
+	 *                application icon
 	 */
-	public void setIcon(Image icon) {
-		this.icon = icon;
+	public void setIcon(Image image) {
 		if (shell != null) {
-			shell.setIcon(icon);
+			shell.setIconImage(image);
 		}
 	}
 
@@ -261,7 +266,7 @@ public abstract class Application {
 	 * @return the application's icon
 	 */
 	public Image getIcon() {
-		return icon;
+		return shell != null ? shell.getIconImage() : null;
 	}
 
 	/** Starts the application. */
@@ -276,6 +281,9 @@ public abstract class Application {
 	 */
 	public final void exit() {
 		clock.stop();
+		if (exitHandler != null) {
+			exitHandler.accept(this);
+		}
 		LOGGER.info("Application terminated.");
 		System.exit(0);
 	}

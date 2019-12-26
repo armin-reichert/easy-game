@@ -7,6 +7,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.function.Supplier;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -17,6 +18,10 @@ import java.util.logging.Logger;
 public class Clock {
 
 	private static final Logger LOGGER = Logger.getLogger(Clock.class.getName());
+	
+	static {
+		LOGGER.setLevel(Level.OFF);
+	}
 
 	private static void log(Supplier<String> task, long nanos) {
 		LOGGER.info(() -> format("%-7s: %10.2f ms", task.get(), nanos / 1_000_000f));
