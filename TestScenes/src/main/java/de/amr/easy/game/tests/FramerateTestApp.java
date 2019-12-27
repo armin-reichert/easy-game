@@ -1,4 +1,4 @@
-package de.amr.easy.game.tests.framerate;
+package de.amr.easy.game.tests;
 
 import static de.amr.easy.game.Application.app;
 

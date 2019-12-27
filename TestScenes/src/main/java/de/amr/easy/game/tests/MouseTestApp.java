@@ -1,16 +1,35 @@
-package de.amr.easy.game.tests.mouse;
+package de.amr.easy.game.tests;
 
 import static java.lang.String.format;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
 
+import de.amr.easy.game.Application;
 import de.amr.easy.game.controller.Lifecycle;
 import de.amr.easy.game.input.Mouse;
 import de.amr.easy.game.ui.widgets.TextWidget;
 import de.amr.easy.game.view.View;
 
-public class MouseTestScene implements View, Lifecycle {
+public class MouseTestApp extends Application {
+
+	public static void main(String[] args) {
+		launch(new MouseTestApp(), args);
+	}
+
+	public MouseTestApp() {
+		settings.title = "Mouse Test";
+		settings.width = 800;
+		settings.height = 600;
+	}
+
+	@Override
+	public void init() {
+		setController(new MouseTestScene(this));
+	}
+}
+
+class MouseTestScene implements View, Lifecycle {
 
 	private final MouseTestApp app;
 	private TextWidget messageDisplay;

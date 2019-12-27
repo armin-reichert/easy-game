@@ -1,4 +1,4 @@
-package de.amr.easy.game.tests.drawing;
+package de.amr.easy.game.tests;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -7,12 +7,30 @@ import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.util.Random;
 
+import de.amr.easy.game.Application;
 import de.amr.easy.game.controller.Lifecycle;
 import de.amr.easy.game.input.Keyboard;
 import de.amr.easy.game.input.Mouse;
 import de.amr.easy.game.view.View;
 
-public class DrawingTestScene implements View, Lifecycle {
+public class DrawingTestApp extends Application {
+
+	public static void main(String[] args) {
+		launch(new DrawingTestApp(), args);
+	}
+
+	public DrawingTestApp() {
+		settings.title = "Drawing Test";
+	}
+
+	@Override
+	public void init() {
+		setController(new DrawingTestScene(this));
+	}
+
+}
+
+class DrawingTestScene implements View, Lifecycle {
 
 	private DrawingTestApp app;
 	private BufferedImage drawArea;
