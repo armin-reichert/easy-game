@@ -94,6 +94,7 @@ public class TextWidget extends Entity implements Animation {
 	private int blinkTimeMillis;
 	private int spaceExpansion;
 	private boolean moving;
+	private Sprite sprite;
 
 	private TextWidget() {
 		// debug_draw = true;
@@ -156,8 +157,7 @@ public class TextWidget extends Entity implements Animation {
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
 
 		// store sprite and set collision box
-		sprites.set("s_text", Sprite.of(image, null).animate(AnimationType.BACK_AND_FORTH, blinkTimeMillis / 2));
-		sprites.select("s_text");
+		sprite = Sprite.of(image, null).animate(AnimationType.BACK_AND_FORTH, blinkTimeMillis / 2);
 	}
 
 	public String getText() {
@@ -190,9 +190,7 @@ public class TextWidget extends Entity implements Animation {
 	}
 
 	public void setBlinkTime(int millis) {
-		sprites.current().ifPresent(sprite -> {
-			sprite.animate(AnimationType.BACK_AND_FORTH, millis);
-		});
+		sprite.animate(AnimationType.BACK_AND_FORTH, millis);
 	}
 
 	public void setSpaceExpansion(int spaceExpansion) {
@@ -202,6 +200,10 @@ public class TextWidget extends Entity implements Animation {
 
 	public void setCompletion(BooleanSupplier completion) {
 		this.fnCompleted = completion;
+	}
+
+	@Override
+	public void init() {
 	}
 
 	@Override
@@ -227,5 +229,16 @@ public class TextWidget extends Entity implements Animation {
 	@Override
 	public void stop() {
 		moving = false;
+	}
+
+	@Override
+	public void draw(Graphics2D g) {
+		if (visible()) {
+			g = (Graphics2D) g.create();
+			g.translate(tf.getX(), tf.getY());
+			g.rotate(tf.getRotation());
+			sprite.draw(g);
+			g.dispose();
+		}
 	}
 }

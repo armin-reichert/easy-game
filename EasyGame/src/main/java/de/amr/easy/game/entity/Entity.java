@@ -1,44 +1,29 @@
 package de.amr.easy.game.entity;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 
-import de.amr.easy.game.controller.Lifecycle;
 import de.amr.easy.game.entity.collision.Collider;
-import de.amr.easy.game.math.Vector2f;
-import de.amr.easy.game.ui.sprites.SpriteMap;
 import de.amr.easy.game.view.View;
 
 /**
  * Base class for (game) entities.
  * <p>
- * An entity provides a {@link Transform transform} object that stores the
- * position, velocity and rotation of the object. Entities are also sensitive to
- * collisions. By default, the transform's position denotes the left upper
- * corner of the collision box. Invisible entities do not trigger collisions.
- * 
- * <p>
- * Optionally, it can store sprites which can be referenced by string keys.
+ * An entity provides a {@link Transform transform} object that stores the position, velocity and
+ * rotation of the object. Entities are also sensitive to collisions. By default, the transform's
+ * position denotes the left upper corner of the collision box. Invisible entities do not trigger
+ * collisions.
  * 
  * @author Armin Reichert
  */
-public abstract class Entity implements Collider, View, Lifecycle {
+public abstract class Entity implements Collider, View {
 
 	/** The transform for this entity. */
 	public final Transform tf = new Transform();
 
-	/** The sprite map for this entity. */
-	public final SpriteMap sprites = new SpriteMap();
-
 	/**
-	 * Visibility of this entity. Invisible entities are not rendered and do not
-	 * cause collisions.
+	 * Visibility of this entity. Invisible entities are not rendered and do not cause collisions.
 	 */
 	protected boolean visible = true;
-
-	/** If <code>true</code> the collision box is drawn (for debugging). */
-	public boolean showCollisionBox = false;
 
 	/**
 	 * Makes this entity visible.
@@ -59,43 +44,6 @@ public abstract class Entity implements Collider, View, Lifecycle {
 	 */
 	public boolean visible() {
 		return visible;
-	}
-
-	@Override
-	public void draw(Graphics2D g) {
-		if (!visible) {
-			return;
-		}
-		if (showCollisionBox) {
-			g.translate(tf.getX(), tf.getY());
-			g.setColor(Color.RED);
-			g.drawRect(0, 0, tf.getWidth(), tf.getHeight());
-			g.translate(-tf.getX(), -tf.getY());
-		}
-		sprites.current().ifPresent(sprite -> {
-			Vector2f center = tf.getCenter();
-			float dx = center.x - sprite.getWidth() / 2;
-			float dy = center.y - sprite.getHeight() / 2;
-			Graphics2D g2 = (Graphics2D) g.create();
-			g2.translate(dx, dy);
-			g2.rotate(tf.getRotation());
-			sprite.draw(g2);
-			g2.dispose();
-		});
-	}
-
-	/**
-	 * Initialization hook method.
-	 */
-	@Override
-	public void init() {
-	}
-
-	/**
-	 * Update ("tick") hook method.
-	 */
-	@Override
-	public void update() {
 	}
 
 	@Override

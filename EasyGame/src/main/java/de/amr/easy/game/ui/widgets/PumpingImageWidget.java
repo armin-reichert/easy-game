@@ -3,14 +3,17 @@ package de.amr.easy.game.ui.widgets;
 import static de.amr.easy.game.ui.sprites.AnimationType.BACK_AND_FORTH;
 import static java.lang.Math.round;
 
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.util.Objects;
 
+import de.amr.easy.game.controller.Lifecycle;
 import de.amr.easy.game.entity.Entity;
+import de.amr.easy.game.math.Vector2f;
 import de.amr.easy.game.ui.sprites.Sprite;
 
-public class PumpingImageWidget extends Entity {
+public class PumpingImageWidget extends Entity implements Lifecycle {
 
 	public static class Builder {
 
@@ -57,6 +60,7 @@ public class PumpingImageWidget extends Entity {
 	}
 
 	private Image image;
+	private Sprite sprite;
 	private int frameCount;
 	private float scale;
 	private int periodMillis;
@@ -80,12 +84,31 @@ public class PumpingImageWidget extends Entity {
 			int frameHeight = round(height + i * delta * height);
 			frames[i] = image.getScaledInstance(-1, frameHeight, BufferedImage.SCALE_FAST);
 		}
-		Sprite sprite = Sprite.of(frames);
+		sprite = Sprite.of(frames);
 		sprite.animate(BACK_AND_FORTH, periodMillis / frameCount);
 		sprite.enableAnimation(true);
-		sprites.set("s_image", sprite);
-		sprites.select("s_image");
 		tf.setWidth(sprite.getMaxWidth());
 		tf.setHeight(sprite.getMaxHeight());
+	}
+
+	@Override
+	public void init() {
+	}
+
+	@Override
+	public void update() {
+	}
+
+	@Override
+	public void draw(Graphics2D g) {
+		if (visible()) {
+			g = (Graphics2D) g.create();
+			Vector2f center = tf.getCenter();
+			int dx = -sprite.getWidth() / 2, dy = -sprite.getHeight() / 2;
+			g.translate(center.x + dx, center.y + dy);
+			g.rotate(tf.getRotation());
+			sprite.draw(g);
+			g.dispose();
+		}
 	}
 }

@@ -19,7 +19,6 @@ import de.amr.easy.game.Application;
 import de.amr.easy.game.controller.Lifecycle;
 import de.amr.easy.game.entity.Entity;
 import de.amr.easy.game.input.Mouse;
-import de.amr.easy.game.view.View;
 
 /**
  * A link widget.
@@ -29,7 +28,7 @@ import de.amr.easy.game.view.View;
  * 
  * @author Armin Reichert
  */
-public class LinkWidget extends Entity implements View, Lifecycle {
+public class LinkWidget extends Entity implements Lifecycle {
 
 	public static class Builder {
 
@@ -134,6 +133,10 @@ public class LinkWidget extends Entity implements View, Lifecycle {
 		} catch (MalformedURLException e) {
 			Application.LOGGER.info("Invalid link URL: " + spec);
 		}
+	}
+
+	@Override
+	public void init() {
 	}
 
 	@Override
