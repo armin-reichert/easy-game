@@ -4,10 +4,10 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 
+import de.amr.easy.game.controller.Lifecycle;
 import de.amr.easy.game.entity.collision.Collider;
 import de.amr.easy.game.math.Vector2f;
 import de.amr.easy.game.ui.sprites.SpriteMap;
-import de.amr.easy.game.view.Lifecycle;
 import de.amr.easy.game.view.View;
 
 /**

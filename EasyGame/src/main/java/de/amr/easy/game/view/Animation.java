@@ -1,5 +1,7 @@
 package de.amr.easy.game.view;
 
-public interface Animation extends AnimationLifecycle, View {
+import de.amr.easy.game.controller.Lifecycle;
+
+public interface Animation extends Lifecycle, View {
 
 }

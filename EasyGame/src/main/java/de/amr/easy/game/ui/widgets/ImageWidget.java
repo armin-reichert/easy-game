@@ -44,7 +44,7 @@ public class ImageWidget extends Entity implements Animation {
 	}
 
 	@Override
-	public boolean complete() {
+	public boolean isComplete() {
 		return fnCompleted.getAsBoolean();
 	}
 
@@ -52,7 +52,7 @@ public class ImageWidget extends Entity implements Animation {
 	public void update() {
 		if (moving) {
 			tf.move();
-			if (complete()) {
+			if (isComplete()) {
 				stop();
 			}
 		}

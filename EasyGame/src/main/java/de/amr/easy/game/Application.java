@@ -20,6 +20,7 @@ import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 import com.beust.jcommander.JCommander;
 
 import de.amr.easy.game.config.AppSettings;
+import de.amr.easy.game.controller.Lifecycle;
 import de.amr.easy.game.entity.collision.CollisionHandler;
 import de.amr.easy.game.input.Keyboard;
 import de.amr.easy.game.input.Keyboard.Modifier;
@@ -28,7 +29,6 @@ import de.amr.easy.game.input.MouseHandler;
 import de.amr.easy.game.timing.Clock;
 import de.amr.easy.game.ui.AppInfoView;
 import de.amr.easy.game.ui.AppShell;
-import de.amr.easy.game.view.Lifecycle;
 import de.amr.easy.game.view.View;
 import de.amr.easy.game.view.VisualController;
 

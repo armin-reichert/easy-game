@@ -9,8 +9,8 @@ import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 
 import de.amr.easy.game.Application;
+import de.amr.easy.game.controller.Lifecycle;
 import de.amr.easy.game.ui.widgets.TextWidget;
-import de.amr.easy.game.view.Lifecycle;
 import de.amr.easy.game.view.View;
 
 /**

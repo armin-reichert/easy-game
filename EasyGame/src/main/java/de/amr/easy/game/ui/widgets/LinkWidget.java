@@ -16,9 +16,9 @@ import java.util.Map;
 import java.util.Objects;
 
 import de.amr.easy.game.Application;
+import de.amr.easy.game.controller.Lifecycle;
 import de.amr.easy.game.entity.Entity;
 import de.amr.easy.game.input.Mouse;
-import de.amr.easy.game.view.Lifecycle;
 import de.amr.easy.game.view.View;
 
 /**

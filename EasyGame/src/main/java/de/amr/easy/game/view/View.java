@@ -2,6 +2,8 @@ package de.amr.easy.game.view;
 
 import java.awt.Graphics2D;
 
+import de.amr.easy.game.controller.Lifecycle;
+
 /**
  * A drawable screen area.
  * 

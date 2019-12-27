@@ -208,14 +208,14 @@ public class TextWidget extends Entity implements Animation {
 	public void update() {
 		if (moving) {
 			tf.move();
-			if (complete()) {
+			if (isComplete()) {
 				stop();
 			}
 		}
 	}
 
 	@Override
-	public boolean complete() {
+	public boolean isComplete() {
 		return fnCompleted.getAsBoolean();
 	}
 

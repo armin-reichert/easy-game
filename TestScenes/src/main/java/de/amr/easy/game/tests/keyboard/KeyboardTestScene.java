@@ -7,8 +7,8 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.KeyEvent;
 
+import de.amr.easy.game.controller.Lifecycle;
 import de.amr.easy.game.input.Keyboard;
-import de.amr.easy.game.view.Lifecycle;
 import de.amr.easy.game.view.View;
 
 public class KeyboardTestScene implements View, Lifecycle {
