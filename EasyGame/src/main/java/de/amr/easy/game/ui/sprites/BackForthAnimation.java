@@ -1,6 +1,6 @@
 package de.amr.easy.game.ui.sprites;
 
-public class BackForthAnimation extends Animation {
+public class BackForthAnimation extends SpriteAnimation {
 
 	private boolean forward;
 

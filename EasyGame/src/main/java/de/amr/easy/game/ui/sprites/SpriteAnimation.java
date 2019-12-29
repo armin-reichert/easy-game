@@ -6,7 +6,7 @@ package de.amr.easy.game.ui.sprites;
  * 
  * @author Armin Reichert
  */
-public abstract class Animation {
+public abstract class SpriteAnimation {
 
 	protected final int numFrames;
 	protected boolean enabled;
@@ -15,7 +15,7 @@ public abstract class Animation {
 	protected long frameTime;
 	protected long lastUpdateTime;
 
-	protected Animation(int numFrames) {
+	protected SpriteAnimation(int numFrames) {
 		this.numFrames = numFrames;
 		enabled = true;
 		frameDurationMillis = 333;

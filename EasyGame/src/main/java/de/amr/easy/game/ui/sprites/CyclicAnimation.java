@@ -1,6 +1,6 @@
 package de.amr.easy.game.ui.sprites;
 
-public class CyclicAnimation extends Animation {
+public class CyclicAnimation extends SpriteAnimation {
 
 	public CyclicAnimation(int numFrames) {
 		super(numFrames);

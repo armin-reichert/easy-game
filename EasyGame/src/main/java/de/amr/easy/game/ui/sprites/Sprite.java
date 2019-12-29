@@ -17,7 +17,7 @@ import de.amr.easy.game.assets.Assets;
 public class Sprite {
 
 	private Image[] frames;
-	private Animation animation;
+	private SpriteAnimation animation;
 
 	private Sprite() {
 		/* use static factory method instead */

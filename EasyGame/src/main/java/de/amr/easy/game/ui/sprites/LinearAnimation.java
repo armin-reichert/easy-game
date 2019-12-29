@@ -1,6 +1,6 @@
 package de.amr.easy.game.ui.sprites;
 
-public class LinearAnimation extends Animation {
+public class LinearAnimation extends SpriteAnimation {
 
 	public LinearAnimation(int numFrames) {
 		super(numFrames);
