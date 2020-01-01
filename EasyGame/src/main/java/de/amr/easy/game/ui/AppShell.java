@@ -30,14 +30,16 @@ import de.amr.easy.game.input.MouseHandler;
 import de.amr.easy.game.view.View;
 
 /**
- * The application shell provides the window where the current view of the application is rendered.
+ * The application shell provides the window where the current view of the
+ * application is rendered.
  * <p>
- * In window mode, the view is rendered to a double-buffered canvas which is the single child of the
- * application frame.
+ * In window mode, the view is rendered to a double-buffered canvas which is the
+ * single child of the application frame.
  * 
  * <p>
- * In full-screen-exclusive mode, the view is rendered into a full-screen-exclusive frame. In both
- * cases, active rendering with the frequency of the application clock is performed.
+ * In full-screen-exclusive mode, the view is rendered into a
+ * full-screen-exclusive frame. In both cases, active rendering with the
+ * frequency of the application clock is performed.
  * 
  * <p>
  * The F11-key toggles between full-screen-exclusive and window mode.
@@ -57,7 +59,7 @@ public class AppShell extends JFrame {
 		}
 	};
 
-	private final Application app;
+	private final Application<?> app;
 	private final GraphicsDevice device;
 	private final Canvas canvas;
 	private final JFrame fullScreenWindow;
@@ -65,7 +67,7 @@ public class AppShell extends JFrame {
 	private AppSettingsDialog settingsDialog;
 	private volatile boolean renderingEnabled;
 
-	public AppShell(Application app) {
+	public AppShell(Application<?> app) {
 		this.app = app;
 		device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 		if (app.settings.fullScreenMode == null) {
@@ -101,8 +103,7 @@ public class AppShell extends JFrame {
 		}
 		if (inFullScreenMode()) {
 			LOGGER.info("Settings dialog cannot be opened in full-screen mode");
-		}
-		else {
+		} else {
 			settingsDialog.setVisible(true);
 		}
 	}
@@ -114,8 +115,7 @@ public class AppShell extends JFrame {
 			} catch (FullScreenModeException e) {
 				displayWindow();
 			}
-		}
-		else {
+		} else {
 			displayWindow();
 		}
 	}
@@ -135,8 +135,7 @@ public class AppShell extends JFrame {
 	public void toggleDisplayMode() {
 		if (inFullScreenMode()) {
 			displayWindow();
-		}
-		else {
+		} else {
 			try {
 				displayFullScreen();
 			} catch (FullScreenModeException e) {
@@ -152,8 +151,8 @@ public class AppShell extends JFrame {
 		window.setResizable(false);
 		window.setIgnoreRepaint(true);
 		window.addWindowListener(new WindowClosingHandler());
-		window.setCursor(window.getToolkit()
-				.createCustomCursor(new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB), new Point(), null));
+		window.setCursor(window.getToolkit().createCustomCursor(new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB),
+				new Point(), null));
 		MouseHandler.handleMouseEventsFor(window);
 		KeyboardHandler.handleKeyEventsFor(window);
 		return window;
@@ -186,8 +185,7 @@ public class AppShell extends JFrame {
 			fullScreenWindow.createBufferStrategy(2);
 			fullScreenWindow.requestFocus();
 			LOGGER.info("Entered full-screen mode " + getText(mode));
-		}
-		else {
+		} else {
 			device.setFullScreenWindow(null);
 			throw new FullScreenModeException("Display change not supported: " + getText(mode));
 		}
@@ -204,8 +202,8 @@ public class AppShell extends JFrame {
 	}
 
 	private String getText(DisplayMode mode) {
-		return format("%d x %d, depth: %d, refresh rate: %s", mode.getWidth(), mode.getHeight(),
-				mode.getBitDepth(), mode.getRefreshRate() == 0 ? "unknown" : mode.getRefreshRate() + " Hz");
+		return format("%d x %d, depth: %d, refresh rate: %s", mode.getWidth(), mode.getHeight(), mode.getBitDepth(),
+				mode.getRefreshRate() == 0 ? "unknown" : mode.getRefreshRate() + " Hz");
 	}
 
 	private String getTitle(int ups, int fps) {
@@ -250,16 +248,14 @@ public class AppShell extends JFrame {
 					((double) fullScreenWindow.getHeight()) / unscaledHeight);
 			double scaledWidth = zoom * unscaledWidth;
 			double scaledHeight = zoom * unscaledHeight;
-			g.translate((fullScreenWindow.getWidth() - scaledWidth) / 2,
-					(fullScreenWindow.getHeight() - scaledHeight) / 2);
+			g.translate((fullScreenWindow.getWidth() - scaledWidth) / 2, (fullScreenWindow.getHeight() - scaledHeight) / 2);
 			g.setClip(0, 0, (int) scaledWidth, (int) scaledHeight);
 			g.scale(zoom, zoom);
 			view.draw(g);
 			if (app.isPaused()) {
 				drawCenteredText(g, PAUSED_TEXT, unscaledWidth, unscaledHeight);
 			}
-		}
-		else {
+		} else {
 			int width = canvas.getWidth(), height = canvas.getHeight();
 			g.fillRect(0, 0, width, height);
 			g.scale(app.settings.scale, app.settings.scale);

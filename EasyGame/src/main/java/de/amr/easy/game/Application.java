@@ -35,9 +35,9 @@ import de.amr.easy.game.view.VisualController;
 /**
  * Application base class.
  * <p>
- * Static method {@code launch(Application, String[])} shows the application UI and starts the
- * application. Command-line arguments override the corresponding application settings. The
- * following arguments are supported:
+ * Static method {@code launch(Application, String[])} shows the application UI
+ * and starts the application. Command-line arguments override the corresponding
+ * application settings. The following arguments are supported:
  * <ul>
  * <li>-width <i>pixels</i>
  * <li>-height <i>pixels</i>
@@ -87,7 +87,7 @@ import de.amr.easy.game.view.VisualController;
  * 
  * @author Armin Reichert
  */
-public abstract class Application {
+public abstract class Application<S extends AppSettings> {
 
 	public enum State {
 		NEW, INITIALIZED, RUNNING, PAUSED;
@@ -111,23 +111,21 @@ public abstract class Application {
 	public static final Logger LOGGER = createLogger();
 
 	/** Static reference to the application instance. */
-	private static Application INSTANCE;
+	private static Application<?> INSTANCE;
 
 	/** Static access to application instance. */
-	public static Application app() {
+	public static Application<?> app() {
 		return INSTANCE;
 	}
 
 	/**
-	 * Launches the specified application. The arguments are parsed and assigned to the application
-	 * settings.
+	 * Launches the specified application. The arguments are parsed and assigned to
+	 * the application settings.
 	 * 
-	 * @param app
-	 *               application instance
-	 * @param args
-	 *               command-line arguments
+	 * @param app  application instance
+	 * @param args command-line arguments
 	 */
-	public static void launch(Application app, String[] args) {
+	public static void launch(Application<?> app, String[] args) {
 		LOGGER.info(String.format("Launching application '%s' ", app.getClass().getSimpleName()));
 		JCommander.newBuilder().addObject(app.settings).build().parse(args);
 		try {
@@ -150,12 +148,14 @@ public abstract class Application {
 		});
 	}
 
+	public abstract S createAppSettings();
+
 	/**
 	 * Base class constructor. By default, applications run at 60 frames/second.
 	 */
 	public Application() {
 		INSTANCE = this;
-		settings = new AppSettings();
+		settings = createAppSettings();
 		clock = new Clock(settings.fps, this::update, this::render);
 		collisionHandler = new CollisionHandler();
 		MouseHandler.INSTANCE.fnScale = () -> settings.scale;
@@ -163,7 +163,7 @@ public abstract class Application {
 	}
 
 	/** The settings of this application. */
-	public final AppSettings settings;
+	public final S settings;
 
 	/** The clock defining the speed of the application. */
 	public final Clock clock;
@@ -171,7 +171,7 @@ public abstract class Application {
 	/** The collision handler of this application. */
 	public final CollisionHandler collisionHandler;
 
-	public Consumer<Application> exitHandler;
+	public Consumer<Application<?>> exitHandler;
 
 	/** The window displaying the current view of the application. */
 	private AppShell shell;
@@ -216,10 +216,8 @@ public abstract class Application {
 	/**
 	 * Makes the given controller the current one and optionally initializes it.
 	 * 
-	 * @param controller
-	 *                     a controller
-	 * @param initialize
-	 *                     if the controller should be initialized
+	 * @param controller a controller
+	 * @param initialize if the controller should be initialized
 	 */
 	public void setController(Lifecycle controller, boolean initialize) {
 		if (controller == null) {
@@ -243,8 +241,7 @@ public abstract class Application {
 	/**
 	 * Sets the given controller and initializes it.
 	 * 
-	 * @param controller
-	 *                     a controller
+	 * @param controller a controller
 	 */
 	public void setController(Lifecycle controller) {
 		setController(controller, true);
@@ -253,8 +250,7 @@ public abstract class Application {
 	/**
 	 * Sets the icon shown in the application window.
 	 * 
-	 * @param image
-	 *                application icon
+	 * @param image application icon
 	 */
 	public void setIcon(Image image) {
 		if (shell != null) {

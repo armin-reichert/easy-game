@@ -7,12 +7,12 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.KeyEvent;
 
-import de.amr.easy.game.Application;
+import de.amr.easy.game.GenericApplication;
 import de.amr.easy.game.controller.Lifecycle;
 import de.amr.easy.game.input.Keyboard;
 import de.amr.easy.game.view.View;
 
-public class KeyboardTestApp extends Application {
+public class KeyboardTestApp extends GenericApplication {
 
 	public static void main(String[] args) {
 		launch(new KeyboardTestApp(), args);
@@ -73,8 +73,7 @@ class KeyboardTestScene implements View, Lifecycle {
 		}
 		FontMetrics fm = g.getFontMetrics();
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-		g.drawString(text, (getWidth() - fm.stringWidth(text)) / 2,
-				(getHeight() - fm.getHeight()) / 2 + fm.getAscent());
+		g.drawString(text, (getWidth() - fm.stringWidth(text)) / 2, (getHeight() - fm.getHeight()) / 2 + fm.getAscent());
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
 	}
 }

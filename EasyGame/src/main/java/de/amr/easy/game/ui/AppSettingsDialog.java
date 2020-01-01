@@ -35,12 +35,11 @@ public class AppSettingsDialog extends JDialog {
 		}
 
 		@Override
-		public Component getListCellRendererComponent(JList<? extends DisplayMode> list, DisplayMode mode,
-				int index, boolean isSelected, boolean cellHasFocus) {
+		public Component getListCellRendererComponent(JList<? extends DisplayMode> list, DisplayMode mode, int index,
+				boolean isSelected, boolean cellHasFocus) {
 			String text = "";
 			if (mode != null) {
-				text = String.format("%d x %d Pixel, %d Bit, %s Hz", mode.getWidth(), mode.getHeight(),
-						mode.getBitDepth(),
+				text = String.format("%d x %d Pixel, %d Bit, %s Hz", mode.getWidth(), mode.getHeight(), mode.getBitDepth(),
 						mode.getRefreshRate() == 0 ? "unknown" : String.valueOf(mode.getRefreshRate()));
 			}
 			setText(text);
@@ -51,7 +50,7 @@ public class AppSettingsDialog extends JDialog {
 	private JSlider sliderFPS;
 	private DisplayModeItemRenderer displayModeComboRenderer = new DisplayModeItemRenderer();
 
-	public AppSettingsDialog(JFrame parent, Application app) {
+	public AppSettingsDialog(JFrame parent, Application<?> app) {
 		super(parent);
 		setSize(600, 150);
 		setTitle(String.format("Application '%s'", app.settings.title));
@@ -106,14 +105,12 @@ public class AppSettingsDialog extends JDialog {
 	}
 
 	private ComboBoxModel<DisplayMode> createComboModel() {
-		DisplayMode[] modes = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice()
-				.getDisplayModes();
+		DisplayMode[] modes = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayModes();
 		Vector<DisplayMode> withoutDuplicates = new Vector<>();
 		boolean duplicate = false;
 		for (int i = 0; i < modes.length; ++i) {
 			if (i > 0) {
-				duplicate = modes[i - 1].getWidth() == modes[i].getWidth()
-						&& modes[i - 1].getHeight() == modes[i].getHeight()
+				duplicate = modes[i - 1].getWidth() == modes[i].getWidth() && modes[i - 1].getHeight() == modes[i].getHeight()
 						&& modes[i - 1].getBitDepth() == modes[i].getBitDepth();
 			}
 			if (!duplicate) {
