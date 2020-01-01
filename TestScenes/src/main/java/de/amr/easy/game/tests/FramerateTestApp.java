@@ -13,9 +13,9 @@ import java.util.logging.Logger;
 import de.amr.easy.game.Application;
 import de.amr.easy.game.GenericApplication;
 import de.amr.easy.game.controller.Lifecycle;
+import de.amr.easy.game.entity.Entity;
 import de.amr.easy.game.input.Keyboard;
 import de.amr.easy.game.timing.Clock;
-import de.amr.easy.game.view.View;
 
 public class FramerateTestApp extends GenericApplication {
 
@@ -37,7 +37,7 @@ public class FramerateTestApp extends GenericApplication {
 	}
 }
 
-class FramerateTestScene implements View, Lifecycle {
+class FramerateTestScene extends Entity implements Lifecycle {
 
 	private Image bgImg;
 	private int sampleIndex;

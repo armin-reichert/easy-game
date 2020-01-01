@@ -28,6 +28,7 @@ public abstract class Entity implements Collider, View {
 	/**
 	 * Makes this entity visible.
 	 */
+	@Override
 	public void show() {
 		visible = true;
 	}
@@ -35,6 +36,7 @@ public abstract class Entity implements Collider, View {
 	/**
 	 * Makes this entity invisible.
 	 */
+	@Override
 	public void hide() {
 		visible = false;
 	}

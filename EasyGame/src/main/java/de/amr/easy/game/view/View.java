@@ -3,14 +3,25 @@ package de.amr.easy.game.view;
 import java.awt.Graphics2D;
 
 /**
- * A drawable screen area.
+ * A visible screen area that can be drawn into.
  * 
  * @author Armin Reichert
  */
 public interface View {
 
 	/**
-	 * Called by the framework to draw the view.
+	 * Makes the view visible.
+	 */
+	void show();
+
+	/**
+	 * Makes the view invisible.
+	 * 
+	 */
+	void hide();
+
+	/**
+	 * Draws the content of the view.
 	 * 
 	 * @param g
 	 *            the graphics context used for drawing

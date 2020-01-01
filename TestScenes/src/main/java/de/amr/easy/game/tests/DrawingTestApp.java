@@ -9,9 +9,9 @@ import java.util.Random;
 
 import de.amr.easy.game.GenericApplication;
 import de.amr.easy.game.controller.Lifecycle;
+import de.amr.easy.game.entity.Entity;
 import de.amr.easy.game.input.Keyboard;
 import de.amr.easy.game.input.Mouse;
-import de.amr.easy.game.view.View;
 
 public class DrawingTestApp extends GenericApplication {
 
@@ -30,7 +30,7 @@ public class DrawingTestApp extends GenericApplication {
 
 }
 
-class DrawingTestScene implements View, Lifecycle {
+class DrawingTestScene extends Entity implements Lifecycle {
 
 	private DrawingTestApp app;
 	private BufferedImage drawArea;
@@ -52,11 +52,13 @@ class DrawingTestScene implements View, Lifecycle {
 
 	@Override
 	public void draw(Graphics2D g) {
-		g.drawImage(drawArea, 0, 0, null);
-		g.setColor(Color.GREEN);
-		g.setStroke(new BasicStroke(6));
-		g.drawRect(0, 0, getWidth(), getHeight());
-		g.drawString("Pen width: " + penWidth + " (Press +/- to change)", 20, 20);
+		if (visible()) {
+			g.drawImage(drawArea, 0, 0, null);
+			g.setColor(Color.GREEN);
+			g.setStroke(new BasicStroke(6));
+			g.drawRect(0, 0, getWidth(), getHeight());
+			g.drawString("Pen width: " + penWidth + " (Press +/- to change)", 20, 20);
+		}
 	}
 
 	@Override

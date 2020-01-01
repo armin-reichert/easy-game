@@ -10,15 +10,15 @@ import java.awt.GraphicsEnvironment;
 
 import de.amr.easy.game.Application;
 import de.amr.easy.game.controller.Lifecycle;
+import de.amr.easy.game.entity.Entity;
 import de.amr.easy.game.ui.widgets.TextWidget;
-import de.amr.easy.game.view.View;
 
 /**
  * This view displays general application info.
  * 
  * @author Armin Reichert
  */
-public class AppInfoView implements Lifecycle, View {
+public class AppInfoView extends Entity implements Lifecycle {
 
 	private final Application<?> app;
 	private TextWidget text;

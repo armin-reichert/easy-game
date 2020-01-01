@@ -9,8 +9,8 @@ import java.awt.event.KeyEvent;
 
 import de.amr.easy.game.GenericApplication;
 import de.amr.easy.game.controller.Lifecycle;
+import de.amr.easy.game.entity.Entity;
 import de.amr.easy.game.input.Keyboard;
-import de.amr.easy.game.view.View;
 
 public class KeyboardTestApp extends GenericApplication {
 
@@ -24,7 +24,7 @@ public class KeyboardTestApp extends GenericApplication {
 	}
 }
 
-class KeyboardTestScene implements View, Lifecycle {
+class KeyboardTestScene extends Entity implements Lifecycle {
 
 	private boolean alt, control, shift;
 	private int keyCode;
