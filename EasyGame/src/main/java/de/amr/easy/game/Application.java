@@ -157,39 +157,36 @@ public abstract class Application {
 		});
 	}
 
-	public final CollisionHandler collisionHandler;
-	private Consumer<Application> exitHandler;
-
 	private final AppSettings settings;
 	private final Clock clock;
+	private CollisionHandler collisionHandler;
+	private Consumer<Application> exitHandler;
 	private AppShell shell;
 	private Lifecycle controller;
 	private ApplicationState state;
 
-	/**
-	 * Base class constructor. By default, applications run at 60 frames/second.
-	 */
 	public Application() {
 		APP = this;
 		settings = createAppSettings();
 		clock = new Clock(settings.fps, this::update, this::render);
-		// TODO make this optional:
-		collisionHandler = new CollisionHandler();
 		MouseHandler.INSTANCE.fnScale = () -> settings.scale;
 		state = ApplicationState.NEW;
 	}
 
 	/**
-	 * Can be overridden by application to provide additional settings.
-	 * 
-	 * @return the settings object
+	 * Initialization hook for application. Application should set its controller in this method.
 	 */
+	public abstract void init();
+
 	protected AppSettings createAppSettings() {
 		return new AppSettings();
 	}
 
-	public ApplicationState getState() {
-		return state;
+	public CollisionHandler collisionHandler() {
+		if (collisionHandler == null) {
+			collisionHandler = new CollisionHandler();
+		}
+		return collisionHandler;
 	}
 
 	public AppSettings settings() {
@@ -204,16 +201,9 @@ public abstract class Application {
 		this.exitHandler = Objects.requireNonNull(exitHandler);
 	}
 
-	private void changeState(ApplicationState newState) {
-		ApplicationState oldState = state;
-		if (oldState != newState) {
-			state = newState;
-			LOGGER.info(String.format("Application state changes from '%s' to '%s'", oldState, newState));
-		}
+	public Lifecycle getController() {
+		return controller;
 	}
-
-	/** Called when the application is initialized. */
-	public abstract void init();
 
 	/**
 	 * Makes the given controller the current one and optionally initializes it.
@@ -225,39 +215,32 @@ public abstract class Application {
 	 */
 	public void setController(Lifecycle controller, boolean initialize) {
 		if (controller == null) {
-			throw new IllegalArgumentException("Controller cannot be null");
+			throw new IllegalArgumentException("Controller must not be null.");
 		}
-		this.controller = controller;
-		LOGGER.info("Controller set: " + controller);
-		if (initialize) {
-			controller.init();
-			LOGGER.info("Controller initialized.");
+		if (controller != this.controller) {
+			this.controller = controller;
+			LOGGER.info("New controller is " + controller);
+			if (initialize) {
+				controller.init();
+				LOGGER.info("Controller initialized.");
+			}
 		}
 	}
 
 	/**
-	 * @return the current controller
-	 */
-	public Lifecycle getController() {
-		return controller;
-	}
-
-	/**
-	 * Sets the given controller and initializes it.
+	 * Sets the given controller and calls its initializer method.
 	 * 
 	 * @param controller
-	 *                     a controller
+	 *                     new controller
 	 */
 	public void setController(Lifecycle controller) {
 		setController(controller, true);
 	}
 
-	/**
-	 * Sets the icon shown in the application window.
-	 * 
-	 * @param image
-	 *                application icon
-	 */
+	public Image getIcon() {
+		return shell != null ? shell.getIconImage() : null;
+	}
+
 	public void setIcon(Image image) {
 		if (shell != null) {
 			shell.setIconImage(image);
@@ -265,14 +248,8 @@ public abstract class Application {
 	}
 
 	/**
-	 * @return the application's icon
-	 */
-	public Image getIcon() {
-		return shell != null ? shell.getIconImage() : null;
-	}
-
-	/**
-	 * Exits the application and the Java VM.
+	 * Called when the application shell is closed. Stops the clock, executes the optional exit handler and terminates the
+	 * VM.
 	 */
 	public final void exit() {
 		clock.stop();
@@ -283,13 +260,16 @@ public abstract class Application {
 		System.exit(0);
 	}
 
-	/**
-	 * Tells if the application is paused.
-	 * 
-	 * @return if the application is paused
-	 */
 	public boolean isPaused() {
 		return state == ApplicationState.PAUSED;
+	}
+
+	private void changeState(ApplicationState newState) {
+		ApplicationState oldState = state;
+		if (oldState != newState) {
+			state = newState;
+			LOGGER.info(String.format("Application state changes from '%s' to '%s'", oldState, newState));
+		}
 	}
 
 	private void update() {
@@ -330,10 +310,10 @@ public abstract class Application {
 	}
 
 	private void render() {
-		getCurrentView().ifPresent(view -> shell.render(view));
+		currentView().ifPresent(shell::render);
 	}
 
-	private Optional<View> getCurrentView() {
+	private Optional<View> currentView() {
 		if (controller instanceof View) {
 			return Optional.ofNullable((View) controller);
 		}
@@ -342,5 +322,4 @@ public abstract class Application {
 		}
 		return Optional.empty();
 	}
-
 }
