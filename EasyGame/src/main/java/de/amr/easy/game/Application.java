@@ -117,7 +117,7 @@ public abstract class Application {
 			throw new IllegalArgumentException("Cannot launch application, got NULL as application reference");
 		}
 
-		LOGGER.info(String.format("Launching application '%s' ", app.getClass().getSimpleName()));
+		LOGGER.info(String.format("Launching application '%s' ", app.getClass().getName()));
 
 		// 1. Parse command-line
 		JCommander.newBuilder().addObject(app.settings).build().parse(args);
