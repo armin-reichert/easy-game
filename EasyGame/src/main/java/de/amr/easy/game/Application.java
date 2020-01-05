@@ -100,6 +100,9 @@ public abstract class Application {
 
 	/** Static access to application instance. */
 	public static Application app() {
+		if (APP == null) {
+			throw new IllegalStateException("Application instance not yet accessible at this point");
+		}
 		return APP;
 	}
 
@@ -112,49 +115,12 @@ public abstract class Application {
 	 *               command-line arguments
 	 */
 	public static void launch(Application app, String[] args) {
-
 		if (app == null) {
 			throw new IllegalArgumentException("Cannot launch application, got NULL as application reference");
 		}
-
-		LOGGER.info(String.format("Launching application '%s' ", app.getClass().getName()));
-
-		// 1. Parse command-line
+		APP = app;
 		JCommander.newBuilder().addObject(app.settings).build().parse(args);
-
-		// Continue on the event-dispatch thread
-		SwingUtilities.invokeLater(() -> {
-
-			// 2. Set look-and-feel
-			try {
-				UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
-			} catch (Exception e) {
-				LOGGER.warning("Could not set Nimbus Look&Feel.");
-				e.printStackTrace();
-			}
-
-			// 3. Call initialization hook
-			app.init();
-			if (app.controller == null) {
-				// application controller not specified, use default controller/view
-				app.controller = new AppInfoView();
-				app.controller.init();
-			}
-
-			app.changeState(ApplicationState.INITIALIZED);
-			LOGGER.info("Application initialized.");
-
-			// 5. Create the shell and show the application UI inside
-			app.shell = new AppShell();
-			app.shell.display(app.settings.fullScreenOnStart);
-
-			// 6. Start the clock
-			app.clock.start();
-			LOGGER.info(String.format("Clock started, %d ticks/sec.", app.clock.getFrequency()));
-
-			app.changeState(ApplicationState.RUNNING);
-			LOGGER.info("Application is running.");
-		});
+		SwingUtilities.invokeLater(() -> app.startAndShowUserInterface());
 	}
 
 	private final AppSettings settings;
@@ -166,11 +132,38 @@ public abstract class Application {
 	private ApplicationState state;
 
 	public Application() {
-		APP = this;
 		settings = createAppSettings();
 		clock = new Clock(settings.fps, this::update, this::render);
 		MouseHandler.INSTANCE.fnScale = () -> settings.scale;
 		state = ApplicationState.NEW;
+	}
+
+	private void startAndShowUserInterface() {
+		LOGGER.info(String.format("Launching application '%s' ", getClass().getName()));
+		try {
+			UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
+		} catch (Exception e) {
+			LOGGER.warning("Could not set Nimbus Look&Feel.");
+			e.printStackTrace();
+		}
+		init();
+		int width = settings.width, height = settings.height;
+		if (controller == null) {
+			LOGGER.warning("WARNING: Application did not specify a main controller! Using default controller.");
+			// application controller not specified, use default controller/view
+			width = 800;
+			height = 600;
+			settings.scale = 1;
+			controller = new AppInfoView(width, height);
+			controller.init();
+		}
+		changeState(ApplicationState.INITIALIZED);
+		shell = new AppShell(width, height);
+		shell.display(settings.fullScreenOnStart);
+		clock.start();
+		LOGGER.info(String.format("Clock started, %d ticks/sec.", clock.getFrequency()));
+		changeState(ApplicationState.RUNNING);
+		LOGGER.info("Application is running.");
 	}
 
 	/**
@@ -178,6 +171,9 @@ public abstract class Application {
 	 */
 	public abstract void init();
 
+	/**
+	 * Creates the settings for this application
+	 */
 	protected AppSettings createAppSettings() {
 		return new AppSettings();
 	}

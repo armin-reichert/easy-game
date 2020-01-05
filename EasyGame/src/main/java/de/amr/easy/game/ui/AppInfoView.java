@@ -11,24 +11,39 @@ import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 
 import de.amr.easy.game.controller.Lifecycle;
-import de.amr.easy.game.entity.Entity;
 import de.amr.easy.game.ui.widgets.TextWidget;
+import de.amr.easy.game.view.View;
 
 /**
  * This view displays general application info.
  * 
  * @author Armin Reichert
  */
-public class AppInfoView extends Entity implements Lifecycle {
+public class AppInfoView implements Lifecycle, View {
 
+	private final int width;
+	private final int height;
 	private TextWidget text;
+
+	public AppInfoView(int width, int height) {
+		this.width = width;
+		this.height = height;
+	}
+
+	@Override
+	public void show() {
+	}
+
+	@Override
+	public void hide() {
+	}
 
 	@Override
 	public void init() {
 		text = TextWidget.create().text(infoText()).color(Color.WHITE).font(new Font(Font.SANS_SERIF, Font.BOLD, 14))
 				.build();
-		text.tf.centerX(app().settings().width);
-		text.tf.setY(app().settings().height);
+		text.tf.centerX(width);
+		text.tf.setY(height);
 		text.tf.setVelocityY(-1.0f);
 		text.start();
 	}
@@ -38,22 +53,23 @@ public class AppInfoView extends Entity implements Lifecycle {
 		text.setText(infoText());
 		text.update();
 		if (text.tf.getY() + text.tf.getHeight() < 0) {
-			text.tf.setY(app().settings().height);
+			text.tf.setY(height);
 		}
 	}
 
 	@Override
 	public void draw(Graphics2D g) {
 		g.setColor(Color.DARK_GRAY);
-		g.fillRect(0, 0, app().settings().width, app().settings().height);
+		g.fillRect(0, 0, width, height);
 		g.setColor(Color.GREEN);
 		g.setStroke(new BasicStroke(2f));
-		g.drawRect(0, 0, app().settings().width, app().settings().height);
+		g.drawRect(0, 0, width, height);
 		text.draw(g);
 	}
 
 	private String infoText() {
 		StringBuilder sb = new StringBuilder();
+		sb.append("YOU SHOULD NOT SEE THIS! (No main controller set?)\n\n\n");
 		sb.append(app().getClass().getSimpleName()).append("\n\n");
 		sb.append("clock frequency = " + app().clock().getFrequency()).append(" Hz\n\n");
 		sb.append("title = " + app().settings().title).append("\n");

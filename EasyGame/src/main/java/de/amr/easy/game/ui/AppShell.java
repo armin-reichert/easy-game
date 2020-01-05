@@ -56,6 +56,8 @@ public class AppShell extends JFrame {
 		}
 	};
 
+	private final int width;
+	private final int height;
 	private final GraphicsDevice device;
 	private final Canvas canvas;
 	private final JFrame fullScreenWindow;
@@ -63,7 +65,9 @@ public class AppShell extends JFrame {
 	private AppSettingsDialog settingsDialog;
 	private volatile boolean renderingEnabled;
 
-	public AppShell() {
+	public AppShell(int width, int height) {
+		this.width = width;
+		this.height = height;
 		device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 		if (app().settings().fullScreenMode == null) {
 			DisplayMode[] modes = device.getDisplayModes();
@@ -73,8 +77,8 @@ public class AppShell extends JFrame {
 		setTitle(app().settings().title);
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		int scaledWidth = (int) Math.ceil(app().settings().width * app().settings().scale);
-		int scaledHeight = (int) Math.ceil(app().settings().height * app().settings().scale);
+		int scaledWidth = (int) Math.ceil(width * app().settings().scale);
+		int scaledHeight = (int) Math.ceil(height * app().settings().scale);
 		Dimension size = new Dimension(scaledWidth, scaledHeight);
 		canvas = new Canvas();
 		canvas.setPreferredSize(size);
@@ -163,8 +167,8 @@ public class AppShell extends JFrame {
 		requestFocus();
 		canvas.createBufferStrategy(2);
 		LOGGER.info(String.format("Entered window mode, resolution %dx%d (%dx%d scaled by %.2f)",
-				(int) (app().settings().width * app().settings().scale),
-				(int) (app().settings().height * app().settings().scale), app().settings().width, app().settings().height,
+				(int) (width * app().settings().scale),
+				(int) (height * app().settings().scale), width, height,
 				app().settings().scale));
 		renderingEnabled = true;
 	}
@@ -208,8 +212,8 @@ public class AppShell extends JFrame {
 
 	private String getTitle(int ups, int fps) {
 		if (app().settings().titleExtended) {
-			return format("%s [%dfps %dups %d x %dpx * %.2f]", app().settings().title, fps, ups, app().settings().width,
-					app().settings().height, app().settings().scale);
+			return format("%s [%dfps %dups %d x %dpx * %.2f]", app().settings().title, fps, ups, width,
+					height, app().settings().scale);
 		}
 		return app().settings().title;
 	}
@@ -242,8 +246,8 @@ public class AppShell extends JFrame {
 		g.setColor(app().settings().bgColor);
 		if (inFullScreenMode()) {
 			g.fillRect(0, 0, fullScreenWindow.getWidth(), fullScreenWindow.getHeight());
-			int unscaledWidth = app().settings().width;
-			int unscaledHeight = app().settings().height;
+			int unscaledWidth = width;
+			int unscaledHeight = height;
 			double zoom = Math.min(((double) fullScreenWindow.getWidth()) / unscaledWidth,
 					((double) fullScreenWindow.getHeight()) / unscaledHeight);
 			double scaledWidth = zoom * unscaledWidth;
