@@ -24,15 +24,15 @@ public class FramerateTestApp extends GenericApplication {
 	}
 
 	public FramerateTestApp() {
-		settings.title = "Game performance measurement";
-		settings.titleExtended = true;
-		settings.width = 1000;
-		settings.height = 200;
+		settings().title = "Game performance measurement";
+		settings().titleExtended = true;
+		settings().width = 1000;
+		settings().height = 200;
 	}
 
 	@Override
 	public void init() {
-		clock.setFrequency(60);
+		clock().setFrequency(60);
 		setController(new FramerateTestScene());
 	}
 }
@@ -46,18 +46,18 @@ class FramerateTestScene extends Entity implements Lifecycle {
 	private int sampleSteps;
 
 	public int getWidth() {
-		return app().settings.width;
+		return app().settings().width;
 	}
 
 	public int getHeight() {
-		return app().settings.height;
+		return app().settings().height;
 	}
 
 	@Override
 	public void init() {
 		fpsValues = new int[getWidth()];
 		bgImg = createBgImage();
-		app().clock.addFrequencyChangeListener(e -> {
+		app().clock().addFrequencyChangeListener(e -> {
 			sampleSteps = 0;
 			bgImg = createBgImage();
 		});
@@ -71,8 +71,8 @@ class FramerateTestScene extends Entity implements Lifecycle {
 			Application.LOGGER.info("Clock logging is now " + logger.getLevel());
 		}
 		++sampleSteps;
-		if (sampleSteps == app().clock.getFrequency()) {
-			fpsValues[sampleIndex++] = app().clock.getRenderRate();
+		if (sampleSteps == app().clock().getFrequency()) {
+			fpsValues[sampleIndex++] = app().clock().getRenderRate();
 			if (sampleIndex * stepX >= getWidth()) {
 				sampleIndex = 0;
 			}
@@ -89,7 +89,7 @@ class FramerateTestScene extends Entity implements Lifecycle {
 			g.drawLine(xOffset, getHeight() - y, getWidth(), getHeight() - y);
 			g.drawString(String.valueOf(y), 0, getHeight() - y);
 		}
-		int freq = app().clock.getFrequency();
+		int freq = app().clock().getFrequency();
 		g.setColor(Color.YELLOW);
 		g.drawLine(xOffset, getHeight() - freq, getWidth(), getHeight() - freq);
 		return img;
@@ -108,7 +108,7 @@ class FramerateTestScene extends Entity implements Lifecycle {
 			int y2 = fpsValues[j + 1];
 			Color color = Color.GREEN;
 			if (j > 0) {
-				int fps = app().clock.getFrequency();
+				int fps = app().clock().getFrequency();
 				int deviation = fpsValues[j] - fps;
 				int percent = (100 * deviation) / fps;
 				if (Math.abs(percent) > 3) {

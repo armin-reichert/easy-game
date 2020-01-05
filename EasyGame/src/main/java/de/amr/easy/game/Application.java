@@ -35,9 +35,8 @@ import de.amr.easy.game.view.VisualController;
 /**
  * Application base class.
  * <p>
- * Static method {@code launch(Application, String[])} shows the application UI
- * and starts the application. Command-line arguments override the corresponding
- * application settings. The following arguments are supported:
+ * Static method {@code launch(Application, String[])} shows the application UI and starts the application. Command-line
+ * arguments override the corresponding application settings. The following arguments are supported:
  * <ul>
  * <li>-width <i>pixels</i>
  * <li>-height <i>pixels</i>
@@ -114,16 +113,18 @@ public abstract class Application<S extends AppSettings> {
 	private static Application<?> INSTANCE;
 
 	/** Static access to application instance. */
-	public static Application<?> app() {
-		return INSTANCE;
+	@SuppressWarnings("unchecked")
+	public static <S extends AppSettings> Application<S> app() {
+		return (Application<S>) INSTANCE;
 	}
 
 	/**
-	 * Launches the specified application. The arguments are parsed and assigned to
-	 * the application settings.
+	 * Launches the specified application. The arguments are parsed and assigned to the application settings.
 	 * 
-	 * @param app  application instance
-	 * @param args command-line arguments
+	 * @param app
+	 *               application instance
+	 * @param args
+	 *               command-line arguments
 	 */
 	public static void launch(Application<?> app, String[] args) {
 		LOGGER.info(String.format("Launching application '%s' ", app.getClass().getSimpleName()));
@@ -163,10 +164,10 @@ public abstract class Application<S extends AppSettings> {
 	}
 
 	/** The settings of this application. */
-	public final S settings;
+	private final S settings;
 
 	/** The clock defining the speed of the application. */
-	public final Clock clock;
+	private final Clock clock;
 
 	/** The collision handler of this application. */
 	public final CollisionHandler collisionHandler;
@@ -187,6 +188,14 @@ public abstract class Application<S extends AppSettings> {
 
 	public State getState() {
 		return state;
+	}
+	
+	public S settings() {
+		return settings;
+	}
+	
+	public Clock clock() {
+		return clock;
 	}
 
 	public synchronized void addStateChangeListener(BiConsumer<State, State> listener) {
@@ -216,8 +225,10 @@ public abstract class Application<S extends AppSettings> {
 	/**
 	 * Makes the given controller the current one and optionally initializes it.
 	 * 
-	 * @param controller a controller
-	 * @param initialize if the controller should be initialized
+	 * @param controller
+	 *                     a controller
+	 * @param initialize
+	 *                     if the controller should be initialized
 	 */
 	public void setController(Lifecycle controller, boolean initialize) {
 		if (controller == null) {
@@ -241,7 +252,8 @@ public abstract class Application<S extends AppSettings> {
 	/**
 	 * Sets the given controller and initializes it.
 	 * 
-	 * @param controller a controller
+	 * @param controller
+	 *                     a controller
 	 */
 	public void setController(Lifecycle controller) {
 		setController(controller, true);
@@ -250,7 +262,8 @@ public abstract class Application<S extends AppSettings> {
 	/**
 	 * Sets the icon shown in the application window.
 	 * 
-	 * @param image application icon
+	 * @param image
+	 *                application icon
 	 */
 	public void setIcon(Image image) {
 		if (shell != null) {

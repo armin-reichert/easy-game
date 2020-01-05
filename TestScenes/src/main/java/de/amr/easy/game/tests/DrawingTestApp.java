@@ -20,7 +20,7 @@ public class DrawingTestApp extends GenericApplication {
 	}
 
 	public DrawingTestApp() {
-		settings.title = "Drawing Test";
+		settings().title = "Drawing Test";
 	}
 
 	@Override
@@ -43,11 +43,11 @@ class DrawingTestScene extends Entity implements Lifecycle {
 	}
 
 	public int getWidth() {
-		return app.settings.width;
+		return app.settings().width;
 	}
 
 	public int getHeight() {
-		return app.settings.height;
+		return app.settings().height;
 	}
 
 	@Override

@@ -18,9 +18,9 @@ public class MouseTestApp extends GenericApplication {
 	}
 
 	public MouseTestApp() {
-		settings.title = "Mouse Test";
-		settings.width = 800;
-		settings.height = 600;
+		settings().title = "Mouse Test";
+		settings().width = 800;
+		settings().height = 600;
 	}
 
 	@Override
@@ -39,11 +39,11 @@ class MouseTestScene extends Entity implements Lifecycle {
 	}
 
 	public int getWidth() {
-		return app.settings.width;
+		return app.settings().width;
 	}
 
 	public int getHeight() {
-		return app.settings.height;
+		return app.settings().height;
 	}
 
 	@Override

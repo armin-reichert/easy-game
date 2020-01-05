@@ -53,17 +53,17 @@ public class AppSettingsDialog extends JDialog {
 	public AppSettingsDialog(JFrame parent, Application<?> app) {
 		super(parent);
 		setSize(600, 150);
-		setTitle(String.format("Application '%s'", app.settings.title));
+		setTitle(String.format("Application '%s'", app.settings().title));
 		sliderFPS = new JSlider(0, 120);
 		sliderFPS.addChangeListener(new ChangeListener() {
 
 			@Override
 			public void stateChanged(ChangeEvent e) {
-				app.clock.setFrequency(sliderFPS.getValue());
+				app.clock().setFrequency(sliderFPS.getValue());
 				setFpsTooltip();
 			}
 		});
-		sliderFPS.setValue(app.clock.getFrequency());
+		sliderFPS.setValue(app.clock().getFrequency());
 		sliderFPS.setMajorTickSpacing(50);
 		sliderFPS.setMinorTickSpacing(10);
 		sliderFPS.setPaintTicks(true);
@@ -82,7 +82,7 @@ public class AppSettingsDialog extends JDialog {
 		JComboBox<DisplayMode> cbDisplayMode = new JComboBox<>(createComboModel());
 		cbDisplayMode.setMaximumRowCount(cbDisplayMode.getItemCount());
 		cbDisplayMode.setRenderer(displayModeComboRenderer);
-		DisplayMode fullScreenMode = app.settings.fullScreenMode;
+		DisplayMode fullScreenMode = app.settings().fullScreenMode;
 		if (fullScreenMode != null) {
 			for (int i = 0; i < cbDisplayMode.getItemCount(); ++i) {
 				DisplayMode mode = cbDisplayMode.getItemAt(i);
@@ -94,10 +94,10 @@ public class AppSettingsDialog extends JDialog {
 			}
 		}
 		cbDisplayMode.addActionListener(e -> {
-			app.settings.fullScreenMode = (DisplayMode) cbDisplayMode.getSelectedItem();
+			app.settings().fullScreenMode = (DisplayMode) cbDisplayMode.getSelectedItem();
 		});
 		getContentPane().add(cbDisplayMode, "cell 1 1,growx");
-		app.clock.addFrequencyChangeListener(e -> sliderFPS.setValue((Integer) e.getNewValue()));
+		app.clock().addFrequencyChangeListener(e -> sliderFPS.setValue((Integer) e.getNewValue()));
 	}
 
 	private void setFpsTooltip() {
