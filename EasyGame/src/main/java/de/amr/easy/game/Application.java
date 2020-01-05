@@ -2,7 +2,6 @@ package de.amr.easy.game;
 
 import static java.awt.event.KeyEvent.VK_P;
 
-import java.awt.EventQueue;
 import java.awt.Image;
 import java.awt.event.KeyEvent;
 import java.io.InputStream;
@@ -15,6 +14,7 @@ import java.util.function.Consumer;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 
@@ -36,26 +36,16 @@ import de.amr.easy.game.view.VisualController;
 /**
  * Application base class.
  * <p>
- * Static method {@code launch(Application, String[])} shows the application UI and starts the application. Command-line
- * arguments override the corresponding application settings. The following arguments are supported:
- * <ul>
- * <li>-width <i>pixels</i>
- * <li>-height <i>pixels</i>
- * <li>-scale <i>float value</i>
- * <li>-fps <i>frames</i>
- * <li>-title <i>text</i>
- * <li>-titleExtended
- * <li>-bgColor <i>rgbcolor</i>
- * <li>-fullScreenOnStart
- * <li>-fullScreenMode <i>width,height,bitdepth</i>
- * <li>-fullScreenCursor
- * </ul>
+ * Method {@code launch(Application, String[])} starts the application's game loop and shows its user interface inside a
+ * window or in fullscreen mode.
  * 
+ * <p>
+ * For a complete list of the supported command-line arguments / application settings, see class {@link AppSettings}.
  * <p>
  * Example:
  * 
  * <pre>
- * java -jar mygame.jar -scale 1 -title "My Awesome Game" -fullScreenOnStart -fullScreenMode 800,600,32
+ * java -jar mygame.jar -scale 1 -title "My Game" -fullScreenOnStart -fullScreenMode 800,600,32
  * </pre>
  * 
  * The application class might look like this:
@@ -89,12 +79,14 @@ import de.amr.easy.game.view.VisualController;
  */
 public abstract class Application {
 
-	public enum State {
+	public enum ApplicationState {
 		NEW, INITIALIZED, RUNNING, PAUSED;
 	}
 
-	/** Creates a logger with single line output and millisecond precision. */
-	private static Logger createLogger() {
+	/** Application-global logger. */
+	public static final Logger LOGGER = Logger.getLogger(Application.class.getName());
+
+	static {
 		InputStream stream = Application.class.getClassLoader().getResourceAsStream("logging.properties");
 		if (stream == null) {
 			throw new RuntimeException("Could not load logging property file");
@@ -104,13 +96,9 @@ public abstract class Application {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return Logger.getLogger(Application.class.getName());
 	}
 
-	/** A logger that may be used by application subclasses. */
-	public static final Logger LOGGER = createLogger();
-
-	/** Static reference to the application instance. */
+	/** Singleton. */
 	private static Application APP;
 
 	/** Static access to application instance. */
@@ -119,7 +107,7 @@ public abstract class Application {
 	}
 
 	/**
-	 * Launches the specified application. The arguments are parsed and assigned to the application settings.
+	 * Launches the specified application. The command-line arguments are parsed and assigned to the application settings.
 	 * 
 	 * @param app
 	 *               application instance
@@ -127,32 +115,60 @@ public abstract class Application {
 	 *               command-line arguments
 	 */
 	public static void launch(Application app, String[] args) {
-		Objects.requireNonNull(app);
+
+		if (app == null) {
+			throw new IllegalArgumentException("Cannot launch application, got NULL as application reference");
+		}
+
 		LOGGER.info(String.format("Launching application '%s' ", app.getClass().getSimpleName()));
+
+		// 1. Parse command-line
 		JCommander.newBuilder().addObject(app.settings).build().parse(args);
-		try {
-			UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
-		} catch (Exception e) {
-			LOGGER.warning("Could not set Nimbus Look&Feel.");
-			e.printStackTrace();
-		}
-		app.init();
-		if (app.controller == null) {
-			app.controller = new AppInfoView();
-			app.controller.init();
-		}
-		app.changeState(State.INITIALIZED);
-		LOGGER.info("Application initialized.");
-		app.shell = new AppShell();
-		EventQueue.invokeLater(() -> {
+
+		// Continue on the event-dispatch thread
+		SwingUtilities.invokeLater(() -> {
+
+			// 2. Set look-and-feel
+			try {
+				UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
+			} catch (Exception e) {
+				LOGGER.warning("Could not set Nimbus Look&Feel.");
+				e.printStackTrace();
+			}
+
+			// 3. Call initialization hook
+			app.init();
+			if (app.controller == null) {
+				// application controller not specified, use default controller/view
+				app.controller = new AppInfoView();
+				app.controller.init();
+			}
+
+			app.changeState(ApplicationState.INITIALIZED);
+			LOGGER.info("Application initialized.");
+
+			// 5. Create the shell and show the application UI inside
+			app.shell = new AppShell();
 			app.shell.display(app.settings.fullScreenOnStart);
-			app.start();
+
+			// 6. Start the clock
+			app.clock.start();
+			LOGGER.info(String.format("Clock started, %d ticks/sec.", app.clock.getFrequency()));
+
+			app.changeState(ApplicationState.RUNNING);
+			LOGGER.info("Application is running.");
 		});
 	}
 
-	public AppSettings createAppSettings() {
-		return new AppSettings();
-	}
+	public final CollisionHandler collisionHandler;
+	private Consumer<Application> exitHandler;
+
+	private final AppSettings settings;
+	private final Clock clock;
+	private AppShell shell;
+	private Lifecycle controller;
+	private ApplicationState state;
+	private final Set<BiConsumer<ApplicationState, ApplicationState>> stateChangeListeners = new LinkedHashSet<>();
 
 	/**
 	 * Base class constructor. By default, applications run at 60 frames/second.
@@ -161,35 +177,22 @@ public abstract class Application {
 		APP = this;
 		settings = createAppSettings();
 		clock = new Clock(settings.fps, this::update, this::render);
+		// TODO make this optional:
 		collisionHandler = new CollisionHandler();
 		MouseHandler.INSTANCE.fnScale = () -> settings.scale;
-		state = State.NEW;
+		state = ApplicationState.NEW;
 	}
 
-	/** The settings of this application. */
-	private final AppSettings settings;
+	/**
+	 * Can be overridden by application to provide additional settings.
+	 * 
+	 * @return the settings object
+	 */
+	protected AppSettings createAppSettings() {
+		return new AppSettings();
+	}
 
-	/** The clock defining the speed of the application. */
-	private final Clock clock;
-
-	/** The collision handler of this application. */
-	public final CollisionHandler collisionHandler;
-
-	public Consumer<Application> exitHandler;
-
-	/** The window displaying the current view of the application. */
-	private AppShell shell;
-
-	/** The current controller. */
-	private Lifecycle controller;
-
-	/** The application state. */
-	private State state;
-
-	/** State change listeners. */
-	private final Set<BiConsumer<State, State>> stateChangeListeners = new LinkedHashSet<>();
-
-	public State getState() {
+	public ApplicationState getState() {
 		return state;
 	}
 
@@ -201,20 +204,24 @@ public abstract class Application {
 		return clock;
 	}
 
-	public synchronized void addStateChangeListener(BiConsumer<State, State> listener) {
+	public void setExitHandler(Consumer<Application> exitHandler) {
+		this.exitHandler = Objects.requireNonNull(exitHandler);
+	}
+
+	public synchronized void addStateChangeListener(BiConsumer<ApplicationState, ApplicationState> listener) {
 		stateChangeListeners.add(listener);
 	}
 
-	public synchronized void removeStateChangeListener(BiConsumer<State, State> listener) {
+	public synchronized void removeStateChangeListener(BiConsumer<ApplicationState, ApplicationState> listener) {
 		stateChangeListeners.remove(listener);
 	}
 
-	private void fireStateChange(State oldState, State newState) {
+	private void fireStateChange(ApplicationState oldState, ApplicationState newState) {
 		stateChangeListeners.forEach(listener -> listener.accept(oldState, newState));
 	}
 
-	private void changeState(State newState) {
-		State oldState = state;
+	private void changeState(ApplicationState newState) {
+		ApplicationState oldState = state;
 		if (oldState != newState) {
 			state = newState;
 			LOGGER.info(String.format("Application state changes from '%s' to '%s'", oldState, newState));
@@ -281,13 +288,6 @@ public abstract class Application {
 		return shell != null ? shell.getIconImage() : null;
 	}
 
-	/** Starts the application. */
-	private final void start() {
-		clock.start();
-		LOGGER.info(String.format("Clock started, running with %d ticks/sec.", clock.getFrequency()));
-		changeState(State.RUNNING);
-	}
-
 	/**
 	 * Exits the application and the Java VM.
 	 */
@@ -306,7 +306,7 @@ public abstract class Application {
 	 * @return if the application is paused
 	 */
 	public boolean isPaused() {
-		return state == State.PAUSED;
+		return state == ApplicationState.PAUSED;
 	}
 
 	private void update() {
@@ -320,7 +320,7 @@ public abstract class Application {
 		case RUNNING:
 			KeyboardHandler.poll();
 			if (Keyboard.keyPressedOnce(Modifier.CONTROL, VK_P)) {
-				changeState(State.PAUSED);
+				changeState(ApplicationState.PAUSED);
 				return;
 			}
 			if (Keyboard.keyPressedOnce(KeyEvent.VK_F2)) {
@@ -337,7 +337,7 @@ public abstract class Application {
 				shell.showSettingsDialog();
 			}
 			if (Keyboard.keyPressedOnce(Modifier.CONTROL, VK_P)) {
-				changeState(State.RUNNING);
+				changeState(ApplicationState.RUNNING);
 				return;
 			}
 			break;
@@ -359,4 +359,5 @@ public abstract class Application {
 		}
 		return Optional.empty();
 	}
+
 }
