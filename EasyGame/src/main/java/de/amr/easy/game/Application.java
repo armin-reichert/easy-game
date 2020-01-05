@@ -7,6 +7,7 @@ import java.awt.Image;
 import java.awt.event.KeyEvent;
 import java.io.InputStream;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -86,7 +87,7 @@ import de.amr.easy.game.view.VisualController;
  * 
  * @author Armin Reichert
  */
-public abstract class Application<S extends AppSettings> {
+public abstract class Application {
 
 	public enum State {
 		NEW, INITIALIZED, RUNNING, PAUSED;
@@ -110,12 +111,11 @@ public abstract class Application<S extends AppSettings> {
 	public static final Logger LOGGER = createLogger();
 
 	/** Static reference to the application instance. */
-	private static Application<?> INSTANCE;
+	private static Application APP;
 
 	/** Static access to application instance. */
-	@SuppressWarnings("unchecked")
-	public static <S extends AppSettings> Application<S> app() {
-		return (Application<S>) INSTANCE;
+	public static Application app() {
+		return APP;
 	}
 
 	/**
@@ -126,7 +126,8 @@ public abstract class Application<S extends AppSettings> {
 	 * @param args
 	 *               command-line arguments
 	 */
-	public static void launch(Application<?> app, String[] args) {
+	public static void launch(Application app, String[] args) {
+		Objects.requireNonNull(app);
 		LOGGER.info(String.format("Launching application '%s' ", app.getClass().getSimpleName()));
 		JCommander.newBuilder().addObject(app.settings).build().parse(args);
 		try {
@@ -137,25 +138,27 @@ public abstract class Application<S extends AppSettings> {
 		}
 		app.init();
 		if (app.controller == null) {
-			app.controller = new AppInfoView(app);
+			app.controller = new AppInfoView();
 			app.controller.init();
 		}
 		app.changeState(State.INITIALIZED);
 		LOGGER.info("Application initialized.");
-		app.shell = new AppShell(app);
+		app.shell = new AppShell();
 		EventQueue.invokeLater(() -> {
 			app.shell.display(app.settings.fullScreenOnStart);
 			app.start();
 		});
 	}
 
-	public abstract S createAppSettings();
+	public AppSettings createAppSettings() {
+		return new AppSettings();
+	}
 
 	/**
 	 * Base class constructor. By default, applications run at 60 frames/second.
 	 */
 	public Application() {
-		INSTANCE = this;
+		APP = this;
 		settings = createAppSettings();
 		clock = new Clock(settings.fps, this::update, this::render);
 		collisionHandler = new CollisionHandler();
@@ -164,7 +167,7 @@ public abstract class Application<S extends AppSettings> {
 	}
 
 	/** The settings of this application. */
-	private final S settings;
+	private final AppSettings settings;
 
 	/** The clock defining the speed of the application. */
 	private final Clock clock;
@@ -172,7 +175,7 @@ public abstract class Application<S extends AppSettings> {
 	/** The collision handler of this application. */
 	public final CollisionHandler collisionHandler;
 
-	public Consumer<Application<?>> exitHandler;
+	public Consumer<Application> exitHandler;
 
 	/** The window displaying the current view of the application. */
 	private AppShell shell;
@@ -189,11 +192,11 @@ public abstract class Application<S extends AppSettings> {
 	public State getState() {
 		return state;
 	}
-	
-	public S settings() {
+
+	public AppSettings settings() {
 		return settings;
 	}
-	
+
 	public Clock clock() {
 		return clock;
 	}

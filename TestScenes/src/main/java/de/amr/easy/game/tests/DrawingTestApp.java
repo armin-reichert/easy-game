@@ -7,13 +7,13 @@ import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.util.Random;
 
-import de.amr.easy.game.GenericApplication;
+import de.amr.easy.game.Application;
 import de.amr.easy.game.controller.Lifecycle;
 import de.amr.easy.game.entity.Entity;
 import de.amr.easy.game.input.Keyboard;
 import de.amr.easy.game.input.Mouse;
 
-public class DrawingTestApp extends GenericApplication {
+public class DrawingTestApp extends Application {
 
 	public static void main(String[] args) {
 		launch(new DrawingTestApp(), args);

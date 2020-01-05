@@ -5,13 +5,13 @@ import static java.lang.String.format;
 import java.awt.Color;
 import java.awt.Graphics2D;
 
-import de.amr.easy.game.GenericApplication;
+import de.amr.easy.game.Application;
 import de.amr.easy.game.controller.Lifecycle;
 import de.amr.easy.game.entity.Entity;
 import de.amr.easy.game.input.Mouse;
 import de.amr.easy.game.ui.widgets.TextWidget;
 
-public class MouseTestApp extends GenericApplication {
+public class MouseTestApp extends Application {
 
 	public static void main(String[] args) {
 		launch(new MouseTestApp(), args);

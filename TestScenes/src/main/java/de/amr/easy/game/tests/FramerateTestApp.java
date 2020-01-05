@@ -11,13 +11,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import de.amr.easy.game.Application;
-import de.amr.easy.game.GenericApplication;
 import de.amr.easy.game.controller.Lifecycle;
 import de.amr.easy.game.entity.Entity;
 import de.amr.easy.game.input.Keyboard;
 import de.amr.easy.game.timing.Clock;
 
-public class FramerateTestApp extends GenericApplication {
+public class FramerateTestApp extends Application {
 
 	public static void main(String[] args) {
 		launch(new FramerateTestApp(), args);

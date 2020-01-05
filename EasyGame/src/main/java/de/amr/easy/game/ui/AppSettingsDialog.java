@@ -50,7 +50,7 @@ public class AppSettingsDialog extends JDialog {
 	private JSlider sliderFPS;
 	private DisplayModeItemRenderer displayModeComboRenderer = new DisplayModeItemRenderer();
 
-	public AppSettingsDialog(JFrame parent, Application<?> app) {
+	public AppSettingsDialog(JFrame parent, Application app) {
 		super(parent);
 		setSize(600, 150);
 		setTitle(String.format("Application '%s'", app.settings().title));

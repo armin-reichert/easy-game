@@ -7,12 +7,12 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.KeyEvent;
 
-import de.amr.easy.game.GenericApplication;
+import de.amr.easy.game.Application;
 import de.amr.easy.game.controller.Lifecycle;
 import de.amr.easy.game.entity.Entity;
 import de.amr.easy.game.input.Keyboard;
 
-public class KeyboardTestApp extends GenericApplication {
+public class KeyboardTestApp extends Application {
 
 	public static void main(String[] args) {
 		launch(new KeyboardTestApp(), args);
