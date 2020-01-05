@@ -5,11 +5,8 @@ import static java.awt.event.KeyEvent.VK_P;
 import java.awt.Image;
 import java.awt.event.KeyEvent;
 import java.io.InputStream;
-import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -168,7 +165,6 @@ public abstract class Application {
 	private AppShell shell;
 	private Lifecycle controller;
 	private ApplicationState state;
-	private final Set<BiConsumer<ApplicationState, ApplicationState>> stateChangeListeners = new LinkedHashSet<>();
 
 	/**
 	 * Base class constructor. By default, applications run at 60 frames/second.
@@ -208,24 +204,11 @@ public abstract class Application {
 		this.exitHandler = Objects.requireNonNull(exitHandler);
 	}
 
-	public synchronized void addStateChangeListener(BiConsumer<ApplicationState, ApplicationState> listener) {
-		stateChangeListeners.add(listener);
-	}
-
-	public synchronized void removeStateChangeListener(BiConsumer<ApplicationState, ApplicationState> listener) {
-		stateChangeListeners.remove(listener);
-	}
-
-	private void fireStateChange(ApplicationState oldState, ApplicationState newState) {
-		stateChangeListeners.forEach(listener -> listener.accept(oldState, newState));
-	}
-
 	private void changeState(ApplicationState newState) {
 		ApplicationState oldState = state;
 		if (oldState != newState) {
 			state = newState;
 			LOGGER.info(String.format("Application state changes from '%s' to '%s'", oldState, newState));
-			fireStateChange(oldState, newState);
 		}
 	}
 
