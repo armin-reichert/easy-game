@@ -130,6 +130,12 @@ public abstract class Application {
 	private AppShell shell;
 	private Lifecycle controller;
 	private ApplicationState state;
+	private Image icon;
+
+	/**
+	 * Initialization hook for application. Application should set main controller in this method.
+	 */
+	public abstract void init();
 
 	public Application() {
 		settings = createAppSettings();
@@ -139,23 +145,22 @@ public abstract class Application {
 	}
 
 	private void startAndShowUserInterface() {
+		int width = settings.width, height = settings.height;
 		LOGGER.info(String.format("Launching application '%s' ", getClass().getName()));
 		try {
 			UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
 		} catch (Exception e) {
-			LOGGER.warning("Could not set Nimbus Look&Feel.");
 			e.printStackTrace();
+			LOGGER.warning("Could not set Nimbus Look&Feel.");
 		}
 		init();
-		int width = settings.width, height = settings.height;
 		if (controller == null) {
-			LOGGER.warning("WARNING: Application did not specify a main controller! Using default controller.");
-			// application controller not specified, use default controller/view
 			width = 800;
 			height = 600;
 			settings.scale = 1;
 			controller = new AppInfoView(width, height);
 			controller.init();
+			LOGGER.warning("WARNING: Application did not specify a main controller! Using default controller.");
 		}
 		changeState(ApplicationState.INITIALIZED);
 		shell = new AppShell(width, height);
@@ -163,13 +168,7 @@ public abstract class Application {
 		clock.start();
 		LOGGER.info(String.format("Clock started, %d ticks/sec.", clock.getFrequency()));
 		changeState(ApplicationState.RUNNING);
-		LOGGER.info("Application is running.");
 	}
-
-	/**
-	 * Initialization hook for application. Application should set its controller in this method.
-	 */
-	public abstract void init();
 
 	/**
 	 * Creates the settings for this application
@@ -211,11 +210,11 @@ public abstract class Application {
 	 */
 	public void setController(Lifecycle controller, boolean initialize) {
 		if (controller == null) {
-			throw new IllegalArgumentException("Controller must not be null.");
+			throw new IllegalArgumentException("Application controller must not be null.");
 		}
 		if (controller != this.controller) {
 			this.controller = controller;
-			LOGGER.info("New controller is " + controller);
+			LOGGER.info("Application controller is: " + controller);
 			if (initialize) {
 				controller.init();
 				LOGGER.info("Controller initialized.");
@@ -234,10 +233,11 @@ public abstract class Application {
 	}
 
 	public Image getIcon() {
-		return shell != null ? shell.getIconImage() : null;
+		return icon;
 	}
 
 	public void setIcon(Image image) {
+		this.icon = Objects.requireNonNull(image);
 		if (shell != null) {
 			shell.setIconImage(image);
 		}
