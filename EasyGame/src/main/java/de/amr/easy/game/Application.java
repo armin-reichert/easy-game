@@ -291,7 +291,7 @@ public abstract class Application {
 				return;
 			}
 			MouseHandler.poll();
-			collisionHandler.update();
+			collisionHandler().update();
 			controller.update();
 			break;
 		case PAUSED:
