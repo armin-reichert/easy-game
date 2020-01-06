@@ -31,37 +31,36 @@ import de.amr.easy.game.view.View;
 import de.amr.easy.game.view.VisualController;
 
 /**
- * Application base class.
- * <p>
- * Method {@code launch(Application, String[])} starts the application's game loop and shows its user interface inside a
- * window or in fullscreen mode.
- * 
- * <p>
- * For a complete list of the supported command-line arguments / application settings, see class {@link AppSettings}.
+ * Applications inherit from this class. To start an application, use the static
+ * method {@code launch(Application, String[])}. For a complete list of the
+ * supported command-line arguments / application settings, see class
+ * {@link AppSettings}.
  * <p>
  * Example:
  * 
  * <pre>
- * java -jar mygame.jar -scale 1 -title "My Game" -fullScreenOnStart -fullScreenMode 800,600,32
- * </pre>
+ * java -jar game.jar -scale 1.5 -title "My Very First Game" -fullScreenOnStart
  * 
- * The application class might look like this:
- * 
- * <pre>
- * public class MyGame extends Application {
+ * public class MyFirstGame extends Application {
  * 
  * 	public static void main(String... args) {
- * 		launch(new MyGame(), args);
+ * 		launch(new MyFirstGame(), args);
  * 	}
  * 
- * 	public MyGame() {
- * 		settings.title = "My Game";
- * 		settings.width = 300;
- * 		settings.height = 200;
+ *	&#64;Override
+ * 	public AppSettings createAppSettings() {
+ *		AppSettings settings = new AppSettings();
+ * 		settings.width = 800;
+ * 		settings.height = 600;
  * 		settings.scale = 2;
- * 		settings.fullScreenMode = FullScreen.Mode(640, 480, 32);
- * 		settings.fullScreenOnStart = false;
- * }
+ * 		settings.title = "My First Game";
+ * 		return settings;
+ * 	}
+ * 
+ *	&#64;Override
+ *	public void init() {
+ *		setController(new MyFirstGameController());
+ *	}
  * </pre>
  * 
  * <p>
@@ -107,12 +106,11 @@ public abstract class Application {
 	}
 
 	/**
-	 * Launches the specified application. The command-line arguments are parsed and assigned to the application settings.
+	 * Launches the specified application. The command-line arguments are parsed and
+	 * assigned to the application settings.
 	 * 
-	 * @param app
-	 *               application instance
-	 * @param args
-	 *               command-line arguments
+	 * @param app  application instance
+	 * @param args command-line arguments
 	 */
 	public static void launch(Application app, String[] args) {
 		if (app == null) {
@@ -133,7 +131,8 @@ public abstract class Application {
 	private Image icon;
 
 	/**
-	 * Initialization hook for application. Application should set main controller in this method.
+	 * Initialization hook for application. Application should set main controller
+	 * in this method.
 	 */
 	public abstract void init();
 
@@ -203,10 +202,8 @@ public abstract class Application {
 	/**
 	 * Makes the given controller the current one and optionally initializes it.
 	 * 
-	 * @param controller
-	 *                     a controller
-	 * @param initialize
-	 *                     if the controller should be initialized
+	 * @param controller a controller
+	 * @param initialize if the controller should be initialized
 	 */
 	public void setController(Lifecycle controller, boolean initialize) {
 		if (controller == null) {
@@ -225,8 +222,7 @@ public abstract class Application {
 	/**
 	 * Sets the given controller and calls its initializer method.
 	 * 
-	 * @param controller
-	 *                     new controller
+	 * @param controller new controller
 	 */
 	public void setController(Lifecycle controller) {
 		setController(controller, true);
@@ -244,8 +240,8 @@ public abstract class Application {
 	}
 
 	/**
-	 * Called when the application shell is closed. Stops the clock, executes the optional exit handler and terminates the
-	 * VM.
+	 * Called when the application shell is closed. Stops the clock, executes the
+	 * optional exit handler and terminates the VM.
 	 */
 	public final void exit() {
 		clock.stop();
