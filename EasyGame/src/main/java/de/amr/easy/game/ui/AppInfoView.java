@@ -31,11 +31,12 @@ public class AppInfoView implements Lifecycle, View {
 	}
 
 	@Override
-	public void show() {
+	public void setVisible(boolean visible) {
 	}
 
 	@Override
-	public void hide() {
+	public boolean visible() {
+		return true;
 	}
 
 	@Override

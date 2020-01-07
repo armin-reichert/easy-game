@@ -9,22 +9,14 @@ import java.awt.Graphics2D;
  */
 public interface View {
 
-	/**
-	 * Makes the view visible.
-	 */
-	void show();
+	boolean visible();
 
-	/**
-	 * Makes the view invisible.
-	 * 
-	 */
-	void hide();
+	void setVisible(boolean visible);
 
 	/**
 	 * Draws the content of the view.
 	 * 
-	 * @param g
-	 *            the graphics context used for drawing
+	 * @param g the graphics context used for drawing
 	 */
 	void draw(Graphics2D g);
 }
