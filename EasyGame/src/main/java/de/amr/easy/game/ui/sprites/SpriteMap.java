@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 /**
  * Sprite map with selection.
@@ -14,92 +13,73 @@ import java.util.stream.Stream;
  */
 public class SpriteMap implements Iterable<Sprite> {
 
-	private Map<String, Sprite> spriteByName = Collections.emptyMap();
-
+	private Map<String, Sprite> spritesByKey = Collections.emptyMap();
 	private String selectedKey;
 
 	@Override
 	public Iterator<Sprite> iterator() {
-		return spriteByName.values().iterator();
+		return spritesByKey.values().iterator();
 	}
 
 	/**
-	 * @param name
-	 *               sprite name
-	 * @return sprite with given name
+	 * @param spriteKey sprite key
+	 * @return sprite with given key or {@code null}
 	 */
-	public Sprite get(String name) {
-		return spriteByName.get(name);
+	public Sprite get(String spriteKey) {
+		return spritesByKey.get(spriteKey);
 	}
 
 	/**
-	 * Stores the given sprite under the given name.
+	 * Stores the given sprite under the given key.
 	 * 
-	 * @param name
-	 *                 sprite name
-	 * @param sprite
-	 *                 a sprite
+	 * @param spriteKey key for accessing sprite
+	 * @param sprite    a sprite
 	 */
-	public void set(String name, Sprite sprite) {
-		if (spriteByName == Collections.EMPTY_MAP) {
-			spriteByName = new HashMap<>();
+	public void set(String spriteKey, Sprite sprite) {
+		if (spriteKey == null) {
+			throw new IllegalArgumentException("Sprite key must not be NULL");
 		}
-		spriteByName.put(name, sprite);
+		if (sprite == null) {
+			throw new IllegalArgumentException("Sprite must not be NULL");
+		}
+		if (spritesByKey == Collections.EMPTY_MAP) {
+			spritesByKey = new HashMap<>();
+		}
+		spritesByKey.put(spriteKey, sprite);
 	}
 
 	/**
 	 * Removes the sprite with the given name.
 	 * 
-	 * @param name
-	 *               sprite name
+	 * @param spriteKey key for accessing sprite
 	 */
-	public void remove(String name) {
-		spriteByName.remove(name);
+	public void remove(String spriteKey) {
+		spritesByKey.remove(spriteKey);
 	}
 
 	/**
-	 * Tells if a sprite with the given name exists.
+	 * Tells if a sprite with the given key exists.
 	 * 
-	 * @param name
-	 *               sprite
-	 * @return {@code true} if sprite with given name exists
+	 * @param spriteKey key for accessing sprite
+	 * @return {@code true} if sprite with given key exists in this map
 	 */
-	public boolean exists(String name) {
-		return spriteByName.containsKey(name);
+	public boolean exists(String spriteKey) {
+		return spritesByKey.containsKey(spriteKey);
 	}
 
 	/**
-	 * Selects the sprite with the given name.
+	 * Selects the sprite with the given key.
 	 * 
-	 * @param name
-	 *               sprite name
+	 * @param spriteKey key for accessing sprite
 	 */
-	public void select(String name) {
-		selectedKey = name;
+	public void select(String spriteKey) {
+		selectedKey = spriteKey;
 	}
 
 	/**
 	 * @return the currently selected sprite
 	 */
 	public final Optional<Sprite> current() {
-		return Optional.ofNullable(spriteByName.get(selectedKey));
-	}
-
-	/**
-	 * 
-	 * @return stream of all sprites stored in this map
-	 */
-	public final Stream<Sprite> stream() {
-		return spriteByName.values().stream();
-	}
-
-	/**
-	 * Enables/disables the animation for all sprites in this map.
-	 * 
-	 * @param enable
-	 *                 enabling state
-	 */
-	public void enableAnimation(boolean enable) {
-		forEach(sprite -> sprite.enableAnimation(enable));
+		return Optional.ofNullable(spritesByKey.get(selectedKey));
 	}
 }
