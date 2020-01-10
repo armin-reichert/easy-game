@@ -196,7 +196,7 @@ public class AppShell extends JFrame {
 		renderingEnabled = true;
 	}
 
-	private boolean inFullScreenMode() {
+	public boolean inFullScreenMode() {
 		return device.getFullScreenWindow() != null;
 	}
 

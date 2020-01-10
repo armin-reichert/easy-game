@@ -239,6 +239,10 @@ public abstract class Application {
 		}
 	}
 
+	public boolean inFullScreenMode() {
+		return shell != null && shell.inFullScreenMode();
+	}
+
 	/**
 	 * Called when the application shell is closed. Stops the clock, executes the
 	 * optional exit handler and terminates the VM.
