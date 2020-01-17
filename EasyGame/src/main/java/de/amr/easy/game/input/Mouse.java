@@ -2,45 +2,53 @@ package de.amr.easy.game.input;
 
 import java.awt.event.MouseEvent;
 
+/**
+ * Static facade for accessing mouse input.
+ * 
+ * @author Armin Reichert
+ *
+ */
 public class Mouse {
 
+	public static MouseHandler handler;
+
 	public static boolean clicked() {
-		return MouseHandler.INSTANCE.clicked;
+		return handler.clicked;
 	}
 
 	public static boolean pressed() {
-		return MouseHandler.INSTANCE.pressed;
+		return handler.pressed;
 	}
 
 	public static boolean released() {
-		return MouseHandler.INSTANCE.released;
+		return handler.released;
 	}
 
 	public static boolean moved() {
-		return MouseHandler.INSTANCE.moved;
+		return handler.moved;
 	}
 
 	public static boolean dragged() {
-		return MouseHandler.INSTANCE.dragged;
+		return handler.dragged;
 	}
 
 	public static int getX() {
-		return MouseHandler.INSTANCE.x;
+		return handler.x;
 	}
 
 	public static int getY() {
-		return MouseHandler.INSTANCE.y;
+		return handler.y;
 	}
 
 	public static boolean isLeftButton() {
-		return MouseHandler.INSTANCE.button == MouseEvent.BUTTON1;
+		return handler.button == MouseEvent.BUTTON1;
 	}
 
 	public static boolean isMiddleButton() {
-		return MouseHandler.INSTANCE.button == MouseEvent.BUTTON2;
+		return handler.button == MouseEvent.BUTTON2;
 	}
 
 	public static boolean isRightButton() {
-		return MouseHandler.INSTANCE.button == MouseEvent.BUTTON3;
+		return handler.button == MouseEvent.BUTTON3;
 	}
 }

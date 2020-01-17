@@ -15,17 +15,7 @@ import java.util.BitSet;
  * @author Armin Reichert
  *
  */
-public enum KeyboardHandler implements KeyListener {
-
-	KEYBOARD; // singleton
-
-	public static void handleKeyEventsFor(Component component) {
-		component.addKeyListener(KEYBOARD);
-	}
-
-	public static synchronized void poll() {
-		KEYBOARD.pollKeyboard();
-	}
+public class KeyboardHandler implements KeyListener {
 
 	private int modifiers;
 	public boolean shift;
@@ -36,6 +26,14 @@ public enum KeyboardHandler implements KeyListener {
 	private final BitSet pressed = new BitSet();
 	private final BitSet pressedOneFrame = new BitSet();
 	private final BitSet pressedTwoFramesOrMore = new BitSet();
+
+	public void handleKeyEventsFor(Component component) {
+		component.addKeyListener(this);
+	}
+
+	public synchronized void poll() {
+		pollKeyboard();
+	}
 
 	@Override
 	public synchronized void keyPressed(KeyEvent e) {

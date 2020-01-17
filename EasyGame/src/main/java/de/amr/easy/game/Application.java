@@ -23,6 +23,7 @@ import de.amr.easy.game.entity.collision.CollisionHandler;
 import de.amr.easy.game.input.Keyboard;
 import de.amr.easy.game.input.Keyboard.Modifier;
 import de.amr.easy.game.input.KeyboardHandler;
+import de.amr.easy.game.input.Mouse;
 import de.amr.easy.game.input.MouseHandler;
 import de.amr.easy.game.timing.Clock;
 import de.amr.easy.game.ui.AppInfoView;
@@ -139,7 +140,9 @@ public abstract class Application {
 	public Application() {
 		settings = createAppSettings();
 		clock = new Clock(settings.fps, this::update, this::render);
-		MouseHandler.INSTANCE.fnScale = () -> settings.scale;
+		Keyboard.handler = new KeyboardHandler();
+		Mouse.handler = new MouseHandler();
+		Mouse.handler.fnScale = () -> settings.scale;
 		state = ApplicationState.NEW;
 	}
 
@@ -277,7 +280,7 @@ public abstract class Application {
 			throw new IllegalStateException("Application not initialized");
 		case INITIALIZED:
 		case RUNNING:
-			KeyboardHandler.poll();
+			Keyboard.handler.poll();
 			if (Keyboard.keyPressedOnce(Modifier.CONTROL, VK_P)) {
 				changeState(ApplicationState.PAUSED);
 				return;
@@ -286,12 +289,12 @@ public abstract class Application {
 				shell.showSettingsDialog();
 				return;
 			}
-			MouseHandler.poll();
+			Mouse.handler.poll();
 			collisionHandler().update();
 			controller.update();
 			break;
 		case PAUSED:
-			KeyboardHandler.poll();
+			Keyboard.handler.poll();
 			if (Keyboard.keyPressedOnce(KeyEvent.VK_F2)) {
 				shell.showSettingsDialog();
 			}

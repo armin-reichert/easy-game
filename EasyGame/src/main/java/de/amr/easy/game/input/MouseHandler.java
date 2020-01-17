@@ -11,18 +11,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.function.Supplier;
 
-public enum MouseHandler implements MouseListener, MouseMotionListener {
-
-	INSTANCE;
-
-	public static void handleMouseEventsFor(Component component) {
-		component.addMouseListener(INSTANCE);
-		component.addMouseMotionListener(INSTANCE);
-	}
-
-	public static synchronized void poll() {
-		INSTANCE._poll();
-	}
+public class MouseHandler implements MouseListener, MouseMotionListener {
 
 	public Supplier<Float> fnScale = () -> 1f;
 
@@ -42,7 +31,12 @@ public enum MouseHandler implements MouseListener, MouseMotionListener {
 	private boolean draggedDetected;
 	private MouseEvent event;
 
-	private synchronized void _poll() {
+	public void handleMouseEventsFor(Component component) {
+		component.addMouseListener(this);
+		component.addMouseMotionListener(this);
+	}
+
+	public synchronized void poll() {
 		clicked = clickedDetected;
 		pressed = pressedDetected;
 		released = releasedDetected;
@@ -50,11 +44,6 @@ public enum MouseHandler implements MouseListener, MouseMotionListener {
 		dragged = draggedDetected;
 		x = event != null ? Math.round(event.getX() / fnScale.get()) : -1;
 		y = event != null ? Math.round(event.getY() / fnScale.get()) : -1;
-
-		// if (event != null) {
-		// Application.LOG.info(event.toString());
-		// }
-
 		clickedDetected = pressedDetected = releasedDetected = movedDetected = draggedDetected = false;
 		event = null;
 	}
@@ -113,4 +102,4 @@ public enum MouseHandler implements MouseListener, MouseMotionListener {
 			button = 3;
 		}
 	}
-};
+}

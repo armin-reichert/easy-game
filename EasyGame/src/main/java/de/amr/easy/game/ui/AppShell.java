@@ -25,18 +25,21 @@ import java.util.Arrays;
 
 import javax.swing.JFrame;
 
-import de.amr.easy.game.input.KeyboardHandler;
-import de.amr.easy.game.input.MouseHandler;
+import de.amr.easy.game.input.Keyboard;
+import de.amr.easy.game.input.Mouse;
 import de.amr.easy.game.view.View;
 
 /**
- * The application shell provides the window where the current view of the application is rendered.
+ * The application shell provides the window where the current view of the
+ * application is rendered.
  * <p>
- * In window mode, the view is rendered to a double-buffered canvas which is the single child of the application frame.
+ * In window mode, the view is rendered to a double-buffered canvas which is the
+ * single child of the application frame.
  * 
  * <p>
- * In full-screen-exclusive mode, the view is rendered into a full-screen-exclusive frame. In both cases, active
- * rendering with the frequency of the application clock is performed.
+ * In full-screen-exclusive mode, the view is rendered into a
+ * full-screen-exclusive frame. In both cases, active rendering with the
+ * frequency of the application clock is performed.
  * 
  * <p>
  * The F11-key toggles between full-screen-exclusive and window mode.
@@ -88,8 +91,8 @@ public class AppShell extends JFrame {
 		canvas.setFocusable(false);
 		add(canvas, BorderLayout.CENTER);
 		addWindowListener(new WindowClosingHandler());
-		MouseHandler.handleMouseEventsFor(canvas);
-		KeyboardHandler.handleKeyEventsFor(this);
+		Mouse.handler.handleMouseEventsFor(canvas);
+		Keyboard.handler.handleKeyEventsFor(this);
 		fullScreenWindow = createFullScreenWindow();
 		pack();
 		setLocationRelativeTo(null);
@@ -102,8 +105,7 @@ public class AppShell extends JFrame {
 		}
 		if (inFullScreenMode()) {
 			LOGGER.info("Settings dialog cannot be opened in full-screen mode");
-		}
-		else {
+		} else {
 			settingsDialog.setVisible(true);
 		}
 	}
@@ -115,8 +117,7 @@ public class AppShell extends JFrame {
 			} catch (FullScreenModeException e) {
 				displayWindow();
 			}
-		}
-		else {
+		} else {
 			displayWindow();
 		}
 	}
@@ -136,8 +137,7 @@ public class AppShell extends JFrame {
 	public void toggleDisplayMode() {
 		if (inFullScreenMode()) {
 			displayWindow();
-		}
-		else {
+		} else {
 			try {
 				displayFullScreen();
 			} catch (FullScreenModeException e) {
@@ -155,8 +155,8 @@ public class AppShell extends JFrame {
 		window.addWindowListener(new WindowClosingHandler());
 		window.setCursor(window.getToolkit().createCustomCursor(new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB),
 				new Point(), null));
-		MouseHandler.handleMouseEventsFor(window);
-		KeyboardHandler.handleKeyEventsFor(window);
+		Mouse.handler.handleMouseEventsFor(window);
+		Keyboard.handler.handleKeyEventsFor(window);
 		return window;
 	}
 
@@ -167,8 +167,7 @@ public class AppShell extends JFrame {
 		requestFocus();
 		canvas.createBufferStrategy(2);
 		LOGGER.info(String.format("Entered window mode, resolution %dx%d (%dx%d scaled by %.2f)",
-				(int) (width * app().settings().scale),
-				(int) (height * app().settings().scale), width, height,
+				(int) (width * app().settings().scale), (int) (height * app().settings().scale), width, height,
 				app().settings().scale));
 		renderingEnabled = true;
 	}
@@ -188,8 +187,7 @@ public class AppShell extends JFrame {
 			fullScreenWindow.createBufferStrategy(2);
 			fullScreenWindow.requestFocus();
 			LOGGER.info("Entered full-screen mode " + getText(mode));
-		}
-		else {
+		} else {
 			device.setFullScreenWindow(null);
 			throw new FullScreenModeException("Display change not supported: " + getText(mode));
 		}
@@ -212,8 +210,8 @@ public class AppShell extends JFrame {
 
 	private String getTitle(int ups, int fps) {
 		if (app().settings().titleExtended) {
-			return format("%s [%dfps %dups %d x %dpx * %.2f]", app().settings().title, fps, ups, width,
-					height, app().settings().scale);
+			return format("%s [%dfps %dups %d x %dpx * %.2f]", app().settings().title, fps, ups, width, height,
+					app().settings().scale);
 		}
 		return app().settings().title;
 	}
@@ -259,8 +257,7 @@ public class AppShell extends JFrame {
 			if (app().isPaused()) {
 				drawCenteredText(g, PAUSED_TEXT, unscaledWidth, unscaledHeight);
 			}
-		}
-		else {
+		} else {
 			int width = canvas.getWidth(), height = canvas.getHeight();
 			g.fillRect(0, 0, width, height);
 			g.scale(app().settings().scale, app().settings().scale);
