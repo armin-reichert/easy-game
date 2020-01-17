@@ -21,26 +21,41 @@ public class Keyboard {
 		LOGGER.setLevel(Level.OFF);
 	}
 
+	private static KeyCodes codes = new KeyCodes();
+
+	// this is set by the application
 	public static KeyboardHandler handler;
 
-	public static boolean isModifier(int keyCode) {
-		return keyCode == KeyEvent.VK_SHIFT || keyCode == KeyEvent.VK_CONTROL || keyCode == KeyEvent.VK_ALT
-				|| keyCode == KeyEvent.VK_ALT_GRAPH;
+	private static int code(String key) {
+		return codes.get(key.toLowerCase());
+	}
+
+	public static boolean isModifier(int code) {
+		return code == KeyEvent.VK_SHIFT || code == KeyEvent.VK_CONTROL || code == KeyEvent.VK_ALT
+				|| code == KeyEvent.VK_ALT_GRAPH;
 	}
 
 	public static boolean isModifierDown() {
 		return isShiftDown() || isControlDown() || isAltDown() || isAltGraphDown();
 	}
 
-	public static boolean keyPressedOnce(int keyCode) {
+	public static boolean keyPressedOnce(String key) {
+		return keyPressedOnce(code(key));
+	}
+
+	public static boolean keyPressedOnce(Modifier modifier, String key) {
+		return keyPressedOnce(modifier, code(key));
+	}
+
+	public static boolean keyPressedOnce(int code) {
 		if (isModifierDown()) {
 			return false;
 		}
-		return handler.pressedOnce(keyCode);
+		return handler.pressedOnce(code);
 	}
 
-	public static boolean keyPressedOnce(Modifier modifier, int keyCode) {
-		if (!handler.pressedOnce(keyCode)) {
+	public static boolean keyPressedOnce(Modifier modifier, int code) {
+		if (!handler.pressedOnce(code)) {
 			return false;
 		}
 		switch (modifier) {
@@ -57,8 +72,8 @@ public class Keyboard {
 		}
 	}
 
-	public static boolean keyDown(int key) {
-		return !isModifierDown() && (handler.pressedLonger(key) || handler.pressedOnce(key));
+	public static boolean keyDown(int code) {
+		return !isModifierDown() && (handler.pressedLonger(code) || handler.pressedOnce(code));
 	}
 
 	public static boolean isShiftDown() {
