@@ -49,6 +49,7 @@ public class KeyCodes {
 
 		codes.put("+", KeyEvent.VK_PLUS);
 		codes.put("-", KeyEvent.VK_MINUS);
+		codes.put(" ", KeyEvent.VK_SPACE);
 	}
 
 	public int get(String key) {
