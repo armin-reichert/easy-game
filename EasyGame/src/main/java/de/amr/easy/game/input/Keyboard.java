@@ -73,7 +73,7 @@ public class Keyboard {
 	}
 
 	public static boolean keyDown(int code) {
-		return !isModifierDown() && (handler.pressedLonger(code) || handler.pressedOnce(code));
+		return handler.pressedLonger(code) || handler.pressedOnce(code);
 	}
 
 	public static boolean isShiftDown() {
