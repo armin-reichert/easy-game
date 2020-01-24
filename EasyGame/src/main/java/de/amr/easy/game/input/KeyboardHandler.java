@@ -49,9 +49,10 @@ public class KeyboardHandler implements KeyListener {
 	@Override
 	public synchronized void keyReleased(KeyEvent e) {
 		int keyCode = e.getKeyCode();
-		modifiers = 0;
+		modifiers = e.getModifiers();
 		shift = e.isShiftDown();
 		alt = e.isAltDown();
+		altGraph = e.isAltGraphDown();
 		control = e.isControlDown();
 		pressed.clear(keyCode);
 	}
@@ -86,11 +87,11 @@ public class KeyboardHandler implements KeyListener {
 		return modifiers != 0 ? getKeyModifiersText(modifiers) + "+" + getKeyText(keyCode) : getKeyText(keyCode);
 	}
 
-	boolean pressedOnce(int key) {
-		return pressedOneFrame.get(key);
+	boolean pressedOnce(int keyCode) {
+		return pressedOneFrame.get(keyCode);
 	}
 
-	boolean pressedLonger(int key) {
-		return pressedTwoFramesOrMore.get(key);
+	boolean pressedLonger(int keyCode) {
+		return pressedTwoFramesOrMore.get(keyCode);
 	}
 }

@@ -30,9 +30,9 @@ public class Keyboard {
 		return codes.get(key.toLowerCase());
 	}
 
-	public static boolean isModifier(int code) {
-		return code == KeyEvent.VK_SHIFT || code == KeyEvent.VK_CONTROL || code == KeyEvent.VK_ALT
-				|| code == KeyEvent.VK_ALT_GRAPH;
+	public static boolean isModifier(int keyCode) {
+		return keyCode == KeyEvent.VK_SHIFT || keyCode == KeyEvent.VK_CONTROL || keyCode == KeyEvent.VK_ALT
+				|| keyCode == KeyEvent.VK_ALT_GRAPH;
 	}
 
 	public static boolean isModifierDown() {
@@ -47,33 +47,27 @@ public class Keyboard {
 		return keyPressedOnce(modifier, code(key));
 	}
 
-	public static boolean keyPressedOnce(int code) {
-		if (isModifierDown()) {
-			return false;
-		}
-		return handler.pressedOnce(code);
+	public static boolean keyPressedOnce(int keyCode) {
+		return !isModifierDown() && handler.pressedOnce(keyCode);
 	}
 
-	public static boolean keyPressedOnce(Modifier modifier, int code) {
-		if (!handler.pressedOnce(code)) {
-			return false;
-		}
+	public static boolean keyPressedOnce(Modifier modifier, int keyCode) {
 		switch (modifier) {
 		case ALT:
-			return isAltDown();
+			return isAltDown() && handler.pressedOnce(keyCode);
 		case ALT_GRAPH:
-			return isAltGraphDown();
+			return isAltGraphDown() && handler.pressedOnce(keyCode);
 		case CONTROL:
-			return isControlDown();
+			return isControlDown() && handler.pressedOnce(keyCode);
 		case SHIFT:
-			return isShiftDown();
+			return isShiftDown() && handler.pressedOnce(keyCode);
 		default:
 			return false;
 		}
 	}
 
-	public static boolean keyDown(int code) {
-		return handler.pressedLonger(code) || handler.pressedOnce(code);
+	public static boolean keyDown(int keyCode) {
+		return handler.pressedLonger(keyCode) || handler.pressedOnce(keyCode);
 	}
 
 	public static boolean isShiftDown() {
