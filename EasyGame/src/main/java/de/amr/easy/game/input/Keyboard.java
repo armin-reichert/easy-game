@@ -66,7 +66,26 @@ public class Keyboard {
 		}
 	}
 
+	public static boolean keyDown(Modifier modifier, int keyCode) {
+		switch (modifier) {
+		case ALT:
+			return isAltDown() && pressedOnceOrLonger(keyCode);
+		case ALT_GRAPH:
+			return isAltGraphDown() && pressedOnceOrLonger(keyCode);
+		case CONTROL:
+			return isControlDown() && pressedOnceOrLonger(keyCode);
+		case SHIFT:
+			return isShiftDown() && pressedOnceOrLonger(keyCode);
+		default:
+			return pressedOnceOrLonger(keyCode);
+		}
+	}
+
 	public static boolean keyDown(int keyCode) {
+		return !isModifierDown() && pressedOnceOrLonger(keyCode);
+	}
+	
+	private static boolean pressedOnceOrLonger(int keyCode) {
 		return handler.pressedLonger(keyCode) || handler.pressedOnce(keyCode);
 	}
 

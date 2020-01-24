@@ -9,8 +9,7 @@ import java.awt.event.KeyListener;
 import java.util.BitSet;
 
 /**
- * Listens to keyboard events and stores their state in bitmaps. The game loop
- * polls the state at each clock tick.
+ * Listens to keyboard events and stores their state in bitmaps. The game loop polls the state at each clock tick.
  * 
  * @author Armin Reichert
  *
@@ -37,24 +36,26 @@ public class KeyboardHandler implements KeyListener {
 
 	@Override
 	public synchronized void keyPressed(KeyEvent e) {
-		int keyCode = e.getKeyCode();
 		modifiers = e.getModifiers();
 		shift = e.isShiftDown();
 		alt = e.isAltDown();
 		altGraph = e.isAltGraphDown();
 		control = e.isControlDown();
-		pressed.set(keyCode);
+		if (!Keyboard.isModifier(e.getKeyCode())) {
+			pressed.set(e.getKeyCode());
+		}
 	}
 
 	@Override
 	public synchronized void keyReleased(KeyEvent e) {
-		int keyCode = e.getKeyCode();
 		modifiers = e.getModifiers();
 		shift = e.isShiftDown();
 		alt = e.isAltDown();
 		altGraph = e.isAltGraphDown();
 		control = e.isControlDown();
-		pressed.clear(keyCode);
+		if (!Keyboard.isModifier(e.getKeyCode())) {
+			pressed.clear(e.getKeyCode());
+		}
 	}
 
 	@Override
@@ -70,14 +71,17 @@ public class KeyboardHandler implements KeyListener {
 			if (!pressed.get(keyCode)) { // 0 frames
 				pressedOneFrame.clear(keyCode);
 				pressedTwoFramesOrMore.clear(keyCode);
-			} else if (!pressedOneFrame.get(keyCode) && !pressedTwoFramesOrMore.get(keyCode)) { // one frame
+			}
+			else if (!pressedOneFrame.get(keyCode) && !pressedTwoFramesOrMore.get(keyCode)) { // one frame
 				pressedOneFrame.set(keyCode, true);
 				pressedTwoFramesOrMore.set(keyCode, false);
 				Keyboard.LOGGER.info(String.format("Key pressed once: '%s'", text(keyCode)));
-			} else if (pressedOneFrame.get(keyCode)) { // two frames
+			}
+			else if (pressedOneFrame.get(keyCode)) { // two frames
 				pressedOneFrame.set(keyCode, false);
 				pressedTwoFramesOrMore.set(keyCode, true);
-			} else {
+			}
+			else {
 				pressedTwoFramesOrMore.set(keyCode, true); // more than two frames
 			}
 		}

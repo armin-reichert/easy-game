@@ -11,6 +11,7 @@ import de.amr.easy.game.Application;
 import de.amr.easy.game.controller.Lifecycle;
 import de.amr.easy.game.entity.Entity;
 import de.amr.easy.game.input.Keyboard;
+import de.amr.easy.game.input.Keyboard.Modifier;
 
 public class KeyboardTestApp extends Application {
 
@@ -26,8 +27,7 @@ public class KeyboardTestApp extends Application {
 
 class KeyboardTestScene extends Entity implements Lifecycle {
 
-	private boolean alt, control, shift;
-	private int keyCode;
+	private int pressedKeyCode;
 
 	public int getWidth() {
 		return 600;
@@ -43,13 +43,15 @@ class KeyboardTestScene extends Entity implements Lifecycle {
 
 	@Override
 	public void update() {
-		alt = Keyboard.isAltDown();
-		control = Keyboard.isControlDown();
-		shift = Keyboard.isShiftDown();
-		keyCode = 0;
+		pressedKeyCode = -1;
 		for (int code = 0; code < 0xFFFF; ++code) {
-			if (Keyboard.keyDown(code)) {
-				keyCode = code;
+			if (Keyboard.keyDown(code) || Keyboard.keyPressedOnce(code)) {
+				pressedKeyCode = code;
+			}
+			for (Modifier modifier : Modifier.values()) {
+				if (Keyboard.keyDown(modifier, code) || Keyboard.keyPressedOnce(modifier, code)) {
+					pressedKeyCode = code;
+				}
 			}
 		}
 	}
@@ -59,14 +61,16 @@ class KeyboardTestScene extends Entity implements Lifecycle {
 		g.setColor(Color.WHITE);
 		g.setFont(new Font("Arial", Font.BOLD, 30));
 		String text = "";
-		if (alt)
+		if (Keyboard.isAltDown())
 			text += "Alt ";
-		if (control)
+		if (Keyboard.isControlDown())
 			text += "Control ";
-		if (shift)
+		if (Keyboard.isShiftDown())
 			text += "Shift ";
-		if (keyCode != 0 && !Keyboard.isModifier(keyCode)) {
-			text += KeyEvent.getKeyText(keyCode);
+		if (Keyboard.isAltGraphDown())
+			text += "AltGr";
+		if (pressedKeyCode != -1) {
+			text += KeyEvent.getKeyText(pressedKeyCode);
 		}
 		if ("".equals(text)) {
 			text = "Hold some key and some modifier keys!";
