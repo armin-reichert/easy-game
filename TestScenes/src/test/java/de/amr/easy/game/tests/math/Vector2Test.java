@@ -59,8 +59,8 @@ public class Vector2Test {
 		Vector2f inverse = inverse(v);
 		assertTrue(inverse.x == -5);
 		assertTrue(inverse.y == 10);
-		assertTrue(Vector2f.NULL.equals(sum(v, inverse)));
-		assertTrue(Vector2f.NULL.equals(sum(inverse, v)));
+		assertTrue(Vector2f.NULL == sum(v, inverse));
+		assertTrue(Vector2f.NULL == sum(inverse, v));
 	}
 
 	@Test
@@ -87,6 +87,8 @@ public class Vector2Test {
 		assertTrue(smul(3, sum(v, w)).equals(sum(smul(3, v), smul(3, w))));
 		// 1 * v = v
 		assertTrue(smul(1f, v).equals(v));
+		// 0 * v = 0
+		assertTrue(smul(0, v) == Vector2f.NULL);
 	}
 
 	@Test

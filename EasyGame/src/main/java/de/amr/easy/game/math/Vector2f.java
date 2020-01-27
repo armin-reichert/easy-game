@@ -16,88 +16,81 @@ public class Vector2f {
 	/** The y-coordinate. */
 	public final float y;
 
+	private Vector2f(float x, float y) {
+		this.x = x;
+		this.y = y;
+	}
+
 	/**
-	 * The NULL vector.
+	 * Creates a vector and make null vector unique.
+	 */
+	private static Vector2f vector(float x, float y) {
+		return x == 0 && y == 0 ? NULL : new Vector2f(x, y);
+	}
+
+	/**
+	 * The NULL vector. It is safe to compare using <code>==</code>.
 	 */
 	public static final Vector2f NULL = new Vector2f(0, 0);
 
 	/**
 	 * Creates a vector with given x and y coordinates.
 	 * 
-	 * @param x
-	 *            the x-coordinate
-	 * @param y
-	 *            the y-coordinate
+	 * @param x the x-coordinate
+	 * @param y the y-coordinate
 	 * @return vector with given coordinates
 	 */
 	public static Vector2f of(float x, float y) {
-		return x == 0 && y == 0 ? NULL : new Vector2f(x, y);
+		return vector(x, y);
 	}
 
 	/**
-	 * 
-	 * @param v
-	 *            first vector
-	 * @param w
-	 *            second vector
+	 * @param v first vector
+	 * @param w second vector
 	 * @return sum of the two vectors
 	 */
 	public static Vector2f sum(Vector2f v, Vector2f w) {
-		return Vector2f.of(v.x + w.x, v.y + w.y);
+		return vector(v.x + w.x, v.y + w.y);
 	}
 
 	/**
-	 * 
-	 * @param v
-	 *            a vector
+	 * @param v a vector
 	 * @return the inverse vector
 	 */
 	public static Vector2f inverse(Vector2f v) {
-		return Vector2f.of(-v.x, -v.y);
+		return vector(-v.x, -v.y);
 	}
 
 	/**
-	 * 
-	 * @param v
-	 *            first vector
-	 * @param w
-	 *            second vector
+	 * @param v first vector
+	 * @param w second vector
 	 * @return the difference vector <code>v - w</code>
 	 */
 	public static Vector2f diff(Vector2f v, Vector2f w) {
-		return Vector2f.of(v.x - w.x, v.y - w.y);
+		return vector(v.x - w.x, v.y - w.y);
 	}
 
 	/**
-	 * 
-	 * @param f
-	 *            a scalar value
-	 * @param v
-	 *            a vector
+	 * @param f a scalar value
+	 * @param v a vector
 	 * @return the vector given by multiplying each coordinate with the scalar value
 	 */
 	public static Vector2f smul(float f, Vector2f v) {
-		return Vector2f.of(f * v.x, f * v.y);
+		return vector(f * v.x, f * v.y);
 	}
 
 	/**
-	 * 
-	 * @param v
-	 *            first vector
-	 * @param w
-	 *            second vector
-	 * @return the scalar product of both vectors
+	 * @param v first vector
+	 * @param w second vector
+	 * @return the dot product ("Skalarprodukt") of both vectors
 	 */
 	public static float dot(Vector2f v, Vector2f w) {
 		return v.x * w.x + v.y * w.y;
 	}
 
 	/**
-	 * 
-	 * @param v
-	 *            first vector
-	 * @param w
-	 *            second vector
+	 * @param v first vector
+	 * @param w second vector
 	 * @return the Euclidean distance between the points defined by the vectors
 	 */
 	public static float euclideanDist(Vector2f v, Vector2f w) {
@@ -105,11 +98,8 @@ public class Vector2f {
 	}
 
 	/**
-	 * 
-	 * @param v
-	 *            first vector
-	 * @param w
-	 *            second vector
+	 * @param v first vector
+	 * @param w second vector
 	 * @return the Manhattan distance between the points defined by the vectors
 	 */
 	public static float manhattanDist(Vector2f v, Vector2f w) {
@@ -117,11 +107,8 @@ public class Vector2f {
 	}
 
 	/**
-	 * 
-	 * @param v
-	 *            first vector
-	 * @param w
-	 *            second vector
+	 * @param v first vector
+	 * @param w second vector
 	 * @return the angle between the vectors (in degrees)
 	 */
 	public static double angle(Vector2f v, Vector2f w) {
@@ -144,11 +131,12 @@ public class Vector2f {
 	}
 
 	/**
-	 * @return The normalized vector, that is the unit vector with the same direction.
+	 * @return The normalized vector, that is the unit vector with the same
+	 *         direction.
 	 */
 	public Vector2f normalized() {
 		float len = length();
-		return Vector2f.of(x / len, y / len);
+		return vector(x / len, y / len);
 	}
 
 	/**
@@ -156,11 +144,6 @@ public class Vector2f {
 	 */
 	public float length() {
 		return (float) Math.hypot(x, y);
-	}
-
-	private Vector2f(float x, float y) {
-		this.x = x;
-		this.y = y;
 	}
 
 	@Override
@@ -186,5 +169,4 @@ public class Vector2f {
 	public String toString() {
 		return "(" + x + "," + y + ")";
 	}
-
 }
