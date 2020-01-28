@@ -192,65 +192,64 @@ public abstract class Application {
 	}
 
 	private StateMachine<ApplicationState, ApplicationEvent> createLifecycle() {
-		StateMachine<ApplicationState, ApplicationEvent> fsm = StateMachine.
+		return StateMachine.
 		/*@formatter:off*/		
-				beginStateMachine(ApplicationState.class, ApplicationEvent.class, EventMatchStrategy.BY_EQUALITY)
-				.description(String.format("[%s]", getClass().getName()))
-				.initialState(INITIALIZED)
-				.states()
-					.state(INITIALIZED)
-						.onEntry(() -> {
-							Keyboard.handler = new KeyboardHandler();
-							Mouse.handler = new MouseHandler();
-							Mouse.handler.fnScale = () -> settings.scale;
-							init();
-							createShell();
-							shell.display(settings.fullScreenOnStart);
-						})
-					.state(RUNNING)
-						.onTick(() -> {
-							Keyboard.handler.poll();
-							Mouse.handler.poll();
-							collisionHandler().update();
-							controller.update();
-						})
-					.state(PAUSED)
-						.onTick(() -> {
-							Keyboard.handler.poll();
-						})
-					.state(CLOSED)
-						.onEntry(() -> {
-							if (exitHandler != null) {
-								exitHandler.accept(this);
-							}
-							clock.stop();
-							LOGGER.info("Application terminated.");
-							System.exit(0);
-						})
-						
-				.transitions()
+		beginStateMachine(ApplicationState.class, ApplicationEvent.class, EventMatchStrategy.BY_EQUALITY)
+			.description(String.format("[%s]", getClass().getName()))
+			.initialState(INITIALIZED)
+			.states()
+				.state(INITIALIZED)
+					.onEntry(() -> {
+						Keyboard.handler = new KeyboardHandler();
+						Mouse.handler = new MouseHandler();
+						Mouse.handler.fnScale = () -> settings.scale;
+						init();
+						createShell();
+						shell.display(settings.fullScreenOnStart);
+					})
+				.state(RUNNING)
+					.onTick(() -> {
+						Keyboard.handler.poll();
+						Mouse.handler.poll();
+						collisionHandler().update();
+						controller.update();
+					})
+				.state(PAUSED)
+					.onTick(() -> {
+						Keyboard.handler.poll();
+					})
+				.state(CLOSED)
+					.onEntry(() -> {
+						if (exitHandler != null) {
+							exitHandler.accept(this);
+						}
+						clock.stop();
+						LOGGER.info("Application terminated.");
+						System.exit(0);
+					})
+					
+			.transitions()
+			
+				.when(INITIALIZED).then(RUNNING)
 				
-					.when(INITIALIZED).then(RUNNING)
-					
-					.when(RUNNING).then(PAUSED).on(TOGGLE_PAUSE)
-					
-					.when(RUNNING).then(CLOSED).on(CLOSE)
-
-					.stay(RUNNING).on(TOGGLE_FULLSCREEN).act(() -> shell.toggleDisplayMode())
-						
-					.stay(RUNNING).on(SHOW_SETTINGS_DIALOG).act(() -> shell.showSettingsDialog())
-					
-					.when(PAUSED).then(RUNNING).on(TOGGLE_PAUSE)
+				.when(RUNNING).then(PAUSED).on(TOGGLE_PAUSE)
 				
-					.when(PAUSED).then(CLOSED).on(CLOSE)
+				.when(RUNNING).then(CLOSED).on(CLOSE)
+	
+				.stay(RUNNING).on(TOGGLE_FULLSCREEN).act(() -> shell.toggleDisplayMode())
 					
-					.stay(PAUSED).on(TOGGLE_FULLSCREEN).act(() -> shell.toggleDisplayMode())
+				.stay(RUNNING).on(SHOW_SETTINGS_DIALOG).act(() -> shell.showSettingsDialog())
+				
+				.when(PAUSED).then(RUNNING).on(TOGGLE_PAUSE)
+			
+				.when(PAUSED).then(CLOSED).on(CLOSE)
+				
+				.stay(PAUSED).on(TOGGLE_FULLSCREEN).act(() -> shell.toggleDisplayMode())
+	
+				.stay(PAUSED).on(SHOW_SETTINGS_DIALOG).act(() -> shell.showSettingsDialog())
 
-					.stay(PAUSED).on(SHOW_SETTINGS_DIALOG).act(() -> shell.showSettingsDialog())
-
-				.endStateMachine();
+		.endStateMachine();
 		/*@formatter:on*/
-		return fsm;
 	}
 
 	/**
