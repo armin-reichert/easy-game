@@ -5,9 +5,9 @@ import static de.amr.easy.game.Application.ApplicationEvent.SHOW_SETTINGS_DIALOG
 import static de.amr.easy.game.Application.ApplicationEvent.TOGGLE_FULLSCREEN;
 import static de.amr.easy.game.Application.ApplicationEvent.TOGGLE_PAUSE;
 import static de.amr.easy.game.Application.ApplicationState.CLOSED;
-import static de.amr.easy.game.Application.ApplicationState.INITIALIZED;
 import static de.amr.easy.game.Application.ApplicationState.PAUSED;
 import static de.amr.easy.game.Application.ApplicationState.RUNNING;
+import static de.amr.easy.game.Application.ApplicationState.STARTING;
 
 import java.awt.Image;
 import java.awt.event.KeyAdapter;
@@ -89,7 +89,7 @@ import de.amr.statemachine.core.StateMachine;
 public abstract class Application {
 
 	public enum ApplicationState {
-		INITIALIZED, RUNNING, PAUSED, CLOSED;
+		STARTING, RUNNING, PAUSED, CLOSED;
 	}
 
 	public enum ApplicationEvent {
@@ -136,6 +136,12 @@ public abstract class Application {
 		}
 		theApplication = app;
 		JCommander.newBuilder().addObject(app.settings).build().parse(args);
+		try {
+			UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
+		} catch (Exception e) {
+			e.printStackTrace();
+			LOGGER.warning("Could not set Nimbus Look&Feel.");
+		}
 		SwingUtilities.invokeLater(() -> app.start());
 	}
 
@@ -155,6 +161,9 @@ public abstract class Application {
 		lifecycle = createLifecycle();
 		internalKeyHandler = createInternalKeyHandler();
 		windowHandler = createWindowHandler();
+		Keyboard.handler = new KeyboardHandler();
+		Mouse.handler = new MouseHandler();
+		Mouse.handler.fnScale = () -> settings.scale;
 		clock = new Clock(settings.fps, lifecycle::update, this::render);
 	}
 
@@ -196,13 +205,10 @@ public abstract class Application {
 		/*@formatter:off*/		
 		beginStateMachine(ApplicationState.class, ApplicationEvent.class, EventMatchStrategy.BY_EQUALITY)
 			.description(String.format("[%s]", getClass().getName()))
-			.initialState(INITIALIZED)
+			.initialState(STARTING)
 			.states()
-				.state(INITIALIZED)
+				.state(STARTING)
 					.onEntry(() -> {
-						Keyboard.handler = new KeyboardHandler();
-						Mouse.handler = new MouseHandler();
-						Mouse.handler.fnScale = () -> settings.scale;
 						init();
 						createShell();
 						shell.display(settings.fullScreenOnStart);
@@ -213,10 +219,6 @@ public abstract class Application {
 						Mouse.handler.poll();
 						collisionHandler().update();
 						controller.update();
-					})
-				.state(PAUSED)
-					.onTick(() -> {
-						Keyboard.handler.poll();
 					})
 				.state(CLOSED)
 					.onEntry(() -> {
@@ -230,7 +232,7 @@ public abstract class Application {
 					
 			.transitions()
 			
-				.when(INITIALIZED).then(RUNNING)
+				.when(STARTING).then(RUNNING)
 				
 				.when(RUNNING).then(PAUSED).on(TOGGLE_PAUSE)
 				
@@ -258,13 +260,7 @@ public abstract class Application {
 	public abstract void init();
 
 	private void start() {
-		LOGGER.info(String.format("Launching application '%s' ", getClass().getName()));
-		try {
-			UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
-		} catch (Exception e) {
-			e.printStackTrace();
-			LOGGER.warning("Could not set Nimbus Look&Feel.");
-		}
+		LOGGER.info(String.format("Starting application '%s' ", getClass().getName()));
 		lifecycle.init();
 		clock.start();
 	}
