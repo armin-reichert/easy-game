@@ -1,9 +1,18 @@
 package de.amr.easy.game;
 
-import static java.awt.event.KeyEvent.VK_P;
+import static de.amr.easy.game.Application.ApplicationEvent.CLOSE;
+import static de.amr.easy.game.Application.ApplicationEvent.SHOW_SETTINGS_DIALOG;
+import static de.amr.easy.game.Application.ApplicationEvent.TOGGLE_FULLSCREEN;
+import static de.amr.easy.game.Application.ApplicationEvent.TOGGLE_PAUSE;
+import static de.amr.easy.game.Application.ApplicationState.CLOSED;
+import static de.amr.easy.game.Application.ApplicationState.INITIALIZED;
+import static de.amr.easy.game.Application.ApplicationState.PAUSED;
+import static de.amr.easy.game.Application.ApplicationState.RUNNING;
 
 import java.awt.Image;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.InputStream;
 import java.util.Objects;
 import java.util.Optional;
@@ -21,7 +30,6 @@ import de.amr.easy.game.config.AppSettings;
 import de.amr.easy.game.controller.Lifecycle;
 import de.amr.easy.game.entity.collision.CollisionHandler;
 import de.amr.easy.game.input.Keyboard;
-import de.amr.easy.game.input.Keyboard.Modifier;
 import de.amr.easy.game.input.KeyboardHandler;
 import de.amr.easy.game.input.Mouse;
 import de.amr.easy.game.input.MouseHandler;
@@ -30,12 +38,13 @@ import de.amr.easy.game.ui.AppInfoView;
 import de.amr.easy.game.ui.AppShell;
 import de.amr.easy.game.view.View;
 import de.amr.easy.game.view.VisualController;
+import de.amr.statemachine.core.EventMatchStrategy;
+import de.amr.statemachine.core.StateMachine;
 
 /**
- * Applications inherit from this class. To start an application, use the static
- * method {@code launch(Application, String[])}. For a complete list of the
- * supported command-line arguments / application settings, see class
- * {@link AppSettings}.
+ * Applications inherit from this class. To start an application, use the static method
+ * {@code launch(Application, String[])}. For a complete list of the supported command-line arguments / application
+ * settings, see class {@link AppSettings}.
  * <p>
  * Example:
  * 
@@ -77,7 +86,11 @@ import de.amr.easy.game.view.VisualController;
 public abstract class Application {
 
 	public enum ApplicationState {
-		NEW, INITIALIZED, RUNNING, PAUSED;
+		INITIALIZED, RUNNING, PAUSED, CLOSED;
+	}
+
+	public enum ApplicationEvent {
+		TOGGLE_PAUSE, TOGGLE_FULLSCREEN, SHOW_SETTINGS_DIALOG, CLOSE
 	}
 
 	/** Application-global logger. */
@@ -96,58 +109,153 @@ public abstract class Application {
 	}
 
 	/** Singleton. */
-	private static Application APP;
+	private static Application theApplication;
 
 	/** Static access to application instance. */
 	public static Application app() {
-		if (APP == null) {
+		if (theApplication == null) {
 			throw new IllegalStateException("Application instance not yet accessible at this point");
 		}
-		return APP;
+		return theApplication;
 	}
 
 	/**
-	 * Launches the specified application. The command-line arguments are parsed and
-	 * assigned to the application settings.
+	 * Launches the specified application. The command-line arguments are parsed and assigned to the application settings.
 	 * 
-	 * @param app  application instance
-	 * @param args command-line arguments
+	 * @param app
+	 *               application instance
+	 * @param args
+	 *               command-line arguments
 	 */
 	public static void launch(Application app, String[] args) {
 		if (app == null) {
 			throw new IllegalArgumentException("Cannot launch application, got NULL as application reference");
 		}
-		APP = app;
+		theApplication = app;
 		JCommander.newBuilder().addObject(app.settings).build().parse(args);
-		SwingUtilities.invokeLater(() -> app.startAndShowUserInterface());
+		SwingUtilities.invokeLater(() -> app.start());
 	}
 
-	private final AppSettings settings;
-	private final Clock clock;
+	private final StateMachine<ApplicationState, ApplicationEvent> lifecycle;
+	private AppSettings settings;
+	private Clock clock;
 	private CollisionHandler collisionHandler;
 	private Consumer<Application> exitHandler;
 	private AppShell shell;
 	private Lifecycle controller;
-	private ApplicationState state;
 	private Image icon;
-
-	/**
-	 * Initialization hook for application. Application should set main controller
-	 * in this method.
-	 */
-	public abstract void init();
+	private KeyListener internalKeyHandler;
 
 	public Application() {
 		settings = createAppSettings();
-		clock = new Clock(settings.fps, this::update, this::render);
-		Keyboard.handler = new KeyboardHandler();
-		Mouse.handler = new MouseHandler();
-		Mouse.handler.fnScale = () -> settings.scale;
-		state = ApplicationState.NEW;
+		lifecycle = createLifecycle();
+		internalKeyHandler = createInternalKeyHandler();
 	}
 
-	private void startAndShowUserInterface() {
-		int width = settings.width, height = settings.height;
+	private KeyListener createInternalKeyHandler() {
+		return new KeyAdapter() {
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_P) {
+					lifecycle.process(TOGGLE_PAUSE);
+				}
+				else if (e.getKeyCode() == KeyEvent.VK_F2) {
+					lifecycle.process(SHOW_SETTINGS_DIALOG);
+				}
+				else if (e.getKeyCode() == KeyEvent.VK_F11) {
+					lifecycle.process(TOGGLE_FULLSCREEN);
+				}
+			}
+		};
+	}
+
+	protected AppSettings createAppSettings() {
+		return new AppSettings();
+	}
+
+	private StateMachine<ApplicationState, ApplicationEvent> createLifecycle() {
+		StateMachine<ApplicationState, ApplicationEvent> fsm = StateMachine.
+		/*@formatter:off*/		
+				beginStateMachine(ApplicationState.class, ApplicationEvent.class, EventMatchStrategy.BY_EQUALITY)
+				.description(String.format("[%s]", getClass().getName()))
+				.initialState(INITIALIZED)
+				.states()
+					.state(INITIALIZED)
+						.onEntry(() -> {
+							clock = new Clock(settings.fps, lifecycle::update, Application.this::render);
+							Keyboard.handler = new KeyboardHandler();
+							Mouse.handler = new MouseHandler();
+							Mouse.handler.fnScale = () -> settings.scale;
+							init();
+							if (controller == null) {
+								int w = 800, h = 600;
+								settings.scale = 1;
+								controller = new AppInfoView(w, h);
+								controller.init();
+								LOGGER.warning("WARNING: Application did not specify a main controller! Using default controller.");
+								shell = new AppShell(w, h);
+							} else {
+								shell = new AppShell(settings.width, settings.height);
+							}
+							shell.display(settings.fullScreenOnStart);
+							shell.addKeyListener(internalKeyHandler);
+							shell.getFullScreenWindow().addKeyListener(internalKeyHandler);
+							clock.start();
+							LOGGER.info(String.format("Clock started, %d ticks/sec.", clock.getFrequency()));
+						})
+					.state(RUNNING)
+						.onTick(() -> {
+							Keyboard.handler.poll();
+							Mouse.handler.poll();
+							collisionHandler().update();
+							controller.update();
+						})
+					.state(PAUSED)
+						.onTick(() -> {
+							Keyboard.handler.poll();
+						})
+					.state(CLOSED)
+						.onEntry(() -> {
+							if (exitHandler != null) {
+								exitHandler.accept(this);
+							}
+							clock.stop();
+							LOGGER.info("Application terminated.");
+							System.exit(0);
+						})
+						
+				.transitions()
+				
+					.when(INITIALIZED).then(RUNNING)
+					
+					.when(RUNNING).then(PAUSED).on(TOGGLE_PAUSE)
+					
+					.when(RUNNING).then(CLOSED).on(CLOSE)
+
+					.stay(RUNNING).on(TOGGLE_FULLSCREEN).act(() -> shell.toggleDisplayMode())
+						
+					.stay(RUNNING).on(SHOW_SETTINGS_DIALOG).act(() -> shell.showSettingsDialog())
+					
+					.when(PAUSED).then(RUNNING).on(TOGGLE_PAUSE)
+				
+					.when(PAUSED).then(CLOSED).on(CLOSE)
+					
+					.stay(PAUSED).on(TOGGLE_FULLSCREEN).act(() -> shell.toggleDisplayMode())
+
+					.stay(PAUSED).on(SHOW_SETTINGS_DIALOG).act(() -> shell.showSettingsDialog())
+
+				.endStateMachine();
+		/*@formatter:on*/
+		return fsm;
+	}
+
+	/**
+	 * Initialization hook for application. Application should set main controller in this method.
+	 */
+	public abstract void init();
+
+	private void start() {
 		LOGGER.info(String.format("Launching application '%s' ", getClass().getName()));
 		try {
 			UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
@@ -155,28 +263,23 @@ public abstract class Application {
 			e.printStackTrace();
 			LOGGER.warning("Could not set Nimbus Look&Feel.");
 		}
-		init();
-		if (controller == null) {
-			width = 800;
-			height = 600;
-			settings.scale = 1;
-			controller = new AppInfoView(width, height);
-			controller.init();
-			LOGGER.warning("WARNING: Application did not specify a main controller! Using default controller.");
-		}
-		changeState(ApplicationState.INITIALIZED);
-		shell = new AppShell(width, height);
-		shell.display(settings.fullScreenOnStart);
-		clock.start();
-		LOGGER.info(String.format("Clock started, %d ticks/sec.", clock.getFrequency()));
-		changeState(ApplicationState.RUNNING);
+		lifecycle.init();
 	}
 
 	/**
-	 * Creates the settings for this application
+	 * Called when the application shell is closed. Stops the clock, executes the optional exit handler and terminates the
+	 * VM.
 	 */
-	protected AppSettings createAppSettings() {
-		return new AppSettings();
+	public final void exit() {
+		lifecycle.process(CLOSE);
+	}
+
+	public boolean isPaused() {
+		return lifecycle.is(PAUSED);
+	}
+
+	public boolean inFullScreenMode() {
+		return shell != null && shell.inFullScreenMode();
 	}
 
 	public CollisionHandler collisionHandler() {
@@ -205,8 +308,10 @@ public abstract class Application {
 	/**
 	 * Makes the given controller the current one and optionally initializes it.
 	 * 
-	 * @param controller a controller
-	 * @param initialize if the controller should be initialized
+	 * @param controller
+	 *                     a controller
+	 * @param initialize
+	 *                     if the controller should be initialized
 	 */
 	public void setController(Lifecycle controller, boolean initialize) {
 		if (controller == null) {
@@ -225,7 +330,8 @@ public abstract class Application {
 	/**
 	 * Sets the given controller and calls its initializer method.
 	 * 
-	 * @param controller new controller
+	 * @param controller
+	 *                     new controller
 	 */
 	public void setController(Lifecycle controller) {
 		setController(controller, true);
@@ -239,72 +345,6 @@ public abstract class Application {
 		this.icon = Objects.requireNonNull(image);
 		if (shell != null) {
 			shell.setIconImage(image);
-		}
-	}
-
-	public boolean inFullScreenMode() {
-		return shell != null && shell.inFullScreenMode();
-	}
-
-	/**
-	 * Called when the application shell is closed. Stops the clock, executes the
-	 * optional exit handler and terminates the VM.
-	 */
-	public final void exit() {
-		clock.stop();
-		if (exitHandler != null) {
-			exitHandler.accept(this);
-		}
-		LOGGER.info("Application terminated.");
-		System.exit(0);
-	}
-
-	public boolean isPaused() {
-		return state == ApplicationState.PAUSED;
-	}
-
-	private void changeState(ApplicationState newState) {
-		ApplicationState oldState = state;
-		if (oldState != newState) {
-			state = newState;
-			LOGGER.info(String.format("Application state changes from '%s' to '%s'", oldState, newState));
-		}
-	}
-
-	private void update() {
-		if (Keyboard.keyPressedOnce(KeyEvent.VK_F11)) {
-			shell.toggleDisplayMode();
-		}
-		switch (state) {
-		case NEW:
-			throw new IllegalStateException("Application not initialized");
-		case INITIALIZED:
-		case RUNNING:
-			Keyboard.handler.poll();
-			if (Keyboard.keyPressedOnce(Modifier.CONTROL, VK_P)) {
-				changeState(ApplicationState.PAUSED);
-				return;
-			}
-			if (Keyboard.keyPressedOnce(KeyEvent.VK_F2)) {
-				shell.showSettingsDialog();
-				return;
-			}
-			Mouse.handler.poll();
-			collisionHandler().update();
-			controller.update();
-			break;
-		case PAUSED:
-			Keyboard.handler.poll();
-			if (Keyboard.keyPressedOnce(KeyEvent.VK_F2)) {
-				shell.showSettingsDialog();
-			}
-			if (Keyboard.keyPressedOnce(Modifier.CONTROL, VK_P)) {
-				changeState(ApplicationState.RUNNING);
-				return;
-			}
-			break;
-		default:
-			throw new IllegalStateException();
 		}
 	}
 

@@ -159,6 +159,10 @@ public class AppShell extends JFrame {
 		Keyboard.handler.handleKeyEventsFor(window);
 		return window;
 	}
+	
+	public JFrame getFullScreenWindow() {
+		return fullScreenWindow;
+	}
 
 	private void displayWindow() {
 		renderingEnabled = false;

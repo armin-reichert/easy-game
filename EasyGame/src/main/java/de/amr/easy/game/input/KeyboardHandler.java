@@ -12,7 +12,6 @@ import java.util.BitSet;
  * Listens to keyboard events and stores their state in bitmaps. The game loop polls the state at each clock tick.
  * 
  * @author Armin Reichert
- *
  */
 public class KeyboardHandler implements KeyListener {
 
