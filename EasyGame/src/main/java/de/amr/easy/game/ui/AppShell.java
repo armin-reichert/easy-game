@@ -1,7 +1,6 @@
 package de.amr.easy.game.ui;
 
 import static de.amr.easy.game.Application.LOGGER;
-import static de.amr.easy.game.Application.app;
 import static java.lang.String.format;
 
 import java.awt.BorderLayout;
@@ -16,8 +15,6 @@ import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Point;
 import java.awt.RenderingHints;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
@@ -25,21 +22,19 @@ import java.util.Arrays;
 
 import javax.swing.JFrame;
 
+import de.amr.easy.game.Application;
 import de.amr.easy.game.input.Keyboard;
 import de.amr.easy.game.input.Mouse;
 import de.amr.easy.game.view.View;
 
 /**
- * The application shell provides the window where the current view of the
- * application is rendered.
+ * The application shell provides the window where the current view of the application is rendered.
  * <p>
- * In window mode, the view is rendered to a double-buffered canvas which is the
- * single child of the application frame.
+ * In window mode, the view is rendered to a double-buffered canvas which is the single child of the application frame.
  * 
  * <p>
- * In full-screen-exclusive mode, the view is rendered into a
- * full-screen-exclusive frame. In both cases, active rendering with the
- * frequency of the application clock is performed.
+ * In full-screen-exclusive mode, the view is rendered into a full-screen-exclusive frame. In both cases, active
+ * rendering with the frequency of the application clock is performed.
  * 
  * <p>
  * The F11-key toggles between full-screen-exclusive and window mode.
@@ -50,15 +45,7 @@ public class AppShell extends JFrame {
 
 	private static final String PAUSED_TEXT = "PAUSED (Press CTRL+P to continue)";
 
-	private class WindowClosingHandler extends WindowAdapter {
-
-		@Override
-		public void windowClosing(WindowEvent e) {
-			LOGGER.info("Application window closing, app will exit...");
-			app().exit();
-		}
-	};
-
+	private final Application app;
 	private final int width;
 	private final int height;
 	private final GraphicsDevice device;
@@ -68,29 +55,29 @@ public class AppShell extends JFrame {
 	private AppSettingsDialog settingsDialog;
 	private volatile boolean renderingEnabled;
 
-	public AppShell(int width, int height) {
+	public AppShell(Application app, int width, int height) {
+		this.app = app;
 		this.width = width;
 		this.height = height;
 		device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-		if (app().settings().fullScreenMode == null) {
+		if (app.settings().fullScreenMode == null) {
 			DisplayMode[] modes = device.getDisplayModes();
-			app().settings().fullScreenMode = modes[modes.length - 1];
+			app.settings().fullScreenMode = modes[modes.length - 1];
 		}
-		setIconImage(app().getIcon());
-		setTitle(app().settings().title);
+		setIconImage(app.getIcon());
+		setTitle(app.settings().title);
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		int scaledWidth = (int) Math.ceil(width * app().settings().scale);
-		int scaledHeight = (int) Math.ceil(height * app().settings().scale);
+		int scaledWidth = (int) Math.ceil(width * app.settings().scale);
+		int scaledHeight = (int) Math.ceil(height * app.settings().scale);
 		Dimension size = new Dimension(scaledWidth, scaledHeight);
 		canvas = new Canvas();
 		canvas.setPreferredSize(size);
 		canvas.setSize(size);
-		canvas.setBackground(app().settings().bgColor);
+		canvas.setBackground(app.settings().bgColor);
 		canvas.setIgnoreRepaint(true);
 		canvas.setFocusable(false);
 		add(canvas, BorderLayout.CENTER);
-		addWindowListener(new WindowClosingHandler());
 		Mouse.handler.handleMouseEventsFor(canvas);
 		Keyboard.handler.handleKeyEventsFor(this);
 		fullScreenWindow = createFullScreenWindow();
@@ -101,11 +88,12 @@ public class AppShell extends JFrame {
 
 	public void showSettingsDialog() {
 		if (settingsDialog == null) {
-			settingsDialog = new AppSettingsDialog(this, app());
+			settingsDialog = new AppSettingsDialog(this, app);
 		}
 		if (inFullScreenMode()) {
 			LOGGER.info("Settings dialog cannot be opened in full-screen mode");
-		} else {
+		}
+		else {
 			settingsDialog.setVisible(true);
 		}
 	}
@@ -117,7 +105,8 @@ public class AppShell extends JFrame {
 			} catch (FullScreenModeException e) {
 				displayWindow();
 			}
-		} else {
+		}
+		else {
 			displayWindow();
 		}
 	}
@@ -126,8 +115,8 @@ public class AppShell extends JFrame {
 		if (renderingEnabled) {
 			render(inFullScreenMode() ? fullScreenWindow.getBufferStrategy() : canvas.getBufferStrategy(), view);
 			++frames;
-			if (frames >= app().clock().getFrequency()) {
-				String title = getTitle(app().clock().getUpdateRate(), app().clock().getRenderRate());
+			if (frames >= app.clock().getFrequency()) {
+				String title = getTitle(app.clock().getUpdateRate(), app.clock().getRenderRate());
 				EventQueue.invokeLater(() -> setTitle(title));
 				frames = 0;
 			}
@@ -137,7 +126,8 @@ public class AppShell extends JFrame {
 	public void toggleDisplayMode() {
 		if (inFullScreenMode()) {
 			displayWindow();
-		} else {
+		}
+		else {
 			try {
 				displayFullScreen();
 			} catch (FullScreenModeException e) {
@@ -148,18 +138,17 @@ public class AppShell extends JFrame {
 
 	private JFrame createFullScreenWindow() {
 		JFrame window = new JFrame();
-		window.setBackground(app().settings().bgColor);
+		window.setBackground(app.settings().bgColor);
 		window.setUndecorated(true);
 		window.setResizable(false);
 		window.setIgnoreRepaint(true);
-		window.addWindowListener(new WindowClosingHandler());
 		window.setCursor(window.getToolkit().createCustomCursor(new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB),
 				new Point(), null));
 		Mouse.handler.handleMouseEventsFor(window);
 		Keyboard.handler.handleKeyEventsFor(window);
 		return window;
 	}
-	
+
 	public JFrame getFullScreenWindow() {
 		return fullScreenWindow;
 	}
@@ -171,8 +160,8 @@ public class AppShell extends JFrame {
 		requestFocus();
 		canvas.createBufferStrategy(2);
 		LOGGER.info(String.format("Entered window mode, resolution %dx%d (%dx%d scaled by %.2f)",
-				(int) (width * app().settings().scale), (int) (height * app().settings().scale), width, height,
-				app().settings().scale));
+				(int) (width * app.settings().scale), (int) (height * app.settings().scale), width, height,
+				app.settings().scale));
 		renderingEnabled = true;
 	}
 
@@ -180,7 +169,7 @@ public class AppShell extends JFrame {
 		if (!device.isFullScreenSupported()) {
 			throw new FullScreenModeException("Device does not support full-screen exclusive mode.");
 		}
-		final DisplayMode mode = app().settings().fullScreenMode;
+		final DisplayMode mode = app.settings().fullScreenMode;
 		if (!isValid(mode)) {
 			throw new FullScreenModeException("Display mode not supported: " + getText(mode));
 		}
@@ -191,7 +180,8 @@ public class AppShell extends JFrame {
 			fullScreenWindow.createBufferStrategy(2);
 			fullScreenWindow.requestFocus();
 			LOGGER.info("Entered full-screen mode " + getText(mode));
-		} else {
+		}
+		else {
 			device.setFullScreenWindow(null);
 			throw new FullScreenModeException("Display change not supported: " + getText(mode));
 		}
@@ -213,11 +203,11 @@ public class AppShell extends JFrame {
 	}
 
 	private String getTitle(int ups, int fps) {
-		if (app().settings().titleExtended) {
-			return format("%s [%dfps %dups %d x %dpx * %.2f]", app().settings().title, fps, ups, width, height,
-					app().settings().scale);
+		if (app.settings().titleExtended) {
+			return format("%s [%dfps %dups %d x %dpx * %.2f]", app.settings().title, fps, ups, width, height,
+					app.settings().scale);
 		}
-		return app().settings().title;
+		return app.settings().title;
 	}
 
 	private void render(BufferStrategy buffer, View view) {
@@ -245,7 +235,7 @@ public class AppShell extends JFrame {
 
 	private void drawView(View view, Graphics2D g2) {
 		Graphics2D g = (Graphics2D) g2.create();
-		g.setColor(app().settings().bgColor);
+		g.setColor(app.settings().bgColor);
 		if (inFullScreenMode()) {
 			g.fillRect(0, 0, fullScreenWindow.getWidth(), fullScreenWindow.getHeight());
 			int unscaledWidth = width;
@@ -258,15 +248,16 @@ public class AppShell extends JFrame {
 			g.setClip(0, 0, (int) scaledWidth, (int) scaledHeight);
 			g.scale(zoom, zoom);
 			view.draw(g);
-			if (app().isPaused()) {
+			if (app.isPaused()) {
 				drawCenteredText(g, PAUSED_TEXT, unscaledWidth, unscaledHeight);
 			}
-		} else {
+		}
+		else {
 			int width = canvas.getWidth(), height = canvas.getHeight();
 			g.fillRect(0, 0, width, height);
-			g.scale(app().settings().scale, app().settings().scale);
+			g.scale(app.settings().scale, app.settings().scale);
 			view.draw(g);
-			if (app().isPaused()) {
+			if (app.isPaused()) {
 				drawCenteredText(g2, PAUSED_TEXT, width, height);
 			}
 		}

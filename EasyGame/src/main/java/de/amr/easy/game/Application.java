@@ -13,6 +13,9 @@ import java.awt.Image;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.InputStream;
 import java.util.Objects;
 import java.util.Optional;
@@ -145,11 +148,14 @@ public abstract class Application {
 	private Lifecycle controller;
 	private Image icon;
 	private KeyListener internalKeyHandler;
+	private WindowListener windowHandler;
 
 	public Application() {
 		settings = createAppSettings();
 		lifecycle = createLifecycle();
 		internalKeyHandler = createInternalKeyHandler();
+		windowHandler = createWindowHandler();
+		clock = new Clock(settings.fps, lifecycle::update, this::render);
 	}
 
 	private KeyListener createInternalKeyHandler() {
@@ -170,6 +176,17 @@ public abstract class Application {
 		};
 	}
 
+	private WindowListener createWindowHandler() {
+		return new WindowAdapter() {
+
+			@Override
+			public void windowClosing(WindowEvent e) {
+				LOGGER.info("Application window closing, app will exit...");
+				lifecycle.process(CLOSE);
+			}
+		};
+	}
+
 	protected AppSettings createAppSettings() {
 		return new AppSettings();
 	}
@@ -183,26 +200,12 @@ public abstract class Application {
 				.states()
 					.state(INITIALIZED)
 						.onEntry(() -> {
-							clock = new Clock(settings.fps, lifecycle::update, Application.this::render);
 							Keyboard.handler = new KeyboardHandler();
 							Mouse.handler = new MouseHandler();
 							Mouse.handler.fnScale = () -> settings.scale;
 							init();
-							if (controller == null) {
-								int w = 800, h = 600;
-								settings.scale = 1;
-								controller = new AppInfoView(w, h);
-								controller.init();
-								LOGGER.warning("WARNING: Application did not specify a main controller! Using default controller.");
-								shell = new AppShell(w, h);
-							} else {
-								shell = new AppShell(settings.width, settings.height);
-							}
+							createShell();
 							shell.display(settings.fullScreenOnStart);
-							shell.addKeyListener(internalKeyHandler);
-							shell.getFullScreenWindow().addKeyListener(internalKeyHandler);
-							clock.start();
-							LOGGER.info(String.format("Clock started, %d ticks/sec.", clock.getFrequency()));
 						})
 					.state(RUNNING)
 						.onTick(() -> {
@@ -264,14 +267,24 @@ public abstract class Application {
 			LOGGER.warning("Could not set Nimbus Look&Feel.");
 		}
 		lifecycle.init();
+		clock.start();
 	}
 
-	/**
-	 * Called when the application shell is closed. Stops the clock, executes the optional exit handler and terminates the
-	 * VM.
-	 */
-	public final void exit() {
-		lifecycle.process(CLOSE);
+	private void createShell() {
+		int w = settings.width, h = settings.height;
+		if (controller == null) {
+			LOGGER.warning("WARNING: Application did not specify a main controller! Using default controller.");
+			settings.scale = 1;
+			w = 800;
+			h = 600;
+			controller = new AppInfoView(w, h);
+			controller.init();
+		}
+		shell = new AppShell(this, w, h);
+		shell.addKeyListener(internalKeyHandler);
+		shell.getFullScreenWindow().addKeyListener(internalKeyHandler);
+		shell.addWindowListener(windowHandler);
+		shell.getFullScreenWindow().addWindowListener(windowHandler);
 	}
 
 	public boolean isPaused() {
