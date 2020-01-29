@@ -46,10 +46,9 @@ import de.amr.statemachine.core.EventMatchStrategy;
 import de.amr.statemachine.core.StateMachine;
 
 /**
- * Applications inherit from this class. To start an application, use the static
- * method {@code launch(Application, String[])}. For a complete list of the
- * supported command-line arguments / application settings, see class
- * {@link AppSettings}.
+ * Applications inherit from this class. To start an application, use the static method
+ * {@code launch(Application, String[])}. For a complete list of the supported command-line arguments / application
+ * settings, see class {@link AppSettings}.
  * <p>
  * Example:
  * 
@@ -59,17 +58,15 @@ import de.amr.statemachine.core.StateMachine;
  * public class MyFirstGame extends Application {
  * 
  * 	public static void main(String... args) {
- * 		launch(new MyFirstGame(), args);
+ * 		launch(MyFirstGame.class, args);
  * 	}
  * 
  *	&#64;Override
- * 	public AppSettings createAppSettings() {
- *		AppSettings settings = new AppSettings();
+ * 	public void configure(AppSettings settings) {
  * 		settings.width = 800;
  * 		settings.height = 600;
  * 		settings.scale = 2;
  * 		settings.title = "My First Game";
- * 		return settings;
  * 	}
  * 
  *	&#64;Override
@@ -125,42 +122,50 @@ public abstract class Application {
 	}
 
 	/**
-	 * Launches the specified application. The command-line arguments are parsed and
-	 * assigned to the application settings.
+	 * Launches the specified application. The command-line arguments are parsed and assigned to the application settings.
 	 * 
-	 * @param app  application instance
-	 * @param args command-line arguments
+	 * @param app
+	 *               application instance
+	 * @param args
+	 *               command-line arguments
 	 */
-	public static void launch(Application app, String[] args) {
-		if (app == null) {
-			throw new IllegalArgumentException("Application is NULL");
+	public static void launch(Class<? extends Application> appClass, AppSettings settings, String[] args) {
+		try {
+			theApplication = appClass.newInstance();
+		} catch (InstantiationException | IllegalAccessException x) {
+			throw new RuntimeException("Could not create application", x);
 		}
-		JCommander.newBuilder().addObject(app.settings).build().parse(args);
+		theApplication.settings = settings;
+		theApplication.configure(theApplication.settings);
+		JCommander.newBuilder().addObject(theApplication.settings).build().parse(args);
+		theApplication.construct();
 		try {
 			UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
 		} catch (Exception e) {
 			e.printStackTrace();
 			LOGGER.warning("Could not set Nimbus Look&Feel.");
 		}
-		theApplication = app;
-		SwingUtilities.invokeLater(() -> app.lifecycle.init());
+		SwingUtilities.invokeLater(() -> theApplication.lifecycle.init());
 	}
 
-	private final StateMachine<ApplicationState, ApplicationEvent> lifecycle;
-	private final KeyboardHandler appKeyHandler;
-	private final KeyListener internalKeyHandler;
-	private final MouseHandler appMouseHandler;
-	private final WindowListener windowHandler;
-	private final AppSettings settings;
-	private final Clock clock;
+	public static void launch(Class<? extends Application> appClass, String[] args) {
+		launch(appClass, new AppSettings(), args);
+	}
+
+	private AppSettings settings;
+	private StateMachine<ApplicationState, ApplicationEvent> lifecycle;
+	private KeyboardHandler appKeyHandler;
+	private KeyListener internalKeyHandler;
+	private MouseHandler appMouseHandler;
+	private WindowListener windowHandler;
+	private Clock clock;
 	private CollisionHandler collisionHandler;
 	private Consumer<Application> exitHandler;
 	private AppShell shell;
 	private Lifecycle controller;
 	private Image icon;
 
-	public Application() {
-		settings = createAppSettings();
+	private void construct() {
 		lifecycle = createLifecycle();
 		internalKeyHandler = createInternalKeyHandler();
 		appKeyHandler = new KeyboardHandler();
@@ -169,15 +174,7 @@ public abstract class Application {
 		clock = new Clock(settings.fps, lifecycle::update, this::render);
 	}
 
-	/**
-	 * Applications can override this method to provide their specific settings
-	 * implementation.
-	 * 
-	 * @return application settings
-	 */
-	protected AppSettings createAppSettings() {
-		return new AppSettings();
-	}
+	protected abstract void configure(AppSettings settings);
 
 	private KeyListener createInternalKeyHandler() {
 		return new KeyAdapter() {
@@ -186,9 +183,11 @@ public abstract class Application {
 			public void keyPressed(KeyEvent e) {
 				if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_P) {
 					lifecycle.process(TOGGLE_PAUSE);
-				} else if (e.getKeyCode() == KeyEvent.VK_F2) {
+				}
+				else if (e.getKeyCode() == KeyEvent.VK_F2) {
 					lifecycle.process(SHOW_SETTINGS_DIALOG);
-				} else if (e.getKeyCode() == KeyEvent.VK_F11) {
+				}
+				else if (e.getKeyCode() == KeyEvent.VK_F11) {
 					lifecycle.process(TOGGLE_FULLSCREEN);
 				}
 			}
@@ -280,16 +279,16 @@ public abstract class Application {
 
 	private void createShell(int w, int h) {
 		shell = new AppShell(this, w, h);
-	
+
 		shell.addKeyListener(internalKeyHandler);
 		shell.getFullScreenWindow().addKeyListener(internalKeyHandler);
-	
+
 		shell.addKeyListener(appKeyHandler);
 		shell.getFullScreenWindow().addKeyListener(appKeyHandler);
-	
+
 		shell.addWindowListener(windowHandler);
 		shell.getFullScreenWindow().addWindowListener(windowHandler);
-	
+
 		shell.getCanvas().addMouseListener(appMouseHandler);
 		shell.getCanvas().addMouseMotionListener(appMouseHandler);
 		shell.getFullScreenWindow().addMouseListener(appMouseHandler);
@@ -297,8 +296,7 @@ public abstract class Application {
 	}
 
 	/**
-	 * Initialization hook for application. Application should set main controller
-	 * in this method.
+	 * Initialization hook for application. Application should set main controller in this method.
 	 */
 	public abstract void init();
 
@@ -332,8 +330,10 @@ public abstract class Application {
 	/**
 	 * Makes the given controller the current one and optionally initializes it.
 	 * 
-	 * @param controller a controller
-	 * @param initialize if the controller should be initialized
+	 * @param controller
+	 *                     a controller
+	 * @param initialize
+	 *                     if the controller should be initialized
 	 */
 	public void setController(Lifecycle controller, boolean initialize) {
 		if (controller == null) {
@@ -352,7 +352,8 @@ public abstract class Application {
 	/**
 	 * Sets the given controller and calls its initializer method.
 	 * 
-	 * @param controller new controller
+	 * @param controller
+	 *                     new controller
 	 */
 	public void setController(Lifecycle controller) {
 		setController(controller, true);

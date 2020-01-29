@@ -11,6 +11,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import de.amr.easy.game.Application;
+import de.amr.easy.game.config.AppSettings;
 import de.amr.easy.game.controller.Lifecycle;
 import de.amr.easy.game.entity.Entity;
 import de.amr.easy.game.input.Keyboard;
@@ -19,14 +20,15 @@ import de.amr.easy.game.timing.Clock;
 public class FramerateTestApp extends Application {
 
 	public static void main(String[] args) {
-		launch(new FramerateTestApp(), args);
+		launch(FramerateTestApp.class, args);
 	}
 
-	public FramerateTestApp() {
-		settings().title = "Game performance measurement";
-		settings().titleExtended = true;
-		settings().width = 1000;
-		settings().height = 200;
+	@Override
+	protected void configure(AppSettings settings) {
+		settings.title = "Game performance measurement";
+		settings.titleExtended = true;
+		settings.width = 1000;
+		settings.height = 200;
 	}
 
 	@Override

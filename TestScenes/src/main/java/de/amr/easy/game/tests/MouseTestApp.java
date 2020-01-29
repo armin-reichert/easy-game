@@ -6,6 +6,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 
 import de.amr.easy.game.Application;
+import de.amr.easy.game.config.AppSettings;
 import de.amr.easy.game.controller.Lifecycle;
 import de.amr.easy.game.entity.Entity;
 import de.amr.easy.game.input.Mouse;
@@ -14,13 +15,14 @@ import de.amr.easy.game.ui.widgets.TextWidget;
 public class MouseTestApp extends Application {
 
 	public static void main(String[] args) {
-		launch(new MouseTestApp(), args);
+		launch(MouseTestApp.class, args);
 	}
 
-	public MouseTestApp() {
-		settings().title = "Mouse Test";
-		settings().width = 800;
-		settings().height = 600;
+	@Override
+	protected void configure(AppSettings settings) {
+		settings.title = "Mouse Test";
+		settings.width = 800;
+		settings.height = 600;
 	}
 
 	@Override

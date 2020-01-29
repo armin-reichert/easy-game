@@ -8,6 +8,7 @@ import java.awt.image.BufferedImage;
 import java.util.Random;
 
 import de.amr.easy.game.Application;
+import de.amr.easy.game.config.AppSettings;
 import de.amr.easy.game.controller.Lifecycle;
 import de.amr.easy.game.entity.Entity;
 import de.amr.easy.game.input.Keyboard;
@@ -16,18 +17,18 @@ import de.amr.easy.game.input.Mouse;
 public class DrawingTestApp extends Application {
 
 	public static void main(String[] args) {
-		launch(new DrawingTestApp(), args);
+		launch(DrawingTestApp.class, args);
 	}
 
-	public DrawingTestApp() {
-		settings().title = "Drawing Test";
+	@Override
+	protected void configure(AppSettings settings) {
+		settings.title = "Drawing Test";
 	}
 
 	@Override
 	public void init() {
 		setController(new DrawingTestScene(this));
 	}
-
 }
 
 class DrawingTestScene extends Entity implements Lifecycle {

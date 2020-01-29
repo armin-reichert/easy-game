@@ -8,6 +8,7 @@ import java.awt.RenderingHints;
 import java.awt.event.KeyEvent;
 
 import de.amr.easy.game.Application;
+import de.amr.easy.game.config.AppSettings;
 import de.amr.easy.game.controller.Lifecycle;
 import de.amr.easy.game.entity.Entity;
 import de.amr.easy.game.input.Keyboard;
@@ -16,7 +17,12 @@ import de.amr.easy.game.input.Keyboard.Modifier;
 public class KeyboardTestApp extends Application {
 
 	public static void main(String[] args) {
-		launch(new KeyboardTestApp(), args);
+		launch(KeyboardTestApp.class, args);
+	}
+
+	@Override
+	protected void configure(AppSettings settings) {
+		settings.title = "Keyboard Test App";
 	}
 
 	@Override
