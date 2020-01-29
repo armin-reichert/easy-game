@@ -220,7 +220,12 @@ public abstract class Application {
 						Keyboard.handler = appKeyHandler;
 						Mouse.handler = appMouseHandler;
 						Mouse.handler.fnScale = () -> settings.scale;
-						createShell();
+						if (controller != null) {
+							createShell(settings.width, settings.height);
+						} else {
+							setController(new AppInfoView(800, 600));
+							createShell(800, 600);
+						}
 						shell.display(settings.fullScreenOnStart);
 						clock.setFrequency(settings.fps);
 						clock.start();
@@ -273,37 +278,29 @@ public abstract class Application {
 		/*@formatter:on*/
 	}
 
-	/**
-	 * Initialization hook for application. Application should set main controller
-	 * in this method.
-	 */
-	public abstract void init();
-
-	private void createShell() {
-		int w = settings.width, h = settings.height;
-		if (controller == null) {
-			LOGGER.warning("WARNING: Application did not specify a main controller! Using default controller.");
-			settings.scale = 1;
-			w = 800;
-			h = 600;
-			setController(new AppInfoView(w, h));
-		}
+	private void createShell(int w, int h) {
 		shell = new AppShell(this, w, h);
-
+	
 		shell.addKeyListener(internalKeyHandler);
 		shell.getFullScreenWindow().addKeyListener(internalKeyHandler);
-
+	
 		shell.addKeyListener(appKeyHandler);
 		shell.getFullScreenWindow().addKeyListener(appKeyHandler);
-
+	
 		shell.addWindowListener(windowHandler);
 		shell.getFullScreenWindow().addWindowListener(windowHandler);
-
+	
 		shell.getCanvas().addMouseListener(appMouseHandler);
 		shell.getCanvas().addMouseMotionListener(appMouseHandler);
 		shell.getFullScreenWindow().addMouseListener(appMouseHandler);
 		shell.getFullScreenWindow().addMouseMotionListener(appMouseHandler);
 	}
+
+	/**
+	 * Initialization hook for application. Application should set main controller
+	 * in this method.
+	 */
+	public abstract void init();
 
 	public boolean isPaused() {
 		return lifecycle.is(PAUSED);

@@ -77,6 +77,13 @@ public class SpriteMap implements Iterable<Sprite> {
 	}
 
 	/**
+	 * @return currently selected sprite key
+	 */
+	public String selectedKey() {
+		return selectedKey;
+	}
+
+	/**
 	 * @return the currently selected sprite
 	 */
 	public final Optional<Sprite> current() {
