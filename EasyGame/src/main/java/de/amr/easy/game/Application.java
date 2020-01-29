@@ -16,6 +16,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
 import java.util.Optional;
@@ -97,9 +98,6 @@ public abstract class Application {
 		TOGGLE_PAUSE, TOGGLE_FULLSCREEN, SHOW_SETTINGS_DIALOG, CLOSE
 	}
 
-	/** Application-global logger. */
-	public static final Logger LOGGER = Logger.getLogger(Application.class.getName());
-
 	static {
 		InputStream stream = Application.class.getClassLoader().getResourceAsStream("logging.properties");
 		if (stream == null) {
@@ -107,12 +105,15 @@ public abstract class Application {
 		}
 		try {
 			LogManager.getLogManager().readConfiguration(stream);
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (IOException | SecurityException e) {
+			throw new RuntimeException("Could not read logging configuration");
 		}
 	}
 
-	/** Singleton. */
+	/** Application-global logger. */
+	public static final Logger LOGGER = Logger.getLogger(Application.class.getName());
+
+	/** Application singleton. */
 	private static Application theApplication;
 
 	/** Static access to application instance. */
@@ -134,16 +135,15 @@ public abstract class Application {
 		if (app == null) {
 			throw new IllegalArgumentException("Application is NULL");
 		}
-		app.settings = app.createAppSettings();
 		JCommander.newBuilder().addObject(app.settings).build().parse(args);
-		theApplication = app;
 		try {
 			UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
 		} catch (Exception e) {
 			e.printStackTrace();
 			LOGGER.warning("Could not set Nimbus Look&Feel.");
 		}
-		SwingUtilities.invokeLater(() -> app.start());
+		theApplication = app;
+		SwingUtilities.invokeLater(() -> app.lifecycle.init());
 	}
 
 	private final StateMachine<ApplicationState, ApplicationEvent> lifecycle;
@@ -151,8 +151,8 @@ public abstract class Application {
 	private final KeyListener internalKeyHandler;
 	private final MouseHandler appMouseHandler;
 	private final WindowListener windowHandler;
-	private AppSettings settings;
-	private Clock clock;
+	private final AppSettings settings;
+	private final Clock clock;
 	private CollisionHandler collisionHandler;
 	private Consumer<Application> exitHandler;
 	private AppShell shell;
@@ -160,13 +160,23 @@ public abstract class Application {
 	private Image icon;
 
 	public Application() {
+		settings = createAppSettings();
 		lifecycle = createLifecycle();
 		internalKeyHandler = createInternalKeyHandler();
 		appKeyHandler = new KeyboardHandler();
-		windowHandler = createWindowHandler();
 		appMouseHandler = new MouseHandler();
-		appMouseHandler.fnScale = () -> settings.scale;
-		clock = new Clock(60, lifecycle::update, this::render);
+		windowHandler = createWindowHandler();
+		clock = new Clock(settings.fps, lifecycle::update, this::render);
+	}
+
+	/**
+	 * Applications can override this method to provide their specific settings
+	 * implementation.
+	 * 
+	 * @return application settings
+	 */
+	protected AppSettings createAppSettings() {
+		return new AppSettings();
 	}
 
 	private KeyListener createInternalKeyHandler() {
@@ -196,10 +206,6 @@ public abstract class Application {
 		};
 	}
 
-	protected AppSettings createAppSettings() {
-		return new AppSettings();
-	}
-
 	private StateMachine<ApplicationState, ApplicationEvent> createLifecycle() {
 		return StateMachine.
 		/*@formatter:off*/		
@@ -207,15 +213,19 @@ public abstract class Application {
 			.description(String.format("[%s]", getClass().getName()))
 			.initialState(STARTING)
 			.states()
+				
 				.state(STARTING)
 					.onEntry(() -> {
 						init();
 						Keyboard.handler = appKeyHandler;
 						Mouse.handler = appMouseHandler;
+						Mouse.handler.fnScale = () -> settings.scale;
 						createShell();
 						shell.display(settings.fullScreenOnStart);
 						clock.setFrequency(settings.fps);
+						clock.start();
 					})
+				
 				.state(RUNNING)
 					.onTick(() -> {
 						appKeyHandler.poll();
@@ -225,13 +235,17 @@ public abstract class Application {
 						}
 						controller.update();
 					})
+				
+				.state(PAUSED)
+				
 				.state(CLOSED)
 					.onEntry(() -> {
 						if (exitHandler != null) {
+							LOGGER.info(() -> "Running exit handler");
 							exitHandler.accept(this);
 						}
 						clock.stop();
-						LOGGER.info("Application terminated.");
+						LOGGER.info(() -> "Application terminated.");
 						System.exit(0);
 					})
 					
@@ -264,12 +278,6 @@ public abstract class Application {
 	 * in this method.
 	 */
 	public abstract void init();
-
-	private void start() {
-		LOGGER.info(String.format("Starting application '%s' ", getClass().getName()));
-		lifecycle.init();
-		clock.start();
-	}
 
 	private void createShell() {
 		int w = settings.width, h = settings.height;
