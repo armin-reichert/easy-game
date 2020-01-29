@@ -5,7 +5,6 @@ import static java.awt.event.InputEvent.BUTTON2_DOWN_MASK;
 import static java.awt.event.InputEvent.BUTTON3_DOWN_MASK;
 import static java.awt.event.MouseEvent.NOBUTTON;
 
-import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -30,11 +29,6 @@ public class MouseHandler implements MouseListener, MouseMotionListener {
 	private boolean movedDetected;
 	private boolean draggedDetected;
 	private MouseEvent event;
-
-	public void handleMouseEventsFor(Component component) {
-		component.addMouseListener(this);
-		component.addMouseMotionListener(this);
-	}
 
 	public synchronized void poll() {
 		clicked = clickedDetected;

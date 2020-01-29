@@ -23,7 +23,6 @@ public class Keyboard {
 
 	private static KeyCodes codes = new KeyCodes();
 
-	// this is set by the application
 	public static KeyboardHandler handler;
 
 	private static int code(String key) {

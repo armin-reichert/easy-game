@@ -45,9 +45,10 @@ import de.amr.statemachine.core.EventMatchStrategy;
 import de.amr.statemachine.core.StateMachine;
 
 /**
- * Applications inherit from this class. To start an application, use the static method
- * {@code launch(Application, String[])}. For a complete list of the supported command-line arguments / application
- * settings, see class {@link AppSettings}.
+ * Applications inherit from this class. To start an application, use the static
+ * method {@code launch(Application, String[])}. For a complete list of the
+ * supported command-line arguments / application settings, see class
+ * {@link AppSettings}.
  * <p>
  * Example:
  * 
@@ -123,12 +124,11 @@ public abstract class Application {
 	}
 
 	/**
-	 * Launches the specified application. The command-line arguments are parsed and assigned to the application settings.
+	 * Launches the specified application. The command-line arguments are parsed and
+	 * assigned to the application settings.
 	 * 
-	 * @param app
-	 *               application instance
-	 * @param args
-	 *               command-line arguments
+	 * @param app  application instance
+	 * @param args command-line arguments
 	 */
 	public static void launch(Application app, String[] args) {
 		if (app == null) {
@@ -146,6 +146,10 @@ public abstract class Application {
 	}
 
 	private final StateMachine<ApplicationState, ApplicationEvent> lifecycle;
+	private final KeyboardHandler appKeyHandler;
+	private final KeyListener internalKeyHandler;
+	private final MouseHandler appMouseHandler;
+	private final WindowListener windowHandler;
 	private AppSettings settings;
 	private Clock clock;
 	private CollisionHandler collisionHandler;
@@ -153,17 +157,15 @@ public abstract class Application {
 	private AppShell shell;
 	private Lifecycle controller;
 	private Image icon;
-	private KeyListener internalKeyHandler;
-	private WindowListener windowHandler;
 
 	public Application() {
 		settings = createAppSettings();
 		lifecycle = createLifecycle();
 		internalKeyHandler = createInternalKeyHandler();
+		appKeyHandler = new KeyboardHandler();
 		windowHandler = createWindowHandler();
-		Keyboard.handler = new KeyboardHandler();
-		Mouse.handler = new MouseHandler();
-		Mouse.handler.fnScale = () -> settings.scale;
+		appMouseHandler = new MouseHandler();
+		appMouseHandler.fnScale = () -> settings.scale;
 		clock = new Clock(settings.fps, lifecycle::update, this::render);
 	}
 
@@ -174,11 +176,9 @@ public abstract class Application {
 			public void keyPressed(KeyEvent e) {
 				if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_P) {
 					lifecycle.process(TOGGLE_PAUSE);
-				}
-				else if (e.getKeyCode() == KeyEvent.VK_F2) {
+				} else if (e.getKeyCode() == KeyEvent.VK_F2) {
 					lifecycle.process(SHOW_SETTINGS_DIALOG);
-				}
-				else if (e.getKeyCode() == KeyEvent.VK_F11) {
+				} else if (e.getKeyCode() == KeyEvent.VK_F11) {
 					lifecycle.process(TOGGLE_FULLSCREEN);
 				}
 			}
@@ -212,12 +212,16 @@ public abstract class Application {
 						init();
 						createShell();
 						shell.display(settings.fullScreenOnStart);
+						Keyboard.handler = appKeyHandler;
+						Mouse.handler = appMouseHandler;
 					})
 				.state(RUNNING)
 					.onTick(() -> {
-						Keyboard.handler.poll();
-						Mouse.handler.poll();
-						collisionHandler().update();
+						appKeyHandler.poll();
+						appMouseHandler.poll();
+						if (collisionHandler != null) {
+							collisionHandler.update();
+						}
 						controller.update();
 					})
 				.state(CLOSED)
@@ -255,7 +259,8 @@ public abstract class Application {
 	}
 
 	/**
-	 * Initialization hook for application. Application should set main controller in this method.
+	 * Initialization hook for application. Application should set main controller
+	 * in this method.
 	 */
 	public abstract void init();
 
@@ -272,14 +277,23 @@ public abstract class Application {
 			settings.scale = 1;
 			w = 800;
 			h = 600;
-			controller = new AppInfoView(w, h);
-			controller.init();
+			setController(new AppInfoView(w, h));
 		}
 		shell = new AppShell(this, w, h);
+
 		shell.addKeyListener(internalKeyHandler);
 		shell.getFullScreenWindow().addKeyListener(internalKeyHandler);
+
+		shell.addKeyListener(appKeyHandler);
+		shell.getFullScreenWindow().addKeyListener(appKeyHandler);
+
 		shell.addWindowListener(windowHandler);
 		shell.getFullScreenWindow().addWindowListener(windowHandler);
+
+		shell.getCanvas().addMouseListener(appMouseHandler);
+		shell.getCanvas().addMouseMotionListener(appMouseHandler);
+		shell.getFullScreenWindow().addMouseListener(appMouseHandler);
+		shell.getFullScreenWindow().addMouseMotionListener(appMouseHandler);
 	}
 
 	public boolean isPaused() {
@@ -309,17 +323,11 @@ public abstract class Application {
 		this.exitHandler = Objects.requireNonNull(exitHandler);
 	}
 
-	public Lifecycle getController() {
-		return controller;
-	}
-
 	/**
 	 * Makes the given controller the current one and optionally initializes it.
 	 * 
-	 * @param controller
-	 *                     a controller
-	 * @param initialize
-	 *                     if the controller should be initialized
+	 * @param controller a controller
+	 * @param initialize if the controller should be initialized
 	 */
 	public void setController(Lifecycle controller, boolean initialize) {
 		if (controller == null) {
@@ -338,8 +346,7 @@ public abstract class Application {
 	/**
 	 * Sets the given controller and calls its initializer method.
 	 * 
-	 * @param controller
-	 *                     new controller
+	 * @param controller new controller
 	 */
 	public void setController(Lifecycle controller) {
 		setController(controller, true);

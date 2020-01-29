@@ -3,13 +3,13 @@ package de.amr.easy.game.input;
 import static java.awt.event.KeyEvent.getKeyModifiersText;
 import static java.awt.event.KeyEvent.getKeyText;
 
-import java.awt.Component;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.BitSet;
 
 /**
- * Listens to keyboard events and stores their state in bitmaps. The game loop polls the state at each clock tick.
+ * Listens to keyboard events and stores their state in bitmaps. The game loop
+ * polls the state at each clock tick.
  * 
  * @author Armin Reichert
  */
@@ -24,10 +24,6 @@ public class KeyboardHandler implements KeyListener {
 	private final BitSet pressed = new BitSet();
 	private final BitSet pressedOneFrame = new BitSet();
 	private final BitSet pressedTwoFramesOrMore = new BitSet();
-
-	public void handleKeyEventsFor(Component component) {
-		component.addKeyListener(this);
-	}
 
 	public synchronized void poll() {
 		pollKeyboard();
@@ -70,17 +66,14 @@ public class KeyboardHandler implements KeyListener {
 			if (!pressed.get(keyCode)) { // 0 frames
 				pressedOneFrame.clear(keyCode);
 				pressedTwoFramesOrMore.clear(keyCode);
-			}
-			else if (!pressedOneFrame.get(keyCode) && !pressedTwoFramesOrMore.get(keyCode)) { // one frame
+			} else if (!pressedOneFrame.get(keyCode) && !pressedTwoFramesOrMore.get(keyCode)) { // one frame
 				pressedOneFrame.set(keyCode, true);
 				pressedTwoFramesOrMore.set(keyCode, false);
 				Keyboard.LOGGER.info(String.format("Key pressed once: '%s'", text(keyCode)));
-			}
-			else if (pressedOneFrame.get(keyCode)) { // two frames
+			} else if (pressedOneFrame.get(keyCode)) { // two frames
 				pressedOneFrame.set(keyCode, false);
 				pressedTwoFramesOrMore.set(keyCode, true);
-			}
-			else {
+			} else {
 				pressedTwoFramesOrMore.set(keyCode, true); // more than two frames
 			}
 		}
