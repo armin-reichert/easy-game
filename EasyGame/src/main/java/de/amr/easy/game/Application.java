@@ -132,10 +132,11 @@ public abstract class Application {
 	 */
 	public static void launch(Application app, String[] args) {
 		if (app == null) {
-			throw new IllegalArgumentException("Cannot launch application, got NULL as application reference");
+			throw new IllegalArgumentException("Application is NULL");
 		}
-		theApplication = app;
+		app.settings = app.createAppSettings();
 		JCommander.newBuilder().addObject(app.settings).build().parse(args);
+		theApplication = app;
 		try {
 			UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
 		} catch (Exception e) {
@@ -159,14 +160,13 @@ public abstract class Application {
 	private Image icon;
 
 	public Application() {
-		settings = createAppSettings();
 		lifecycle = createLifecycle();
 		internalKeyHandler = createInternalKeyHandler();
 		appKeyHandler = new KeyboardHandler();
 		windowHandler = createWindowHandler();
 		appMouseHandler = new MouseHandler();
 		appMouseHandler.fnScale = () -> settings.scale;
-		clock = new Clock(settings.fps, lifecycle::update, this::render);
+		clock = new Clock(60, lifecycle::update, this::render);
 	}
 
 	private KeyListener createInternalKeyHandler() {
@@ -210,10 +210,11 @@ public abstract class Application {
 				.state(STARTING)
 					.onEntry(() -> {
 						init();
-						createShell();
-						shell.display(settings.fullScreenOnStart);
 						Keyboard.handler = appKeyHandler;
 						Mouse.handler = appMouseHandler;
+						createShell();
+						shell.display(settings.fullScreenOnStart);
+						clock.setFrequency(settings.fps);
 					})
 				.state(RUNNING)
 					.onTick(() -> {
