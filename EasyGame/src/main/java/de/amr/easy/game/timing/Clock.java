@@ -175,7 +175,7 @@ public class Clock {
 		if (fpsHistoryIndex == fpsHistory.length) {
 			fpsHistoryIndex = 0;
 //			System.out.println(Arrays.toString(fpsHistory));
-			double avg = Arrays.stream(fpsHistory).average().getAsDouble();
+			long avg = Math.round(Arrays.stream(fpsHistory).average().getAsDouble());
 			if (avg > frequency) {
 				sleepTimeCorrection++;
 			} else if (avg < frequency) {
