@@ -46,9 +46,10 @@ import de.amr.statemachine.core.EventMatchStrategy;
 import de.amr.statemachine.core.StateMachine;
 
 /**
- * Applications inherit from this class. To start an application, use the static method
- * {@code launch(Application, String[])}. For a complete list of the supported command-line arguments / application
- * settings, see class {@link AppSettings}.
+ * Applications inherit from this class. To start an application, use the static
+ * method {@code launch(Application, String[])}. For a complete list of the
+ * supported command-line arguments / application settings, see class
+ * {@link AppSettings}.
  * <p>
  * Example:
  * 
@@ -122,12 +123,12 @@ public abstract class Application {
 	}
 
 	/**
-	 * Launches the specified application. The command-line arguments are parsed and assigned to the application settings.
+	 * Launches the specified application. The command-line arguments are parsed and
+	 * assigned to the passed application settings.
 	 * 
-	 * @param app
-	 *               application instance
-	 * @param args
-	 *               command-line arguments
+	 * @param appClass application class
+	 * @param settings application settings
+	 * @param args     command-line arguments
 	 */
 	public static void launch(Class<? extends Application> appClass, AppSettings settings, String[] args) {
 		try {
@@ -148,6 +149,13 @@ public abstract class Application {
 		SwingUtilities.invokeLater(() -> theApplication.lifecycle.init());
 	}
 
+	/**
+	 * Launches the specified application. The command-line arguments are parsed and
+	 * assigned to the implicitly created application settings.
+	 * 
+	 * @param appClass application class
+	 * @param args     command-line arguments
+	 */
 	public static void launch(Class<? extends Application> appClass, String[] args) {
 		launch(appClass, new AppSettings(), args);
 	}
@@ -183,11 +191,9 @@ public abstract class Application {
 			public void keyPressed(KeyEvent e) {
 				if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_P) {
 					lifecycle.process(TOGGLE_PAUSE);
-				}
-				else if (e.getKeyCode() == KeyEvent.VK_F2) {
+				} else if (e.getKeyCode() == KeyEvent.VK_F2) {
 					lifecycle.process(SHOW_SETTINGS_DIALOG);
-				}
-				else if (e.getKeyCode() == KeyEvent.VK_F11) {
+				} else if (e.getKeyCode() == KeyEvent.VK_F11) {
 					lifecycle.process(TOGGLE_FULLSCREEN);
 				}
 			}
@@ -296,7 +302,8 @@ public abstract class Application {
 	}
 
 	/**
-	 * Initialization hook for application. Application should set main controller in this method.
+	 * Initialization hook for application. Application should set main controller
+	 * in this method.
 	 */
 	public abstract void init();
 
@@ -330,10 +337,8 @@ public abstract class Application {
 	/**
 	 * Makes the given controller the current one and optionally initializes it.
 	 * 
-	 * @param controller
-	 *                     a controller
-	 * @param initialize
-	 *                     if the controller should be initialized
+	 * @param controller a controller
+	 * @param initialize if the controller should be initialized
 	 */
 	public void setController(Lifecycle controller, boolean initialize) {
 		if (controller == null) {
@@ -352,8 +357,7 @@ public abstract class Application {
 	/**
 	 * Sets the given controller and calls its initializer method.
 	 * 
-	 * @param controller
-	 *                     new controller
+	 * @param controller new controller
 	 */
 	public void setController(Lifecycle controller) {
 		setController(controller, true);
