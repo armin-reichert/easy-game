@@ -160,6 +160,16 @@ public abstract class Application {
 		launch(appClass, new AppSettings(), args);
 	}
 
+	/**
+	 * Convenience method for logging to application logger with level INFO.
+	 * 
+	 * @param format message format
+	 * @param args   message arguments
+	 */
+	public static void loginfo(String format, Object... args) {
+		LOGGER.info(() -> String.format(format, args));
+	}
+
 	private AppSettings settings;
 	private StateMachine<ApplicationState, ApplicationEvent> lifecycle;
 	private KeyboardHandler appKeyHandler;
