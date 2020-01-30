@@ -6,6 +6,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.Arrays;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -18,7 +19,7 @@ import java.util.logging.Logger;
 public class Clock {
 
 	private static final Logger LOGGER = Logger.getLogger(Clock.class.getName());
-	
+
 	static {
 		LOGGER.setLevel(Level.OFF);
 	}
@@ -145,10 +146,10 @@ public class Clock {
 			++ticks;
 			long usedTime = update.getRunningTime() + render.getRunningTime();
 			long timeLeft = (period - usedTime);
+			adjustSleepTime();
 			if (timeLeft > 0) {
 				try {
-					// removing 5% sleep time seems to lead to better fps
-					NANOSECONDS.sleep(timeLeft * 95 / 100);
+					NANOSECONDS.sleep(timeLeft * sleepTimeCorrection / 100);
 					log(() -> "Slept", timeLeft);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
@@ -160,6 +161,25 @@ public class Clock {
 					log(() -> "UpdateX", update.getRunningTime());
 					++ticks;
 				}
+			}
+		}
+	}
+
+	private int sleepTimeCorrection = 100; // percent
+	private int[] fpsHistory = new int[60];
+	private int fpsHistoryIndex = 0;
+
+	private void adjustSleepTime() {
+		fpsHistory[fpsHistoryIndex] = render.getFrameRate();
+		fpsHistoryIndex++;
+		if (fpsHistoryIndex == fpsHistory.length) {
+			fpsHistoryIndex = 0;
+//			System.out.println(Arrays.toString(fpsHistory));
+			double avg = Arrays.stream(fpsHistory).average().getAsDouble();
+			if (avg > frequency) {
+				sleepTimeCorrection++;
+			} else if (avg < frequency) {
+				sleepTimeCorrection--;
 			}
 		}
 	}
