@@ -16,7 +16,12 @@ A minimal (empty) application can be created by the following code:
 public class EmptyApp extends Application {
 
 	public static void main(String[] args) {
-		launch(new EmptyApp(), args);
+		launch(EmptyApp.class, args);
+	}
+
+	@Override
+	protected void configure(AppSettings settings) {
+		settings.title = "Empty App";
 	}
 
 	@Override
