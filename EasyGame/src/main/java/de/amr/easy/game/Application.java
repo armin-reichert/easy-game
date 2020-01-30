@@ -167,7 +167,7 @@ public abstract class Application {
 	 * @param args   message arguments
 	 */
 	public static void loginfo(String format, Object... args) {
-		LOGGER.info(() -> String.format(format, args));
+		LOGGER.info(String.format(format, args));
 	}
 
 	private AppSettings settings;
