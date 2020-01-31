@@ -231,10 +231,10 @@ public abstract class Application {
 				
 				.state(STARTING)
 					.onEntry(() -> {
-						init();
 						Keyboard.handler = appKeyHandler;
 						Mouse.handler = appMouseHandler;
 						Mouse.handler.fnScale = () -> settings.scale;
+						init();
 						if (controller != null) {
 							createShell(settings.width, settings.height);
 						} else {
