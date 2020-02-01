@@ -113,7 +113,7 @@ public class AppShell extends JFrame {
 			render(inFullScreenMode() ? fullScreenWindow.getBufferStrategy() : canvas.getBufferStrategy(), view);
 			++frames;
 			if (frames >= app.clock().getFrequency()) {
-				String title = getTitle(app.clock().getUpdateRate(), app.clock().getRenderRate());
+				String title = getTitle(app.clock().getFrameRate());
 				EventQueue.invokeLater(() -> setTitle(title));
 				frames = 0;
 			}
@@ -199,10 +199,9 @@ public class AppShell extends JFrame {
 				mode.getRefreshRate() == 0 ? "unknown" : mode.getRefreshRate() + " Hz");
 	}
 
-	private String getTitle(int ups, int fps) {
+	private String getTitle(int fps) {
 		if (app.settings().titleExtended) {
-			return format("%s [%dfps %dups %d x %dpx * %.2f]", app.settings().title, fps, ups, width, height,
-					app.settings().scale);
+			return format("%s [%dfps %d x %dpx * %.2f]", app.settings().title, fps, width, height, app.settings().scale);
 		}
 		return app.settings().title;
 	}

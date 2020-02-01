@@ -73,7 +73,7 @@ class FramerateTestScene extends Entity implements Lifecycle {
 		}
 		++sampleSteps;
 		if (sampleSteps == app().clock().getFrequency()) {
-			fpsValues[sampleIndex++] = app().clock().getRenderRate();
+			fpsValues[sampleIndex++] = app().clock().getFrameRate();
 			if (sampleIndex * stepX >= getWidth()) {
 				sampleIndex = 0;
 			}

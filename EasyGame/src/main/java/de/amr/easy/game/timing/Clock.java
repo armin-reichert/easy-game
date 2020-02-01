@@ -28,40 +28,33 @@ public class Clock {
 		LOGGER.info(() -> format("%-7s: %10.2f ms", task.get(), nanos / 1_000_000f));
 	}
 
-	private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
-	private Task render;
-	private Task update;
+	private Thread thread;
+	private volatile boolean running;
+	private Task task;
 	private int frequency;
 	private long ticks;
 	private long period;
-	private Thread thread;
-	private volatile boolean running;
+	private int sleepTimePercentage = 100; // percent
+	private int[] fpsHistory = new int[60];
+	private int fpsHistoryIndex = 0;
+	private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
 	/**
-	 * Creates a clock which triggers execution of the given update and render code
-	 * according to the clock frequency.
+	 * Creates a clock which triggers execution of the given workload according to
+	 * the clock frequency.
 	 * 
-	 * @param update update code
-	 * @param render render code
+	 * @param work work to do
 	 */
-	public Clock(int fps, Runnable update, Runnable render) {
+	public Clock(int fps, Runnable work) {
 		setFrequency(fps);
-		this.update = new Task(update);
-		this.render = new Task(render);
+		this.task = new Task(work);
 	}
 
 	/**
-	 * @return last reported update rate (updates per second)
+	 * @return last reported number of frames/second
 	 */
-	public int getUpdateRate() {
-		return update.getFrameRate();
-	}
-
-	/**
-	 * @return last reported rendering rate (frames per second)
-	 */
-	public int getRenderRate() {
-		return render.getFrameRate();
+	public int getFrameRate() {
+		return task.getFrameRate();
 	}
 
 	/**
@@ -116,7 +109,7 @@ public class Clock {
 	public synchronized void start() {
 		if (!running) {
 			running = true;
-			thread = new Thread(this::loop, "GameLoop");
+			thread = new Thread(this::loop, "Clock");
 			thread.start();
 			ticks = 0;
 		}
@@ -137,49 +130,34 @@ public class Clock {
 	}
 
 	private void loop() {
-		long overTime = 0;
 		while (running) {
-			update.run();
-			render.run();
-			log(() -> "Update", update.getRunningTime());
-			log(() -> "Render", render.getRunningTime());
+			task.run();
+			log(() -> "Work", task.getRunningTime());
 			++ticks;
-			long usedTime = update.getRunningTime() + render.getRunningTime();
+			long usedTime = task.getRunningTime();
 			long timeLeft = (period - usedTime);
-			adjustSleepTime();
+			computeSleepTimeAdjustment();
 			if (timeLeft > 0) {
 				try {
-					NANOSECONDS.sleep(timeLeft * sleepTimeCorrection / 100);
-					log(() -> "Slept", timeLeft);
+					long sleepTime = timeLeft * sleepTimePercentage / 100;
+					NANOSECONDS.sleep(sleepTime);
+					log(() -> "Slept", sleepTime);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
-				}
-			} else if (timeLeft < 0) {
-				overTime += (-timeLeft);
-				for (int xUpdates = 3; xUpdates > 0 && overTime > period; overTime -= period, --xUpdates) {
-					update.run();
-					log(() -> "UpdateX", update.getRunningTime());
-					++ticks;
 				}
 			}
 		}
 	}
 
-	private int sleepTimeCorrection = 100; // percent
-	private int[] fpsHistory = new int[60];
-	private int fpsHistoryIndex = 0;
-
-	private void adjustSleepTime() {
-		fpsHistory[fpsHistoryIndex] = render.getFrameRate();
-		fpsHistoryIndex++;
+	private void computeSleepTimeAdjustment() {
+		fpsHistory[fpsHistoryIndex++] = task.getFrameRate();
 		if (fpsHistoryIndex == fpsHistory.length) {
 			fpsHistoryIndex = 0;
-//			System.out.println(Arrays.toString(fpsHistory));
 			long avg = Math.round(Arrays.stream(fpsHistory).average().getAsDouble());
 			if (avg > frequency) {
-				sleepTimeCorrection++;
+				sleepTimePercentage++;
 			} else if (avg < frequency) {
-				sleepTimeCorrection--;
+				sleepTimePercentage--;
 			}
 		}
 	}

@@ -189,7 +189,10 @@ public abstract class Application {
 		appKeyHandler = new KeyboardHandler();
 		appMouseHandler = new MouseHandler();
 		windowHandler = createWindowHandler();
-		clock = new Clock(settings.fps, lifecycle::update, this::render);
+		clock = new Clock(settings.fps, () -> {
+			lifecycle.update();
+			render();
+		});
 	}
 
 	protected abstract void configure(AppSettings settings);
