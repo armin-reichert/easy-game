@@ -47,19 +47,19 @@ public class Keyboard {
 	}
 
 	public static boolean keyPressedOnce(int keyCode) {
-		return !isModifierDown() && handler.pressedOnce(keyCode);
+		return !isModifierDown() && handler.pressed_once.get(keyCode);
 	}
 
 	public static boolean keyPressedOnce(Modifier modifier, int keyCode) {
 		switch (modifier) {
 		case ALT:
-			return isAltDown() && handler.pressedOnce(keyCode);
+			return isAltDown() && handler.pressed_once.get(keyCode);
 		case ALT_GRAPH:
-			return isAltGraphDown() && handler.pressedOnce(keyCode);
+			return isAltGraphDown() && handler.pressed_once.get(keyCode);
 		case CONTROL:
-			return isControlDown() && handler.pressedOnce(keyCode);
+			return isControlDown() && handler.pressed_once.get(keyCode);
 		case SHIFT:
-			return isShiftDown() && handler.pressedOnce(keyCode);
+			return isShiftDown() && handler.pressed_once.get(keyCode);
 		default:
 			return false;
 		}
@@ -83,9 +83,9 @@ public class Keyboard {
 	public static boolean keyDown(int keyCode) {
 		return !isModifierDown() && pressedOnceOrLonger(keyCode);
 	}
-	
+
 	private static boolean pressedOnceOrLonger(int keyCode) {
-		return handler.pressedLonger(keyCode) || handler.pressedOnce(keyCode);
+		return handler.pressed_longer.get(keyCode) || handler.pressed_once.get(keyCode);
 	}
 
 	public static boolean isShiftDown() {
