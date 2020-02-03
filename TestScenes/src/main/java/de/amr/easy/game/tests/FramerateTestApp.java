@@ -2,7 +2,7 @@ package de.amr.easy.game.tests;
 
 import de.amr.easy.game.Application;
 import de.amr.easy.game.config.AppSettings;
-import de.amr.easy.game.ui.FramerateView;
+import de.amr.easy.game.ui.FramerateHistoryView;
 
 public class FramerateTestApp extends Application {
 
@@ -21,6 +21,6 @@ public class FramerateTestApp extends Application {
 	@Override
 	public void init() {
 		clock().setFrequency(60);
-		setController(new FramerateView(1000, 400));
+		setController(new FramerateHistoryView(1000, 400));
 	}
 }

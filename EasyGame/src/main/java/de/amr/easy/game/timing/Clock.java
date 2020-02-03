@@ -6,7 +6,9 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -38,6 +40,7 @@ public class Clock {
 	private int[] fpsHistory = new int[60];
 	private int fpsHistoryIndex = 0;
 	private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+	private List<Runnable> tickListeners = new ArrayList<>();
 
 	/**
 	 * Creates a clock which triggers execution of the given workload according to
@@ -84,6 +87,10 @@ public class Clock {
 	 */
 	public long getTicks() {
 		return ticks;
+	}
+
+	public void addTickListener(Runnable listener) {
+		tickListeners.add(listener);
 	}
 
 	/**
@@ -134,6 +141,7 @@ public class Clock {
 			task.run();
 			log(() -> "Work", task.getRunningTime());
 			++ticks;
+			tickListeners.forEach(Runnable::run);
 			long usedTime = task.getRunningTime();
 			long timeLeft = (period - usedTime);
 			computeSleepTimeAdjustment();

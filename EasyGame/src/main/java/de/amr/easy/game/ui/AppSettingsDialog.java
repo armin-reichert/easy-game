@@ -1,6 +1,7 @@
 package de.amr.easy.game.ui;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.DisplayMode;
 import java.awt.GraphicsEnvironment;
 import java.util.Vector;
@@ -49,11 +50,16 @@ public class AppSettingsDialog extends JDialog {
 
 	private JSlider sliderFPS;
 	private DisplayModeItemRenderer displayModeComboRenderer = new DisplayModeItemRenderer();
+	private FramerateHistoryPanel frameratePanel;
+	private FramerateHistoryView framerateView;
+	private JLabel lblFramerateHistory;
 
 	public AppSettingsDialog(JFrame parent, Application app) {
 		super(parent);
-		setSize(600, 150);
-		setTitle(String.format("Application '%s'", app.settings().title));
+		setSize(600, 305);
+		if (app != null) {
+			setTitle(String.format("Application '%s'", app.settings().title));
+		}
 		sliderFPS = new JSlider(0, 120);
 		sliderFPS.addChangeListener(new ChangeListener() {
 
@@ -63,15 +69,17 @@ public class AppSettingsDialog extends JDialog {
 				setFpsTooltip();
 			}
 		});
-		sliderFPS.setValue(app.clock().getFrequency());
+		if (app != null) {
+			sliderFPS.setValue(app.clock().getFrequency());
+		}
 		sliderFPS.setMajorTickSpacing(50);
 		sliderFPS.setMinorTickSpacing(10);
 		sliderFPS.setPaintTicks(true);
 		sliderFPS.setLabelTable(sliderFPS.createStandardLabels(10));
-		getContentPane().setLayout(new MigLayout("", "[][grow]", "[][]"));
+		getContentPane().setLayout(new MigLayout("", "[][grow]", "[][][][grow,fill]"));
 
 		JLabel lblFPS = new JLabel("Ticks/sec");
-		getContentPane().add(lblFPS, "cell 0 0");
+		getContentPane().add(lblFPS, "cell 0 0,alignx right");
 		sliderFPS.setPaintLabels(true);
 		setFpsTooltip();
 		getContentPane().add(sliderFPS, "cell 1 0,growx");
@@ -79,25 +87,45 @@ public class AppSettingsDialog extends JDialog {
 		JLabel lblDisplayMode = new JLabel("Display Mode");
 		getContentPane().add(lblDisplayMode, "cell 0 1,alignx trailing");
 
-		JComboBox<DisplayMode> cbDisplayMode = new JComboBox<>(createComboModel());
-		cbDisplayMode.setMaximumRowCount(cbDisplayMode.getItemCount());
-		cbDisplayMode.setRenderer(displayModeComboRenderer);
-		DisplayMode fullScreenMode = app.settings().fullScreenMode;
-		if (fullScreenMode != null) {
-			for (int i = 0; i < cbDisplayMode.getItemCount(); ++i) {
-				DisplayMode mode = cbDisplayMode.getItemAt(i);
-				if (mode.getWidth() == fullScreenMode.getWidth() && mode.getHeight() == fullScreenMode.getHeight()
-						&& mode.getBitDepth() == fullScreenMode.getBitDepth()) {
-					cbDisplayMode.setSelectedIndex(i);
-					break;
+		if (app != null) {
+			JComboBox<DisplayMode> cbDisplayMode = new JComboBox<>(createComboModel());
+			cbDisplayMode.setMaximumRowCount(cbDisplayMode.getItemCount());
+			cbDisplayMode.setRenderer(displayModeComboRenderer);
+			DisplayMode fullScreenMode = app.settings().fullScreenMode;
+			if (fullScreenMode != null) {
+				for (int i = 0; i < cbDisplayMode.getItemCount(); ++i) {
+					DisplayMode mode = cbDisplayMode.getItemAt(i);
+					if (mode.getWidth() == fullScreenMode.getWidth() && mode.getHeight() == fullScreenMode.getHeight()
+							&& mode.getBitDepth() == fullScreenMode.getBitDepth()) {
+						cbDisplayMode.setSelectedIndex(i);
+						break;
+					}
 				}
 			}
+			cbDisplayMode.addActionListener(e -> {
+				app.settings().fullScreenMode = (DisplayMode) cbDisplayMode.getSelectedItem();
+			});
+			getContentPane().add(cbDisplayMode, "cell 1 1,growx");
 		}
-		cbDisplayMode.addActionListener(e -> {
-			app.settings().fullScreenMode = (DisplayMode) cbDisplayMode.getSelectedItem();
-		});
-		getContentPane().add(cbDisplayMode, "cell 1 1,growx");
-		app.clock().addFrequencyChangeListener(e -> sliderFPS.setValue((Integer) e.getNewValue()));
+
+		framerateView = new FramerateHistoryView(500, 150);
+
+		lblFramerateHistory = new JLabel("Framerate History");
+		getContentPane().add(lblFramerateHistory, "cell 0 2,alignx right,aligny baseline");
+		frameratePanel = new FramerateHistoryPanel(framerateView);
+		frameratePanel.setPreferredSize(new Dimension(500, 200));
+		getContentPane().add(frameratePanel, "cell 0 3 2 1,grow");
+		frameratePanel.setLayout(new MigLayout("", "[]", "[]"));
+
+		if (app != null) {
+			framerateView.setApp(app);
+			framerateView.init();
+			app.clock().addFrequencyChangeListener(e -> sliderFPS.setValue((Integer) e.getNewValue()));
+			app.clock().addTickListener(() -> {
+				framerateView.update();
+				frameratePanel.repaint();
+			});
+		}
 	}
 
 	private void setFpsTooltip() {
