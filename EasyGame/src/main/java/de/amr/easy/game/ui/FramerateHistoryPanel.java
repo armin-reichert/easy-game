@@ -1,5 +1,6 @@
 package de.amr.easy.game.ui;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ComponentAdapter;
@@ -21,7 +22,7 @@ public class FramerateHistoryPanel extends JComponent {
 		addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentResized(ComponentEvent e) {
-				view.setSize(getWidth(), getHeight());
+				view.setSize(getWidth() - 10, getHeight() - 20);
 			}
 		});
 	}
@@ -30,7 +31,12 @@ public class FramerateHistoryPanel extends JComponent {
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		if (view != null) {
-			view.draw((Graphics2D) g.create());
+			Graphics2D g2 = (Graphics2D) g.create();
+			g2.setColor(Color.BLACK);
+			g2.fillRect(0, 0, getWidth(), getHeight());
+			g2.translate(5, 10);
+			view.draw(g2);
+			g2.dispose();
 		}
 	}
 }

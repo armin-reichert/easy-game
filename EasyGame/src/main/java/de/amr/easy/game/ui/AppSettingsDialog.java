@@ -1,7 +1,7 @@
 package de.amr.easy.game.ui;
 
+import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.DisplayMode;
 import java.awt.GraphicsEnvironment;
 import java.util.Vector;
@@ -50,13 +50,13 @@ public class AppSettingsDialog extends JDialog {
 
 	private JSlider sliderFPS;
 	private DisplayModeItemRenderer displayModeComboRenderer = new DisplayModeItemRenderer();
-	private FramerateHistoryPanel frameratePanel;
+	private FramerateHistoryPanel framerateHistoryPanel;
 	private FramerateHistoryView framerateView;
 	private JLabel lblFramerateHistory;
 
 	public AppSettingsDialog(JFrame parent, Application app) {
 		super(parent);
-		setSize(600, 305);
+		setSize(600, 296);
 		if (app != null) {
 			setTitle(String.format("Application '%s'", app.settings().title));
 		}
@@ -65,8 +65,12 @@ public class AppSettingsDialog extends JDialog {
 
 			@Override
 			public void stateChanged(ChangeEvent e) {
-				app.clock().setFrequency(sliderFPS.getValue());
-				setFpsTooltip();
+				if (sliderFPS.getValue() > 0) {
+					app.clock().setFrequency(sliderFPS.getValue());
+					setFpsTooltip();
+				} else {
+					sliderFPS.setValue(1);
+				}
 			}
 		});
 		if (app != null) {
@@ -112,10 +116,10 @@ public class AppSettingsDialog extends JDialog {
 
 		lblFramerateHistory = new JLabel("Framerate History");
 		getContentPane().add(lblFramerateHistory, "cell 0 2,alignx right,aligny baseline");
-		frameratePanel = new FramerateHistoryPanel(framerateView);
-		frameratePanel.setPreferredSize(new Dimension(500, 200));
-		getContentPane().add(frameratePanel, "cell 0 3 3 1,grow");
-		frameratePanel.setLayout(new MigLayout("", "[]", "[]"));
+		framerateHistoryPanel = new FramerateHistoryPanel(framerateView);
+		framerateHistoryPanel.setBackground(Color.BLACK);
+		getContentPane().add(framerateHistoryPanel, "cell 0 3 3 1,grow");
+		framerateHistoryPanel.setLayout(new MigLayout("", "[]", "[]"));
 
 		if (app != null) {
 			framerateView.setApp(app);
@@ -123,7 +127,7 @@ public class AppSettingsDialog extends JDialog {
 			app.clock().addFrequencyChangeListener(e -> sliderFPS.setValue((Integer) e.getNewValue()));
 			app.clock().addTickListener(() -> {
 				framerateView.update();
-				frameratePanel.repaint();
+				framerateHistoryPanel.repaint();
 			});
 		}
 	}

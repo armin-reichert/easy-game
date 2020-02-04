@@ -1,5 +1,6 @@
 package de.amr.easy.game.ui;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -24,14 +25,27 @@ public class FramerateHistoryView implements View, Lifecycle {
 	private int[] fpsValues;
 	private int stepX = 20;
 	private int sampleSteps;
+	private int maxFps = 120;
 
 	public FramerateHistoryView(int width, int height) {
+		setSize(width, height);
+	}
+
+	public void setSize(int width, int height) {
 		this.width = width;
 		this.height = height;
+		fpsValues = new int[width];
+		bgImg = createBgImage(width, height);
 	}
 
 	public void setApp(Application app) {
-		this.app = app;
+		if (app != this.app) {
+			this.app = app;
+			app.clock().addFrequencyChangeListener(e -> {
+				sampleSteps = 0;
+				bgImg = createBgImage(width, height);
+			});
+		}
 	}
 
 	@Override
@@ -45,12 +59,6 @@ public class FramerateHistoryView implements View, Lifecycle {
 
 	@Override
 	public void init() {
-		fpsValues = new int[width];
-		bgImg = createBgImage(width, height);
-		app.clock().addFrequencyChangeListener(e -> {
-			sampleSteps = 0;
-			bgImg = createBgImage(width, height);
-		});
 	}
 
 	@Override
@@ -65,24 +73,22 @@ public class FramerateHistoryView implements View, Lifecycle {
 		}
 	}
 
-	public void setSize(int width, int height) {
-		this.width = width;
-		this.height = height;
-		bgImg = createBgImage(width, height);
-	}
-
 	private Image createBgImage(int width, int height) {
 		BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		Graphics2D g = img.createGraphics();
 		int xOffset = 50;
 		g.setColor(Color.LIGHT_GRAY);
-		for (int y = 0; y < height; y += 20) {
-			g.drawLine(xOffset, height - y, width, height - y);
-			g.drawString(String.valueOf(y), 0, height - y);
+		g.setStroke(new BasicStroke(0.1f));
+		float yScale = 1f * height / maxFps;
+		for (int f = 0; f <= maxFps; f += 20) {
+			int y = height - Math.round(f * yScale);
+			g.drawLine(xOffset, y, width, y);
+			g.drawString(String.valueOf(f), 0, y);
 		}
-		int freq = app != null ? app.clock().getFrequency() : 60;
+		int f = app != null ? app.clock().getFrequency() : 60;
 		g.setColor(Color.YELLOW);
-		g.drawLine(xOffset, height - freq, width, height - freq);
+		int y = height - Math.round(f * yScale);
+		g.drawLine(xOffset, y, width, y);
 		return img;
 	}
 
