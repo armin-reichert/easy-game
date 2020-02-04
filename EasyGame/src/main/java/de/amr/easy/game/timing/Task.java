@@ -20,7 +20,7 @@ class Task {
 	}
 
 	/**
-	 * @return last running time of this task
+	 * @return last running time of this task (nanoseconds)
 	 */
 	public long getRunningTime() {
 		return runningTime;

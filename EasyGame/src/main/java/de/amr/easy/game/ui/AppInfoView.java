@@ -72,7 +72,7 @@ public class AppInfoView implements Lifecycle, View {
 		StringBuilder sb = new StringBuilder();
 		sb.append("YOU SHOULD NOT SEE THIS! (No main controller set?)\n\n\n");
 		sb.append(app().getClass().getSimpleName()).append("\n\n");
-		sb.append("clock frequency = " + app().clock().getFrequency()).append(" Hz\n\n");
+		sb.append("clock frequency = " + app().clock().getTargetFramerate()).append(" Hz\n\n");
 		sb.append("title = " + app().settings().title).append("\n");
 		sb.append("width = " + app().settings().width).append("\n");
 		sb.append("height = " + app().settings().height).append("\n");

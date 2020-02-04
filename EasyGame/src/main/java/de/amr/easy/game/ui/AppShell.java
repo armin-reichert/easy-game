@@ -112,7 +112,7 @@ public class AppShell extends JFrame {
 		if (renderingEnabled) {
 			render(inFullScreenMode() ? fullScreenWindow.getBufferStrategy() : canvas.getBufferStrategy(), view);
 			++frames;
-			if (frames >= app.clock().getFrequency()) {
+			if (frames >= app.clock().getTargetFramerate()) {
 				String title = getTitle(app.clock().getFrameRate());
 				EventQueue.invokeLater(() -> setTitle(title));
 				frames = 0;

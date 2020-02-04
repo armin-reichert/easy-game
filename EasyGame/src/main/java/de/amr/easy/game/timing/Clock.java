@@ -6,9 +6,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,26 +28,27 @@ public class Clock {
 		LOGGER.info(() -> format("%-7s: %10.2f ms", task.get(), nanos / 1_000_000f));
 	}
 
-	private Thread thread;
 	private volatile boolean running;
+	private Thread thread;
 	private Task task;
-	private int frequency;
-	private long ticks;
-	private long period;
-	private int sleepTimePercentage = 100; // percent
+	private int targetFramerate;
+	private long tickDurationNanos;
+	private long totalTicks;
+	private int sleepTimePercentage = 100;
 	private int[] fpsHistory = new int[60];
 	private int fpsHistoryIndex = 0;
 	private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
-	private List<Runnable> tickListeners = new ArrayList<>();
 
 	/**
-	 * Creates a clock which triggers execution of the given workload according to
-	 * the clock frequency.
+	 * Creates a clock which triggers execution of the given work according to the clock frequency.
 	 * 
-	 * @param work work to do
+	 * @param targetFrequency
+	 *                          the target frequency (ticks per second)
+	 * @param work
+	 *                          work to do
 	 */
-	public Clock(int fps, Runnable work) {
-		setFrequency(fps);
+	public Clock(int targetFrequency, Runnable work) {
+		setTargetFramerate(targetFrequency);
 		this.task = new Task(work);
 	}
 
@@ -61,64 +60,66 @@ public class Clock {
 	}
 
 	/**
-	 * @return clock frequency (ticks per second)
+	 * @return the clock's target frequency (ticks per second)
 	 */
-	public int getFrequency() {
-		return frequency;
+	public int getTargetFramerate() {
+		return targetFramerate;
 	}
 
 	/**
-	 * Sets the clock frequency to the given value (per second).
+	 * Sets the clock's target frequency to the given value (ticks per second).
 	 * 
-	 * @param ticksPerSecond number of ticks per second
+	 * @param ticksPerSecond
+	 *                         number of ticks per second
 	 */
-	public void setFrequency(int ticksPerSecond) {
-		int oldFrequency = this.frequency;
-		this.frequency = ticksPerSecond;
-		period = ticksPerSecond > 0 ? (SECONDS.toNanos(1) / ticksPerSecond) : Integer.MAX_VALUE;
-		LOGGER.info(String.format("Clock frequency is %d ticks/sec.", frequency));
-		if (oldFrequency != frequency) {
-			pcs.firePropertyChange("frequency", oldFrequency, frequency);
+	public void setTargetFramerate(int ticksPerSecond) {
+		if (ticksPerSecond < 1) {
+			throw new IllegalArgumentException("Clock frequency must be at least 1");
+		}
+		int oldFrequency = this.targetFramerate;
+		this.targetFramerate = ticksPerSecond;
+		tickDurationNanos = SECONDS.toNanos(1) / ticksPerSecond;
+		if (oldFrequency != targetFramerate) {
+			pcs.firePropertyChange("frequency", oldFrequency, targetFramerate);
+			LOGGER.info(String.format("Clock frequency changed to %d ticks/sec.", targetFramerate));
 		}
 	}
 
 	/**
 	 * @return number of ticks since the clock was started
 	 */
-	public long getTicks() {
-		return ticks;
-	}
-
-	public void addTickListener(Runnable listener) {
-		tickListeners.add(listener);
+	public long getTotalTicks() {
+		return totalTicks;
 	}
 
 	/**
-	 * @param seconds seconds
+	 * @param seconds
+	 *                  seconds
 	 * @return number of clock ticks representing the given seconds
 	 */
 	public int sec(float seconds) {
-		return Math.round(frequency * seconds);
+		return Math.round(targetFramerate * seconds);
 	}
 
 	/**
 	 * Adds a listener for frequency changes.
 	 * 
-	 * @param listener frequency change listener
+	 * @param listener
+	 *                   frequency change listener
 	 */
 	public void addFrequencyChangeListener(PropertyChangeListener listener) {
 		pcs.addPropertyChangeListener("frequency", listener);
 	}
 
 	/**
-	 * Starts the clock and the game loop thread.
+	 * Starts the clock and the thread on which the work is executed.
 	 */
 	public synchronized void start() {
 		if (!running) {
-			running = true;
 			thread = new Thread(this::loop, "Clock");
 			thread.start();
-			ticks = 0;
+			totalTicks = 0;
+			running = true;
 		}
 	}
 
@@ -140,32 +141,28 @@ public class Clock {
 		while (running) {
 			task.run();
 			log(() -> "Work", task.getRunningTime());
-			++ticks;
-			tickListeners.forEach(Runnable::run);
-			long usedTime = task.getRunningTime();
-			long timeLeft = (period - usedTime);
-			computeSleepTimeAdjustment();
-			if (timeLeft > 0) {
+			++totalTicks;
+			long usedTimeNanos = task.getRunningTime();
+			long timeLeftNanos = (tickDurationNanos - usedTimeNanos);
+			fpsHistory[fpsHistoryIndex++] = task.getFrameRate();
+			if (fpsHistoryIndex == fpsHistory.length) {
+				fpsHistoryIndex = 0;
+				Arrays.stream(fpsHistory).average().ifPresent(avgFramerate -> {
+					if (avgFramerate > targetFramerate) {
+						sleepTimePercentage++;
+					} else if (avgFramerate < targetFramerate) {
+						sleepTimePercentage--;
+					}
+				});
+			}
+			if (timeLeftNanos > 0) {
 				try {
-					long sleepTime = timeLeft * sleepTimePercentage / 100;
+					long sleepTime = timeLeftNanos * sleepTimePercentage / 100;
 					NANOSECONDS.sleep(sleepTime);
 					log(() -> "Slept", sleepTime);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-			}
-		}
-	}
-
-	private void computeSleepTimeAdjustment() {
-		fpsHistory[fpsHistoryIndex++] = task.getFrameRate();
-		if (fpsHistoryIndex == fpsHistory.length) {
-			fpsHistoryIndex = 0;
-			long avg = Math.round(Arrays.stream(fpsHistory).average().getAsDouble());
-			if (avg > frequency) {
-				sleepTimePercentage++;
-			} else if (avg < frequency) {
-				sleepTimePercentage--;
 			}
 		}
 	}

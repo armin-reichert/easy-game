@@ -20,7 +20,7 @@ public class FramerateTestApp extends Application {
 
 	@Override
 	public void init() {
-		clock().setFrequency(60);
+		clock().setTargetFramerate(60);
 		FramerateHistoryView viewController = new FramerateHistoryView(1000, 400);
 		viewController.setApp(this);
 		setController(viewController);

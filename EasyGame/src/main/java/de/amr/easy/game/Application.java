@@ -245,7 +245,7 @@ public abstract class Application {
 							createShell(800, 600);
 						}
 						shell.display(settings.fullScreenOnStart);
-						clock.setFrequency(settings.fps);
+						clock.setTargetFramerate(settings.fps);
 						clock.start();
 					})
 				

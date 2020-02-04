@@ -10,7 +10,6 @@ import java.awt.event.ComponentEvent;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JComponent;
-import javax.swing.Timer;
 
 import de.amr.easy.game.Application;
 import de.amr.easy.game.controller.Lifecycle;
@@ -28,23 +27,24 @@ public class FramerateHistoryView extends JComponent implements Lifecycle, View 
 	private int fpsIndex;
 	private int[] fpsValues;
 	private int stepX = 20;
-	private int sampleSteps;
 	private int maxFps = 120;
-	private Timer timer;
 
 	public FramerateHistoryView(int width, int height) {
 		setSize(width, height);
-		fpsValues = new int[getWidth()];
-		bgImg = createBgImage(getWidth(), getHeight());
+		updateDataModel();
 		addComponentListener(new ComponentAdapter() {
+
 			@Override
 			public void componentResized(ComponentEvent e) {
-				super.componentResized(e);
-				fpsValues = new int[getWidth()];
-				fpsIndex = 0;
-				bgImg = createBgImage(getWidth(), getHeight());
+				updateDataModel();
 			}
 		});
+	}
+
+	private void updateDataModel() {
+		fpsValues = new int[getWidth()];
+		fpsIndex = 0;
+		bgImg = createBgImage(getWidth(), getHeight());
 	}
 
 	@Override
@@ -58,18 +58,31 @@ public class FramerateHistoryView extends JComponent implements Lifecycle, View 
 	public void setApp(Application app) {
 		if (app != this.app) {
 			this.app = app;
-			app.clock().addFrequencyChangeListener(e -> {
-				fpsValues = new int[getWidth()];
-				fpsIndex = 0;
-				bgImg = createBgImage(getWidth(), getHeight());
-			});
-			timer = new Timer(0, e -> {
-				update();
-				repaint();
-			});
-			timer.setDelay(50);
-			timer.start();
+			app.clock().addFrequencyChangeListener(e -> updateDataModel());
+			Thread t = new Thread(() -> {
+				while (true) {
+					update();
+					try {
+						Thread.sleep(2000);
+					} catch (InterruptedException e1) {
+						e1.printStackTrace();
+					}
+				}
+			}, "FrameRateViewUpdater");
+			t.start();
 		}
+	}
+
+	@Override
+	public void update() {
+		if (app == null) {
+			return;
+		}
+		fpsValues[fpsIndex++] = app.clock().getFrameRate();
+		if (fpsIndex * stepX >= getWidth()) {
+			fpsIndex = 0;
+		}
+		repaint();
 	}
 
 	@Override
@@ -79,21 +92,6 @@ public class FramerateHistoryView extends JComponent implements Lifecycle, View 
 
 	@Override
 	public void init() {
-	}
-
-	@Override
-	public void update() {
-		if (app == null) {
-			return;
-		}
-		++sampleSteps;
-		if (sampleSteps == app.clock().getFrequency()) {
-			fpsValues[fpsIndex++] = app.clock().getFrameRate();
-			if (fpsIndex * stepX >= getWidth()) {
-				fpsIndex = 0;
-			}
-			sampleSteps = 0;
-		}
 	}
 
 	private Image createBgImage(int width, int height) {
@@ -108,7 +106,7 @@ public class FramerateHistoryView extends JComponent implements Lifecycle, View 
 			g.drawLine(xOffset, y, width, y);
 			g.drawString(String.valueOf(f), 0, y);
 		}
-		int f = app != null ? app.clock().getFrequency() : 60;
+		int f = app != null ? app.clock().getTargetFramerate() : 60;
 		g.setColor(Color.YELLOW);
 		int y = height - Math.round(f * yScale);
 		g.drawLine(xOffset, y, width, y);
@@ -129,7 +127,7 @@ public class FramerateHistoryView extends JComponent implements Lifecycle, View 
 			int y2 = Math.round(fpsValues[j + 1] * yScale);
 			Color color = Color.GREEN;
 			if (j > 0) {
-				int fps = app != null ? app.clock().getFrequency() : 60;
+				int fps = app != null ? app.clock().getTargetFramerate() : 60;
 				int deviation = fpsValues[j] - fps;
 				int percent = (100 * deviation) / fps;
 				if (Math.abs(percent) > 3) {
