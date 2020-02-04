@@ -2,9 +2,15 @@ package de.amr.easy.game.ui;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.image.BufferedImage;
+
+import javax.swing.JComponent;
+import javax.swing.Timer;
 
 import de.amr.easy.game.Application;
 import de.amr.easy.game.controller.Lifecycle;
@@ -15,46 +21,60 @@ import de.amr.easy.game.view.View;
  * 
  * @author Armin Reichert
  */
-public class FramerateHistoryView implements View, Lifecycle {
+public class FramerateHistoryView extends JComponent implements Lifecycle, View {
 
 	private Application app;
-	private int width;
-	private int height;
 	private Image bgImg;
-	private int sampleIndex;
+	private int fpsIndex;
 	private int[] fpsValues;
 	private int stepX = 20;
 	private int sampleSteps;
 	private int maxFps = 120;
+	private Timer timer;
 
 	public FramerateHistoryView(int width, int height) {
 		setSize(width, height);
+		fpsValues = new int[getWidth()];
+		bgImg = createBgImage(getWidth(), getHeight());
+		addComponentListener(new ComponentAdapter() {
+			@Override
+			public void componentResized(ComponentEvent e) {
+				super.componentResized(e);
+				fpsValues = new int[getWidth()];
+				fpsIndex = 0;
+				bgImg = createBgImage(getWidth(), getHeight());
+			}
+		});
 	}
 
-	public void setSize(int width, int height) {
-		this.width = width;
-		this.height = height;
-		fpsValues = new int[width];
-		bgImg = createBgImage(width, height);
+	@Override
+	protected void paintComponent(Graphics g) {
+		super.paintComponent(g);
+		Graphics2D g2 = (Graphics2D) g.create();
+		draw(g2);
+		g2.dispose();
 	}
 
 	public void setApp(Application app) {
 		if (app != this.app) {
 			this.app = app;
 			app.clock().addFrequencyChangeListener(e -> {
-				sampleSteps = 0;
-				bgImg = createBgImage(width, height);
+				fpsValues = new int[getWidth()];
+				fpsIndex = 0;
+				bgImg = createBgImage(getWidth(), getHeight());
 			});
+			timer = new Timer(0, e -> {
+				update();
+				repaint();
+			});
+			timer.setDelay(50);
+			timer.start();
 		}
 	}
 
 	@Override
-	public void setVisible(boolean visible) {
-	}
-
-	@Override
 	public boolean visible() {
-		return true;
+		return isVisible();
 	}
 
 	@Override
@@ -63,11 +83,14 @@ public class FramerateHistoryView implements View, Lifecycle {
 
 	@Override
 	public void update() {
+		if (app == null) {
+			return;
+		}
 		++sampleSteps;
 		if (sampleSteps == app.clock().getFrequency()) {
-			fpsValues[sampleIndex++] = app.clock().getFrameRate();
-			if (sampleIndex * stepX >= width) {
-				sampleIndex = 0;
+			fpsValues[fpsIndex++] = app.clock().getFrameRate();
+			if (fpsIndex * stepX >= getWidth()) {
+				fpsIndex = 0;
 			}
 			sampleSteps = 0;
 		}
@@ -95,14 +118,15 @@ public class FramerateHistoryView implements View, Lifecycle {
 	@Override
 	public void draw(Graphics2D g) {
 		g.drawImage(bgImg, 0, 0, null);
-		g.translate(0, height);
+		g.translate(0, getHeight());
 		g.scale(1, -1);
 		int xOffset = 50;
-		for (int j = 0; j < sampleIndex - 1; ++j) {
+		float yScale = 1f * getHeight() / maxFps;
+		for (int j = 0; j < fpsIndex - 1; ++j) {
 			int x1 = xOffset + stepX * j;
-			int y1 = fpsValues[j];
+			int y1 = Math.round(fpsValues[j] * yScale);
 			int x2 = xOffset + stepX * (j + 1);
-			int y2 = fpsValues[j + 1];
+			int y2 = Math.round(fpsValues[j + 1] * yScale);
 			Color color = Color.GREEN;
 			if (j > 0) {
 				int fps = app != null ? app.clock().getFrequency() : 60;
@@ -118,6 +142,6 @@ public class FramerateHistoryView implements View, Lifecycle {
 			y1 = y2;
 		}
 		g.scale(1, -1);
-		g.translate(0, -height);
+		g.translate(0, -getHeight());
 	}
 }

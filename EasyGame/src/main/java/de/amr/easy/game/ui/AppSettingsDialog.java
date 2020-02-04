@@ -50,13 +50,12 @@ public class AppSettingsDialog extends JDialog {
 
 	private JSlider sliderFPS;
 	private DisplayModeItemRenderer displayModeComboRenderer = new DisplayModeItemRenderer();
-	private FramerateHistoryPanel framerateHistoryPanel;
-	private FramerateHistoryView framerateView;
+	private FramerateHistoryView framerateHistoryView;
 	private JLabel lblFramerateHistory;
 
 	public AppSettingsDialog(JFrame parent, Application app) {
 		super(parent);
-		setSize(600, 296);
+		setSize(583, 310);
 		if (app != null) {
 			setTitle(String.format("Application '%s'", app.settings().title));
 		}
@@ -112,22 +111,20 @@ public class AppSettingsDialog extends JDialog {
 			getContentPane().add(cbDisplayMode, "cell 1 1,growx");
 		}
 
-		framerateView = new FramerateHistoryView(500, 150);
+		framerateHistoryView = new FramerateHistoryView(500, 150);
 
 		lblFramerateHistory = new JLabel("Framerate History");
 		getContentPane().add(lblFramerateHistory, "cell 0 2,alignx right,aligny baseline");
-		framerateHistoryPanel = new FramerateHistoryPanel(framerateView);
-		framerateHistoryPanel.setBackground(Color.BLACK);
-		getContentPane().add(framerateHistoryPanel, "cell 0 3 3 1,grow");
-		framerateHistoryPanel.setLayout(new MigLayout("", "[]", "[]"));
+		framerateHistoryView.setBackground(Color.BLACK);
+		getContentPane().add(framerateHistoryView, "cell 0 3 3 1,grow");
+		framerateHistoryView.setLayout(new MigLayout("", "[]", "[]"));
 
 		if (app != null) {
-			framerateView.setApp(app);
-			framerateView.init();
+			framerateHistoryView.setApp(app);
 			app.clock().addFrequencyChangeListener(e -> sliderFPS.setValue((Integer) e.getNewValue()));
 			app.clock().addTickListener(() -> {
-				framerateView.update();
-				framerateHistoryPanel.repaint();
+				framerateHistoryView.update();
+				framerateHistoryView.repaint();
 			});
 		}
 	}
