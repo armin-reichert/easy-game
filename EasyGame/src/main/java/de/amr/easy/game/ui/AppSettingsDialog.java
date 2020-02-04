@@ -76,13 +76,13 @@ public class AppSettingsDialog extends JDialog {
 		sliderFPS.setMinorTickSpacing(10);
 		sliderFPS.setPaintTicks(true);
 		sliderFPS.setLabelTable(sliderFPS.createStandardLabels(10));
-		getContentPane().setLayout(new MigLayout("", "[][grow]", "[][][][grow,fill]"));
+		getContentPane().setLayout(new MigLayout("", "[][3px:n:3px][grow,fill]", "[][][][grow,fill]"));
 
 		JLabel lblFPS = new JLabel("Ticks/sec");
 		getContentPane().add(lblFPS, "cell 0 0,alignx right");
 		sliderFPS.setPaintLabels(true);
 		setFpsTooltip();
-		getContentPane().add(sliderFPS, "cell 1 0,growx");
+		getContentPane().add(sliderFPS, "cell 2 0,growx");
 
 		JLabel lblDisplayMode = new JLabel("Display Mode");
 		getContentPane().add(lblDisplayMode, "cell 0 1,alignx trailing");
@@ -114,7 +114,7 @@ public class AppSettingsDialog extends JDialog {
 		getContentPane().add(lblFramerateHistory, "cell 0 2,alignx right,aligny baseline");
 		frameratePanel = new FramerateHistoryPanel(framerateView);
 		frameratePanel.setPreferredSize(new Dimension(500, 200));
-		getContentPane().add(frameratePanel, "cell 0 3 2 1,grow");
+		getContentPane().add(frameratePanel, "cell 0 3 3 1,grow");
 		frameratePanel.setLayout(new MigLayout("", "[]", "[]"));
 
 		if (app != null) {

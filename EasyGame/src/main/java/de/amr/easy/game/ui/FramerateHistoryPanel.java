@@ -30,7 +30,7 @@ public class FramerateHistoryPanel extends JComponent {
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		if (view != null) {
-			view.draw((Graphics2D) g);
+			view.draw((Graphics2D) g.create());
 		}
 	}
 }
