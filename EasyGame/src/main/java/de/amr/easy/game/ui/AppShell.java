@@ -87,7 +87,8 @@ public class AppShell extends JFrame {
 
 	public void showSettingsDialog() {
 		if (settingsDialog == null) {
-			settingsDialog = new AppSettingsDialog(this, app);
+			settingsDialog = new AppSettingsDialog(this);
+			settingsDialog.setApp(app);
 		}
 		if (inFullScreenMode()) {
 			LOGGER.info("Settings dialog cannot be opened in full-screen mode");

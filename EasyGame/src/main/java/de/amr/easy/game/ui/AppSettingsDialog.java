@@ -49,17 +49,16 @@ public class AppSettingsDialog extends JDialog {
 		}
 	}
 
+	private Application app;
 	private JSlider sliderFPS;
 	private DisplayModeItemRenderer displayModeComboRenderer = new DisplayModeItemRenderer();
 	private FramerateHistoryView framerateHistoryView;
 	private JLabel lblFramerateHistory;
+	private JComboBox<DisplayMode> cbDisplayMode;
 
-	public AppSettingsDialog(JFrame parent, Application app) {
+	public AppSettingsDialog(JFrame parent) {
 		super(parent);
-		setSize(583, 310);
-		if (app != null) {
-			setTitle(String.format("Application '%s'", app.settings().title));
-		}
+		setSize(686, 331);
 		sliderFPS = new JSlider(0, 120);
 		sliderFPS.addChangeListener(new ChangeListener() {
 
@@ -73,57 +72,51 @@ public class AppSettingsDialog extends JDialog {
 				}
 			}
 		});
-		if (app != null) {
-			sliderFPS.setValue(app.clock().getTargetFramerate());
-		}
 		sliderFPS.setMajorTickSpacing(50);
 		sliderFPS.setMinorTickSpacing(10);
 		sliderFPS.setPaintTicks(true);
 		sliderFPS.setLabelTable(sliderFPS.createStandardLabels(10));
 		getContentPane().setLayout(new MigLayout("", "[][3px:n:3px][grow,fill]", "[][][][grow,fill]"));
-
 		JLabel lblFPS = new JLabel("Ticks/sec");
 		getContentPane().add(lblFPS, "cell 0 0,alignx right");
 		sliderFPS.setPaintLabels(true);
 		setFpsTooltip();
 		getContentPane().add(sliderFPS, "cell 2 0,growx");
-
 		JLabel lblDisplayMode = new JLabel("Display Mode");
 		getContentPane().add(lblDisplayMode, "cell 0 1,alignx trailing");
-
-		if (app != null) {
-			JComboBox<DisplayMode> cbDisplayMode = new JComboBox<>(createComboModel());
-			cbDisplayMode.setMaximumRowCount(cbDisplayMode.getItemCount());
-			cbDisplayMode.setRenderer(displayModeComboRenderer);
-			DisplayMode fullScreenMode = app.settings().fullScreenMode;
-			if (fullScreenMode != null) {
-				for (int i = 0; i < cbDisplayMode.getItemCount(); ++i) {
-					DisplayMode mode = cbDisplayMode.getItemAt(i);
-					if (mode.getWidth() == fullScreenMode.getWidth() && mode.getHeight() == fullScreenMode.getHeight()
-							&& mode.getBitDepth() == fullScreenMode.getBitDepth()) {
-						cbDisplayMode.setSelectedIndex(i);
-						break;
-					}
-				}
-			}
-			cbDisplayMode.addActionListener(e -> {
-				app.settings().fullScreenMode = (DisplayMode) cbDisplayMode.getSelectedItem();
-			});
-			getContentPane().add(cbDisplayMode, "cell 1 1,growx");
-		}
-
+		 ComboBoxModel<DisplayMode> comboModel = createComboModel(); 
+		cbDisplayMode = new JComboBox<>(comboModel);
+		cbDisplayMode.addActionListener(e -> {
+			app.settings().fullScreenMode = (DisplayMode) cbDisplayMode.getSelectedItem();
+		});
+		cbDisplayMode.setMaximumRowCount(cbDisplayMode.getItemCount());
+		cbDisplayMode.setRenderer(displayModeComboRenderer);
+		getContentPane().add(cbDisplayMode, "cell 1 1,growx");
 		framerateHistoryView = new FramerateHistoryView(500, 150);
-
 		lblFramerateHistory = new JLabel("Framerate History");
 		getContentPane().add(lblFramerateHistory, "cell 0 2,alignx right,aligny baseline");
 		framerateHistoryView.setBackground(Color.BLACK);
 		getContentPane().add(framerateHistoryView, "cell 0 3 3 1,grow");
 		framerateHistoryView.setLayout(new MigLayout("", "[]", "[]"));
+	}
 
-		if (app != null) {
-			framerateHistoryView.setApp(app);
-			app.clock().addFrequencyChangeListener(e -> sliderFPS.setValue((Integer) e.getNewValue()));
+	public void setApp(Application app) {
+		this.app = app;
+		setTitle(String.format("Application '%s'", app.settings().title));
+		sliderFPS.setValue(app.clock().getTargetFramerate());
+		framerateHistoryView.setApp(app);
+		DisplayMode fullScreenMode = app.settings().fullScreenMode;
+		if (fullScreenMode != null) {
+			for (int i = 0; i < cbDisplayMode.getItemCount(); ++i) {
+				DisplayMode mode = cbDisplayMode.getItemAt(i);
+				if (mode.getWidth() == fullScreenMode.getWidth() && mode.getHeight() == fullScreenMode.getHeight()
+						&& mode.getBitDepth() == fullScreenMode.getBitDepth()) {
+					cbDisplayMode.setSelectedIndex(i);
+					break;
+				}
+			}
 		}
+		app.clock().addFrequencyChangeListener(e -> sliderFPS.setValue((Integer) e.getNewValue()));
 	}
 
 	private void setFpsTooltip() {
