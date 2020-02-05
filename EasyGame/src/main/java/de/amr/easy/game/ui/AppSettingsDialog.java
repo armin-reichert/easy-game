@@ -109,6 +109,7 @@ public class AppSettingsDialog extends JDialog {
 		framerateHistoryView.setApp(app);
 		setTitle(String.format("Application '%s'", app.settings().title));
 		sliderFPS.setValue(app.clock().getTargetFramerate());
+		app.clock().addFrequencyChangeListener(e -> sliderFPS.setValue((Integer) e.getNewValue()));
 		DisplayMode fullScreenMode = app.settings().fullScreenMode;
 		if (fullScreenMode != null) {
 			for (int i = 0; i < cbDisplayMode.getItemCount(); ++i) {
@@ -120,7 +121,6 @@ public class AppSettingsDialog extends JDialog {
 				}
 			}
 		}
-		app.clock().addFrequencyChangeListener(e -> sliderFPS.setValue((Integer) e.getNewValue()));
 	}
 
 	private void setFpsTooltip() {
@@ -142,5 +142,4 @@ public class AppSettingsDialog extends JDialog {
 		}
 		return new DefaultComboBoxModel<>(withoutDuplicates);
 	}
-
 }

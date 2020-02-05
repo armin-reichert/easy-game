@@ -27,39 +27,75 @@ public class FramerateHistoryView extends JComponent implements Lifecycle, View 
 	private int[] fpsValues;
 	private int stepX = 20;
 	private int maxFps = 120;
+	private int xOffset = 30;
 
 	public FramerateHistoryView(int width, int height) {
 		setSize(width, height);
-		updateData(width, height);
+		updateData(width / stepX);
 		addComponentListener(new ComponentAdapter() {
 
 			@Override
 			public void componentResized(ComponentEvent e) {
-				updateData(e.getComponent().getWidth(), e.getComponent().getHeight());
+				updateData(e.getComponent().getWidth() / stepX);
+				bgImg = null;
 			}
 		});
 	}
 
-	private void updateData(int width, int height) {
-		fpsValues = new int[width / stepX];
+	private void updateData(int numValues) {
+		fpsValues = new int[numValues];
 		fpsIndex = 0;
-		bgImg = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+	}
+
+	private void updateBgImage(int w, int h) {
+		bgImg = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
 		Graphics2D g = bgImg.createGraphics();
-		g.setColor(Color.BLACK);
-		g.fillRect(0, 0, width, height);
-		int xOffset = 50;
-		float yScale = 1f * height / maxFps;
+		float yScale = 1f * h / maxFps;
 		g.setColor(Color.LIGHT_GRAY);
 		g.setStroke(new BasicStroke(0.1f));
 		for (int f = 0; f <= maxFps; f += 20) {
-			int y = height - Math.round(f * yScale);
-			g.drawLine(xOffset, y, width, y);
+			int y = h - Math.round(f * yScale);
+			g.drawLine(xOffset, y, w, y);
 			g.drawString(String.valueOf(f), 0, y);
 		}
 		int f = app != null ? app.clock().getTargetFramerate() : 60;
 		g.setColor(Color.YELLOW);
-		int y = height - Math.round(f * yScale);
-		g.drawLine(xOffset, y, width, y);
+		int y = h - Math.round(f * yScale);
+		g.drawLine(xOffset, y, w, y);
+	}
+
+	@Override
+	public void draw(Graphics2D g) {
+		if (bgImg == null) {
+			updateBgImage(getWidth(), getHeight());
+		}
+		g.drawImage(bgImg, 0, 0, null);
+
+		// turn canvas upside down
+		g.translate(0, getHeight());
+		g.scale(1, -1);
+		float yScale = 1f * getHeight() / maxFps;
+		for (int j = 0; j < fpsIndex - 1; ++j) {
+			int x1 = xOffset + stepX * j;
+			int y1 = Math.round(fpsValues[j] * yScale);
+			int x2 = xOffset + stepX * (j + 1);
+			int y2 = Math.round(fpsValues[j + 1] * yScale);
+			Color color = Color.GREEN;
+			if (j > 0) {
+				int fps = app != null ? app.clock().getTargetFramerate() : 60;
+				int deviation = fpsValues[j] - fps;
+				int percent = (100 * deviation) / fps;
+				if (Math.abs(percent) > 3) {
+					color = Color.RED;
+				}
+			}
+			g.setColor(color);
+			g.drawLine(x1, y1, x2, y2);
+			x1 = x2;
+			y1 = y2;
+		}
+		g.scale(1, -1);
+		g.translate(0, -getHeight());
 	}
 
 	@Override
@@ -73,8 +109,10 @@ public class FramerateHistoryView extends JComponent implements Lifecycle, View 
 	public void setApp(Application app) {
 		if (app != this.app) {
 			this.app = app;
-			update();
-			app.clock().addFrequencyChangeListener(e -> updateData(getWidth(), getHeight()));
+			app.clock().addFrequencyChangeListener(e -> {
+				updateData(getWidth() / stepX);
+				bgImg = null;
+			});
 			Thread t = new Thread(() -> {
 				while (true) {
 					update();
@@ -105,35 +143,5 @@ public class FramerateHistoryView extends JComponent implements Lifecycle, View 
 
 	@Override
 	public void init() {
-	}
-
-	@Override
-	public void draw(Graphics2D g) {
-		g.drawImage(bgImg, 0, 0, null);
-		g.translate(0, getHeight());
-		g.scale(1, -1);
-		int xOffset = 50;
-		float yScale = 1f * getHeight() / maxFps;
-		for (int j = 0; j < fpsIndex - 1; ++j) {
-			int x1 = xOffset + stepX * j;
-			int y1 = Math.round(fpsValues[j] * yScale);
-			int x2 = xOffset + stepX * (j + 1);
-			int y2 = Math.round(fpsValues[j + 1] * yScale);
-			Color color = Color.GREEN;
-			if (j > 0) {
-				int fps = app != null ? app.clock().getTargetFramerate() : 60;
-				int deviation = fpsValues[j] - fps;
-				int percent = (100 * deviation) / fps;
-				if (Math.abs(percent) > 3) {
-					color = Color.RED;
-				}
-			}
-			g.setColor(color);
-			g.drawLine(x1, y1, x2, y2);
-			x1 = x2;
-			y1 = y2;
-		}
-		g.scale(1, -1);
-		g.translate(0, -getHeight());
 	}
 }
