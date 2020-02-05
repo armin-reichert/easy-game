@@ -28,6 +28,7 @@ public class FramerateHistoryView extends JComponent implements Lifecycle, View 
 	private int stepX = 20;
 	private int maxFps = 120;
 	private int xOffset = 30;
+	private int vmargin = 20;
 
 	public FramerateHistoryView(int width, int height) {
 		setSize(width, height);
@@ -50,7 +51,9 @@ public class FramerateHistoryView extends JComponent implements Lifecycle, View 
 	private void updateBgImage(int w, int h) {
 		bgImg = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
 		Graphics2D g = bgImg.createGraphics();
-		float yScale = 1f * h / maxFps;
+		g.translate(0, -vmargin);
+		int hh = h - 2 * vmargin;
+		float yScale = 1f * hh / maxFps;
 		g.setColor(Color.LIGHT_GRAY);
 		g.setStroke(new BasicStroke(0.1f));
 		for (int f = 0; f <= maxFps; f += 20) {
@@ -64,22 +67,13 @@ public class FramerateHistoryView extends JComponent implements Lifecycle, View 
 		g.drawLine(xOffset, y, w, y);
 	}
 
-	@Override
-	public void draw(Graphics2D g) {
-		if (bgImg == null) {
-			updateBgImage(getWidth(), getHeight());
-		}
-		g.drawImage(bgImg, 0, 0, null);
-
-		// turn canvas upside down
-		g.translate(0, getHeight());
-		g.scale(1, -1);
-		float yScale = 1f * getHeight() / maxFps;
+	private void drawValues(Graphics2D g, int w, int h) {
+		float yScale = 1f * h / maxFps;
 		for (int j = 0; j < fpsIndex - 1; ++j) {
 			int x1 = xOffset + stepX * j;
-			int y1 = Math.round(fpsValues[j] * yScale);
+			int y1 = h + vmargin - Math.round(fpsValues[j] * yScale);
 			int x2 = xOffset + stepX * (j + 1);
-			int y2 = Math.round(fpsValues[j + 1] * yScale);
+			int y2 = h + vmargin - Math.round(fpsValues[j + 1] * yScale);
 			Color color = Color.GREEN;
 			if (j > 0) {
 				int fps = app != null ? app.clock().getTargetFramerate() : 60;
@@ -94,8 +88,15 @@ public class FramerateHistoryView extends JComponent implements Lifecycle, View 
 			x1 = x2;
 			y1 = y2;
 		}
-		g.scale(1, -1);
-		g.translate(0, -getHeight());
+	}
+
+	@Override
+	public void draw(Graphics2D g) {
+		if (bgImg == null) {
+			updateBgImage(getWidth(), getHeight());
+		}
+		g.drawImage(bgImg, 0, 0, null);
+		drawValues(g, getWidth(), getHeight() - 2 * vmargin);
 	}
 
 	@Override
