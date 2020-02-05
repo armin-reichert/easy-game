@@ -13,8 +13,10 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.ListCellRenderer;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -36,12 +38,11 @@ public class AppSettingsDialog extends JDialog {
 		}
 
 		@Override
-		public Component getListCellRendererComponent(JList<? extends DisplayMode> list, DisplayMode mode,
-				int index, boolean isSelected, boolean cellHasFocus) {
+		public Component getListCellRendererComponent(JList<? extends DisplayMode> list, DisplayMode mode, int index,
+				boolean isSelected, boolean cellHasFocus) {
 			String text = "";
 			if (mode != null) {
-				text = String.format("%d x %d Pixel, %d Bit, %s Hz", mode.getWidth(), mode.getHeight(),
-						mode.getBitDepth(),
+				text = String.format("%d x %d Pixel, %d Bit, %s Hz", mode.getWidth(), mode.getHeight(), mode.getBitDepth(),
 						mode.getRefreshRate() == 0 ? "unknown" : String.valueOf(mode.getRefreshRate()));
 			}
 			setText(text);
@@ -52,13 +53,13 @@ public class AppSettingsDialog extends JDialog {
 	private Application app;
 	private JSlider sliderFPS;
 	private DisplayModeItemRenderer displayModeComboRenderer = new DisplayModeItemRenderer();
-	private FramerateHistoryView framerateHistoryView;
-	private JLabel lblFramerateHistory;
 	private JComboBox<DisplayMode> cbDisplayMode;
+	private JPanel panel;
+	private FramerateHistoryView framerateHistoryView;
 
 	public AppSettingsDialog(JFrame parent) {
 		super(parent);
-		setSize(686, 331);
+		setSize(665, 334);
 		sliderFPS = new JSlider(0, 120);
 		sliderFPS.addChangeListener(new ChangeListener() {
 
@@ -76,7 +77,7 @@ public class AppSettingsDialog extends JDialog {
 		sliderFPS.setMinorTickSpacing(10);
 		sliderFPS.setPaintTicks(true);
 		sliderFPS.setLabelTable(sliderFPS.createStandardLabels(10));
-		getContentPane().setLayout(new MigLayout("", "[][3px:n:3px][grow,fill]", "[][][][grow,fill]"));
+		getContentPane().setLayout(new MigLayout("", "[][3px:n:3px][grow,fill]", "[][][grow,fill]"));
 		JLabel lblFPS = new JLabel("Ticks/sec");
 		getContentPane().add(lblFPS, "cell 0 0,alignx right");
 		sliderFPS.setPaintLabels(true);
@@ -84,27 +85,30 @@ public class AppSettingsDialog extends JDialog {
 		getContentPane().add(sliderFPS, "cell 2 0,growx");
 		JLabel lblDisplayMode = new JLabel("Display Mode");
 		getContentPane().add(lblDisplayMode, "cell 0 1,alignx trailing");
-		 ComboBoxModel<DisplayMode> comboModel = createComboModel(); 
+		ComboBoxModel<DisplayMode> comboModel = createComboModel();
 		cbDisplayMode = new JComboBox<>(comboModel);
 		cbDisplayMode.addActionListener(e -> {
 			app.settings().fullScreenMode = (DisplayMode) cbDisplayMode.getSelectedItem();
 		});
 		cbDisplayMode.setMaximumRowCount(cbDisplayMode.getItemCount());
 		cbDisplayMode.setRenderer(displayModeComboRenderer);
-		getContentPane().add(cbDisplayMode, "cell 1 1,growx");
+		getContentPane().add(cbDisplayMode, "cell 1 1,alignx left");
+
+		panel = new JPanel();
+		panel.setBorder(new TitledBorder(null, "Framerate History", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		getContentPane().add(panel, "cell 0 2 3 1,grow");
+		panel.setLayout(new MigLayout("", "[grow,fill]", "[grow,fill]"));
+
 		framerateHistoryView = new FramerateHistoryView(500, 150);
-		lblFramerateHistory = new JLabel("Framerate History");
-		getContentPane().add(lblFramerateHistory, "cell 0 2,alignx right,aligny baseline");
 		framerateHistoryView.setBackground(Color.BLACK);
-		getContentPane().add(framerateHistoryView, "cell 0 3 3 1,grow");
-		framerateHistoryView.setLayout(new MigLayout("", "[]", "[]"));
+		panel.add(framerateHistoryView, "cell 0 0,grow");
 	}
 
 	public void setApp(Application app) {
 		this.app = app;
+		framerateHistoryView.setApp(app);
 		setTitle(String.format("Application '%s'", app.settings().title));
 		sliderFPS.setValue(app.clock().getTargetFramerate());
-		framerateHistoryView.setApp(app);
 		DisplayMode fullScreenMode = app.settings().fullScreenMode;
 		if (fullScreenMode != null) {
 			for (int i = 0; i < cbDisplayMode.getItemCount(); ++i) {
@@ -124,14 +128,12 @@ public class AppSettingsDialog extends JDialog {
 	}
 
 	private ComboBoxModel<DisplayMode> createComboModel() {
-		DisplayMode[] modes = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice()
-				.getDisplayModes();
+		DisplayMode[] modes = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayModes();
 		Vector<DisplayMode> withoutDuplicates = new Vector<>();
 		boolean duplicate = false;
 		for (int i = 0; i < modes.length; ++i) {
 			if (i > 0) {
-				duplicate = modes[i - 1].getWidth() == modes[i].getWidth()
-						&& modes[i - 1].getHeight() == modes[i].getHeight()
+				duplicate = modes[i - 1].getWidth() == modes[i].getWidth() && modes[i - 1].getHeight() == modes[i].getHeight()
 						&& modes[i - 1].getBitDepth() == modes[i].getBitDepth();
 			}
 			if (!duplicate) {

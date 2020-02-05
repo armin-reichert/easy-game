@@ -4,7 +4,6 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.image.BufferedImage;
@@ -23,7 +22,7 @@ import de.amr.easy.game.view.View;
 public class FramerateHistoryView extends JComponent implements Lifecycle, View {
 
 	private Application app;
-	private Image bgImg;
+	private BufferedImage bgImg;
 	private int fpsIndex;
 	private int[] fpsValues;
 	private int stepX = 20;
@@ -31,20 +30,36 @@ public class FramerateHistoryView extends JComponent implements Lifecycle, View 
 
 	public FramerateHistoryView(int width, int height) {
 		setSize(width, height);
-		updateDataModel();
+		updateData(width, height);
 		addComponentListener(new ComponentAdapter() {
 
 			@Override
 			public void componentResized(ComponentEvent e) {
-				updateDataModel();
+				updateData(e.getComponent().getWidth(), e.getComponent().getHeight());
 			}
 		});
 	}
 
-	private void updateDataModel() {
-		fpsValues = new int[getWidth()];
+	private void updateData(int width, int height) {
+		fpsValues = new int[width / stepX];
 		fpsIndex = 0;
-		bgImg = createBgImage(getWidth(), getHeight());
+		bgImg = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+		Graphics2D g = bgImg.createGraphics();
+		g.setColor(Color.BLACK);
+		g.fillRect(0, 0, width, height);
+		int xOffset = 50;
+		float yScale = 1f * height / maxFps;
+		g.setColor(Color.LIGHT_GRAY);
+		g.setStroke(new BasicStroke(0.1f));
+		for (int f = 0; f <= maxFps; f += 20) {
+			int y = height - Math.round(f * yScale);
+			g.drawLine(xOffset, y, width, y);
+			g.drawString(String.valueOf(f), 0, y);
+		}
+		int f = app != null ? app.clock().getTargetFramerate() : 60;
+		g.setColor(Color.YELLOW);
+		int y = height - Math.round(f * yScale);
+		g.drawLine(xOffset, y, width, y);
 	}
 
 	@Override
@@ -58,31 +73,29 @@ public class FramerateHistoryView extends JComponent implements Lifecycle, View 
 	public void setApp(Application app) {
 		if (app != this.app) {
 			this.app = app;
-			app.clock().addFrequencyChangeListener(e -> updateDataModel());
+			update();
+			app.clock().addFrequencyChangeListener(e -> updateData(getWidth(), getHeight()));
 			Thread t = new Thread(() -> {
 				while (true) {
 					update();
+					repaint();
 					try {
 						Thread.sleep(2000);
 					} catch (InterruptedException e1) {
 						e1.printStackTrace();
 					}
 				}
-			}, "FrameRateViewUpdater");
+			}, "FramerateHistoryViewUpdate");
 			t.start();
 		}
 	}
 
 	@Override
 	public void update() {
-		if (app == null) {
-			return;
-		}
-		fpsValues[fpsIndex++] = app.clock().getFrameRate();
-		if (fpsIndex * stepX >= getWidth()) {
+		if (fpsIndex == fpsValues.length) {
 			fpsIndex = 0;
 		}
-		repaint();
+		fpsValues[fpsIndex++] = app.clock().getFrameRate();
 	}
 
 	@Override
@@ -92,25 +105,6 @@ public class FramerateHistoryView extends JComponent implements Lifecycle, View 
 
 	@Override
 	public void init() {
-	}
-
-	private Image createBgImage(int width, int height) {
-		BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-		Graphics2D g = img.createGraphics();
-		int xOffset = 50;
-		g.setColor(Color.LIGHT_GRAY);
-		g.setStroke(new BasicStroke(0.1f));
-		float yScale = 1f * height / maxFps;
-		for (int f = 0; f <= maxFps; f += 20) {
-			int y = height - Math.round(f * yScale);
-			g.drawLine(xOffset, y, width, y);
-			g.drawString(String.valueOf(f), 0, y);
-		}
-		int f = app != null ? app.clock().getTargetFramerate() : 60;
-		g.setColor(Color.YELLOW);
-		int y = height - Math.round(f * yScale);
-		g.drawLine(xOffset, y, width, y);
-		return img;
 	}
 
 	@Override
