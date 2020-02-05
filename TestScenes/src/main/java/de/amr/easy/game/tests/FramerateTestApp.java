@@ -14,14 +14,13 @@ public class FramerateTestApp extends Application {
 	protected void configure(AppSettings settings) {
 		settings.title = "Game performance measurement";
 		settings.titleExtended = true;
-		settings.width = 1000;
-		settings.height = 400;
+		settings.width = 600;
+		settings.height = 250;
 	}
 
 	@Override
 	public void init() {
-		clock().setTargetFramerate(60);
-		FramerateHistoryView viewController = new FramerateHistoryView(1000, 400);
+		FramerateHistoryView viewController = new FramerateHistoryView(600, 250);
 		viewController.setApp(this);
 		setController(viewController);
 	}
