@@ -54,8 +54,8 @@ public class AppSettingsDialog extends JDialog {
 	private JSlider sliderFPS;
 	private DisplayModeItemRenderer displayModeComboRenderer = new DisplayModeItemRenderer();
 	private JComboBox<DisplayMode> cbDisplayMode;
-	private JPanel panel;
-	private FramerateHistoryView framerateHistoryView;
+	private JPanel fpsHistoryPanel;
+	private FramerateHistoryView fpsHistoryView;
 
 	public AppSettingsDialog(JFrame parent) {
 		super(parent);
@@ -94,19 +94,19 @@ public class AppSettingsDialog extends JDialog {
 		cbDisplayMode.setRenderer(displayModeComboRenderer);
 		getContentPane().add(cbDisplayMode, "cell 1 1,alignx left");
 
-		panel = new JPanel();
-		panel.setBorder(new TitledBorder(null, "Framerate History", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		getContentPane().add(panel, "cell 0 2 3 1,grow");
-		panel.setLayout(new MigLayout("", "[grow,fill]", "[grow,fill]"));
+		fpsHistoryPanel = new JPanel();
+		fpsHistoryPanel.setBorder(new TitledBorder(null, "Framerate History", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		getContentPane().add(fpsHistoryPanel, "cell 0 2 3 1,grow");
+		fpsHistoryPanel.setLayout(new MigLayout("", "[grow,fill]", "[grow,fill]"));
 
-		framerateHistoryView = new FramerateHistoryView(500, 150);
-		framerateHistoryView.setBackground(Color.BLACK);
-		panel.add(framerateHistoryView, "cell 0 0,grow");
+		fpsHistoryView = new FramerateHistoryView(500, 150);
+		fpsHistoryView.setBackground(Color.BLACK);
+		fpsHistoryPanel.add(fpsHistoryView, "cell 0 0,grow");
 	}
 
 	public void setApp(Application app) {
 		this.app = app;
-		framerateHistoryView.setApp(app);
+		fpsHistoryView.setApp(app);
 		setTitle(String.format("Application '%s'", app.settings().title));
 		sliderFPS.setValue(app.clock().getTargetFramerate());
 		app.clock().addFrequencyChangeListener(e -> sliderFPS.setValue((Integer) e.getNewValue()));
