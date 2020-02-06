@@ -22,6 +22,7 @@ import javax.swing.event.ChangeListener;
 
 import de.amr.easy.game.Application;
 import net.miginfocom.swing.MigLayout;
+import java.awt.Dimension;
 
 /**
  * Dialog for changing clock frequency and full-screen display mode.
@@ -33,15 +34,11 @@ public class AppSettingsDialog extends JDialog {
 
 	private static class DisplayModeItemRenderer extends JLabel implements ListCellRenderer<DisplayMode> {
 
-		public DisplayModeItemRenderer() {
-			setOpaque(true);
-		}
-
 		@Override
 		public Component getListCellRendererComponent(JList<? extends DisplayMode> list, DisplayMode mode, int index,
 				boolean isSelected, boolean cellHasFocus) {
-			String text = "";
-			if (mode != null) {
+			String text = "No entries";
+			if (mode != null) { // inside Window Builder, mode can be NULL
 				text = String.format("%d x %d Pixel, %d Bit, %s Hz", mode.getWidth(), mode.getHeight(), mode.getBitDepth(),
 						mode.getRefreshRate() == 0 ? "unknown" : String.valueOf(mode.getRefreshRate()));
 			}
@@ -87,15 +84,17 @@ public class AppSettingsDialog extends JDialog {
 		getContentPane().add(lblDisplayMode, "cell 0 1,alignx trailing");
 		ComboBoxModel<DisplayMode> comboModel = createComboModel();
 		cbDisplayMode = new JComboBox<>(comboModel);
+		cbDisplayMode.setMinimumSize(new Dimension(220, 26));
 		cbDisplayMode.addActionListener(e -> {
 			app.settings().fullScreenMode = (DisplayMode) cbDisplayMode.getSelectedItem();
 		});
 		cbDisplayMode.setMaximumRowCount(cbDisplayMode.getItemCount());
 		cbDisplayMode.setRenderer(displayModeComboRenderer);
-		getContentPane().add(cbDisplayMode, "cell 1 1,alignx left");
+		getContentPane().add(cbDisplayMode, "cell 1 1");
 
 		fpsHistoryPanel = new JPanel();
-		fpsHistoryPanel.setBorder(new TitledBorder(null, "Framerate History", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		fpsHistoryPanel
+				.setBorder(new TitledBorder(null, "Framerate History", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		getContentPane().add(fpsHistoryPanel, "cell 0 2 3 1,grow");
 		fpsHistoryPanel.setLayout(new MigLayout("", "[grow,fill]", "[grow,fill]"));
 
