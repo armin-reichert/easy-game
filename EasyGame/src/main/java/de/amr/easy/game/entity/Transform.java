@@ -5,25 +5,26 @@ import java.awt.geom.Rectangle2D;
 import de.amr.easy.game.math.Vector2f;
 
 /**
- * Encapsulates collision size, position, velocity and rotation of a game object.
+ * Encapsulates size, position, velocity and rotation of an entity.
  * 
  * @author Armin Reichert
  */
 public class Transform {
 
+	// size
 	private int width;
 	private int height;
-	private Vector2f position;
-	private Vector2f velocity;
-	private double rotation;
 
-	public Transform() {
-		width = 0;
-		height = 0;
-		position = Vector2f.of(0, 0);
-		velocity = Vector2f.of(0, 0);
-		rotation = 0.0;
-	}
+	// position
+	private float x;
+	private float y;
+
+	// velocity
+	private float vx;
+	private float vy;
+
+	// rotation (radians)
+	private double rotation;
 
 	public int getWidth() {
 		return width;
@@ -42,43 +43,46 @@ public class Transform {
 	}
 
 	public float getX() {
-		return position.x;
+		return x;
 	}
 
 	public float getY() {
-		return position.y;
+		return y;
 	}
 
 	public Vector2f getPosition() {
-		return Vector2f.of(position.x, position.y);
+		return Vector2f.of(x, y);
 	}
 
 	public Rectangle2D getCollisionBox() {
-		return new Rectangle2D.Float(position.x, position.y, width, height);
+		return new Rectangle2D.Float(x, y, width, height);
 	}
 
 	public Vector2f getCenter() {
-		return Vector2f.of(position.x + width / 2, position.y + height / 2);
+		return Vector2f.of(x + width / 2, y + height / 2);
 	}
 
 	public void setX(float x) {
-		position = Vector2f.of(x, position.y);
+		this.x = x;
 	}
 
 	public void setY(float y) {
-		position = Vector2f.of(position.x, y);
+		this.y = y;
 	}
 
 	public void setPosition(float x, float y) {
-		position = Vector2f.of(x, y);
+		this.x = x;
+		this.y = y;
 	}
 
 	public void setPosition(Vector2f p) {
-		position = Vector2f.of(p.x, p.y);
+		x = p.x;
+		y = p.y;
 	}
 
 	public void move() {
-		position = Vector2f.sum(position, velocity);
+		x += vx;
+		y += vy;
 	}
 
 	public void centerX(int width) {
@@ -95,31 +99,32 @@ public class Transform {
 	}
 
 	public void setVelocity(float vx, float vy) {
-		velocity = Vector2f.of(vx, vy);
+		this.vx = vx;
+		this.vy = vy;
 	}
 
 	public void setVelocity(Vector2f v) {
-		velocity = Vector2f.of(v.x, v.y);
+		setVelocity(v.x, v.y);
 	}
 
 	public void setVelocityX(float vx) {
-		velocity = Vector2f.of(vx, velocity.y);
+		this.vx = vx;
 	}
 
 	public void setVelocityY(float vy) {
-		velocity = Vector2f.of(velocity.x, vy);
+		this.vy = vy;
 	}
 
 	public float getVelocityX() {
-		return velocity.x;
+		return vx;
 	}
 
 	public float getVelocityY() {
-		return velocity.y;
+		return vy;
 	}
 
 	public Vector2f getVelocity() {
-		return velocity;
+		return Vector2f.of(vx, vy);
 	}
 
 	public double getRotation() {
