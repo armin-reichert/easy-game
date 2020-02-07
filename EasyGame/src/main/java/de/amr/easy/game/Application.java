@@ -208,6 +208,8 @@ public abstract class Application {
 					lifecycle.process(SHOW_SETTINGS_DIALOG);
 				} else if (e.getKeyCode() == KeyEvent.VK_F11) {
 					lifecycle.process(TOGGLE_FULLSCREEN);
+				} else if (e.getKeyCode() == KeyEvent.VK_ESCAPE && shell.inFullScreenMode()) {
+					lifecycle.process(TOGGLE_FULLSCREEN);
 				}
 			}
 		};
