@@ -26,6 +26,12 @@ public class Transform {
 	// rotation (radians)
 	private double rotation;
 
+	@Override
+	public String toString() {
+		return String.format("[position:(x=%.2f y=%.2f) size:(w=%d h=%d) velocity:(x=%.2f y=%.2f) rotation:%.2g\u00b0]", x, y,
+				width, height, vx, vy, Math.toDegrees(rotation));
+	}
+
 	public int getWidth() {
 		return width;
 	}
