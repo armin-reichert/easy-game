@@ -34,7 +34,7 @@ public class Clock {
 	private int targetFramerate;
 	private long tickDurationNanos;
 	private long totalTicks;
-	private int sleepTimePercentage = 100;
+	private float sleepTimePercentage = 100;
 	private int[] fpsHistory = new int[60];
 	private int fpsHistoryIndex = 0;
 	private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
@@ -147,17 +147,19 @@ public class Clock {
 			fpsHistory[fpsHistoryIndex++] = task.getFrameRate();
 			if (fpsHistoryIndex == fpsHistory.length) {
 				fpsHistoryIndex = 0;
+				float delta = .1f;
 				Arrays.stream(fpsHistory).average().ifPresent(avgFramerate -> {
-					if (avgFramerate > targetFramerate) {
-						sleepTimePercentage++;
-					} else if (avgFramerate < targetFramerate) {
-						sleepTimePercentage--;
+					double deviation = avgFramerate - targetFramerate;
+					if (deviation > 0) { // too fast
+						sleepTimePercentage += delta;
+					} else if (deviation < 0) { // too slow
+						sleepTimePercentage -= delta;
 					}
 				});
 			}
 			if (timeLeftNanos > 0) {
 				try {
-					long sleepTime = timeLeftNanos * sleepTimePercentage / 100;
+					long sleepTime = Math.round(timeLeftNanos * sleepTimePercentage) / 100;
 					NANOSECONDS.sleep(sleepTime);
 					log(() -> "Slept", sleepTime);
 				} catch (InterruptedException e) {
