@@ -30,33 +30,39 @@ public class Clock {
 
 	private volatile boolean running;
 	private Thread thread;
-	private Task task;
 	private int targetFramerate;
 	private long tickDurationNanos;
 	private long totalTicks;
-	private float sleepTimePercentage = 100;
+
+	private float sleepTimePct = 100;
 	private int[] fpsHistory = new int[60];
 	private int fpsHistoryIndex = 0;
+
+	private Runnable work;
+	private long runningTimeNanos; // nanoseconds
+	private long fpsMeasurementStartNanos; // nanoseconds
+	private int frameCount;
+	private int fps;
+
 	private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
 	/**
-	 * Creates a clock which triggers execution of the given work according to the clock frequency.
+	 * Creates a clock which triggers execution of the given work according to the
+	 * clock frequency.
 	 * 
-	 * @param targetFrequency
-	 *                          the target frequency (ticks per second)
-	 * @param work
-	 *                          work to do
+	 * @param targetFrequency the target frequency (ticks per second)
+	 * @param work            work to do
 	 */
 	public Clock(int targetFrequency, Runnable work) {
 		setTargetFramerate(targetFrequency);
-		this.task = new Task(work);
+		this.work = work;
 	}
 
 	/**
 	 * @return last reported number of frames/second
 	 */
 	public int getFrameRate() {
-		return task.getFrameRate();
+		return fps;
 	}
 
 	/**
@@ -69,8 +75,7 @@ public class Clock {
 	/**
 	 * Sets the clock's target frequency to the given value (ticks per second).
 	 * 
-	 * @param ticksPerSecond
-	 *                         number of ticks per second
+	 * @param ticksPerSecond number of ticks per second
 	 */
 	public void setTargetFramerate(int ticksPerSecond) {
 		if (ticksPerSecond < 1) {
@@ -93,8 +98,7 @@ public class Clock {
 	}
 
 	/**
-	 * @param seconds
-	 *                  seconds
+	 * @param seconds seconds
 	 * @return number of clock ticks representing the given seconds
 	 */
 	public int sec(float seconds) {
@@ -104,8 +108,7 @@ public class Clock {
 	/**
 	 * Adds a listener for frequency changes.
 	 * 
-	 * @param listener
-	 *                   frequency change listener
+	 * @param listener frequency change listener
 	 */
 	public void addFrequencyChangeListener(PropertyChangeListener listener) {
 		pcs.addPropertyChangeListener("frequency", listener);
@@ -139,27 +142,39 @@ public class Clock {
 
 	private void loop() {
 		while (running) {
-			task.run();
-			log(() -> "Work", task.getRunningTime());
+			long workStartTimeNanos = System.nanoTime();
+			work.run();
+			long workEndTimeNanos = System.nanoTime();
+			runningTimeNanos = workEndTimeNanos - workStartTimeNanos;
+			log(() -> "Work (nanoseconds)", runningTimeNanos);
 			++totalTicks;
-			long usedTimeNanos = task.getRunningTime();
-			long timeLeftNanos = (tickDurationNanos - usedTimeNanos);
-			fpsHistory[fpsHistoryIndex++] = task.getFrameRate();
+
+			// measure FPS
+			++frameCount;
+			if (workEndTimeNanos - fpsMeasurementStartNanos >= SECONDS.toNanos(1)) {
+				fps = frameCount;
+				frameCount = 0;
+				fpsMeasurementStartNanos = System.nanoTime();
+			}
+
+			// update FPS history, adjust sleep time if frame rate deviates from target
+			fpsHistory[fpsHistoryIndex++] = fps;
 			if (fpsHistoryIndex == fpsHistory.length) {
 				fpsHistoryIndex = 0;
-				float delta = .1f;
 				Arrays.stream(fpsHistory).average().ifPresent(avgFramerate -> {
 					double deviation = avgFramerate - targetFramerate;
+					float correction = .1f; // just a heuristic value
 					if (deviation > 0) { // too fast
-						sleepTimePercentage += delta;
+						sleepTimePct += correction;
 					} else if (deviation < 0) { // too slow
-						sleepTimePercentage -= delta;
+						sleepTimePct -= correction;
 					}
 				});
 			}
+			long timeLeftNanos = (tickDurationNanos - runningTimeNanos);
 			if (timeLeftNanos > 0) {
 				try {
-					long sleepTime = Math.round(timeLeftNanos * sleepTimePercentage) / 100;
+					long sleepTime = Math.round(timeLeftNanos * sleepTimePct) / 100;
 					NANOSECONDS.sleep(sleepTime);
 					log(() -> "Slept", sleepTime);
 				} catch (InterruptedException e) {
