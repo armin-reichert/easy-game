@@ -6,7 +6,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.util.Arrays;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -25,24 +24,19 @@ public class Clock {
 	}
 
 	private static void log(Supplier<String> task, long nanos) {
-		LOGGER.info(() -> format("%-7s: %10.2f ms", task.get(), nanos / 1_000_000f));
+		LOGGER.info(() -> format("%-15s: %15.2f ms", task.get(), nanos / 1_000_000f));
 	}
 
 	private volatile boolean running;
+	private Runnable work;
 	private Thread thread;
-	private int targetFramerate;
-	private long tickDurationNanos;
+	private int targetFPS;
+	private long period;
 	private long totalTicks;
 
-	private float sleepTimePct = 100;
-	private int[] fpsHistory = new int[60];
-	private int fpsHistoryIndex = 0;
-
-	private Runnable work;
-	private long runningTimeNanos; // nanoseconds
-	private long fpsMeasurementStartNanos; // nanoseconds
-	private int frameCount;
+	private int frames;
 	private int fps;
+	private long fpsMmtStart = 0;
 
 	private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
@@ -69,24 +63,24 @@ public class Clock {
 	 * @return the clock's target frequency (ticks per second)
 	 */
 	public int getTargetFramerate() {
-		return targetFramerate;
+		return targetFPS;
 	}
 
 	/**
 	 * Sets the clock's target frequency to the given value (ticks per second).
 	 * 
-	 * @param ticksPerSecond number of ticks per second
+	 * @param fps number of ticks per second
 	 */
-	public void setTargetFramerate(int ticksPerSecond) {
-		if (ticksPerSecond < 1) {
+	public void setTargetFramerate(int fps) {
+		if (fps < 1) {
 			throw new IllegalArgumentException("Clock frequency must be at least 1");
 		}
-		int oldFrequency = this.targetFramerate;
-		this.targetFramerate = ticksPerSecond;
-		tickDurationNanos = SECONDS.toNanos(1) / ticksPerSecond;
-		if (oldFrequency != targetFramerate) {
-			pcs.firePropertyChange("frequency", oldFrequency, targetFramerate);
-			LOGGER.info(String.format("Clock frequency changed to %d ticks/sec.", targetFramerate));
+		int oldTargetFPS = this.targetFPS;
+		this.targetFPS = fps;
+		period = SECONDS.toNanos(1) / fps;
+		if (oldTargetFPS != targetFPS) {
+			pcs.firePropertyChange("frequency", oldTargetFPS, targetFPS);
+			LOGGER.info(String.format("Clock frequency changed to %d ticks/sec.", targetFPS));
 		}
 	}
 
@@ -102,7 +96,7 @@ public class Clock {
 	 * @return number of clock ticks representing the given seconds
 	 */
 	public int sec(float seconds) {
-		return Math.round(targetFramerate * seconds);
+		return Math.round(targetFPS * seconds);
 	}
 
 	/**
@@ -119,10 +113,10 @@ public class Clock {
 	 */
 	public synchronized void start() {
 		if (!running) {
-			thread = new Thread(this::loop, "Clock");
-			thread.start();
 			totalTicks = 0;
 			running = true;
+			thread = new Thread(this::loop, "Clock");
+			thread.start();
 		}
 	}
 
@@ -142,41 +136,28 @@ public class Clock {
 
 	private void loop() {
 		while (running) {
-			long workStartTimeNanos = System.nanoTime();
+
+			long start = System.nanoTime();
 			work.run();
-			long workEndTimeNanos = System.nanoTime();
-			runningTimeNanos = workEndTimeNanos - workStartTimeNanos;
-			log(() -> "Work (nanoseconds)", runningTimeNanos);
+			long frameDuration = System.nanoTime() - start;
+			log(() -> "Frame", frameDuration);
+
 			++totalTicks;
 
 			// measure FPS
-			++frameCount;
-			if (workEndTimeNanos - fpsMeasurementStartNanos >= SECONDS.toNanos(1)) {
-				fps = frameCount;
-				frameCount = 0;
-				fpsMeasurementStartNanos = System.nanoTime();
+			++frames;
+			if (System.nanoTime() >= fpsMmtStart + SECONDS.toNanos(1)) {
+				fps = frames;
+				frames = 0;
+				fpsMmtStart = System.nanoTime();
 			}
 
-			// update FPS history, adjust sleep time if frame rate deviates from target
-			fpsHistory[fpsHistoryIndex++] = fps;
-			if (fpsHistoryIndex == fpsHistory.length) {
-				fpsHistoryIndex = 0;
-				Arrays.stream(fpsHistory).average().ifPresent(avgFramerate -> {
-					double deviation = avgFramerate - targetFramerate;
-					float correction = .1f; // just a heuristic value
-					if (deviation > 0) { // too fast
-						sleepTimePct += correction;
-					} else if (deviation < 0) { // too slow
-						sleepTimePct -= correction;
-					}
-				});
-			}
-			long timeLeftNanos = (tickDurationNanos - runningTimeNanos);
-			if (timeLeftNanos > 0) {
+			// sleep as long as needed to reach target FPS
+			long timeLeft = (period - frameDuration);
+			if (timeLeft > 0) {
 				try {
-					long sleepTime = Math.round(timeLeftNanos * sleepTimePct) / 100;
-					NANOSECONDS.sleep(sleepTime);
-					log(() -> "Slept", sleepTime);
+					NANOSECONDS.sleep(timeLeft);
+					log(() -> "Slept", timeLeft);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
