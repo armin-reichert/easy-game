@@ -26,7 +26,7 @@ public class KeyboardHandler implements KeyListener {
 	BitSet pressed_longer = new BitSet();
 
 	public synchronized void poll() {
-		for (int code = 1; code < Math.min(pressed.size(), 256); ++code) {
+		for (int code = 1; code < Math.min(pressed.size(), 1024); ++code) {
 			if (Keyboard.isModifier(code)) {
 				continue;
 			}
