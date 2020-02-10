@@ -42,7 +42,7 @@ import de.amr.easy.game.ui.AppInfoView;
 import de.amr.easy.game.ui.AppShell;
 import de.amr.easy.game.view.View;
 import de.amr.easy.game.view.VisualController;
-import de.amr.statemachine.core.EventMatchStrategy;
+import de.amr.statemachine.api.EventMatchStrategy;
 import de.amr.statemachine.core.StateMachine;
 
 /**
