@@ -140,6 +140,9 @@ public abstract class Application {
 		theApplication.configure(theApplication.settings);
 		JCommander.newBuilder().addObject(theApplication.settings).build().parse(args);
 		theApplication.construct();
+		loginfo("Application '%s' constructed.", theApplication.getClass().getName());
+		loginfo("Configuration:");
+		theApplication.printSettings();
 		try {
 			UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
 		} catch (Exception e) {
@@ -204,6 +207,18 @@ public abstract class Application {
 	 * @param settings application settings
 	 */
 	protected abstract void configure(AppSettings settings);
+	
+	/**
+	 * Prints the application settings to the logger.
+	 */
+	protected void printSettings() {
+		loginfo("\tTitle:     %s", settings.title);
+		loginfo("\tWidth:     %d", settings.width);
+		loginfo("\tHeight:    %d", settings.height);
+		loginfo("\tScaling:   %.2f", settings.scale);
+		loginfo("\tFramerate: %d ticks/sec", settings.fps);
+
+	}
 
 	private KeyListener createInternalKeyHandler() {
 		return new KeyAdapter() {
