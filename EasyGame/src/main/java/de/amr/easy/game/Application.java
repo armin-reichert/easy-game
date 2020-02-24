@@ -195,6 +195,14 @@ public abstract class Application {
 		});
 	}
 
+	/**
+	 * Hook method where the application settings can be configured. The
+	 * command-line arguments are parsed and added into the settings object directky
+	 * <em>after</em> this method has been called such that command-line arguments
+	 * can override the settings made here.
+	 * 
+	 * @param settings application settings
+	 */
 	protected abstract void configure(AppSettings settings);
 
 	private KeyListener createInternalKeyHandler() {
