@@ -9,9 +9,23 @@ import java.awt.Graphics2D;
  */
 public interface View {
 
-	boolean visible();
+	/**
+	 * Tells if this view is visible and will get rendered.
+	 * 
+	 * @return if this view is visible
+	 */
+	default boolean visible() {
+		return true;
+	}
 
-	void setVisible(boolean visible);
+	/**
+	 * Sets this view to visible. Does nothing by default.
+	 * 
+	 * @param visible if this view should become visible
+	 */
+	default void setVisible(boolean visible) {
+
+	}
 
 	/**
 	 * Draws the content of the view.
