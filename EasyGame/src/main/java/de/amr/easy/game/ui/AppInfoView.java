@@ -31,15 +31,6 @@ public class AppInfoView implements Lifecycle, View {
 	}
 
 	@Override
-	public void setVisible(boolean visible) {
-	}
-
-	@Override
-	public boolean visible() {
-		return true;
-	}
-
-	@Override
 	public void init() {
 		text = TextWidget.create().text(infoText()).color(Color.WHITE).font(new Font(Font.SANS_SERIF, Font.BOLD, 14))
 				.build();
