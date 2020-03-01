@@ -1,6 +1,6 @@
 package de.amr.easy.game.ui;
 
-import static de.amr.easy.game.Application.LOGGER;
+import static de.amr.easy.game.Application.loginfo;
 import static java.lang.String.format;
 
 import java.awt.BorderLayout;
@@ -82,7 +82,7 @@ public class AppShell extends JFrame {
 		fullScreenWindow = createFullScreenWindow();
 		pack();
 		setLocationRelativeTo(null);
-		LOGGER.info("Application shell created.");
+		loginfo("Application shell created.");
 	}
 
 	public void showSettingsDialog() {
@@ -91,7 +91,7 @@ public class AppShell extends JFrame {
 			settingsDialog.setApp(app);
 		}
 		if (inFullScreenMode()) {
-			LOGGER.info("Settings dialog cannot be opened in full-screen mode");
+			loginfo("Settings dialog cannot be opened in full-screen mode");
 		} else {
 			settingsDialog.setVisible(true);
 		}
@@ -128,7 +128,7 @@ public class AppShell extends JFrame {
 			try {
 				displayFullScreen();
 			} catch (FullScreenModeException e) {
-				LOGGER.info(e.getMessage());
+				loginfo(e.getMessage());
 			}
 		}
 	}
@@ -158,9 +158,8 @@ public class AppShell extends JFrame {
 		setVisible(true);
 		requestFocus();
 		canvas.createBufferStrategy(2);
-		LOGGER.info(String.format("Entered window mode, resolution %dx%d (%dx%d scaled by %.2f)",
-				(int) (width * app.settings().scale), (int) (height * app.settings().scale), width, height,
-				app.settings().scale));
+		loginfo("Entered window mode, resolution %dx%d (%dx%d scaled by %.2f)", (int) (width * app.settings().scale),
+				(int) (height * app.settings().scale), width, height, app.settings().scale);
 		renderingEnabled = true;
 	}
 
@@ -178,7 +177,7 @@ public class AppShell extends JFrame {
 			device.setDisplayMode(mode);
 			fullScreenWindow.createBufferStrategy(2);
 			fullScreenWindow.requestFocus();
-			LOGGER.info("Entered full-screen mode " + getText(mode));
+			loginfo("Entered full-screen mode %s", getText(mode));
 		} else {
 			device.setFullScreenWindow(null);
 			throw new FullScreenModeException("Display change not supported: " + getText(mode));
