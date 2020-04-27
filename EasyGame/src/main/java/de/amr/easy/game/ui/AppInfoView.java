@@ -36,7 +36,7 @@ public class AppInfoView implements Lifecycle, View {
 				.build();
 		text.tf.centerX(width);
 		text.tf.y = (height);
-		text.tf.setVelocityY(-1.0f);
+		text.tf.vy = -1.0f;
 		text.start();
 	}
 

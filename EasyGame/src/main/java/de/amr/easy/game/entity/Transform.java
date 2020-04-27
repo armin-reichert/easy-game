@@ -20,8 +20,8 @@ public class Transform {
 	public float y;
 
 	// velocity
-	private float vx;
-	private float vy;
+	public float vx;
+	public float vy;
 
 	// rotation (radians)
 	private double rotation;
@@ -79,22 +79,6 @@ public class Transform {
 
 	public void setVelocity(Vector2f v) {
 		setVelocity(v.x, v.y);
-	}
-
-	public void setVelocityX(float vx) {
-		this.vx = vx;
-	}
-
-	public void setVelocityY(float vy) {
-		this.vy = vy;
-	}
-
-	public float getVelocityX() {
-		return vx;
-	}
-
-	public float getVelocityY() {
-		return vy;
 	}
 
 	public Vector2f getVelocity() {
