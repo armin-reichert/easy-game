@@ -8,7 +8,6 @@ import java.awt.Graphics2D;
 import de.amr.easy.game.Application;
 import de.amr.easy.game.config.AppSettings;
 import de.amr.easy.game.controller.Lifecycle;
-import de.amr.easy.game.entity.Entity;
 import de.amr.easy.game.input.Mouse;
 import de.amr.easy.game.ui.widgets.TextWidget;
 import de.amr.easy.game.view.View;
@@ -32,7 +31,7 @@ public class MouseTestApp extends Application {
 	}
 }
 
-class MouseTestScene extends Entity implements Lifecycle, View {
+class MouseTestScene implements Lifecycle, View {
 
 	private final MouseTestApp app;
 	private TextWidget messageDisplay;
