@@ -19,6 +19,7 @@ import de.amr.easy.game.Application;
 import de.amr.easy.game.controller.Lifecycle;
 import de.amr.easy.game.entity.Entity;
 import de.amr.easy.game.input.Mouse;
+import de.amr.easy.game.view.View;
 
 /**
  * A link widget.
@@ -28,7 +29,7 @@ import de.amr.easy.game.input.Mouse;
  * 
  * @author Armin Reichert
  */
-public class LinkWidget extends Entity implements Lifecycle {
+public class LinkWidget extends Entity implements Lifecycle, View {
 
 	public static class Builder {
 

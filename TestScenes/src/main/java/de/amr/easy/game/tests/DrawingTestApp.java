@@ -13,6 +13,7 @@ import de.amr.easy.game.controller.Lifecycle;
 import de.amr.easy.game.entity.Entity;
 import de.amr.easy.game.input.Keyboard;
 import de.amr.easy.game.input.Mouse;
+import de.amr.easy.game.view.View;
 
 public class DrawingTestApp extends Application {
 
@@ -31,7 +32,7 @@ public class DrawingTestApp extends Application {
 	}
 }
 
-class DrawingTestScene extends Entity implements Lifecycle {
+class DrawingTestScene extends Entity implements Lifecycle, View {
 
 	private DrawingTestApp app;
 	private BufferedImage drawArea;
@@ -53,7 +54,7 @@ class DrawingTestScene extends Entity implements Lifecycle {
 
 	@Override
 	public void draw(Graphics2D g) {
-		if (visible()) {
+		if (visible) {
 			g.drawImage(drawArea, 0, 0, null);
 			g.setColor(Color.GREEN);
 			g.setStroke(new BasicStroke(6));

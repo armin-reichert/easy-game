@@ -71,7 +71,7 @@ public class ImageWidget extends Entity implements Animation {
 
 	@Override
 	public void draw(Graphics2D g) {
-		if (visible()) {
+		if (visible) {
 			g.drawImage(image, Math.round(tf.getX()), Math.round(tf.getY()), null);
 		}
 	}

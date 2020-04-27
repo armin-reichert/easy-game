@@ -138,11 +138,6 @@ public class FramerateHistoryView extends JComponent implements Lifecycle, View 
 	}
 
 	@Override
-	public boolean visible() {
-		return isVisible();
-	}
-
-	@Override
 	public void init() {
 	}
 }

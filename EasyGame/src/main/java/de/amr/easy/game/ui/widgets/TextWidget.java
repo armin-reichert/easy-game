@@ -233,7 +233,7 @@ public class TextWidget extends Entity implements Animation {
 
 	@Override
 	public void draw(Graphics2D g) {
-		if (visible()) {
+		if (visible) {
 			g = (Graphics2D) g.create();
 			g.translate(tf.getX(), tf.getY());
 			g.rotate(tf.getRotation());
