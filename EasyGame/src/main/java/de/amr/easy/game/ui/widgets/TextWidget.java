@@ -236,7 +236,7 @@ public class TextWidget extends Entity implements Animation {
 		if (visible) {
 			g = (Graphics2D) g.create();
 			g.translate(tf.x, tf.y);
-			g.rotate(tf.getRotation());
+			g.rotate(tf.rotation);
 			sprite.draw(g);
 			g.dispose();
 		}

@@ -107,7 +107,7 @@ public class PumpingImageWidget extends Entity implements Lifecycle, View {
 			Vector2f center = tf.getCenter();
 			int dx = -sprite.getWidth() / 2, dy = -sprite.getHeight() / 2;
 			g.translate(center.x + dx, center.y + dy);
-			g.rotate(tf.getRotation());
+			g.rotate(tf.rotation);
 			sprite.draw(g);
 			g.dispose();
 		}

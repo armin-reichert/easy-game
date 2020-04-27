@@ -11,20 +11,16 @@ import de.amr.easy.game.math.Vector2f;
  */
 public class Transform {
 
-	// size
-	public int width;
-	public int height;
+	public int width; // in pixel
+	public int height; // in pixel
 
-	// position
 	public float x;
 	public float y;
 
-	// velocity
-	public float vx;
-	public float vy;
+	public float vx; // velocity in x-direction
+	public float vy; // velocity in y-direction
 
-	// rotation (radians)
-	private double rotation;
+	public double rotation; // in radians
 
 	@Override
 	public String toString() {
@@ -83,13 +79,5 @@ public class Transform {
 
 	public Vector2f getVelocity() {
 		return Vector2f.of(vx, vy);
-	}
-
-	public double getRotation() {
-		return rotation;
-	}
-
-	public void setRotation(double rotation) {
-		this.rotation = rotation;
 	}
 }
