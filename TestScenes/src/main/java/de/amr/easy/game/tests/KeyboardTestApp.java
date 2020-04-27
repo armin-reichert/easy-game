@@ -10,7 +10,6 @@ import java.awt.event.KeyEvent;
 import de.amr.easy.game.Application;
 import de.amr.easy.game.config.AppSettings;
 import de.amr.easy.game.controller.Lifecycle;
-import de.amr.easy.game.entity.Entity;
 import de.amr.easy.game.input.Keyboard;
 import de.amr.easy.game.input.Keyboard.Modifier;
 import de.amr.easy.game.view.View;
@@ -32,7 +31,7 @@ public class KeyboardTestApp extends Application {
 	}
 }
 
-class KeyboardTestScene extends Entity implements Lifecycle, View {
+class KeyboardTestScene implements Lifecycle, View {
 
 	private int pressedKeyCode;
 
