@@ -15,7 +15,8 @@ import javax.sound.sampled.FloatControl;
 import javazoom.spi.mpeg.sampled.file.MpegAudioFormat;
 
 /**
- * Clips are usually short audio sequences that are loaded completely into memory.
+ * Clips are usually short audio sequences that are loaded completely into
+ * memory.
  * 
  * @author Armin Reichert
  */
@@ -32,8 +33,8 @@ public class SoundClip implements Sound {
 			AudioInputStream ais = AudioSystem.getAudioInputStream(new BufferedInputStream(is));
 			if (ais.getFormat() instanceof MpegAudioFormat) {
 				AudioFormat mp3 = ais.getFormat();
-				AudioFormat pcm = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, mp3.getSampleRate(), 16,
-						mp3.getChannels(), mp3.getChannels() * 2, mp3.getSampleRate(), false);
+				AudioFormat pcm = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, mp3.getSampleRate(), 16, mp3.getChannels(),
+						mp3.getChannels() * 2, mp3.getSampleRate(), false);
 				ais = AudioSystem.getAudioInputStream(pcm, ais);
 			}
 			Clip clip = AudioSystem.getClip(null);
@@ -86,11 +87,11 @@ public class SoundClip implements Sound {
 		if (volume < 0f || volume > 1f)
 			throw new IllegalArgumentException("Volume not valid: " + volume);
 		FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-		
+
 		float range = gainControl.getMaximum() - gainControl.getMinimum();
 		float gain = (range * volume) + gainControl.getMinimum();
 		gainControl.setValue(gain);
-		
+
 //		gainControl.setValue(20f * (float) Math.log10(volume));
 	}
 

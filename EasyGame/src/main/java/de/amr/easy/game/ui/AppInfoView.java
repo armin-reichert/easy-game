@@ -35,7 +35,7 @@ public class AppInfoView implements Lifecycle, View {
 		text = TextWidget.create().text(infoText()).color(Color.WHITE).font(new Font(Font.SANS_SERIF, Font.BOLD, 14))
 				.build();
 		text.tf.centerX(width);
-		text.tf.setY(height);
+		text.tf.y = (height);
 		text.tf.setVelocityY(-1.0f);
 		text.start();
 	}
@@ -44,8 +44,8 @@ public class AppInfoView implements Lifecycle, View {
 	public void update() {
 		text.setText(infoText());
 		text.update();
-		if (text.tf.getY() + text.tf.getHeight() < 0) {
-			text.tf.setY(height);
+		if (text.tf.y + text.tf.height < 0) {
+			text.tf.y = (height);
 		}
 	}
 

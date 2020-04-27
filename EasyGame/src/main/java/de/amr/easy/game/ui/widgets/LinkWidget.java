@@ -149,7 +149,7 @@ public class LinkWidget extends Entity implements Lifecycle, View {
 
 	@Override
 	public void draw(Graphics2D g) {
-		g.translate(tf.getX(), tf.getY());
+		g.translate(tf.x, tf.y);
 		g.setColor(color);
 		Map<TextAttribute, Integer> attributes = Collections.singletonMap(TextAttribute.UNDERLINE,
 				TextAttribute.UNDERLINE_ON);
@@ -157,7 +157,7 @@ public class LinkWidget extends Entity implements Lifecycle, View {
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		g.drawString(text, 0, g.getFontMetrics().getAscent());
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
-		g.translate(-tf.getX(), -tf.getY());
+		g.translate(-tf.x, -tf.y);
 	}
 
 	private void computeTextBounds() {
@@ -165,8 +165,8 @@ public class LinkWidget extends Entity implements Lifecycle, View {
 		Graphics2D g = img.createGraphics();
 		g.setFont(font);
 		Rectangle2D bounds = g.getFontMetrics().getStringBounds(text, g);
-		tf.setWidth((int) bounds.getWidth());
-		tf.setHeight((int) bounds.getHeight());
+		tf.width = ((int) bounds.getWidth());
+		tf.height = ((int) bounds.getHeight());
 		g.dispose();
 	}
 

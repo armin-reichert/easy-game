@@ -8,8 +8,8 @@ import java.awt.event.KeyListener;
 import java.util.BitSet;
 
 /**
- * Listens to keyboard events and stores their state in bitmaps. The game loop polls the state at
- * each clock tick.
+ * Listens to keyboard events and stores their state in bitmaps. The game loop
+ * polls the state at each clock tick.
  * 
  * @author Armin Reichert
  */
@@ -33,13 +33,11 @@ public class KeyboardHandler implements KeyListener {
 			if (!pressed.get(code)) {
 				pressed_once.clear(code);
 				pressed_longer.clear(code);
-			}
-			else if (!pressed_once.get(code) && !pressed_longer.get(code)) {
+			} else if (!pressed_once.get(code) && !pressed_longer.get(code)) {
 				// this key is pressed for the first time
 				pressed_once.set(code, true);
 				Keyboard.LOGGER.info(String.format("Key pressed first time: '%s'", text(code)));
-			}
-			else {
+			} else {
 				// this key is pressed for two or more frames
 				pressed_once.set(code, false);
 				pressed_longer.set(code, true);

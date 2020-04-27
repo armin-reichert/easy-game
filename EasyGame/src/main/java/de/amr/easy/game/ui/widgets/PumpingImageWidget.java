@@ -88,8 +88,8 @@ public class PumpingImageWidget extends Entity implements Lifecycle, View {
 		sprite = Sprite.of(frames);
 		sprite.animate(BACK_AND_FORTH, periodMillis / frameCount);
 		sprite.enableAnimation(true);
-		tf.setWidth(sprite.getMaxWidth());
-		tf.setHeight(sprite.getMaxHeight());
+		tf.width = (sprite.getMaxWidth());
+		tf.height = (sprite.getMaxHeight());
 	}
 
 	@Override

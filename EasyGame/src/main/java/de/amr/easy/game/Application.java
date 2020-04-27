@@ -207,7 +207,7 @@ public abstract class Application {
 	 * @param settings application settings
 	 */
 	protected abstract void configure(AppSettings settings);
-	
+
 	/**
 	 * Prints the application settings to the logger.
 	 */

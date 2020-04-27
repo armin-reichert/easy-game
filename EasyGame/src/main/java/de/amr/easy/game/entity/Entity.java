@@ -27,6 +27,6 @@ public abstract class Entity implements Collider {
 
 	@Override
 	public Rectangle2D getCollisionBox() {
-		return visible ? tf.getCollisionBox() : new Rectangle2D.Float(tf.getX(), tf.getY(), 0, 0);
+		return visible ? tf.getCollisionBox() : new Rectangle2D.Float(tf.x, tf.y, 0, 0);
 	}
 }

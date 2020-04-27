@@ -13,7 +13,8 @@ import com.beust.jcommander.ParameterException;
 /**
  * Application settings. Contains named properties and a generic map.
  * <p>
- * The named settings can be overwritten by corresponding command line parameters.
+ * The named settings can be overwritten by corresponding command line
+ * parameters.
  * 
  * @author Armin Reichert
  */
@@ -54,14 +55,17 @@ public class AppSettings {
 	@Parameter(names = { "-title" }, description = "application title")
 	public String title = "My Application!";
 
-	/** If <code>true</code>, additional info (frame rate, resolution) gets displayed in title. */
+	/**
+	 * If <code>true</code>, additional info (frame rate, resolution) gets displayed
+	 * in title.
+	 */
 	@Parameter(names = { "-titleExtended" }, description = "extended application title")
 	public boolean titleExtended;
 
 	/** Frame rate of clock. */
 	@Parameter(names = { "-fps" }, description = "Frames/sec")
 	public int fps = 60;
-	
+
 	/** The unscaled width of application area in pixel. */
 	@Parameter(names = { "-width" }, description = "application width (unscaled)")
 	public int width = 640;
@@ -105,20 +109,18 @@ public class AppSettings {
 	/**
 	 * Sets a property value.
 	 * 
-	 * @param key
-	 *                property name
-	 * @param value
-	 *                property value
+	 * @param key   property name
+	 * @param value property value
 	 */
 	public void set(String key, Object value) {
 		settings.put(key, value);
 	}
 
 	/**
-	 * Returns a (typed) property value. Value is cast to type of variable it is assigned to.
+	 * Returns a (typed) property value. Value is cast to type of variable it is
+	 * assigned to.
 	 * 
-	 * @param key
-	 *              property name
+	 * @param key property name
 	 * @return property value
 	 */
 	@SuppressWarnings("unchecked")
@@ -129,8 +131,7 @@ public class AppSettings {
 	/**
 	 * Returns a property value as string.
 	 * 
-	 * @param key
-	 *              property name
+	 * @param key property name
 	 * @return property value as string
 	 */
 	public String getAsString(String key) {
@@ -138,10 +139,10 @@ public class AppSettings {
 	}
 
 	/**
-	 * Returns a property value as boolean value. If property is undefined, returns <code>false</code>.
+	 * Returns a property value as boolean value. If property is undefined, returns
+	 * <code>false</code>.
 	 * 
-	 * @param key
-	 *              property name
+	 * @param key property name
 	 * @return property value as boolean
 	 */
 	public boolean getAsBoolean(String key) {
@@ -151,8 +152,7 @@ public class AppSettings {
 	/**
 	 * Returns a property value as an integer.
 	 * 
-	 * @param key
-	 *              property name
+	 * @param key property name
 	 * @return property value as integer
 	 */
 	public int getAsInt(String key) {
@@ -162,8 +162,7 @@ public class AppSettings {
 	/**
 	 * Returns a property value as a float..
 	 * 
-	 * @param key
-	 *              property name
+	 * @param key property name
 	 * @return property value as float
 	 */
 	public float getAsFloat(String key) {

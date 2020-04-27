@@ -12,12 +12,12 @@ import de.amr.easy.game.math.Vector2f;
 public class Transform {
 
 	// size
-	private int width;
-	private int height;
+	public int width;
+	public int height;
 
 	// position
-	private float x;
-	private float y;
+	public float x;
+	public float y;
 
 	// velocity
 	private float vx;
@@ -28,32 +28,8 @@ public class Transform {
 
 	@Override
 	public String toString() {
-		return String.format("[position:(x=%.2f y=%.2f) size:(w=%d h=%d) velocity:(x=%.2f y=%.2f) rotation:%.2g\u00b0]", x, y,
-				width, height, vx, vy, Math.toDegrees(rotation));
-	}
-
-	public int getWidth() {
-		return width;
-	}
-
-	public void setWidth(int width) {
-		this.width = width;
-	}
-
-	public int getHeight() {
-		return height;
-	}
-
-	public void setHeight(int height) {
-		this.height = height;
-	}
-
-	public float getX() {
-		return x;
-	}
-
-	public float getY() {
-		return y;
+		return String.format("[position:(x=%.2f y=%.2f) size:(w=%d h=%d) velocity:(x=%.2f y=%.2f) rotation:%.2g\u00b0]", x,
+				y, width, height, vx, vy, Math.toDegrees(rotation));
 	}
 
 	public Vector2f getPosition() {
@@ -66,14 +42,6 @@ public class Transform {
 
 	public Vector2f getCenter() {
 		return Vector2f.of(x + width / 2, y + height / 2);
-	}
-
-	public void setX(float x) {
-		this.x = x;
-	}
-
-	public void setY(float y) {
-		this.y = y;
 	}
 
 	public void setPosition(float x, float y) {
@@ -91,12 +59,12 @@ public class Transform {
 		y += vy;
 	}
 
-	public void centerX(int width) {
-		setX((width - getWidth()) / 2);
+	public void centerX(int outerWidth) {
+		x = (outerWidth - width) / 2;
 	}
 
-	public void centerY(int height) {
-		setY((height - getHeight()) / 2);
+	public void centerY(int outerHeight) {
+		y = (outerHeight - height) / 2;
 	}
 
 	public void center(int width, int height) {

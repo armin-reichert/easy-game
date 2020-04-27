@@ -23,8 +23,8 @@ public class ImageWidget extends Entity implements Animation {
 		this.image = image;
 		moving = false;
 		fnCompleted = () -> false;
-		tf.setWidth(image.getWidth());
-		tf.setHeight(image.getHeight());
+		tf.width = (image.getWidth());
+		tf.height = (image.getHeight());
 	}
 
 	public void setImage(BufferedImage image) {
@@ -72,7 +72,7 @@ public class ImageWidget extends Entity implements Animation {
 	@Override
 	public void draw(Graphics2D g) {
 		if (visible) {
-			g.drawImage(image, Math.round(tf.getX()), Math.round(tf.getY()), null);
+			g.drawImage(image, Math.round(tf.x), Math.round(tf.y), null);
 		}
 	}
 }

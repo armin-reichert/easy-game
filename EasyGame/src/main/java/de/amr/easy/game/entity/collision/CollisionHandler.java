@@ -53,16 +53,16 @@ public class CollisionHandler {
 		}
 		for (CollisionPair pair : collisionStarts.keySet()) {
 			if (newCollisions.contains(pair) && !oldCollisions.contains(pair)) {
-				Collision event = new Collision(pair.either(), pair.other(), pair.getIntersection(),
-						collisionStarts.get(pair), true);
+				Collision event = new Collision(pair.either(), pair.other(), pair.getIntersection(), collisionStarts.get(pair),
+						true);
 				events.add(event);
 				LOGGER.fine(event.toString());
 			}
 		}
 		for (CollisionPair pair : collisionEnds.keySet()) {
 			if (!newCollisions.contains(pair) && oldCollisions.contains(pair)) {
-				Collision event = new Collision(pair.either(), pair.other(), pair.getIntersection(),
-						collisionEnds.get(pair), false);
+				Collision event = new Collision(pair.either(), pair.other(), pair.getIntersection(), collisionEnds.get(pair),
+						false);
 				events.add(event);
 				LOGGER.fine(event.toString());
 			}

@@ -115,29 +115,29 @@ public class TextWidget extends Entity implements Animation {
 			spaces += " ";
 		}
 
-		tf.setWidth(0);
-		tf.setHeight(0);
+		tf.width = (0);
+		tf.height = (0);
 		BufferedImage image = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g = image.createGraphics();
 		g.setFont(font);
 		for (int i = 0; i < lines.length; ++i) {
 			String line = lines[i].replace(" ", spaces);
 			Rectangle2D lineBounds = g.getFontMetrics().getStringBounds(line, g);
-			tf.setHeight(tf.getHeight() + (int) Math.ceil(lineBounds.getHeight()));
+			tf.height = (tf.height + (int) Math.ceil(lineBounds.getHeight()));
 			if (i < lines.length - 1) {
-				tf.setHeight(tf.getHeight() + (int) Math.ceil(lineSpacing));
+				tf.height = (tf.height + (int) Math.ceil(lineSpacing));
 			}
-			tf.setWidth(Math.max(tf.getWidth(), (int) Math.ceil(lineBounds.getWidth())));
+			tf.width = (Math.max(tf.width, (int) Math.ceil(lineBounds.getWidth())));
 		}
 
 		// create correctly sized image
-		tf.setWidth(Math.max(tf.getWidth(), 1));
-		tf.setHeight(Math.max(tf.getHeight(), 1));
-		image = new BufferedImage(tf.getWidth(), tf.getHeight(), BufferedImage.TYPE_INT_ARGB);
+		tf.width = (Math.max(tf.width, 1));
+		tf.height = (Math.max(tf.height, 1));
+		image = new BufferedImage(tf.width, tf.height, BufferedImage.TYPE_INT_ARGB);
 		g = image.createGraphics();
 		if (background != null) {
 			g.setColor(background);
-			g.fillRect(0, 0, tf.getWidth(), tf.getHeight());
+			g.fillRect(0, 0, tf.width, tf.height);
 		}
 		g.setFont(font);
 		g.setColor(color);
@@ -148,7 +148,7 @@ public class TextWidget extends Entity implements Animation {
 			String text = lines[i];
 			text = text.replace(" ", spaces);
 			Rectangle2D lineBounds = fm.getStringBounds(text, g);
-			g.drawString(text, (float) (tf.getWidth() - lineBounds.getWidth()) / 2, y + fm.getMaxAscent());
+			g.drawString(text, (float) (tf.width - lineBounds.getWidth()) / 2, y + fm.getMaxAscent());
 			y += lineBounds.getHeight();
 			if (i < lines.length - 1) {
 				y += lineSpacing;
@@ -235,7 +235,7 @@ public class TextWidget extends Entity implements Animation {
 	public void draw(Graphics2D g) {
 		if (visible) {
 			g = (Graphics2D) g.create();
-			g.translate(tf.getX(), tf.getY());
+			g.translate(tf.x, tf.y);
 			g.rotate(tf.getRotation());
 			sprite.draw(g);
 			g.dispose();

@@ -1,8 +1,8 @@
 package de.amr.easy.game.ui.sprites;
 
 /**
- * Animation for a sprite. Loops through the image sequence of a sprite in a way defined by the
- * animation mode and frame timing.
+ * Animation for a sprite. Loops through the image sequence of a sprite in a way
+ * defined by the animation mode and frame timing.
  * 
  * @author Armin Reichert
  */
