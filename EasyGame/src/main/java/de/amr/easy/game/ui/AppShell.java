@@ -14,8 +14,6 @@ import java.awt.Graphics2D;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Point;
-import java.awt.RenderingHints;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
@@ -23,6 +21,7 @@ import java.util.Arrays;
 import javax.swing.JFrame;
 
 import de.amr.easy.game.Application;
+import de.amr.easy.game.view.Pen;
 import de.amr.easy.game.view.View;
 
 /**
@@ -229,8 +228,8 @@ public class AppShell extends JFrame {
 		} while (buffer.contentsLost());
 	}
 
-	private void drawView(View view, Graphics2D g2) {
-		Graphics2D g = (Graphics2D) g2.create();
+	private void drawView(View view, Graphics2D gc) {
+		Graphics2D g = (Graphics2D) gc.create();
 		g.setColor(app.settings().bgColor);
 		if (inFullScreenMode()) {
 			g.fillRect(0, 0, fullScreenWindow.getWidth(), fullScreenWindow.getHeight());
@@ -243,43 +242,19 @@ public class AppShell extends JFrame {
 			g.translate((fullScreenWindow.getWidth() - scaledWidth) / 2, (fullScreenWindow.getHeight() - scaledHeight) / 2);
 			g.setClip(0, 0, (int) scaledWidth, (int) scaledHeight);
 			g.scale(zoom, zoom);
-			view.draw(g);
-			if (app.isPaused()) {
-				drawCenteredText(g, PAUSED_TEXT, unscaledWidth, unscaledHeight);
-			}
 		} else {
 			int width = canvas.getWidth(), height = canvas.getHeight();
 			g.fillRect(0, 0, width, height);
 			g.scale(app.settings().scale, app.settings().scale);
-			view.draw(g);
-			if (app.isPaused()) {
-				drawCenteredText(g2, PAUSED_TEXT, width, height);
+		}
+		view.draw(g);
+		if (app.isPaused()) {
+			try (Pen pen = new Pen(g)) {
+				pen.color(Color.RED);
+				pen.font(new Font(Font.MONOSPACED, Font.BOLD, 30));
+				pen.hcenter(PAUSED_TEXT, width, height / 2, 1);
 			}
 		}
 		g.dispose();
-	}
-
-	private void drawCenteredText(Graphics2D g, String text, int containerWidth, int containerHeight) {
-		int fontSize = (containerWidth / text.length()) + 3;
-		g.setFont(new Font(Font.MONOSPACED, Font.BOLD, fontSize));
-		Rectangle2D bounds = g.getFontMetrics().getStringBounds(text, g);
-		int dx = (containerWidth - (int) bounds.getWidth()) / 2;
-		int dy = containerHeight / 2 + fontSize / 2;
-
-		g.translate(dx, dy);
-
-		int padding = 3 * fontSize;
-		Rectangle2D box = new Rectangle2D.Double(0, 0, bounds.getWidth() + padding, bounds.getHeight() + padding);
-		g.setColor(new Color(255, 255, 255, 222));
-		g.translate(-padding / 2, -box.getHeight() / 2);
-		g.fill(box);
-		g.translate(padding / 2, box.getHeight() / 2);
-
-		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-		g.setColor(Color.RED);
-		g.drawString(text, 0, 0);
-		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
-
-		g.translate(-dx, -dy);
 	}
 }
