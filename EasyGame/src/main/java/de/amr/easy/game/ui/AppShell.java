@@ -251,7 +251,7 @@ public class AppShell extends JFrame {
 		if (app.isPaused()) {
 			try (Pen pen = new Pen(g)) {
 				pen.color(Color.RED);
-				pen.font(new Font(Font.MONOSPACED, Font.BOLD, 30));
+				pen.font(new Font(Font.MONOSPACED, Font.BOLD, width / 20));
 				pen.hcenter(PAUSED_TEXT, width, height / 2, 1);
 			}
 		}
