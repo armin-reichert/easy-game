@@ -111,6 +111,16 @@ public abstract class Application {
 	/** Application-global logger. */
 	public static final Logger LOGGER = Logger.getLogger(Application.class.getName());
 
+	/**
+	 * Convenience method for logging to application logger with level INFO.
+	 * 
+	 * @param format message format
+	 * @param args   message arguments
+	 */
+	public static void loginfo(String format, Object... args) {
+		LOGGER.info(String.format(format, args));
+	}
+
 	/** Application singleton. */
 	private static Application theApplication;
 
@@ -120,6 +130,17 @@ public abstract class Application {
 			throw new IllegalStateException("Application instance not yet accessible at this point");
 		}
 		return theApplication;
+	}
+
+	/**
+	 * Launches the specified application. The command-line arguments are parsed and
+	 * assigned to the implicitly created application settings.
+	 * 
+	 * @param appClass application class
+	 * @param args     command-line arguments
+	 */
+	public static void launch(Class<? extends Application> appClass, String[] args) {
+		launch(appClass, new AppSettings(), args);
 	}
 
 	/**
@@ -152,27 +173,6 @@ public abstract class Application {
 		SwingUtilities.invokeLater(() -> theApplication.lifecycle.init());
 	}
 
-	/**
-	 * Launches the specified application. The command-line arguments are parsed and
-	 * assigned to the implicitly created application settings.
-	 * 
-	 * @param appClass application class
-	 * @param args     command-line arguments
-	 */
-	public static void launch(Class<? extends Application> appClass, String[] args) {
-		launch(appClass, new AppSettings(), args);
-	}
-
-	/**
-	 * Convenience method for logging to application logger with level INFO.
-	 * 
-	 * @param format message format
-	 * @param args   message arguments
-	 */
-	public static void loginfo(String format, Object... args) {
-		LOGGER.info(String.format(format, args));
-	}
-
 	private AppSettings settings;
 	private StateMachine<ApplicationState, ApplicationEvent> lifecycle;
 	private KeyboardHandler appKeyHandler;
@@ -194,19 +194,9 @@ public abstract class Application {
 		windowHandler = createWindowHandler();
 		clock = new Clock(settings.fps, () -> {
 			lifecycle.update();
-			render();
+			currentView().ifPresent(shell::render);
 		});
 	}
-
-	/**
-	 * Hook method where the application settings can be configured. The
-	 * command-line arguments are parsed and added into the settings object directky
-	 * <em>after</em> this method has been called such that command-line arguments
-	 * can override the settings made here.
-	 * 
-	 * @param settings application settings
-	 */
-	protected abstract void configure(AppSettings settings);
 
 	/**
 	 * Prints the application settings to the logger.
@@ -217,7 +207,6 @@ public abstract class Application {
 		loginfo("\tHeight:    %d", settings.height);
 		loginfo("\tScaling:   %.2f", settings.scale);
 		loginfo("\tFramerate: %d ticks/sec", settings.fps);
-
 	}
 
 	private KeyListener createInternalKeyHandler() {
@@ -340,8 +329,18 @@ public abstract class Application {
 	}
 
 	/**
-	 * Initialization hook for application. Application should set main controller
-	 * in this method.
+	 * Hook method where the application settings can be configured. The
+	 * command-line arguments are parsed and merged into the settings object
+	 * immediately <em>after</em> this method has been called such that command-line
+	 * arguments can override the settings made here.
+	 * 
+	 * @param settings application settings
+	 */
+	protected abstract void configure(AppSettings settings);
+
+	/**
+	 * Hook method called after having configured the application and before the
+	 * clock is driving the application.
 	 */
 	public abstract void init();
 
@@ -401,22 +400,7 @@ public abstract class Application {
 		setController(controller, true);
 	}
 
-	public Image getIcon() {
-		return icon;
-	}
-
-	public void setIcon(Image image) {
-		this.icon = Objects.requireNonNull(image);
-		if (shell != null) {
-			shell.setIconImage(image);
-		}
-	}
-
-	private void render() {
-		currentView().ifPresent(shell::render);
-	}
-
-	private Optional<View> currentView() {
+	public Optional<View> currentView() {
 		if (controller instanceof View) {
 			return Optional.ofNullable((View) controller);
 		}
@@ -424,5 +408,19 @@ public abstract class Application {
 			return ((VisualController) controller).currentView();
 		}
 		return Optional.empty();
+	}
+
+	public void setIcon(Image icon) {
+		if (icon == null) {
+			return;
+		}
+		this.icon = icon;
+		if (shell != null) {
+			shell.setIconImage(icon);
+		}
+	}
+
+	public Image getIcon() {
+		return icon;
 	}
 }
