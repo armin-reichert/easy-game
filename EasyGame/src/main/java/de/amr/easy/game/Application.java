@@ -161,8 +161,6 @@ public abstract class Application {
 		theApplication.configure(theApplication.settings);
 		JCommander.newBuilder().addObject(theApplication.settings).build().parse(args);
 		theApplication.construct();
-		loginfo("Application '%s' constructed.", theApplication.getClass().getName());
-		loginfo("Configuration:");
 		theApplication.printSettings();
 		try {
 			UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
@@ -196,12 +194,14 @@ public abstract class Application {
 			lifecycle.update();
 			currentView().ifPresent(shell::render);
 		});
+		loginfo("Application '%s' constructed.", getClass().getName());
 	}
 
 	/**
 	 * Prints the application settings to the logger.
 	 */
 	protected void printSettings() {
+		loginfo("Configuration:");
 		loginfo("\tTitle:     %s", settings.title);
 		loginfo("\tWidth:     %d", settings.width);
 		loginfo("\tHeight:    %d", settings.height);
