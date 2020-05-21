@@ -153,8 +153,8 @@ public abstract class Application {
 	 */
 	public static void launch(Class<? extends Application> appClass, AppSettings settings, String[] args) {
 		try {
-			theApplication = appClass.newInstance();
-		} catch (InstantiationException | IllegalAccessException x) {
+			theApplication = appClass.getDeclaredConstructor().newInstance();
+		} catch (Exception x) {
 			throw new RuntimeException("Could not create application", x);
 		}
 		theApplication.settings = settings;
