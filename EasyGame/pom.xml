@@ -7,14 +7,14 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.amr.easy.game</groupId>
 	<artifactId>EasyGame</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0</version>
 	<name>EasyGame</name>
 	<description>Simple Java 2D game engine</description>
 	<build>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.7.0</version>
+				<version>3.8.1</version>
 				<configuration>
 					<source>1.8</source>
 					<target>1.8</target>
@@ -36,14 +36,14 @@
 		<!-- https://mvnrepository.com/artifact/com.googlecode.soundlibs/tritonus-share -->
 		<!-- https://mvnrepository.com/artifact/com.googlecode.soundlibs/mp3spi -->
 		<dependency>
-			<groupId>de.amr.statemachine</groupId>
-			<artifactId>StateMachine</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
 			<groupId>com.googlecode.soundlibs</groupId>
 			<artifactId>mp3spi</artifactId>
 			<version>1.9.5-1</version>
+		</dependency>
+		<dependency>
+			<groupId>de.amr.statemachine</groupId>
+			<artifactId>StateMachine</artifactId>
+			<version>1.0</version>
 		</dependency>
 	</dependencies>
 </project>

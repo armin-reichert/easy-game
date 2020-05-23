@@ -7,7 +7,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.amr.easy.game.tests</groupId>
 	<artifactId>TestScenes</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0</version>
 	<name>TestScenes</name>
 	<description>Test scenes for EasyGame engine</description>
 	<build>
@@ -24,14 +24,14 @@
 	</build>
 	<dependencies>
 		<dependency>
-			<groupId>de.amr.easy.game</groupId>
-			<artifactId>EasyGame</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.12</version>
+		</dependency>
+		<dependency>
+			<groupId>de.amr.easy.game</groupId>
+			<artifactId>EasyGame</artifactId>
+			<version>1.0</version>
 		</dependency>
 	</dependencies>
 </project>
