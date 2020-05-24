@@ -43,7 +43,7 @@ public class EntityMap {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <E extends Entity> E ofName(String name) {
+	public <E extends Entity> E named(String name) {
 		return (E) map.get(name);
 	}
 
