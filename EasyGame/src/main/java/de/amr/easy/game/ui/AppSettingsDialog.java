@@ -1,27 +1,20 @@
 package de.amr.easy.game.ui;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.DisplayMode;
-import java.awt.GraphicsEnvironment;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.Vector;
 
-import javax.swing.ComboBoxModel;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
-import javax.swing.ListCellRenderer;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -37,25 +30,9 @@ import net.miginfocom.swing.MigLayout;
  */
 public class AppSettingsDialog extends JDialog implements PropertyChangeListener {
 
-	private static class DisplayModeItemRenderer extends JLabel implements ListCellRenderer<DisplayMode> {
-
-		@Override
-		public Component getListCellRendererComponent(JList<? extends DisplayMode> list, DisplayMode mode, int index,
-				boolean isSelected, boolean cellHasFocus) {
-			String text = "No entries";
-			if (mode != null) { // inside Window Builder, mode can be NULL
-				text = String.format("%d x %d Pixel, %d Bit, %s Hz", mode.getWidth(), mode.getHeight(), mode.getBitDepth(),
-						mode.getRefreshRate() == 0 ? "unknown" : String.valueOf(mode.getRefreshRate()));
-			}
-			setText(text);
-			return this;
-		}
-	}
-
 	private Application app;
 	private JSlider sliderFPS;
-	private DisplayModeItemRenderer displayModeComboRenderer = new DisplayModeItemRenderer();
-	private JComboBox<DisplayMode> cbDisplayMode;
+	private JComboBox<DisplayMode> comboDisplayMode;
 	private JPanel fpsHistoryPanel;
 	private FramerateHistoryView fpsHistoryView;
 	private JButton togglePause;
@@ -88,15 +65,13 @@ public class AppSettingsDialog extends JDialog implements PropertyChangeListener
 		getContentPane().add(sliderFPS, "cell 2 0,growx");
 		JLabel lblDisplayMode = new JLabel("Display Mode");
 		getContentPane().add(lblDisplayMode, "cell 0 1,alignx trailing");
-		ComboBoxModel<DisplayMode> comboModel = createComboModel();
-		cbDisplayMode = new JComboBox<>(comboModel);
-		cbDisplayMode.setMinimumSize(new Dimension(220, 26));
-		cbDisplayMode.addActionListener(e -> {
-			app.settings().fullScreenMode = (DisplayMode) cbDisplayMode.getSelectedItem();
+		comboDisplayMode = new DisplayModeSelector();
+		comboDisplayMode.setMinimumSize(new Dimension(220, 26));
+		comboDisplayMode.addActionListener(e -> {
+			app.settings().fullScreenMode = (DisplayMode) comboDisplayMode.getSelectedItem();
 		});
-		cbDisplayMode.setMaximumRowCount(cbDisplayMode.getItemCount());
-		cbDisplayMode.setRenderer(displayModeComboRenderer);
-		getContentPane().add(cbDisplayMode, "cell 1 1");
+		comboDisplayMode.setMaximumRowCount(comboDisplayMode.getItemCount());
+		getContentPane().add(comboDisplayMode, "cell 1 1");
 
 		fpsHistoryPanel = new JPanel();
 		fpsHistoryPanel
@@ -128,11 +103,11 @@ public class AppSettingsDialog extends JDialog implements PropertyChangeListener
 		app.clock().addFrequencyChangeListener(e -> sliderFPS.setValue((Integer) e.getNewValue()));
 		DisplayMode fullScreenMode = app.settings().fullScreenMode;
 		if (fullScreenMode != null) {
-			for (int i = 0; i < cbDisplayMode.getItemCount(); ++i) {
-				DisplayMode mode = cbDisplayMode.getItemAt(i);
+			for (int i = 0; i < comboDisplayMode.getItemCount(); ++i) {
+				DisplayMode mode = comboDisplayMode.getItemAt(i);
 				if (mode.getWidth() == fullScreenMode.getWidth() && mode.getHeight() == fullScreenMode.getHeight()
 						&& mode.getBitDepth() == fullScreenMode.getBitDepth()) {
-					cbDisplayMode.setSelectedIndex(i);
+					comboDisplayMode.setSelectedIndex(i);
 					break;
 				}
 			}
@@ -152,21 +127,5 @@ public class AppSettingsDialog extends JDialog implements PropertyChangeListener
 
 	private void setFpsTooltip() {
 		sliderFPS.setToolTipText("Frame rate = " + sliderFPS.getValue());
-	}
-
-	private ComboBoxModel<DisplayMode> createComboModel() {
-		DisplayMode[] modes = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayModes();
-		Vector<DisplayMode> withoutDuplicates = new Vector<>();
-		boolean duplicate = false;
-		for (int i = 0; i < modes.length; ++i) {
-			if (i > 0) {
-				duplicate = modes[i - 1].getWidth() == modes[i].getWidth() && modes[i - 1].getHeight() == modes[i].getHeight()
-						&& modes[i - 1].getBitDepth() == modes[i].getBitDepth();
-			}
-			if (!duplicate) {
-				withoutDuplicates.add(modes[i]);
-			}
-		}
-		return new DefaultComboBoxModel<>(withoutDuplicates);
 	}
 }
