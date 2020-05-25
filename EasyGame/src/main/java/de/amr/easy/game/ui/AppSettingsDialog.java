@@ -9,7 +9,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -26,13 +25,12 @@ import net.miginfocom.swing.MigLayout;
  * Dialog for changing clock frequency and full-screen display mode.
  * 
  * @author Armin Reichert
- *
  */
 public class AppSettingsDialog extends JDialog implements PropertyChangeListener {
 
 	private Application app;
 	private JSlider sliderFPS;
-	private JComboBox<DisplayMode> comboDisplayMode;
+	private DisplayModeSelector comboDisplayMode;
 	private JPanel fpsHistoryPanel;
 	private FramerateHistoryView fpsHistoryView;
 	private JButton togglePause;
@@ -101,17 +99,7 @@ public class AppSettingsDialog extends JDialog implements PropertyChangeListener
 		setTitle(String.format("Application '%s'", app.settings().title));
 		sliderFPS.setValue(app.clock().getTargetFramerate());
 		app.clock().addFrequencyChangeListener(e -> sliderFPS.setValue((Integer) e.getNewValue()));
-		DisplayMode fullScreenMode = app.settings().fullScreenMode;
-		if (fullScreenMode != null) {
-			for (int i = 0; i < comboDisplayMode.getItemCount(); ++i) {
-				DisplayMode mode = comboDisplayMode.getItemAt(i);
-				if (mode.getWidth() == fullScreenMode.getWidth() && mode.getHeight() == fullScreenMode.getHeight()
-						&& mode.getBitDepth() == fullScreenMode.getBitDepth()) {
-					comboDisplayMode.setSelectedIndex(i);
-					break;
-				}
-			}
-		}
+		comboDisplayMode.select(app.settings().fullScreenMode);
 	}
 
 	@Override

@@ -35,6 +35,19 @@ public class DisplayModeSelector extends JComboBox<DisplayMode> {
 		setRenderer(new ItemRenderer());
 	}
 
+	public void select(DisplayMode displayMode) {
+		if (displayMode != null) {
+			for (int i = 0; i < getItemCount(); ++i) {
+				DisplayMode mode = getItemAt(i);
+				if (mode.getWidth() == displayMode.getWidth() && mode.getHeight() == displayMode.getHeight()
+						&& mode.getBitDepth() == displayMode.getBitDepth()) {
+					setSelectedIndex(i);
+					break;
+				}
+			}
+		}
+	}
+
 	private static class ItemRenderer extends JLabel implements ListCellRenderer<DisplayMode> {
 
 		@Override
