@@ -2,12 +2,18 @@ package de.amr.easy.game.ui;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.DisplayMode;
 import java.awt.GraphicsEnvironment;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.Vector;
 
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -22,7 +28,6 @@ import javax.swing.event.ChangeListener;
 
 import de.amr.easy.game.Application;
 import net.miginfocom.swing.MigLayout;
-import java.awt.Dimension;
 
 /**
  * Dialog for changing clock frequency and full-screen display mode.
@@ -30,7 +35,7 @@ import java.awt.Dimension;
  * @author Armin Reichert
  *
  */
-public class AppSettingsDialog extends JDialog {
+public class AppSettingsDialog extends JDialog implements PropertyChangeListener {
 
 	private static class DisplayModeItemRenderer extends JLabel implements ListCellRenderer<DisplayMode> {
 
@@ -53,6 +58,7 @@ public class AppSettingsDialog extends JDialog {
 	private JComboBox<DisplayMode> cbDisplayMode;
 	private JPanel fpsHistoryPanel;
 	private FramerateHistoryView fpsHistoryView;
+	private JButton togglePause;
 
 	public AppSettingsDialog(JFrame parent) {
 		super(parent);
@@ -74,7 +80,7 @@ public class AppSettingsDialog extends JDialog {
 		sliderFPS.setMinorTickSpacing(10);
 		sliderFPS.setPaintTicks(true);
 		sliderFPS.setLabelTable(sliderFPS.createStandardLabels(10));
-		getContentPane().setLayout(new MigLayout("", "[][3px:n:3px][grow,fill]", "[][][grow,fill]"));
+		getContentPane().setLayout(new MigLayout("", "[][3px:n:3px][grow,fill]", "[][][grow,fill][center]"));
 		JLabel lblFPS = new JLabel("Ticks/sec");
 		getContentPane().add(lblFPS, "cell 0 0,alignx right");
 		sliderFPS.setPaintLabels(true);
@@ -101,10 +107,21 @@ public class AppSettingsDialog extends JDialog {
 		fpsHistoryView = new FramerateHistoryView(500, 150);
 		fpsHistoryView.setBackground(Color.BLACK);
 		fpsHistoryPanel.add(fpsHistoryView, "cell 0 0,grow");
+
+		togglePause = new JButton("Pause");
+		togglePause.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				app.togglePause();
+				updatePausedButtonText(app.isPaused());
+			}
+		});
+		getContentPane().add(togglePause, "flowx,cell 0 3 3 1,alignx center");
 	}
 
 	public void setApp(Application app) {
 		this.app = app;
+		app.addChangeListener(this);
 		fpsHistoryView.setApp(app);
 		setTitle(String.format("Application '%s'", app.settings().title));
 		sliderFPS.setValue(app.clock().getTargetFramerate());
@@ -120,6 +137,17 @@ public class AppSettingsDialog extends JDialog {
 				}
 			}
 		}
+	}
+
+	@Override
+	public void propertyChange(PropertyChangeEvent change) {
+		if ("paused".equals(change.getPropertyName())) {
+			updatePausedButtonText((boolean) change.getNewValue());
+		}
+	}
+
+	private void updatePausedButtonText(boolean paused) {
+		togglePause.setText(paused ? "Play" : "Pause");
 	}
 
 	private void setFpsTooltip() {

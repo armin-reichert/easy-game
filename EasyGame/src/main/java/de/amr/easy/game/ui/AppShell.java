@@ -25,16 +25,14 @@ import de.amr.easy.game.view.Pen;
 import de.amr.easy.game.view.View;
 
 /**
- * The application shell provides the window where the current view of the
- * application is rendered.
+ * The application shell provides the window where the current view of the application is rendered.
  * <p>
- * In window mode, the view is rendered to a double-buffered canvas which is the
- * single child of the application frame.
+ * In window mode, the view is rendered to a double-buffered canvas which is the single child of the
+ * application frame.
  * 
  * <p>
- * In full-screen-exclusive mode, the view is rendered into a
- * full-screen-exclusive frame. In both cases, active rendering with the
- * frequency of the application clock is performed.
+ * In full-screen-exclusive mode, the view is rendered into a full-screen-exclusive frame. In both
+ * cases, active rendering with the frequency of the application clock is performed.
  * 
  * <p>
  * The F11-key toggles between full-screen-exclusive and window mode.

@@ -16,6 +16,9 @@ import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
@@ -46,10 +49,9 @@ import de.amr.statemachine.api.EventMatchStrategy;
 import de.amr.statemachine.core.StateMachine;
 
 /**
- * Applications inherit from this class. To start an application, use the static
- * method {@code launch(Application, String[])}. For a complete list of the
- * supported command-line arguments / application settings, see class
- * {@link AppSettings}.
+ * Applications inherit from this class. To start an application, use the static method
+ * {@code launch(Application, String[])}. For a complete list of the supported command-line
+ * arguments / application settings, see class {@link AppSettings}.
  * <p>
  * Example:
  * 
@@ -133,8 +135,8 @@ public abstract class Application {
 	}
 
 	/**
-	 * Launches the specified application. The command-line arguments are parsed and
-	 * assigned to the implicitly created application settings.
+	 * Launches the specified application. The command-line arguments are parsed and assigned to the
+	 * implicitly created application settings.
 	 * 
 	 * @param appClass application class
 	 * @param args     command-line arguments
@@ -144,8 +146,8 @@ public abstract class Application {
 	}
 
 	/**
-	 * Launches the specified application. The command-line arguments are parsed and
-	 * assigned to the passed application settings.
+	 * Launches the specified application. The command-line arguments are parsed and assigned to the
+	 * passed application settings.
 	 * 
 	 * @param appClass application class
 	 * @param settings application settings
@@ -171,6 +173,7 @@ public abstract class Application {
 		SwingUtilities.invokeLater(() -> theApplication.lifecycle.init());
 	}
 
+	private PropertyChangeSupport changes = new PropertyChangeSupport(this);
 	private AppSettings settings;
 	private StateMachine<ApplicationState, ApplicationEvent> lifecycle;
 	private KeyboardHandler appKeyHandler;
@@ -183,6 +186,18 @@ public abstract class Application {
 	private AppShell shell;
 	private Lifecycle controller;
 	private Image icon;
+
+	public void addChangeListener(PropertyChangeListener listener) {
+		changes.addPropertyChangeListener(listener);
+	}
+
+	public void removeChangeListener(PropertyChangeListener listener) {
+		changes.removePropertyChangeListener(listener);
+	}
+
+	public void fireChange(PropertyChangeEvent change) {
+		changes.firePropertyChange(change);
+	}
 
 	private void construct() {
 		lifecycle = createLifecycle();
@@ -291,6 +306,7 @@ public abstract class Application {
 				.when(STARTING).then(RUNNING)
 				
 				.when(RUNNING).then(PAUSED).on(TOGGLE_PAUSE)
+					.act(() -> fireChange(new PropertyChangeEvent(this, "paused", false, true)))
 				
 				.when(RUNNING).then(CLOSED).on(CLOSE)
 	
@@ -299,6 +315,7 @@ public abstract class Application {
 				.stay(RUNNING).on(SHOW_SETTINGS_DIALOG).act(() -> shell.showSettingsDialog())
 				
 				.when(PAUSED).then(RUNNING).on(TOGGLE_PAUSE)
+					.act(() -> fireChange(new PropertyChangeEvent(this, "paused", true, false)))
 			
 				.when(PAUSED).then(CLOSED).on(CLOSE)
 				
@@ -329,23 +346,26 @@ public abstract class Application {
 	}
 
 	/**
-	 * Hook method where the application settings can be configured. The
-	 * command-line arguments are parsed and merged into the settings object
-	 * immediately <em>after</em> this method has been called such that command-line
-	 * arguments can override the settings made here.
+	 * Hook method where the application settings can be configured. The command-line arguments are
+	 * parsed and merged into the settings object immediately <em>after</em> this method has been called
+	 * such that command-line arguments can override the settings made here.
 	 * 
 	 * @param settings application settings
 	 */
 	protected abstract void configure(AppSettings settings);
 
 	/**
-	 * Hook method called after having configured the application and before the
-	 * clock is driving the application.
+	 * Hook method called after having configured the application and before the clock is driving the
+	 * application.
 	 */
 	public abstract void init();
 
 	public boolean isPaused() {
 		return lifecycle.is(PAUSED);
+	}
+
+	public void togglePause() {
+		lifecycle.process(TOGGLE_PAUSE);
 	}
 
 	public boolean inFullScreenMode() {
