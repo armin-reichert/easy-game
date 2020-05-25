@@ -15,7 +15,7 @@ public abstract class GameObject extends Entity implements Lifecycle, View {
 
 	@Override
 	public void init() {
-	};
+	}
 
 	@Override
 	public void update() {
