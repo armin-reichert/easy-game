@@ -16,7 +16,6 @@ import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.IOException;
@@ -195,8 +194,8 @@ public abstract class Application {
 		changes.removePropertyChangeListener(listener);
 	}
 
-	public void fireChange(PropertyChangeEvent change) {
-		changes.firePropertyChange(change);
+	public void fireChange(String changeName, Object oldValue, Object newValue) {
+		changes.firePropertyChange(changeName, oldValue, newValue);
 	}
 
 	private void construct() {
@@ -289,8 +288,8 @@ public abstract class Application {
 					})
 				
 				.state(PAUSED)
-					.onEntry(() -> fireChange(new PropertyChangeEvent(this, "paused", false, true)))
-					.onExit(() -> fireChange(new PropertyChangeEvent(this, "paused", true, false)))
+					.onEntry(() -> fireChange("paused", false, true))
+					.onExit(() -> fireChange("paused", true, false))
 				
 				.state(CLOSED)
 					.onEntry(() -> {
