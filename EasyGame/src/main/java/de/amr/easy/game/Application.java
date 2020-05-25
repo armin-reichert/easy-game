@@ -289,6 +289,8 @@ public abstract class Application {
 					})
 				
 				.state(PAUSED)
+					.onEntry(() -> fireChange(new PropertyChangeEvent(this, "paused", false, true)))
+					.onExit(() -> fireChange(new PropertyChangeEvent(this, "paused", true, false)))
 				
 				.state(CLOSED)
 					.onEntry(() -> {
@@ -306,7 +308,6 @@ public abstract class Application {
 				.when(STARTING).then(RUNNING)
 				
 				.when(RUNNING).then(PAUSED).on(TOGGLE_PAUSE)
-					.act(() -> fireChange(new PropertyChangeEvent(this, "paused", false, true)))
 				
 				.when(RUNNING).then(CLOSED).on(CLOSE)
 	
@@ -315,7 +316,6 @@ public abstract class Application {
 				.stay(RUNNING).on(SHOW_SETTINGS_DIALOG).act(() -> shell.showSettingsDialog())
 				
 				.when(PAUSED).then(RUNNING).on(TOGGLE_PAUSE)
-					.act(() -> fireChange(new PropertyChangeEvent(this, "paused", true, false)))
 			
 				.when(PAUSED).then(CLOSED).on(CLOSE)
 				
