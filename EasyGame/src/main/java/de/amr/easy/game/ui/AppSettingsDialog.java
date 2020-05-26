@@ -28,6 +28,8 @@ import net.miginfocom.swing.MigLayout;
  */
 public class AppSettingsDialog extends JDialog implements PropertyChangeListener {
 
+	static final int MAX_FPS = 180;
+
 	private Application app;
 	private JSlider sliderFPS;
 	private DisplayModeSelector comboDisplayMode;
@@ -37,8 +39,8 @@ public class AppSettingsDialog extends JDialog implements PropertyChangeListener
 
 	public AppSettingsDialog(JFrame parent) {
 		super(parent);
-		setSize(665, 399);
-		sliderFPS = new JSlider(0, 120);
+		setSize(665, 452);
+		sliderFPS = new JSlider(0, MAX_FPS);
 		sliderFPS.addChangeListener(new ChangeListener() {
 
 			@Override
@@ -77,7 +79,7 @@ public class AppSettingsDialog extends JDialog implements PropertyChangeListener
 		getContentPane().add(fpsHistoryPanel, "cell 0 2 3 1,grow");
 		fpsHistoryPanel.setLayout(new MigLayout("", "[grow,fill]", "[grow,fill]"));
 
-		fpsHistoryView = new FramerateHistoryView(500, 150);
+		fpsHistoryView = new FramerateHistoryView(500, 150, MAX_FPS);
 		fpsHistoryView.setBackground(Color.BLACK);
 		fpsHistoryPanel.add(fpsHistoryView, "cell 0 0,grow");
 

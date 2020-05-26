@@ -30,8 +30,9 @@ public class FramerateHistoryView extends JComponent implements Lifecycle, View 
 	private int xOffset = 30;
 	private int vmargin = 20;
 
-	public FramerateHistoryView(int width, int height) {
+	public FramerateHistoryView(int width, int height, int maxFps) {
 		setSize(width, height);
+		this.maxFps = maxFps;
 		updateData(width / stepX);
 		addComponentListener(new ComponentAdapter() {
 
