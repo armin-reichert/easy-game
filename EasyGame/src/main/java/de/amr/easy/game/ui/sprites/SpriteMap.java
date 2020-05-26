@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * Sprite map with selection.
@@ -19,6 +20,10 @@ public class SpriteMap implements Iterable<Sprite> {
 	@Override
 	public Iterator<Sprite> iterator() {
 		return spritesByKey.values().iterator();
+	}
+
+	public Stream<Sprite> values() {
+		return spritesByKey.values().stream();
 	}
 
 	/**
