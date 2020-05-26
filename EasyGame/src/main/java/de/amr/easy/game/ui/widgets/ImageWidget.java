@@ -5,7 +5,7 @@ import java.awt.image.BufferedImage;
 import java.util.Objects;
 import java.util.function.BooleanSupplier;
 
-import de.amr.easy.game.controller.GameObject;
+import de.amr.easy.game.entity.GameObject;
 
 /**
  * An image that can be moved over the screen.

@@ -10,7 +10,7 @@ import java.awt.image.BufferedImage;
 import java.util.Objects;
 import java.util.function.BooleanSupplier;
 
-import de.amr.easy.game.controller.GameObject;
+import de.amr.easy.game.entity.GameObject;
 import de.amr.easy.game.ui.sprites.AnimationType;
 import de.amr.easy.game.ui.sprites.Sprite;
 

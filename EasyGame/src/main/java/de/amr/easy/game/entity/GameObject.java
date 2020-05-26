@@ -1,9 +1,9 @@
-package de.amr.easy.game.controller;
+package de.amr.easy.game.entity;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
 
-import de.amr.easy.game.entity.Entity;
+import de.amr.easy.game.controller.Lifecycle;
 import de.amr.easy.game.view.View;
 
 /**
