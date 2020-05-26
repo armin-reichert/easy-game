@@ -5,15 +5,14 @@ import java.awt.image.BufferedImage;
 import java.util.Objects;
 import java.util.function.BooleanSupplier;
 
-import de.amr.easy.game.entity.Entity;
-import de.amr.easy.game.view.Animation;
+import de.amr.easy.game.controller.GameObject;
 
 /**
  * An image that can be moved over the screen.
  * 
  * @author Armin Reichert
  */
-public class ImageWidget extends Entity implements Animation {
+public class ImageWidget extends GameObject {
 
 	private BufferedImage image;
 	private boolean moving;

@@ -10,17 +10,16 @@ import java.awt.image.BufferedImage;
 import java.util.Objects;
 import java.util.function.BooleanSupplier;
 
-import de.amr.easy.game.entity.Entity;
+import de.amr.easy.game.controller.GameObject;
 import de.amr.easy.game.ui.sprites.AnimationType;
 import de.amr.easy.game.ui.sprites.Sprite;
-import de.amr.easy.game.view.Animation;
 
 /**
  * A multi-line text that can be moved over the screen.
  * 
  * @author Armin Reichert
  */
-public class TextWidget extends Entity implements Animation {
+public class TextWidget extends GameObject {
 
 	public static class Builder {
 
