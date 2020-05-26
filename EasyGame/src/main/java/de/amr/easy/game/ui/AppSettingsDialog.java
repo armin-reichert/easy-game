@@ -37,7 +37,7 @@ public class AppSettingsDialog extends JDialog implements PropertyChangeListener
 
 	public AppSettingsDialog(JFrame parent) {
 		super(parent);
-		setSize(665, 334);
+		setSize(665, 399);
 		sliderFPS = new JSlider(0, 120);
 		sliderFPS.addChangeListener(new ChangeListener() {
 
