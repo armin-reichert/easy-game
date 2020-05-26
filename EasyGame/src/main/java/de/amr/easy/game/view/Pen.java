@@ -5,7 +5,6 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.awt.geom.Rectangle2D;
 
 /**
  * Helper class for drawing texts.
@@ -49,10 +48,17 @@ public class Pen implements AutoCloseable {
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
 	}
 
+	public void up(int pixels) {
+		g.translate(0, -pixels);
+	}
+
+	public void down(int pixels) {
+		g.translate(0, pixels);
+	}
+
 	public void drawAtGridPosition(String s, int col, int row, int cellSize) {
-		Rectangle2D box = g.getFontMetrics().getStringBounds(s, g);
-		float dy = Math.round((cellSize / 2 + box.getHeight()) / 2);
-		g.drawString(s, col * cellSize, row * cellSize + dy);
+		FontMetrics fm = g.getFontMetrics();
+		g.drawString(s, col * cellSize, row * cellSize + fm.getAscent());
 	}
 
 	public void drawString(String s, float x, float y) {
