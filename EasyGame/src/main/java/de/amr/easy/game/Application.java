@@ -48,33 +48,47 @@ import de.amr.statemachine.api.EventMatchStrategy;
 import de.amr.statemachine.core.StateMachine;
 
 /**
- * Applications inherit from this class. To start an application, use the static method
- * {@code launch(Application, String[])}. For a complete list of the supported command-line
- * arguments / application settings, see class {@link AppSettings}.
+ * Every application must extend this class and provide a public constructor without arguments. To
+ * start the application, either of the static methods {@link #launch(Class, String[])} or
+ * {@link #launch(Class, AppSettings, String[])} has to be called. The second variant allows an
+ * application to specify an extended settings object, otherwise the default settings object of
+ * class {@link AppSettings} is used. Command-line arguments are merged into the application
+ * settings and can be modified inside the {@link #configure(AppSettings)} hook method.For a
+ * complete list of the supported command-line arguments / application settings, see class
+ * {@link AppSettings}.
  * <p>
  * Example:
  * 
  * <pre>
- * java -jar game.jar -scale 1.5 -title "My Very First Game" -fullScreenOnStart
- * 
- * public class MyFirstGame extends Application {
+ * public class MyFirstApp extends Application {
  * 
  * 	public static void main(String... args) {
- * 		launch(MyFirstGame.class, args);
+ * 		launch(MyFirstApp.class, args);
  * 	}
  * 
  *	&#64;Override
  * 	public void configure(AppSettings settings) {
  * 		settings.width = 800;
  * 		settings.height = 600;
- * 		settings.scale = 2;
- * 		settings.title = "My First Game";
+ * 		settings.title = "My First Application";
  * 	}
  * 
  *	&#64;Override
  *	public void init() {
- *		setController(new MyFirstGameController());
+ *		setController(new MyFirstAppController());
  *	}
+ *
+ *  class MyFirstAppController implements Lifecycle {
+ *  
+ *  	&#64;Override
+ *  	public void init() {
+ *  	}
+ *  
+ *  	&#64;Override
+ *  	// <em>called at every tick of the application clock, normally 60 times/sec</em>
+ *  	public void update() {
+ *  	}
+ *  } 
  * </pre>
  * 
  * <p>
