@@ -74,7 +74,7 @@ public class Clock {
 		work.run();
 		long frameDuration = System.nanoTime() - start;
 		if (logging) {
-			loginfo("%-15s: %15.2f ms", "Frame", frameDuration / 1_000_000f);
+			loginfo("Tick:  %5.2f ms", frameDuration / 1_000_000f);
 		}
 		++totalTicks;
 
@@ -92,7 +92,7 @@ public class Clock {
 			try {
 				NANOSECONDS.sleep(timeLeft * 975 / 1000); // give a little reserve time
 				if (logging) {
-					loginfo("%-15s: %15.2f ms", "Slept", timeLeft / 1_000_000f);
+					loginfo("Sleep: %5.2f ms", timeLeft / 1_000_000f);
 				}
 			} catch (InterruptedException e) {
 				e.printStackTrace();
