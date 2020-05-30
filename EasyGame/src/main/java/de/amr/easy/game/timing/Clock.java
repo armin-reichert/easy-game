@@ -6,7 +6,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -20,11 +19,7 @@ public class Clock {
 	private static final Logger LOGGER = Logger.getLogger(Clock.class.getName());
 
 	static {
-		LOGGER.setLevel(Level.OFF);
-	}
-
-	private static void log(Supplier<String> task, long nanos) {
-		LOGGER.info(() -> format("%-15s: %15.2f ms", task.get(), nanos / 1_000_000f));
+		LOGGER.setLevel(Level.INFO);
 	}
 
 	private volatile boolean running;
@@ -41,8 +36,7 @@ public class Clock {
 	private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
 	/**
-	 * Creates a clock which triggers execution of the given work according to the
-	 * clock frequency.
+	 * Creates a clock which triggers execution of the given work according to the clock frequency.
 	 * 
 	 * @param targetFrequency the target frequency (ticks per second)
 	 * @param work            work to do
@@ -140,7 +134,7 @@ public class Clock {
 			long start = System.nanoTime();
 			work.run();
 			long frameDuration = System.nanoTime() - start;
-			log(() -> "Frame", frameDuration);
+			LOGGER.info(() -> format("%-15s: %15.2f ms", "Frame", frameDuration / 1_000_000f));
 
 			++totalTicks;
 
@@ -157,7 +151,7 @@ public class Clock {
 			if (timeLeft > 0) {
 				try {
 					NANOSECONDS.sleep(timeLeft);
-					log(() -> "Slept", timeLeft);
+					LOGGER.info(() -> format("%-15s: %15.2f ms", "Slept", timeLeft / 1_000_000f));
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
