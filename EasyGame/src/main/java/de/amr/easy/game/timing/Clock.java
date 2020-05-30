@@ -18,10 +18,6 @@ public class Clock {
 
 	private static final Logger LOGGER = Logger.getLogger(Clock.class.getName());
 
-	static {
-		LOGGER.setLevel(Level.INFO);
-	}
-
 	private volatile boolean running;
 	private Runnable work;
 	private Thread thread;
@@ -44,6 +40,7 @@ public class Clock {
 	public Clock(int targetFrequency, Runnable work) {
 		setTargetFramerate(targetFrequency);
 		this.work = work;
+		LOGGER.setLevel(Level.OFF);
 	}
 
 	/**
@@ -150,7 +147,7 @@ public class Clock {
 			long timeLeft = (period - frameDuration);
 			if (timeLeft > 0) {
 				try {
-					NANOSECONDS.sleep(timeLeft);
+					NANOSECONDS.sleep(timeLeft * 975 / 1000);
 					LOGGER.info(() -> format("%-15s: %15.2f ms", "Slept", timeLeft / 1_000_000f));
 				} catch (InterruptedException e) {
 					e.printStackTrace();
