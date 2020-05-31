@@ -92,7 +92,7 @@ public class AppSettings {
 	@Parameter(names = { "-fullScreenCursor" }, description = "cursor visible in fullscreen mode")
 	public boolean fullScreenCursor = false;
 
-	/** The background color of the application. */
+	/** The background color of the application in hex format e.g. "0xff0000". */
 	@Parameter(names = { "-bgColor" }, converter = ColorConverter.class, description = "application background")
 	public Color bgColor = Color.BLACK;
 
