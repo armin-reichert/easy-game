@@ -13,8 +13,7 @@ import com.beust.jcommander.ParameterException;
 /**
  * Application settings. Contains named properties and a generic map.
  * <p>
- * The named settings can be overwritten by corresponding command line
- * parameters.
+ * The named settings can be overwritten by corresponding command line parameters.
  * 
  * @author Armin Reichert
  */
@@ -51,13 +50,15 @@ public class AppSettings {
 
 	// Predefined properties
 
+	@Parameter(names = { "-help", "-usage" }, help = true, description = "list all parameters and exit")
+	public boolean help;
+
 	/** The application title. */
 	@Parameter(names = { "-title" }, description = "application title")
 	public String title = "My Application!";
 
 	/**
-	 * If <code>true</code>, additional info (frame rate, resolution) gets displayed
-	 * in title.
+	 * If <code>true</code>, additional info (frame rate, resolution) gets displayed in title.
 	 */
 	@Parameter(names = { "-titleExtended" }, description = "extended application title")
 	public boolean titleExtended;
@@ -117,8 +118,7 @@ public class AppSettings {
 	}
 
 	/**
-	 * Returns a (typed) property value. Value is cast to type of variable it is
-	 * assigned to.
+	 * Returns a (typed) property value. Value is cast to type of variable it is assigned to.
 	 * 
 	 * @param key property name
 	 * @return property value
@@ -139,8 +139,7 @@ public class AppSettings {
 	}
 
 	/**
-	 * Returns a property value as boolean value. If property is undefined, returns
-	 * <code>false</code>.
+	 * Returns a property value as boolean value. If property is undefined, returns <code>false</code>.
 	 * 
 	 * @param key property name
 	 * @return property value as boolean

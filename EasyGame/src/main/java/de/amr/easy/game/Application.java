@@ -88,7 +88,7 @@ import de.amr.statemachine.core.StateMachine;
  *  	// <em>called at every tick of the application clock, normally 60 times/sec</em>
  *  	public void update() {
  *  	}
- *  } 
+ *  }
  * </pre>
  * 
  * <p>
@@ -174,7 +174,12 @@ public abstract class Application {
 		}
 		theApplication.settings = settings;
 		theApplication.configure(theApplication.settings);
-		JCommander.newBuilder().addObject(theApplication.settings).build().parse(args);
+		JCommander commander = JCommander.newBuilder().addObject(theApplication.settings).build();
+		commander.parse(args);
+		if (settings.help) {
+			commander.usage();
+			System.exit(0);
+		}
 		theApplication.construct();
 		theApplication.printSettings();
 		try {
