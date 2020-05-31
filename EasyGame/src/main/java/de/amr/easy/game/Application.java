@@ -175,6 +175,7 @@ public abstract class Application {
 		theApplication.settings = settings;
 		theApplication.configure(theApplication.settings);
 		JCommander commander = JCommander.newBuilder().addObject(theApplication.settings).build();
+		commander.setProgramName(appClass.getSimpleName());
 		commander.parse(args);
 		if (settings.help) {
 			commander.usage();

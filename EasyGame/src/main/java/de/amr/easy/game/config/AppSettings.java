@@ -60,7 +60,7 @@ public class AppSettings {
 	/**
 	 * If <code>true</code>, additional info (frame rate, resolution) gets displayed in title.
 	 */
-	@Parameter(names = { "-titleExtended" }, description = "extended application title")
+	@Parameter(names = { "-titleExtended" }, description = "application title shows frame rate and screen resolution")
 	public boolean titleExtended;
 
 	/** Frame rate of clock. */
@@ -93,7 +93,8 @@ public class AppSettings {
 	public boolean fullScreenCursor = false;
 
 	/** The background color of the application in hex format e.g. "0xff0000". */
-	@Parameter(names = { "-bgColor" }, converter = ColorConverter.class, description = "application background")
+	@Parameter(names = {
+			"-bgColor" }, converter = ColorConverter.class, description = "application background color in hex format e.g. \"0xff0000\"")
 	public Color bgColor = Color.BLACK;
 
 	/** The volume (in percent) of the background music. */
