@@ -73,7 +73,7 @@ public class AppSettingsDialog extends JDialog implements PropertyChangeListener
 		sliderFPS.setPaintTicks(true);
 		sliderFPS.setLabelTable(sliderFPS.createStandardLabels(10));
 		getContentPane().setLayout(new MigLayout("", "[][3px:n:3px][grow,fill]", "[][][][grow,fill][center]"));
-		JLabel lblDisplayMode = new JLabel("Display Mode");
+		JLabel lblDisplayMode = new JLabel("Fullscreen Resolution");
 		getContentPane().add(lblDisplayMode, "cell 0 0,alignx trailing");
 		comboDisplayMode = new DisplayModeSelector();
 		comboDisplayMode.setMinimumSize(new Dimension(220, 26));
