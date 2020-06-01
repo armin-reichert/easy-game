@@ -8,7 +8,7 @@ import java.util.function.BooleanSupplier;
 import de.amr.easy.game.entity.GameObject;
 
 /**
- * An image that can be moved over the screen.
+ * An image that can move over the screen.
  * 
  * @author Armin Reichert
  */
@@ -19,15 +19,15 @@ public class ImageWidget extends GameObject {
 	private BooleanSupplier fnCompleted;
 
 	public ImageWidget(BufferedImage image) {
-		this.image = image;
 		moving = false;
 		fnCompleted = () -> false;
-		tf.width = (image.getWidth());
-		tf.height = (image.getHeight());
+		setImage(image);
 	}
 
 	public void setImage(BufferedImage image) {
 		this.image = Objects.requireNonNull(image);
+		tf.width = image.getWidth();
+		tf.height = image.getHeight();
 	}
 
 	public BufferedImage getImage() {
