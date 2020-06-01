@@ -244,7 +244,7 @@ public class AppShell extends JFrame {
 		}
 		view.draw(g);
 		if (app.isPaused()) {
-			int pauseTextSize = (width / PAUSED_TEXT.length()) * 180 / 100;
+			int pauseTextSize = (width / PAUSED_TEXT.length()) * 160 / 100;
 			g.setFont(new Font(Font.MONOSPACED, Font.BOLD, pauseTextSize));
 			int textWidth = g.getFontMetrics().stringWidth(PAUSED_TEXT);
 			g.setColor(Color.RED);
