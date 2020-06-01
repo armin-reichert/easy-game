@@ -170,19 +170,20 @@ public abstract class Application {
 		try {
 			theApplication = appClass.getDeclaredConstructor().newInstance();
 		} catch (Exception x) {
-			throw new RuntimeException("Could not create application", x);
+			String msg = String.format("Could not create application of class '%s'", appClass.getName());
+			throw new RuntimeException(msg, x);
 		}
-		theApplication.settings = settings;
-		theApplication.configure(theApplication.settings);
-		JCommander commander = JCommander.newBuilder().addObject(theApplication.settings).build();
+		theApplication.configure(settings);
+		JCommander commander = JCommander.newBuilder().addObject(settings).build();
 		commander.setProgramName(appClass.getSimpleName());
 		commander.parse(args);
 		if (settings.help) {
 			commander.usage();
 			System.exit(0);
 		}
-		theApplication.construct();
+		theApplication.settings = settings;
 		theApplication.printSettings();
+		theApplication.construct();
 		try {
 			UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
 		} catch (Exception e) {
@@ -346,8 +347,8 @@ public abstract class Application {
 		/*@formatter:on*/
 	}
 
-	private void createShell(int w, int h) {
-		shell = new AppShell(this, w, h);
+	private void createShell(int width, int height) {
+		shell = new AppShell(this, width, height);
 
 		shell.addKeyListener(internalKeyHandler);
 		shell.getFullScreenWindow().addKeyListener(internalKeyHandler);
