@@ -21,7 +21,6 @@ import java.util.Arrays;
 import javax.swing.JFrame;
 
 import de.amr.easy.game.Application;
-import de.amr.easy.game.view.Pen;
 import de.amr.easy.game.view.View;
 
 /**
@@ -228,30 +227,28 @@ public class AppShell extends JFrame {
 
 	private void drawView(View view, Graphics2D gc) {
 		Graphics2D g = (Graphics2D) gc.create();
-		g.setColor(app.settings().bgColor);
 		if (inFullScreenMode()) {
-			g.fillRect(0, 0, fullScreenWindow.getWidth(), fullScreenWindow.getHeight());
-			int unscaledWidth = width;
-			int unscaledHeight = height;
-			double zoom = Math.min(((double) fullScreenWindow.getWidth()) / unscaledWidth,
-					((double) fullScreenWindow.getHeight()) / unscaledHeight);
-			double scaledWidth = zoom * unscaledWidth;
-			double scaledHeight = zoom * unscaledHeight;
-			g.translate((fullScreenWindow.getWidth() - scaledWidth) / 2, (fullScreenWindow.getHeight() - scaledHeight) / 2);
-			g.setClip(0, 0, (int) scaledWidth, (int) scaledHeight);
-			g.scale(zoom, zoom);
+			int screenWidth = fullScreenWindow.getWidth(), screenHeight = fullScreenWindow.getHeight();
+			double scale = Math.min(1.0 * screenWidth / width, 1.0 * screenHeight / height);
+			int scaledWidth = (int) Math.round(scale * width);
+			int scaledHeight = (int) Math.round(scale * height);
+			g.setColor(app.settings().bgColor);
+			g.fillRect(0, 0, screenWidth, screenHeight);
+			g.translate((screenWidth - scaledWidth) / 2, (screenHeight - scaledHeight) / 2);
+			g.setClip(0, 0, scaledWidth, scaledHeight);
+			g.scale(scale, scale);
 		} else {
-			int width = canvas.getWidth(), height = canvas.getHeight();
-			g.fillRect(0, 0, width, height);
+			g.setColor(app.settings().bgColor);
+			g.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
 			g.scale(app.settings().scale, app.settings().scale);
 		}
 		view.draw(g);
 		if (app.isPaused()) {
-			try (Pen pen = new Pen(g)) {
-				pen.color(Color.RED);
-				pen.font(new Font(Font.MONOSPACED, Font.BOLD, width / 20));
-				pen.hcenter(PAUSED_TEXT, width, height / 2, 1);
-			}
+			int pauseTextSize = (width / PAUSED_TEXT.length()) * 180 / 100;
+			g.setFont(new Font(Font.MONOSPACED, Font.BOLD, pauseTextSize));
+			int textWidth = g.getFontMetrics().stringWidth(PAUSED_TEXT);
+			g.setColor(Color.RED);
+			g.drawString(PAUSED_TEXT, (width - textWidth) / 2, height / 2);
 		}
 		g.dispose();
 	}
