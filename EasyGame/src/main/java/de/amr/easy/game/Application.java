@@ -173,17 +173,8 @@ public abstract class Application {
 			String msg = String.format("Could not create application of class '%s'", appClass.getName());
 			throw new RuntimeException(msg, x);
 		}
-		theApplication.configure(settings);
-		JCommander commander = JCommander.newBuilder().addObject(settings).build();
-		commander.setProgramName(appClass.getSimpleName());
-		commander.parse(args);
-		if (settings.help) {
-			commander.usage();
-			System.exit(0);
-		}
 		theApplication.settings = settings;
-		theApplication.printSettings();
-		theApplication.construct();
+		theApplication.build(args);
 		try {
 			UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
 		} catch (Exception e) {
@@ -207,29 +198,27 @@ public abstract class Application {
 	private Lifecycle controller;
 	private Image icon;
 
-	public void addChangeListener(PropertyChangeListener listener) {
-		changes.addPropertyChangeListener(listener);
-	}
+	private void build(String[] args) {
+		configure(settings);
+		JCommander commander = JCommander.newBuilder().addObject(settings).build();
+		if (settings.help) {
+			commander.setProgramName(getClass().getSimpleName());
+			commander.usage();
+			System.exit(0);
+		}
+		commander.parse(args);
+		printSettings();
 
-	public void removeChangeListener(PropertyChangeListener listener) {
-		changes.removePropertyChangeListener(listener);
-	}
-
-	public void fireChange(String changeName, Object oldValue, Object newValue) {
-		changes.firePropertyChange(changeName, oldValue, newValue);
-	}
-
-	private void construct() {
 		lifecycle = createLifecycle();
 		internalKeyHandler = createInternalKeyHandler();
 		appKeyHandler = new KeyboardHandler();
 		appMouseHandler = new MouseHandler();
 		windowHandler = createWindowHandler();
+
 		clock = new Clock(settings.fps, () -> {
 			lifecycle.update();
 			currentView().ifPresent(shell::render);
 		});
-		loginfo("Application '%s' constructed.", getClass().getName());
 	}
 
 	/**
@@ -379,6 +368,18 @@ public abstract class Application {
 	 * application.
 	 */
 	public abstract void init();
+
+	public void addChangeListener(PropertyChangeListener listener) {
+		changes.addPropertyChangeListener(listener);
+	}
+
+	public void removeChangeListener(PropertyChangeListener listener) {
+		changes.removePropertyChangeListener(listener);
+	}
+
+	public void fireChange(String changeName, Object oldValue, Object newValue) {
+		changes.firePropertyChange(changeName, oldValue, newValue);
+	}
 
 	public boolean isPaused() {
 		return lifecycle.is(PAUSED);
