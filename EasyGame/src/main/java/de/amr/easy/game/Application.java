@@ -160,7 +160,7 @@ public abstract class Application {
 		try {
 			theApplication = appClass.getDeclaredConstructor().newInstance();
 			theApplication.build(settings, args);
-			theApplication.showUI();
+			theApplication.lifecycle.init();
 		} catch (Exception e) {
 			loginfo("Could not launch application of class '%s'", appClass.getName());
 			throw new RuntimeException(e);
@@ -182,12 +182,6 @@ public abstract class Application {
 		lifecycle = createLifecycle();
 		clock = new Clock(settings.fps);
 		clock.onTick = lifecycle::update;
-	}
-
-	private void showUI()
-			throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException {
-		UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
-		SwingUtilities.invokeLater(lifecycle::init);
 	}
 
 	/**
@@ -219,13 +213,19 @@ public abstract class Application {
 				
 				.state(CREATING_UI)
 					.onEntry(() -> {
+						try {
+							UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
+						} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+								| UnsupportedLookAndFeelException x) {
+							loginfo("Could not set Nimbus look and feel");
+						}
 						if (controller != null) {
 							shell = new AppShell(this, settings.width, settings.height);
 						} else {
 							shell = new AppShell(this, 800, 600);
 							setController(new AppInfoView(800,600));
 						}
-						shell.display(settings.fullScreenOnStart);
+						SwingUtilities.invokeLater(() -> shell.display(settings.fullScreenOnStart));
 					})
 				
 				
