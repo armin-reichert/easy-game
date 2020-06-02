@@ -184,12 +184,12 @@ public abstract class Application {
 		this.settings = settings;
 		configure(settings);
 		JCommander commander = JCommander.newBuilder().addObject(settings).build();
+		commander.parse(args);
 		if (settings.help) {
 			commander.setProgramName(getClass().getSimpleName());
 			commander.usage();
 			System.exit(0);
 		}
-		commander.parse(args);
 		printSettings();
 		lifecycle = createLifecycle();
 		clock = new Clock(settings.fps);
