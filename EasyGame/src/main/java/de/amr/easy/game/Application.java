@@ -152,10 +152,10 @@ public abstract class Application {
 		try {
 			InputStream in = appClass.getClassLoader().getResourceAsStream("de/amr/easy/game/logging.properties");
 			LogManager.getLogManager().readConfiguration(in);
-		} catch (NullPointerException | SecurityException | IOException x) {
+		} catch (NullPointerException | SecurityException | IOException e) {
 			System.err.println("Could not load logging configuration");
-			x.printStackTrace(System.err);
-			System.exit(0);
+			e.printStackTrace(System.err);
+			return;
 		}
 		try {
 			theApplication = appClass.getDeclaredConstructor().newInstance();
@@ -163,7 +163,7 @@ public abstract class Application {
 			theApplication.lifecycle.init();
 		} catch (Exception e) {
 			loginfo("Could not launch application of class '%s'", appClass.getName());
-			throw new RuntimeException(e);
+			e.printStackTrace(System.err);
 		}
 	}
 
