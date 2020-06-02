@@ -169,20 +169,12 @@ public abstract class Application {
 	public static void launch(Class<? extends Application> appClass, AppSettings settings, String[] args) {
 		try {
 			theApplication = appClass.getDeclaredConstructor().newInstance();
-			loginfo("Application [%s]", appClass.getName());
-		} catch (Exception x) {
-			String msg = String.format("Could not create application of class '%s'", appClass.getName());
-			throw new RuntimeException(msg, x);
-		}
-		theApplication.settings = settings;
-		theApplication.build(args);
-		try {
-			UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
 		} catch (Exception e) {
-			e.printStackTrace();
-			LOGGER.warning("Could not set Nimbus Look&Feel.");
+			loginfo("Could not create application of class '%s'", appClass.getName());
+			throw new RuntimeException(e);
 		}
-		SwingUtilities.invokeLater(() -> theApplication.lifecycle.init());
+		theApplication.build(settings, args);
+		theApplication.showUI();
 	}
 
 	private PropertyChangeSupport changes = new PropertyChangeSupport(this);
@@ -199,7 +191,9 @@ public abstract class Application {
 	private Lifecycle controller;
 	private Image icon;
 
-	private void build(String[] args) {
+	private void build(AppSettings settings, String[] args) {
+		loginfo("Building application '%s'", getClass().getName());
+		this.settings = settings;
 		configure(settings);
 		JCommander commander = JCommander.newBuilder().addObject(settings).build();
 		if (settings.help) {
@@ -210,16 +204,26 @@ public abstract class Application {
 		commander.parse(args);
 		printSettings();
 
-		lifecycle = createLifecycle();
 		internalKeyHandler = createInternalKeyHandler();
 		appKeyHandler = new KeyboardHandler();
 		appMouseHandler = new MouseHandler();
 		windowHandler = createWindowHandler();
 
-		clock = new Clock(settings.fps, () -> {
+		lifecycle = createLifecycle();
+		clock = new Clock(settings.fps);
+		clock.work = () -> {
 			lifecycle.update();
 			currentView().ifPresent(shell::render);
-		});
+		};
+	}
+
+	private void showUI() {
+		try {
+			UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
+			SwingUtilities.invokeLater(lifecycle::init);
+		} catch (Exception e) {
+			LOGGER.throwing(getClass().getName(), "showUI", e);
+		}
 	}
 
 	/**

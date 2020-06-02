@@ -61,7 +61,7 @@ public class AppSettingsDialog extends JDialog implements PropertyChangeListener
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				if (sliderFPS.getValue() > 0) {
-					app.clock().setTargetFramerate(sliderFPS.getValue());
+					app.clock().setTargetFrameRate(sliderFPS.getValue());
 					setFpsTooltip();
 				} else {
 					sliderFPS.setValue(1);

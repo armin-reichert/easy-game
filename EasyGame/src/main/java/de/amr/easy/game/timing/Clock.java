@@ -14,27 +14,28 @@ import java.beans.PropertyChangeSupport;
  */
 public class Clock {
 
+	public Runnable work;
+
 	public volatile boolean logging = false;
 	private volatile boolean ticking;
-	private Runnable work;
 	private Thread thread;
-	private int targetFPS;
+	private int targetSpeed;
 	private long period;
 	private long totalTicks;
-	private int frames;
-	private int framesPerSec;
-	private long frameRateMeasurementStart = 0;
+	private int ticks;
+	private int ticksPerSec;
+	private long measurementStart = 0;
 	private PropertyChangeSupport changes = new PropertyChangeSupport(this);
 
 	/**
-	 * Creates a clock which triggers execution of the given work according to the clock frequency.
+	 * Creates a clock running at the given frequency.
 	 * 
-	 * @param targetFrequency the target frequency (ticks per second)
-	 * @param work            work to do
+	 * @param ticksPerSecond the target frequency (ticks per second)
 	 */
-	public Clock(int targetFrequency, Runnable work) {
-		setTargetFramerate(targetFrequency);
-		this.work = work;
+	public Clock(int ticksPerSecond) {
+		setTargetFrameRate(ticksPerSecond);
+		work = () -> {
+		};
 	}
 
 	/**
@@ -79,11 +80,11 @@ public class Clock {
 		++totalTicks;
 
 		// measure FPS
-		++frames;
-		if (System.nanoTime() >= frameRateMeasurementStart + SECONDS.toNanos(1)) {
-			framesPerSec = frames;
-			frames = 0;
-			frameRateMeasurementStart = System.nanoTime();
+		++ticks;
+		if (System.nanoTime() >= measurementStart + SECONDS.toNanos(1)) {
+			ticksPerSec = ticks;
+			ticks = 0;
+			measurementStart = System.nanoTime();
 		}
 
 		// sleep as long as needed to reach target FPS
@@ -113,33 +114,33 @@ public class Clock {
 	 * @return last reported number of frames/second
 	 */
 	public int getFrameRate() {
-		return framesPerSec;
+		return ticksPerSec;
 	}
 
 	/**
 	 * @return the clock's target frequency (ticks per second)
 	 */
 	public int getTargetFramerate() {
-		return targetFPS;
+		return targetSpeed;
 	}
 
 	/**
 	 * Sets the clock's target frequency to the given value (ticks per second).
 	 * 
-	 * @param fps number of ticks per second
+	 * @param ticksPerSecond number of ticks per second
 	 */
-	public void setTargetFramerate(int fps) {
-		if (this.targetFPS == fps) {
+	public void setTargetFrameRate(int ticksPerSecond) {
+		if (this.targetSpeed == ticksPerSecond) {
 			return;
 		}
-		if (fps < 1) {
+		if (ticksPerSecond < 1) {
 			throw new IllegalArgumentException("Clock frequency must be at least 1");
 		}
-		int oldTargetFPS = targetFPS;
-		targetFPS = fps;
-		period = SECONDS.toNanos(1) / fps;
-		loginfo(String.format("Clock frequency changed to %d ticks/sec.", targetFPS));
-		changes.firePropertyChange("frequency", oldTargetFPS, targetFPS);
+		int oldTargetSpeed = targetSpeed;
+		targetSpeed = ticksPerSecond;
+		period = SECONDS.toNanos(1) / ticksPerSecond;
+		loginfo("Clock target frequency set to %d ticks/sec.", targetSpeed);
+		changes.firePropertyChange("frequency", oldTargetSpeed, targetSpeed);
 	}
 
 	/**
@@ -157,6 +158,6 @@ public class Clock {
 	 * @return number of clock ticks representing the given seconds
 	 */
 	public int sec(float seconds) {
-		return Math.round(targetFPS * seconds);
+		return Math.round(targetSpeed * seconds);
 	}
 }
