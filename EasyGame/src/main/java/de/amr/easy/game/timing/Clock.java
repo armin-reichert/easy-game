@@ -114,6 +114,13 @@ public class Clock {
 	}
 
 	/**
+	 * @return if the clock is ticking
+	 */
+	public boolean isTicking() {
+		return ticking;
+	}
+
+	/**
 	 * @return last reported number of frames/second
 	 */
 	public int getFrameRate() {

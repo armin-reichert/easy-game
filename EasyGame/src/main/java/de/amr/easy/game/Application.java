@@ -193,10 +193,7 @@ public abstract class Application {
 		printSettings();
 		lifecycle = createLifecycle();
 		clock = new Clock(settings.fps);
-		clock.onTick = () -> {
-			lifecycle.update();
-			currentView().ifPresent(shell::render);
-		};
+		clock.onTick = lifecycle::update;
 	}
 
 	private void showUI() {
@@ -250,10 +247,12 @@ public abstract class Application {
 							collisionHandler.update();
 						}
 						controller.update();
+						currentView().ifPresent(shell::render);
 					})
 				
 				.state(PAUSED)
 					.onEntry(() -> fireChange("paused", false, true))
+					.onTick(() -> currentView().ifPresent(shell::render))
 					.onExit(() -> fireChange("paused", true, false))
 				
 				.state(CLOSED)
@@ -269,7 +268,7 @@ public abstract class Application {
 					
 			.transitions()
 			
-				.when(STARTING).then(RUNNING)
+				.when(STARTING).then(RUNNING).condition(() -> clock.isTicking())
 				
 				.when(RUNNING).then(PAUSED).on(TOGGLE_PAUSE)
 				

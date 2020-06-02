@@ -116,12 +116,24 @@ public class AppSettingsDialog extends JDialog implements PropertyChangeListener
 	public void setApp(Application app) {
 		this.app = app;
 		app.addChangeListener(this);
+		app.clock().addFrequencyChangeListener(e -> sliderFPS.setValue((Integer) e.getNewValue()));
 		fpsHistoryView.setApp(app);
+		updateState(app);
+	}
+
+	private void updateState(Application app) {
 		setTitle(String.format("Application '%s'", app.settings().title));
 		sliderFPS.setValue(app.clock().getTargetFramerate());
-		app.clock().addFrequencyChangeListener(e -> sliderFPS.setValue((Integer) e.getNewValue()));
 		comboDisplayMode.select(app.settings().fullScreenMode);
 		cbClockDebugging.setSelected(app.clock().logging);
+	}
+
+	@Override
+	public void setVisible(boolean visible) {
+		super.setVisible(visible);
+		if (visible) {
+			updateState(app);
+		}
 	}
 
 	@Override
