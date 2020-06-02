@@ -5,6 +5,7 @@ import static de.amr.easy.game.Application.ApplicationEvent.SHOW_SETTINGS_DIALOG
 import static de.amr.easy.game.Application.ApplicationEvent.TOGGLE_FULLSCREEN;
 import static de.amr.easy.game.Application.ApplicationEvent.TOGGLE_PAUSE;
 import static de.amr.easy.game.Application.ApplicationState.CLOSED;
+import static de.amr.easy.game.Application.ApplicationState.CREATING_UI;
 import static de.amr.easy.game.Application.ApplicationState.PAUSED;
 import static de.amr.easy.game.Application.ApplicationState.RUNNING;
 import static de.amr.easy.game.Application.ApplicationState.STARTING;
@@ -96,7 +97,7 @@ import de.amr.statemachine.core.StateMachine;
 public abstract class Application {
 
 	enum ApplicationState {
-		STARTING, RUNNING, PAUSED, CLOSED;
+		CREATING_UI, STARTING, RUNNING, PAUSED, CLOSED;
 	}
 
 	enum ApplicationEvent {
@@ -228,6 +229,12 @@ public abstract class Application {
 				.state(STARTING)
 					.onEntry(() -> {
 						init();
+						clock.start();
+						loginfo("Clock started, %d frames/second", clock.getTargetFramerate());
+					})
+				
+				.state(CREATING_UI)
+					.onEntry(() -> {
 						if (controller != null) {
 							shell = new AppShell(this, settings.width, settings.height);
 						} else {
@@ -235,17 +242,14 @@ public abstract class Application {
 							setController(new AppInfoView(800,600));
 						}
 						shell.display(settings.fullScreenOnStart);
-						clock.start();
-						loginfo("Clock started, %d frames/second", clock.getTargetFramerate());
 					})
+				
 				
 				.state(RUNNING)
 					.onTick(() -> {
 						Keyboard.handler.poll();
 						Mouse.handler.poll();
-						if (collisionHandler != null) {
-							collisionHandler.update();
-						}
+						collisionHandler().ifPresent(CollisionHandler::update);
 						controller.update();
 						currentView().ifPresent(shell::render);
 					})
@@ -267,8 +271,10 @@ public abstract class Application {
 					})
 					
 			.transitions()
-			
-				.when(STARTING).then(RUNNING).condition(() -> clock.isTicking())
+
+				.when(STARTING).then(CREATING_UI).condition(() -> clock.isTicking())
+				
+				.when(CREATING_UI).then(RUNNING).condition(() -> shell.isVisible())
 				
 				.when(RUNNING).then(PAUSED).on(TOGGLE_PAUSE)
 				
@@ -329,11 +335,14 @@ public abstract class Application {
 		return shell != null && shell.inFullScreenMode();
 	}
 
-	public CollisionHandler collisionHandler() {
+	public Optional<CollisionHandler> collisionHandler() {
+		return Optional.ofNullable(collisionHandler);
+	}
+
+	public void createCollisionHandler() {
 		if (collisionHandler == null) {
 			collisionHandler = new CollisionHandler();
 		}
-		return collisionHandler;
 	}
 
 	public AppSettings settings() {

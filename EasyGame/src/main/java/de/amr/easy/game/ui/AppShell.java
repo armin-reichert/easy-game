@@ -205,12 +205,12 @@ public class AppShell extends JFrame {
 	private void displayWindow() {
 		renderingEnabled = false;
 		device.setFullScreenWindow(null);
-		setVisible(true);
 		requestFocus();
 		canvas.createBufferStrategy(2);
 		loginfo("Entered window mode, resolution %dx%d (%dx%d scaled by %.2f)", (int) (width * app.settings().scale),
 				(int) (height * app.settings().scale), width, height, app.settings().scale);
 		renderingEnabled = true;
+		setVisible(true);
 	}
 
 	private void displayFullScreen() throws FullScreenModeException {
