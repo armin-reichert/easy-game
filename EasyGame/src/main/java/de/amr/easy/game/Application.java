@@ -193,7 +193,7 @@ public abstract class Application {
 		printSettings();
 		lifecycle = createLifecycle();
 		clock = new Clock(settings.fps);
-		clock.work = () -> {
+		clock.onTick = () -> {
 			lifecycle.update();
 			currentView().ifPresent(shell::render);
 		};

@@ -14,7 +14,10 @@ import java.beans.PropertyChangeSupport;
  */
 public class Clock {
 
-	public Runnable work;
+	/**
+	 * Action executed on every clock tick.
+	 */
+	public Runnable onTick;
 
 	public volatile boolean logging = false;
 	private volatile boolean ticking;
@@ -34,7 +37,7 @@ public class Clock {
 	 */
 	public Clock(int ticksPerSecond) {
 		setTargetFrameRate(ticksPerSecond);
-		work = () -> {
+		onTick = () -> {
 		};
 	}
 
@@ -72,7 +75,7 @@ public class Clock {
 
 	private void tick() {
 		long start = System.nanoTime();
-		work.run();
+		onTick.run();
 		long frameDuration = System.nanoTime() - start;
 		if (logging) {
 			loginfo("Tick:  %5.2f ms", frameDuration / 1_000_000f);
