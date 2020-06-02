@@ -1,5 +1,6 @@
 package de.amr.easy.game.ui;
 
+import static de.amr.easy.game.Application.LOGGER;
 import static de.amr.easy.game.Application.loginfo;
 import static java.lang.String.format;
 
@@ -14,6 +15,12 @@ import java.awt.Graphics2D;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Point;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
@@ -21,6 +28,10 @@ import java.util.Arrays;
 import javax.swing.JFrame;
 
 import de.amr.easy.game.Application;
+import de.amr.easy.game.input.Keyboard;
+import de.amr.easy.game.input.KeyboardHandler;
+import de.amr.easy.game.input.Mouse;
+import de.amr.easy.game.input.MouseHandler;
 import de.amr.easy.game.view.View;
 
 /**
@@ -76,9 +87,52 @@ public class AppShell extends JFrame {
 		canvas.setFocusable(false);
 		add(canvas, BorderLayout.CENTER);
 		fullScreenWindow = createFullScreenWindow();
+
+		Keyboard.handler = new KeyboardHandler();
+		Mouse.handler = new MouseHandler(app.settings().scale);
+		KeyListener internalKeyHandler = createInternalKeyHandler();
+		WindowListener windowHandler = createWindowHandler();
+		addKeyListener(internalKeyHandler);
+		addKeyListener(Keyboard.handler);
+		addWindowListener(windowHandler);
+		getCanvas().addMouseListener(Mouse.handler);
+		getCanvas().addMouseMotionListener(Mouse.handler);
+		getFullScreenWindow().addKeyListener(internalKeyHandler);
+		getFullScreenWindow().addKeyListener(Keyboard.handler);
+		getFullScreenWindow().addWindowListener(windowHandler);
+		getFullScreenWindow().addMouseListener(Mouse.handler);
+		getFullScreenWindow().addMouseMotionListener(Mouse.handler);
+
 		pack();
 		setLocationRelativeTo(null);
 		loginfo("Application shell created.");
+	}
+
+	private KeyListener createInternalKeyHandler() {
+		return new KeyAdapter() {
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_P) {
+					app.togglePause();
+				} else if (e.getKeyCode() == KeyEvent.VK_F2) {
+					app.showSettingsDialog();
+				} else if (e.getKeyCode() == KeyEvent.VK_F11 || (e.getKeyCode() == KeyEvent.VK_ESCAPE && inFullScreenMode())) {
+					app.toggleFullScreen();
+				}
+			}
+		};
+	}
+
+	private WindowListener createWindowHandler() {
+		return new WindowAdapter() {
+
+			@Override
+			public void windowClosing(WindowEvent e) {
+				LOGGER.info("Application window closing, app will exit...");
+				app.close();
+			}
+		};
 	}
 
 	public void showSettingsDialog() {

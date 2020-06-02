@@ -10,12 +10,6 @@ import static de.amr.easy.game.Application.ApplicationState.RUNNING;
 import static de.amr.easy.game.Application.ApplicationState.STARTING;
 
 import java.awt.Image;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.IOException;
@@ -36,9 +30,7 @@ import de.amr.easy.game.config.AppSettings;
 import de.amr.easy.game.controller.Lifecycle;
 import de.amr.easy.game.entity.collision.CollisionHandler;
 import de.amr.easy.game.input.Keyboard;
-import de.amr.easy.game.input.KeyboardHandler;
 import de.amr.easy.game.input.Mouse;
-import de.amr.easy.game.input.MouseHandler;
 import de.amr.easy.game.timing.Clock;
 import de.amr.easy.game.ui.AppInfoView;
 import de.amr.easy.game.ui.AppShell;
@@ -103,21 +95,21 @@ import de.amr.statemachine.core.StateMachine;
  */
 public abstract class Application {
 
-	public enum ApplicationState {
+	enum ApplicationState {
 		STARTING, RUNNING, PAUSED, CLOSED;
 	}
 
-	public enum ApplicationEvent {
+	enum ApplicationEvent {
 		TOGGLE_PAUSE, TOGGLE_FULLSCREEN, SHOW_SETTINGS_DIALOG, CLOSE
 	}
 
 	static {
-		InputStream stream = Application.class.getClassLoader().getResourceAsStream("logging.properties");
-		if (stream == null) {
+		InputStream is = Application.class.getClassLoader().getResourceAsStream("logging.properties");
+		if (is == null) {
 			throw new RuntimeException("Could not load logging property file");
 		}
 		try {
-			LogManager.getLogManager().readConfiguration(stream);
+			LogManager.getLogManager().readConfiguration(is);
 		} catch (IOException | SecurityException e) {
 			throw new RuntimeException("Could not read logging configuration");
 		}
@@ -160,7 +152,7 @@ public abstract class Application {
 
 	/**
 	 * Launches the specified application. The command-line arguments are parsed and assigned to the
-	 * passed application settings.
+	 * given application settings.
 	 * 
 	 * @param appClass application class
 	 * @param settings application settings
@@ -177,19 +169,15 @@ public abstract class Application {
 		theApplication.showUI();
 	}
 
-	private PropertyChangeSupport changes = new PropertyChangeSupport(this);
 	private AppSettings settings;
-	private StateMachine<ApplicationState, ApplicationEvent> lifecycle;
-	private KeyboardHandler appKeyHandler;
-	private KeyListener internalKeyHandler;
-	private MouseHandler appMouseHandler;
-	private WindowListener windowHandler;
+	private AppShell shell;
 	private Clock clock;
 	private CollisionHandler collisionHandler;
 	private Consumer<Application> exitHandler;
-	private AppShell shell;
 	private Lifecycle controller;
 	private Image icon;
+	private StateMachine<ApplicationState, ApplicationEvent> lifecycle;
+	private PropertyChangeSupport changes = new PropertyChangeSupport(this);
 
 	private void build(AppSettings settings, String[] args) {
 		loginfo("Building application '%s'", getClass().getName());
@@ -203,12 +191,6 @@ public abstract class Application {
 		}
 		commander.parse(args);
 		printSettings();
-
-		internalKeyHandler = createInternalKeyHandler();
-		appKeyHandler = new KeyboardHandler();
-		appMouseHandler = new MouseHandler();
-		windowHandler = createWindowHandler();
-
 		lifecycle = createLifecycle();
 		clock = new Clock(settings.fps);
 		clock.work = () -> {
@@ -238,35 +220,6 @@ public abstract class Application {
 		loginfo("\tFramerate: %d ticks/sec", settings.fps);
 	}
 
-	private KeyListener createInternalKeyHandler() {
-		return new KeyAdapter() {
-
-			@Override
-			public void keyPressed(KeyEvent e) {
-				if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_P) {
-					lifecycle.process(TOGGLE_PAUSE);
-				} else if (e.getKeyCode() == KeyEvent.VK_F2) {
-					lifecycle.process(SHOW_SETTINGS_DIALOG);
-				} else if (e.getKeyCode() == KeyEvent.VK_F11) {
-					lifecycle.process(TOGGLE_FULLSCREEN);
-				} else if (e.getKeyCode() == KeyEvent.VK_ESCAPE && shell.inFullScreenMode()) {
-					lifecycle.process(TOGGLE_FULLSCREEN);
-				}
-			}
-		};
-	}
-
-	private WindowListener createWindowHandler() {
-		return new WindowAdapter() {
-
-			@Override
-			public void windowClosing(WindowEvent e) {
-				LOGGER.info("Application window closing, app will exit...");
-				lifecycle.process(CLOSE);
-			}
-		};
-	}
-
 	private StateMachine<ApplicationState, ApplicationEvent> createLifecycle() {
 		return StateMachine.
 		/*@formatter:off*/		
@@ -277,9 +230,6 @@ public abstract class Application {
 				
 				.state(STARTING)
 					.onEntry(() -> {
-						Keyboard.handler = appKeyHandler;
-						Mouse.handler = appMouseHandler;
-						Mouse.handler.fnScale = () -> settings.scale;
 						init();
 						if (controller != null) {
 							createShell(settings.width, settings.height);
@@ -294,8 +244,8 @@ public abstract class Application {
 				
 				.state(RUNNING)
 					.onTick(() -> {
-						appKeyHandler.poll();
-						appMouseHandler.poll();
+						Keyboard.handler.poll();
+						Mouse.handler.poll();
 						if (collisionHandler != null) {
 							collisionHandler.update();
 						}
@@ -343,20 +293,6 @@ public abstract class Application {
 
 	private void createShell(int width, int height) {
 		shell = new AppShell(this, width, height);
-
-		shell.addKeyListener(internalKeyHandler);
-		shell.getFullScreenWindow().addKeyListener(internalKeyHandler);
-
-		shell.addKeyListener(appKeyHandler);
-		shell.getFullScreenWindow().addKeyListener(appKeyHandler);
-
-		shell.addWindowListener(windowHandler);
-		shell.getFullScreenWindow().addWindowListener(windowHandler);
-
-		shell.getCanvas().addMouseListener(appMouseHandler);
-		shell.getCanvas().addMouseMotionListener(appMouseHandler);
-		shell.getFullScreenWindow().addMouseListener(appMouseHandler);
-		shell.getFullScreenWindow().addMouseMotionListener(appMouseHandler);
 	}
 
 	/**
@@ -369,22 +305,10 @@ public abstract class Application {
 	protected abstract void configure(AppSettings settings);
 
 	/**
-	 * Hook method called after having configured the application and before the clock is driving the
-	 * application.
+	 * Hook method getting called after the application has been configured and before the clock starts
+	 * ticking.
 	 */
 	public abstract void init();
-
-	public void addChangeListener(PropertyChangeListener listener) {
-		changes.addPropertyChangeListener(listener);
-	}
-
-	public void removeChangeListener(PropertyChangeListener listener) {
-		changes.removePropertyChangeListener(listener);
-	}
-
-	public void fireChange(String changeName, Object oldValue, Object newValue) {
-		changes.firePropertyChange(changeName, oldValue, newValue);
-	}
 
 	public boolean isPaused() {
 		return lifecycle.is(PAUSED);
@@ -392,6 +316,18 @@ public abstract class Application {
 
 	public void togglePause() {
 		lifecycle.process(TOGGLE_PAUSE);
+	}
+
+	public void showSettingsDialog() {
+		lifecycle.process(SHOW_SETTINGS_DIALOG);
+	}
+
+	public void toggleFullScreen() {
+		lifecycle.process(TOGGLE_FULLSCREEN);
+	}
+
+	public void close() {
+		lifecycle.process(CLOSE);
 	}
 
 	public boolean inFullScreenMode() {
@@ -420,17 +356,17 @@ public abstract class Application {
 	/**
 	 * Makes the given controller the current one and optionally initializes it.
 	 * 
-	 * @param controller a controller
-	 * @param initialize if the controller should be initialized
+	 * @param controller   the new application controller
+	 * @param initializeIt if the controller should be initialized
 	 */
-	public void setController(Lifecycle controller, boolean initialize) {
+	public void setController(Lifecycle controller, boolean initializeIt) {
 		if (controller == null) {
 			throw new IllegalArgumentException("Application controller must not be null.");
 		}
 		if (controller != this.controller) {
 			this.controller = controller;
 			LOGGER.info("Application controller is: " + controller);
-			if (initialize) {
+			if (initializeIt) {
 				controller.init();
 				LOGGER.info("Controller initialized.");
 			}
@@ -456,17 +392,26 @@ public abstract class Application {
 		return Optional.empty();
 	}
 
+	public Image getIcon() {
+		return icon;
+	}
+
 	public void setIcon(Image icon) {
-		if (icon == null) {
-			return;
-		}
 		this.icon = icon;
 		if (shell != null) {
 			shell.setIconImage(icon);
 		}
 	}
 
-	public Image getIcon() {
-		return icon;
+	public void addChangeListener(PropertyChangeListener listener) {
+		changes.addPropertyChangeListener(listener);
+	}
+
+	public void removeChangeListener(PropertyChangeListener listener) {
+		changes.removePropertyChangeListener(listener);
+	}
+
+	public void fireChange(String changeName, Object oldValue, Object newValue) {
+		changes.firePropertyChange(changeName, oldValue, newValue);
 	}
 }

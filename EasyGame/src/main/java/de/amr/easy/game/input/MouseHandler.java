@@ -8,11 +8,10 @@ import static java.awt.event.MouseEvent.NOBUTTON;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.util.function.Supplier;
 
 public class MouseHandler implements MouseListener, MouseMotionListener {
 
-	public Supplier<Float> fnScale = () -> 1f;
+	float scaling = 1;
 
 	boolean clicked;
 	boolean pressed;
@@ -30,14 +29,22 @@ public class MouseHandler implements MouseListener, MouseMotionListener {
 	private boolean draggedDetected;
 	private MouseEvent event;
 
+	public MouseHandler() {
+		this(1);
+	}
+
+	public MouseHandler(float scaling) {
+		this.scaling = scaling;
+	}
+
 	public synchronized void poll() {
 		clicked = clickedDetected;
 		pressed = pressedDetected;
 		released = releasedDetected;
 		moved = movedDetected;
 		dragged = draggedDetected;
-		x = event != null ? Math.round(event.getX() / fnScale.get()) : -1;
-		y = event != null ? Math.round(event.getY() / fnScale.get()) : -1;
+		x = event != null ? Math.round(event.getX() / scaling) : -1;
+		y = event != null ? Math.round(event.getY() / scaling) : -1;
 		clickedDetected = pressedDetected = releasedDetected = movedDetected = draggedDetected = false;
 		event = null;
 	}
