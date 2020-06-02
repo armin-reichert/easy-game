@@ -23,6 +23,7 @@ import java.util.logging.Logger;
 
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 
 import com.beust.jcommander.JCommander;
@@ -104,71 +105,11 @@ public abstract class Application {
 		TOGGLE_PAUSE, TOGGLE_FULLSCREEN, SHOW_SETTINGS_DIALOG, CLOSE
 	}
 
-	static {
-		InputStream is = Application.class.getClassLoader().getResourceAsStream("logging.properties");
-		if (is == null) {
-			throw new RuntimeException("Could not load logging property file");
-		}
-		try {
-			LogManager.getLogManager().readConfiguration(is);
-		} catch (IOException | SecurityException e) {
-			throw new RuntimeException("Could not read logging configuration");
-		}
-	}
-
-	/** Application-global logger. */
-	public static final Logger LOGGER = Logger.getLogger(Application.class.getName());
-
-	/**
-	 * Convenience method for logging to application logger with level INFO.
-	 * 
-	 * @param format message format
-	 * @param args   message arguments
-	 */
-	public static void loginfo(String format, Object... args) {
-		LOGGER.info(String.format(format, args));
-	}
-
 	/** Application singleton. */
 	private static Application theApplication;
 
-	/** Static access to application instance. */
-	public static Application app() {
-		if (theApplication == null) {
-			throw new IllegalStateException("Application instance not yet accessible at this point");
-		}
-		return theApplication;
-	}
-
-	/**
-	 * Launches the specified application. The command-line arguments are parsed and assigned to the
-	 * implicitly created application settings.
-	 * 
-	 * @param appClass application class
-	 * @param args     command-line arguments
-	 */
-	public static void launch(Class<? extends Application> appClass, String[] args) {
-		launch(appClass, new AppSettings(), args);
-	}
-
-	/**
-	 * Launches the specified application. The command-line arguments are parsed and assigned to the
-	 * given application settings.
-	 * 
-	 * @param appClass application class
-	 * @param settings application settings
-	 * @param args     command-line arguments
-	 */
-	public static void launch(Class<? extends Application> appClass, AppSettings settings, String[] args) {
-		try {
-			theApplication = appClass.getDeclaredConstructor().newInstance();
-		} catch (Exception e) {
-			loginfo("Could not create application of class '%s'", appClass.getName());
-			throw new RuntimeException(e);
-		}
-		theApplication.build(settings, args);
-		theApplication.showUI();
-	}
+	/** Application-global logger. */
+	public static final Logger LOGGER = Logger.getLogger(Application.class.getName());
 
 	private AppSettings settings;
 	private AppShell shell;
@@ -179,6 +120,52 @@ public abstract class Application {
 	private Image icon;
 	private StateMachine<ApplicationState, ApplicationEvent> lifecycle;
 	private PropertyChangeSupport changes = new PropertyChangeSupport(this);
+
+	/** Static access to the application instance. */
+	public static Application app() {
+		if (theApplication == null) {
+			throw new IllegalStateException("Application instance not yet accessible");
+		}
+		return theApplication;
+	}
+
+	/**
+	 * Creates and starts the application of the given class. The command-line arguments are parsed and
+	 * assigned to the implicitly created application settings.
+	 * 
+	 * @param appClass application class
+	 * @param args     command-line arguments
+	 */
+	public static void launch(Class<? extends Application> appClass, String[] args) {
+		launch(appClass, new AppSettings(), args);
+	}
+
+	/**
+	 * Creates and starts the application of the given class. The command-line arguments are parsed and
+	 * assigned to the given application settings.
+	 * 
+	 * @param appClass application class
+	 * @param settings application settings
+	 * @param args     command-line arguments
+	 */
+	public static void launch(Class<? extends Application> appClass, AppSettings settings, String[] args) {
+		try {
+			InputStream in = appClass.getClassLoader().getResourceAsStream("de/amr/easy/game/logging.properties");
+			LogManager.getLogManager().readConfiguration(in);
+		} catch (NullPointerException | SecurityException | IOException x) {
+			System.err.println("Could not load logging configuration");
+			x.printStackTrace(System.err);
+			System.exit(0);
+		}
+		try {
+			theApplication = appClass.getDeclaredConstructor().newInstance();
+			theApplication.build(settings, args);
+			theApplication.showUI();
+		} catch (Exception e) {
+			loginfo("Could not launch application of class '%s'", appClass.getName());
+			throw new RuntimeException(e);
+		}
+	}
 
 	private void build(AppSettings settings, String[] args) {
 		loginfo("Building application '%s'", getClass().getName());
@@ -197,13 +184,10 @@ public abstract class Application {
 		clock.onTick = lifecycle::update;
 	}
 
-	private void showUI() {
-		try {
-			UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
-			SwingUtilities.invokeLater(lifecycle::init);
-		} catch (Exception e) {
-			LOGGER.throwing(getClass().getName(), "showUI", e);
-		}
+	private void showUI()
+			throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException {
+		UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
+		SwingUtilities.invokeLater(lifecycle::init);
 	}
 
 	/**
@@ -310,6 +294,16 @@ public abstract class Application {
 	 * ticking.
 	 */
 	public abstract void init();
+
+	/**
+	 * Convenience method for logging to application logger with level INFO.
+	 * 
+	 * @param format message format
+	 * @param args   message arguments
+	 */
+	public static void loginfo(String format, Object... args) {
+		LOGGER.info(String.format(format, args));
+	}
 
 	public boolean isPaused() {
 		return lifecycle.is(PAUSED);
