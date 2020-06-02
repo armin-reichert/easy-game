@@ -232,10 +232,10 @@ public abstract class Application {
 					.onEntry(() -> {
 						init();
 						if (controller != null) {
-							createShell(settings.width, settings.height);
+							shell = new AppShell(this, settings.width, settings.height);
 						} else {
-							setController(new AppInfoView(800, 600));
-							createShell(800, 600);
+							shell = new AppShell(this, 800, 600);
+							setController(new AppInfoView(800,600));
 						}
 						shell.display(settings.fullScreenOnStart);
 						clock.start();
@@ -289,10 +289,6 @@ public abstract class Application {
 
 		.endStateMachine();
 		/*@formatter:on*/
-	}
-
-	private void createShell(int width, int height) {
-		shell = new AppShell(this, width, height);
 	}
 
 	/**
