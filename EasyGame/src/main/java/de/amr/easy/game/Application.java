@@ -45,8 +45,8 @@ import de.amr.statemachine.core.StateMachine;
  * {@link #launch(Class, AppSettings, String[])} has to be called. The second variant allows an
  * application to specify an extended settings object, otherwise the default settings object of
  * class {@link AppSettings} is used. Command-line arguments are merged into the application
- * settings and can be modified inside the {@link #configure(AppSettings)} hook method. For a
- * complete list of the supported command-line arguments and application settings, see class
+ * settings after having executed the {@link #configure(AppSettings)} hook method. For a complete
+ * list of the supported command-line arguments and application settings, see class
  * {@link AppSettings}.
  * <p>
  * Example:
