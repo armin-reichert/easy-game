@@ -169,6 +169,7 @@ public abstract class Application {
 	public static void launch(Class<? extends Application> appClass, AppSettings settings, String[] args) {
 		try {
 			theApplication = appClass.getDeclaredConstructor().newInstance();
+			loginfo("Application [%s]", appClass.getName());
 		} catch (Exception x) {
 			String msg = String.format("Could not create application of class '%s'", appClass.getName());
 			throw new RuntimeException(msg, x);
@@ -266,7 +267,7 @@ public abstract class Application {
 		return StateMachine.
 		/*@formatter:off*/		
 		beginStateMachine(ApplicationState.class, ApplicationEvent.class, EventMatchStrategy.BY_EQUALITY)
-			.description(String.format("[%s]", getClass().getName()))
+			.description(String.format("[%s]", getClass().getSimpleName()))
 			.initialState(STARTING)
 			.states()
 				
