@@ -118,7 +118,7 @@ public abstract class Application {
 	private Consumer<Application> exitHandler;
 	private Lifecycle controller;
 	private Image icon;
-	private StateMachine<ApplicationState, ApplicationEvent> lifecycle;
+	private StateMachine<ApplicationState, ApplicationEvent> life;
 	private PropertyChangeSupport changes = new PropertyChangeSupport(this);
 
 	/** Static access to the application instance. */
@@ -144,11 +144,11 @@ public abstract class Application {
 	 * Creates and starts the application of the given class. The command-line arguments are parsed and
 	 * assigned to the given application settings.
 	 * 
-	 * @param appClass application class
-	 * @param settings application settings
-	 * @param args     command-line arguments
+	 * @param appClass    application class
+	 * @param settings    application settings
+	 * @param commandLine command-line arguments
 	 */
-	public static void launch(Class<? extends Application> appClass, AppSettings settings, String[] args) {
+	public static void launch(Class<? extends Application> appClass, AppSettings settings, String[] commandLine) {
 		try {
 			InputStream in = appClass.getClassLoader().getResourceAsStream("de/amr/easy/game/logging.properties");
 			LogManager.getLogManager().readConfiguration(in);
@@ -159,29 +159,35 @@ public abstract class Application {
 		}
 		try {
 			theApplication = appClass.getDeclaredConstructor().newInstance();
-			theApplication.build(settings, args);
-			theApplication.lifecycle.init();
+			loginfo("Application '%s' created", theApplication.getClass().getName());
+			theApplication.settings = settings;
+			theApplication.configure(settings);
+			theApplication.processCommandLine(commandLine);
+			loginfo("Application '%s' configured", theApplication.getClass().getName());
+			theApplication.printSettings();
+			theApplication.start();
 		} catch (Exception e) {
 			loginfo("Could not launch application of class '%s'", appClass.getName());
 			e.printStackTrace(System.err);
 		}
 	}
 
-	private void build(AppSettings settings, String[] args) {
-		loginfo("Building application '%s'", getClass().getName());
-		this.settings = settings;
-		configure(settings);
+	private void processCommandLine(String[] commandLine) {
 		JCommander commander = JCommander.newBuilder().addObject(settings).build();
-		commander.parse(args);
+		commander.parse(commandLine);
 		if (settings.help) {
 			commander.setProgramName(getClass().getSimpleName());
 			commander.usage();
 			System.exit(0);
 		}
-		printSettings();
-		lifecycle = createLifecycle();
+	}
+
+	private void start() {
+		loginfo("Starting application '%s'", getClass().getName());
+		life = createLife();
 		clock = new Clock(settings.fps);
-		clock.onTick = lifecycle::update;
+		clock.onTick = life::update;
+		life.init();
 	}
 
 	/**
@@ -196,7 +202,7 @@ public abstract class Application {
 		loginfo("\tFramerate: %d ticks/sec", settings.fps);
 	}
 
-	private StateMachine<ApplicationState, ApplicationEvent> createLifecycle() {
+	private StateMachine<ApplicationState, ApplicationEvent> createLife() {
 		return StateMachine.
 		/*@formatter:off*/		
 		beginStateMachine(ApplicationState.class, ApplicationEvent.class, EventMatchStrategy.BY_EQUALITY)
@@ -306,23 +312,23 @@ public abstract class Application {
 	}
 
 	public boolean isPaused() {
-		return lifecycle.is(PAUSED);
+		return life.is(PAUSED);
 	}
 
 	public void togglePause() {
-		lifecycle.process(TOGGLE_PAUSE);
+		life.process(TOGGLE_PAUSE);
 	}
 
 	public void showSettingsDialog() {
-		lifecycle.process(SHOW_SETTINGS_DIALOG);
+		life.process(SHOW_SETTINGS_DIALOG);
 	}
 
 	public void toggleFullScreen() {
-		lifecycle.process(TOGGLE_FULLSCREEN);
+		life.process(TOGGLE_FULLSCREEN);
 	}
 
 	public void close() {
-		lifecycle.process(CLOSE);
+		life.process(CLOSE);
 	}
 
 	public boolean inFullScreenMode() {
