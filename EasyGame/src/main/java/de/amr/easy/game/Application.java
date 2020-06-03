@@ -11,13 +11,10 @@ import static de.amr.easy.game.Application.ApplicationState.RUNNING;
 import static de.amr.easy.game.Application.ApplicationState.STARTING;
 
 import java.awt.Image;
-import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
@@ -97,7 +94,7 @@ import de.amr.statemachine.core.StateMachine;
  */
 public abstract class Application {
 
-	enum ApplicationState {
+	public enum ApplicationState {
 		CREATING_UI, STARTING, RUNNING, PAUSED, CLOSED;
 	}
 
@@ -115,7 +112,6 @@ public abstract class Application {
 	private AppShell shell;
 	private Clock clock;
 	private CollisionHandler collisionHandler;
-	private Consumer<Application> exitHandler;
 	private Lifecycle controller;
 	private Image icon;
 	private StateMachine<ApplicationState, ApplicationEvent> life;
@@ -212,13 +208,16 @@ public abstract class Application {
 				
 				.state(STARTING)
 					.onEntry(() -> {
+						fireStateEntry();
 						init();
 						clock.start();
 						loginfo("Clock started, %d frames/second", clock.getTargetFramerate());
 					})
+					.onExit(() -> fireStateExit())
 				
 				.state(CREATING_UI)
 					.onEntry(() -> {
+						fireStateEntry();
 						try {
 							UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
 						} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
@@ -233,9 +232,11 @@ public abstract class Application {
 						}
 						SwingUtilities.invokeLater(() -> shell.display(settings.fullScreenOnStart));
 					})
+					.onExit(() -> fireStateExit())
 				
 				
 				.state(RUNNING)
+					.onEntry(() -> fireStateEntry())
 					.onTick(() -> {
 						Keyboard.handler.poll();
 						Mouse.handler.poll();
@@ -243,18 +244,16 @@ public abstract class Application {
 						controller.update();
 						currentView().ifPresent(shell::render);
 					})
+					.onExit(() -> fireStateExit())
 				
 				.state(PAUSED)
-					.onEntry(() -> fireChange("paused", false, true))
+					.onEntry(() -> fireStateEntry())
 					.onTick(() -> currentView().ifPresent(shell::render))
-					.onExit(() -> fireChange("paused", true, false))
+					.onExit(() -> fireStateExit())
 				
 				.state(CLOSED)
 					.onEntry(() -> {
-						if (exitHandler != null) {
-							LOGGER.info(() -> "Running exit handler");
-							exitHandler.accept(this);
-						}
+						fireStateEntry();
 						clock.stop();
 						LOGGER.info(() -> "Application terminated.");
 						System.exit(0);
@@ -353,10 +352,6 @@ public abstract class Application {
 		return clock;
 	}
 
-	public void setExitHandler(Consumer<Application> exitHandler) {
-		this.exitHandler = Objects.requireNonNull(exitHandler);
-	}
-
 	/**
 	 * Makes the given controller the current one and optionally initializes it.
 	 * 
@@ -407,15 +402,31 @@ public abstract class Application {
 		}
 	}
 
-	public void addChangeListener(PropertyChangeListener listener) {
-		changes.addPropertyChangeListener(listener);
+	/**
+	 * Adds an event handler that gets executed when the given state is entered.
+	 * 
+	 * @param state   entered state
+	 * @param handler event handler
+	 */
+	public void onStateEntry(ApplicationState state, Runnable handler) {
+		changes.addPropertyChangeListener("onEntry:" + state.name(), e -> handler.run());
 	}
 
-	public void removeChangeListener(PropertyChangeListener listener) {
-		changes.removePropertyChangeListener(listener);
+	private void fireStateEntry() {
+		changes.firePropertyChange("onEntry:" + life.getState().name(), null, life.state());
 	}
 
-	public void fireChange(String changeName, Object oldValue, Object newValue) {
-		changes.firePropertyChange(changeName, oldValue, newValue);
+	/**
+	 * Adds an event handler that gets executed when the given state is left.
+	 * 
+	 * @param enteredState left state
+	 * @param handler      event handler
+	 */
+	public void onStateExit(ApplicationState state, Runnable handler) {
+		changes.addPropertyChangeListener("onExit:" + state.name(), e -> handler.run());
+	}
+
+	private void fireStateExit() {
+		changes.firePropertyChange("onExit:" + life.getState().name(), null, life.state());
 	}
 }

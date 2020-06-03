@@ -5,8 +5,6 @@ import java.awt.Dimension;
 import java.awt.DisplayMode;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -22,6 +20,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import de.amr.easy.game.Application;
+import de.amr.easy.game.Application.ApplicationState;
 import net.miginfocom.swing.MigLayout;
 
 /**
@@ -29,7 +28,7 @@ import net.miginfocom.swing.MigLayout;
  * 
  * @author Armin Reichert
  */
-public class AppSettingsDialog extends JDialog implements PropertyChangeListener {
+public class AppSettingsDialog extends JDialog {
 
 	static final int MAX_FPS = 180;
 
@@ -115,7 +114,8 @@ public class AppSettingsDialog extends JDialog implements PropertyChangeListener
 
 	public void setApp(Application app) {
 		this.app = app;
-		app.addChangeListener(this);
+		app.onStateEntry(ApplicationState.PAUSED, () -> updatePausedButtonText(true));
+		app.onStateExit(ApplicationState.PAUSED, () -> updatePausedButtonText(false));
 		app.clock().addFrequencyChangeListener(e -> sliderFPS.setValue((Integer) e.getNewValue()));
 		fpsHistoryView.setApp(app);
 		updateState(app);
@@ -133,13 +133,6 @@ public class AppSettingsDialog extends JDialog implements PropertyChangeListener
 		super.setVisible(visible);
 		if (visible) {
 			updateState(app);
-		}
-	}
-
-	@Override
-	public void propertyChange(PropertyChangeEvent change) {
-		if ("paused".equals(change.getPropertyName())) {
-			updatePausedButtonText((boolean) change.getNewValue());
 		}
 	}
 
