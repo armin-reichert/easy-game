@@ -247,6 +247,7 @@ public abstract class Application {
 				
 				.state(CLOSED)
 					.onTick(() -> {
+						shell.dispose();
 						LOGGER.info(() -> "Application terminated.");
 						System.exit(0);
 					})

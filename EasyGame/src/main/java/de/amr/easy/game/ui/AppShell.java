@@ -75,7 +75,7 @@ public class AppShell extends JFrame {
 		setIconImage(app.getIcon());
 		setTitle(app.settings().title);
 		setResizable(false);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		int scaledWidth = (int) Math.ceil(width * app.settings().scale);
 		int scaledHeight = (int) Math.ceil(height * app.settings().scale);
 		Dimension size = new Dimension(scaledWidth, scaledHeight);
