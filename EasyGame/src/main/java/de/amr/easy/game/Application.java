@@ -11,10 +11,10 @@ import static de.amr.easy.game.Application.ApplicationState.RUNNING;
 import static de.amr.easy.game.Application.ApplicationState.STARTING;
 
 import java.awt.Image;
-import java.beans.PropertyChangeSupport;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
@@ -115,7 +115,6 @@ public abstract class Application {
 	private Lifecycle controller;
 	private Image icon;
 	private StateMachine<ApplicationState, ApplicationEvent> life;
-	private PropertyChangeSupport changes = new PropertyChangeSupport(this);
 
 	/** Static access to the application instance. */
 	public static Application app() {
@@ -191,11 +190,15 @@ public abstract class Application {
 	 */
 	protected void printSettings() {
 		loginfo("Configuration:");
-		loginfo("\tTitle:     %s", settings.title);
-		loginfo("\tWidth:     %d", settings.width);
-		loginfo("\tHeight:    %d", settings.height);
-		loginfo("\tScaling:   %.2f", settings.scale);
-		loginfo("\tFramerate: %d ticks/sec", settings.fps);
+		printValue("Title", "%s", settings.title);
+		printValue("Width", "%d", settings.width);
+		printValue("Height", "%d", settings.height);
+		printValue("Scaling", "%.2f", settings.scale);
+		printValue("Framerate (ticks/sec)", "%d", settings.fps);
+	}
+
+	protected void printValue(String name, String format, Object value) {
+		loginfo("\t%-25s %s", name + ":", String.format(format, value));
 	}
 
 	private StateMachine<ApplicationState, ApplicationEvent> createLife() {
@@ -208,16 +211,13 @@ public abstract class Application {
 				
 				.state(STARTING)
 					.onEntry(() -> {
-						fireStateEntry();
 						init();
 						clock.start();
 						loginfo("Clock started, %d frames/second", clock.getTargetFramerate());
 					})
-					.onExit(() -> fireStateExit())
 				
 				.state(CREATING_UI)
 					.onEntry(() -> {
-						fireStateEntry();
 						try {
 							UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
 						} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
@@ -232,11 +232,8 @@ public abstract class Application {
 						}
 						SwingUtilities.invokeLater(() -> shell.display(settings.fullScreenOnStart));
 					})
-					.onExit(() -> fireStateExit())
-				
 				
 				.state(RUNNING)
-					.onEntry(() -> fireStateEntry())
 					.onTick(() -> {
 						Keyboard.handler.poll();
 						Mouse.handler.poll();
@@ -244,17 +241,12 @@ public abstract class Application {
 						controller.update();
 						currentView().ifPresent(shell::render);
 					})
-					.onExit(() -> fireStateExit())
 				
 				.state(PAUSED)
-					.onEntry(() -> fireStateEntry())
 					.onTick(() -> currentView().ifPresent(shell::render))
-					.onExit(() -> fireStateExit())
 				
 				.state(CLOSED)
-					.onEntry(() -> {
-						fireStateEntry();
-						clock.stop();
+					.onTick(() -> {
 						LOGGER.info(() -> "Application terminated.");
 						System.exit(0);
 					})
@@ -402,31 +394,11 @@ public abstract class Application {
 		}
 	}
 
-	/**
-	 * Adds an event handler that gets executed when the given state is entered.
-	 * 
-	 * @param state   entered state
-	 * @param handler event handler
-	 */
-	public void onStateEntry(ApplicationState state, Runnable handler) {
-		changes.addPropertyChangeListener("onEntry:" + state.name(), e -> handler.run());
+	public void onStateEntry(ApplicationState state, Consumer<ApplicationState> handler) {
+		life.addStateEntryListener(state, handler);
 	}
 
-	private void fireStateEntry() {
-		changes.firePropertyChange("onEntry:" + life.getState().name(), null, life.state());
-	}
-
-	/**
-	 * Adds an event handler that gets executed when the given state is left.
-	 * 
-	 * @param enteredState left state
-	 * @param handler      event handler
-	 */
-	public void onStateExit(ApplicationState state, Runnable handler) {
-		changes.addPropertyChangeListener("onExit:" + state.name(), e -> handler.run());
-	}
-
-	private void fireStateExit() {
-		changes.firePropertyChange("onExit:" + life.getState().name(), null, life.state());
+	public void onStateExit(ApplicationState state, Consumer<ApplicationState> handler) {
+		life.addStateExitListener(state, handler);
 	}
 }

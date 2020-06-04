@@ -1,5 +1,7 @@
 package de.amr.easy.game.ui;
 
+import static de.amr.easy.game.Application.ApplicationState.PAUSED;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.DisplayMode;
@@ -20,7 +22,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import de.amr.easy.game.Application;
-import de.amr.easy.game.Application.ApplicationState;
 import net.miginfocom.swing.MigLayout;
 
 /**
@@ -114,8 +115,8 @@ public class AppSettingsDialog extends JDialog {
 
 	public void setApp(Application app) {
 		this.app = app;
-		app.onStateEntry(ApplicationState.PAUSED, () -> updatePausedButtonText(true));
-		app.onStateExit(ApplicationState.PAUSED, () -> updatePausedButtonText(false));
+		app.onStateEntry(PAUSED, paused -> updatePausedButtonText(true));
+		app.onStateExit(PAUSED, paused -> updatePausedButtonText(false));
 		app.clock().addFrequencyChangeListener(e -> sliderFPS.setValue((Integer) e.getNewValue()));
 		fpsHistoryView.setApp(app);
 		updateState(app);
