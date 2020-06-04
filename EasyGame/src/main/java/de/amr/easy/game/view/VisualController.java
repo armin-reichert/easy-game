@@ -5,15 +5,14 @@ import java.util.Optional;
 import de.amr.easy.game.controller.Lifecycle;
 
 /**
- * A visual controller additionally provides a view to be displayed.
+ * A controller providing a view.
  * 
  * @author Armin Reichert
  */
 public interface VisualController extends Lifecycle {
 
 	/**
-	 * @return the current view to be displayed
+	 * @return the view to be displayed
 	 */
 	Optional<View> currentView();
-
 }
