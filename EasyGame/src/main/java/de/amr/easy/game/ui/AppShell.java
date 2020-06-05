@@ -189,8 +189,6 @@ public class AppShell extends JFrame {
 		window.setUndecorated(true);
 		window.setResizable(false);
 		window.setIgnoreRepaint(true);
-		window.setCursor(window.getToolkit().createCustomCursor(new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB),
-				new Point(), null));
 		return window;
 	}
 
@@ -220,6 +218,10 @@ public class AppShell extends JFrame {
 		final DisplayMode mode = app.settings().fullScreenMode;
 		if (!isValid(mode)) {
 			throw new FullScreenModeException("Display mode not supported: " + getText(mode));
+		}
+		if (!app.settings().fullScreenCursor) {
+			fullScreenWindow.setCursor(fullScreenWindow.getToolkit()
+					.createCustomCursor(new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB), new Point(), null));
 		}
 		renderingEnabled = false;
 		device.setFullScreenWindow(fullScreenWindow);

@@ -23,6 +23,7 @@ public class DrawingTestApp extends Application {
 	@Override
 	protected void configure(AppSettings settings) {
 		settings.title = "Drawing Test";
+		settings.fullScreenCursor = true;
 	}
 
 	@Override
