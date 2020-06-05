@@ -157,11 +157,11 @@ public abstract class Application {
 		try {
 			loginfo("Creating application '%s'", appClass.getName());
 			theApplication = appClass.getDeclaredConstructor().newInstance();
+			theApplication.createLife();
 
 			loginfo("Configuring application '%s'", appClass.getName());
 			theApplication.configureAndMergeCommandLine(settings, commandLine);
 
-			theApplication.life = createLife(theApplication);
 			theApplication.clock.setTargetFrameRate(settings.fps);
 			theApplication.clock.onTick = theApplication.life::update;
 			theApplication.life.init();
@@ -172,68 +172,68 @@ public abstract class Application {
 		}
 	}
 
-	private static StateMachine<ApplicationState, ApplicationEvent> createLife(Application app) {
-		return StateMachine.
+	private void createLife() {
+		life =
 		/*@formatter:off*/		
-		beginStateMachine(ApplicationState.class, ApplicationEvent.class, EventMatchStrategy.BY_EQUALITY)
-			.description(String.format("[%s]", app.getClass().getName()))
+		StateMachine.beginStateMachine(ApplicationState.class, ApplicationEvent.class, EventMatchStrategy.BY_EQUALITY)
+			.description(String.format("[%s]", getClass().getName()))
 			.initialState(STARTING)
 			.states()
 				
 				.state(STARTING)
 					.onEntry(() -> {
 						// let application initialize and select main controller:
-						app.init();
-						if (app.controller == null) {
+						init();
+						if (controller == null) {
 							// use fallback controller
 							int width = 640, height = 480;
-							app.setController(new AppInfoView(app, width, height));
-							app.shell = new AppShell(app, width, height);
+							setController(new AppInfoView(this, width, height));
+							shell = new AppShell(this, width, height);
 						} else {
-							app.shell = new AppShell(app, app.settings.width, app.settings.height);
+							shell = new AppShell(this, settings.width, settings.height);
 						}
-						loginfo("Starting application '%s'", app.getClass().getName());
-						SwingUtilities.invokeLater(app::showUIAndStartClock);
+						loginfo("Starting application '%s'", getClass().getName());
+						SwingUtilities.invokeLater(this::showUIAndStartClock);
 					})
 				
 				.state(RUNNING)
 					.onTick(() -> {
 						Keyboard.handler.poll();
 						Mouse.handler.poll();
-						app.collisionHandler().ifPresent(CollisionHandler::update);
-						app.controller.update();
-						app.currentView().ifPresent(app.shell::render);
+						collisionHandler().ifPresent(CollisionHandler::update);
+						controller.update();
+						currentView().ifPresent(shell::render);
 					})
 				
 				.state(PAUSED)
-					.onTick(() -> app.currentView().ifPresent(app.shell::render))
+					.onTick(() -> currentView().ifPresent(shell::render))
 				
 				.state(CLOSED)
 					.onTick(() -> {
-						app.shell.dispose();
-						loginfo("Exit application '%s'", app.getClass().getName());
+						shell.dispose();
+						loginfo("Exit application '%s'", getClass().getName());
 						System.exit(0);
 					})
 					
 			.transitions()
 
-				.when(STARTING).then(RUNNING).condition(() -> app.clock.isTicking())
+				.when(STARTING).then(RUNNING).condition(() -> clock.isTicking())
 				
 				.when(RUNNING).then(PAUSED).on(TOGGLE_PAUSE)
 				
 				.when(RUNNING).then(CLOSED).on(CLOSE)
 	
-				.stay(RUNNING).on(TOGGLE_FULLSCREEN).act(() -> app.shell.toggleDisplayMode())
+				.stay(RUNNING).on(TOGGLE_FULLSCREEN).act(() -> shell.toggleDisplayMode())
 					
-				.stay(RUNNING).on(SHOW_SETTINGS_DIALOG).act(() -> app.shell.showSettingsDialog())
+				.stay(RUNNING).on(SHOW_SETTINGS_DIALOG).act(() -> shell.showSettingsDialog())
 				
 				.when(PAUSED).then(RUNNING).on(TOGGLE_PAUSE)
 			
 				.when(PAUSED).then(CLOSED).on(CLOSE)
 				
-				.stay(PAUSED).on(TOGGLE_FULLSCREEN).act(() -> app.shell.toggleDisplayMode())
+				.stay(PAUSED).on(TOGGLE_FULLSCREEN).act(() -> shell.toggleDisplayMode())
 	
-				.stay(PAUSED).on(SHOW_SETTINGS_DIALOG).act(() -> app.shell.showSettingsDialog())
+				.stay(PAUSED).on(SHOW_SETTINGS_DIALOG).act(() -> shell.showSettingsDialog())
 
 		.endStateMachine();
 		/*@formatter:on*/
