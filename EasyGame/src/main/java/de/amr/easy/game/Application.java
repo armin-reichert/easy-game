@@ -162,8 +162,6 @@ public abstract class Application {
 			theApplication.configureAndMergeCommandLine(settings, commandLine);
 
 			theApplication.life = createLife(theApplication);
-
-			loginfo("Starting application '%s'", appClass.getName());
 			theApplication.clock.setTargetFrameRate(settings.fps);
 			theApplication.clock.onTick = theApplication.life::update;
 			theApplication.life.init();
@@ -194,6 +192,7 @@ public abstract class Application {
 						} else {
 							app.shell = new AppShell(app, app.settings.width, app.settings.height);
 						}
+						loginfo("Starting application '%s'", app.getClass().getName());
 						SwingUtilities.invokeLater(app::showUIAndStartClock);
 					})
 				
