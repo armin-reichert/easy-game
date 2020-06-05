@@ -110,7 +110,7 @@ public abstract class Application {
 
 	private AppSettings settings;
 	private AppShell shell;
-	private Clock clock;
+	private final Clock clock = new Clock();
 	private CollisionHandler collisionHandler;
 	private Lifecycle controller;
 	private Image icon;
@@ -161,9 +161,10 @@ public abstract class Application {
 			loginfo("Configuring application '%s'", appClass.getName());
 			theApplication.configureAndMergeCommandLine(settings, commandLine);
 
+			theApplication.life = createLife(theApplication);
+
 			loginfo("Starting application '%s'", appClass.getName());
-			theApplication.createLife();
-			theApplication.clock = new Clock(settings.fps);
+			theApplication.clock.setTargetFrameRate(settings.fps);
 			theApplication.clock.onTick = theApplication.life::update;
 			theApplication.life.init();
 
@@ -171,6 +172,72 @@ public abstract class Application {
 			loginfo("Could not launch application '%s'", appClass.getName());
 			e.printStackTrace(System.err);
 		}
+	}
+
+	private static StateMachine<ApplicationState, ApplicationEvent> createLife(Application app) {
+		return StateMachine.
+		/*@formatter:off*/		
+		beginStateMachine(ApplicationState.class, ApplicationEvent.class, EventMatchStrategy.BY_EQUALITY)
+			.description(String.format("[%s]", app.getClass().getName()))
+			.initialState(STARTING)
+			.states()
+				
+				.state(STARTING)
+					.onEntry(() -> {
+						// let application initialize and select main controller:
+						app.init();
+						if (app.controller == null) {
+							// use fallback controller
+							int width = 640, height = 480;
+							app.setController(new AppInfoView(app, width, height));
+							app.shell = new AppShell(app, width, height);
+						} else {
+							app.shell = new AppShell(app, app.settings.width, app.settings.height);
+						}
+						SwingUtilities.invokeLater(app::showUIAndStartClock);
+					})
+				
+				.state(RUNNING)
+					.onTick(() -> {
+						Keyboard.handler.poll();
+						Mouse.handler.poll();
+						app.collisionHandler().ifPresent(CollisionHandler::update);
+						app.controller.update();
+						app.currentView().ifPresent(app.shell::render);
+					})
+				
+				.state(PAUSED)
+					.onTick(() -> app.currentView().ifPresent(app.shell::render))
+				
+				.state(CLOSED)
+					.onTick(() -> {
+						app.shell.dispose();
+						loginfo("Exit application '%s'", app.getClass().getName());
+						System.exit(0);
+					})
+					
+			.transitions()
+
+				.when(STARTING).then(RUNNING).condition(() -> app.clock.isTicking())
+				
+				.when(RUNNING).then(PAUSED).on(TOGGLE_PAUSE)
+				
+				.when(RUNNING).then(CLOSED).on(CLOSE)
+	
+				.stay(RUNNING).on(TOGGLE_FULLSCREEN).act(() -> app.shell.toggleDisplayMode())
+					
+				.stay(RUNNING).on(SHOW_SETTINGS_DIALOG).act(() -> app.shell.showSettingsDialog())
+				
+				.when(PAUSED).then(RUNNING).on(TOGGLE_PAUSE)
+			
+				.when(PAUSED).then(CLOSED).on(CLOSE)
+				
+				.stay(PAUSED).on(TOGGLE_FULLSCREEN).act(() -> app.shell.toggleDisplayMode())
+	
+				.stay(PAUSED).on(SHOW_SETTINGS_DIALOG).act(() -> app.shell.showSettingsDialog())
+
+		.endStateMachine();
+		/*@formatter:on*/
 	}
 
 	private void configureAndMergeCommandLine(AppSettings settings, String... commandLine) {
@@ -190,7 +257,7 @@ public abstract class Application {
 		}
 	}
 
-	private void createUIAndStartClock(Lifecycle controller) {
+	private void showUIAndStartClock() {
 		try {
 			UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
 		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
@@ -198,73 +265,8 @@ public abstract class Application {
 			loginfo("Could not set Nimbus look and feel");
 		}
 		shell.display(settings.fullScreenOnStart);
-
 		clock.start();
 		loginfo("Clock started, %d frames/second", clock.getTargetFramerate());
-	}
-
-	private void createLife() {
-		life = StateMachine.
-		/*@formatter:off*/		
-		beginStateMachine(ApplicationState.class, ApplicationEvent.class, EventMatchStrategy.BY_EQUALITY)
-			.description(String.format("[%s]", getClass().getName()))
-			.initialState(STARTING)
-			.states()
-				
-				.state(STARTING)
-					.onEntry(() -> {
-						init();
-						if (controller != null) {
-							shell = new AppShell(this, settings.width, settings.height);
-						} else {
-							shell = new AppShell(this, 800, 600);
-							// use fallback controller
-							setController(new AppInfoView(this, 800, 600));
-						}
-						SwingUtilities.invokeLater(() -> createUIAndStartClock(controller));
-					})
-				
-				.state(RUNNING)
-					.onTick(() -> {
-						Keyboard.handler.poll();
-						Mouse.handler.poll();
-						collisionHandler().ifPresent(CollisionHandler::update);
-						controller.update();
-						currentView().ifPresent(shell::render);
-					})
-				
-				.state(PAUSED)
-					.onTick(() -> currentView().ifPresent(shell::render))
-				
-				.state(CLOSED)
-					.onTick(() -> {
-						shell.dispose();
-						loginfo("Exit application '%s'", theApplication.getClass().getName());
-						System.exit(0);
-					})
-					
-			.transitions()
-
-				.when(STARTING).then(RUNNING).condition(() -> clock.isTicking())
-				
-				.when(RUNNING).then(PAUSED).on(TOGGLE_PAUSE)
-				
-				.when(RUNNING).then(CLOSED).on(CLOSE)
-	
-				.stay(RUNNING).on(TOGGLE_FULLSCREEN).act(() -> shell.toggleDisplayMode())
-					
-				.stay(RUNNING).on(SHOW_SETTINGS_DIALOG).act(() -> shell.showSettingsDialog())
-				
-				.when(PAUSED).then(RUNNING).on(TOGGLE_PAUSE)
-			
-				.when(PAUSED).then(CLOSED).on(CLOSE)
-				
-				.stay(PAUSED).on(TOGGLE_FULLSCREEN).act(() -> shell.toggleDisplayMode())
-	
-				.stay(PAUSED).on(SHOW_SETTINGS_DIALOG).act(() -> shell.showSettingsDialog())
-
-		.endStateMachine();
-		/*@formatter:on*/
 	}
 
 	/**

@@ -41,6 +41,10 @@ public class Clock {
 		};
 	}
 
+	public Clock() {
+		this(60);
+	}
+
 	/**
 	 * Starts the clock and the thread.
 	 */
