@@ -36,6 +36,7 @@ import de.amr.easy.game.ui.AppShell;
 import de.amr.easy.game.view.View;
 import de.amr.easy.game.view.VisualController;
 import de.amr.statemachine.api.EventMatchStrategy;
+import de.amr.statemachine.core.State;
 import de.amr.statemachine.core.StateMachine;
 
 /**
@@ -153,16 +154,17 @@ public abstract class Application {
 			return;
 		}
 		try {
+			loginfo("Creating application '%s'", appClass.getName());
 			theApplication = appClass.getDeclaredConstructor().newInstance();
-			loginfo("Application '%s' created", theApplication.getClass().getName());
+			loginfo("Configuring application '%s'", appClass.getName());
 			theApplication.settings = settings;
 			theApplication.configure(settings);
 			theApplication.processCommandLine(commandLine);
-			loginfo("Application '%s' configured", theApplication.getClass().getName());
 			theApplication.printSettings();
+			loginfo("Starting application '%s'", appClass.getName());
 			theApplication.start();
 		} catch (Exception e) {
-			loginfo("Could not launch application of class '%s'", appClass.getName());
+			loginfo("Could not launch application '%s'", appClass.getName());
 			e.printStackTrace(System.err);
 		}
 	}
@@ -175,14 +177,6 @@ public abstract class Application {
 			commander.usage();
 			System.exit(0);
 		}
-	}
-
-	private void start() {
-		loginfo("Starting application '%s'", getClass().getName());
-		life = createLife();
-		clock = new Clock(settings.fps);
-		clock.onTick = life::update;
-		life.init();
 	}
 
 	/**
@@ -199,6 +193,13 @@ public abstract class Application {
 
 	protected void printValue(String name, String format, Object value) {
 		loginfo("\t%-25s %s", name + ":", String.format(format, value));
+	}
+
+	private void start() {
+		life = createLife();
+		clock = new Clock(settings.fps);
+		clock.onTick = life::update;
+		life.init();
 	}
 
 	private StateMachine<ApplicationState, ApplicationEvent> createLife() {
@@ -230,6 +231,7 @@ public abstract class Application {
 							shell = new AppShell(this, 800, 600);
 							setController(new AppInfoView(800,600));
 						}
+						loginfo("Application shell created");
 						SwingUtilities.invokeLater(() -> shell.display(settings.fullScreenOnStart));
 					})
 				
@@ -248,7 +250,7 @@ public abstract class Application {
 				.state(CLOSED)
 					.onTick(() -> {
 						shell.dispose();
-						LOGGER.info(() -> "Application terminated.");
+						loginfo("Exit application '%s'", theApplication.getClass().getName());
 						System.exit(0);
 					})
 					
@@ -331,6 +333,10 @@ public abstract class Application {
 		return Optional.ofNullable(collisionHandler);
 	}
 
+	/**
+	 * If an application wants to use the built-in collision handling, it must initialize it using this
+	 * method.
+	 */
 	public void createCollisionHandler() {
 		if (collisionHandler == null) {
 			collisionHandler = new CollisionHandler();
@@ -374,6 +380,9 @@ public abstract class Application {
 		setController(controller, true);
 	}
 
+	/**
+	 * @return the current view if available
+	 */
 	public Optional<View> currentView() {
 		if (controller instanceof View) {
 			return Optional.ofNullable((View) controller);
@@ -384,10 +393,18 @@ public abstract class Application {
 		return Optional.empty();
 	}
 
+	/**
+	 * @return the application window icon
+	 */
 	public Image getIcon() {
 		return icon;
 	}
 
+	/**
+	 * Sets the icon displayed in the application window.
+	 * 
+	 * @param icon the icon to use
+	 */
 	public void setIcon(Image icon) {
 		this.icon = icon;
 		if (shell != null) {
@@ -395,11 +412,23 @@ public abstract class Application {
 		}
 	}
 
-	public void onStateEntry(ApplicationState state, Consumer<ApplicationState> handler) {
-		life.addStateEntryListener(state, handler);
+	/**
+	 * Adds a listener that is called when the given state is entered.
+	 * 
+	 * @param state    state to be observed
+	 * @param listener called when the state is entered
+	 */
+	public void onStateEntry(ApplicationState state, Consumer<State<ApplicationState>> listener) {
+		life.addStateEntryListener(state, listener);
 	}
 
-	public void onStateExit(ApplicationState state, Consumer<ApplicationState> handler) {
-		life.addStateExitListener(state, handler);
+	/**
+	 * Adds a listener that is called when the given state is left.
+	 * 
+	 * @param state    state to be observed
+	 * @param listener called when the state is left
+	 */
+	public void onStateExit(ApplicationState state, Consumer<State<ApplicationState>> listener) {
+		life.addStateExitListener(state, listener);
 	}
 }

@@ -105,7 +105,6 @@ public class AppShell extends JFrame {
 
 		pack();
 		setLocationRelativeTo(null);
-		loginfo("Application shell created.");
 	}
 
 	private KeyListener createInternalKeyHandler() {
