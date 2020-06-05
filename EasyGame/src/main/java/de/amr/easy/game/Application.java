@@ -5,7 +5,6 @@ import static de.amr.easy.game.Application.ApplicationEvent.SHOW_SETTINGS_DIALOG
 import static de.amr.easy.game.Application.ApplicationEvent.TOGGLE_FULLSCREEN;
 import static de.amr.easy.game.Application.ApplicationEvent.TOGGLE_PAUSE;
 import static de.amr.easy.game.Application.ApplicationState.CLOSED;
-import static de.amr.easy.game.Application.ApplicationState.CREATING_UI;
 import static de.amr.easy.game.Application.ApplicationState.PAUSED;
 import static de.amr.easy.game.Application.ApplicationState.RUNNING;
 import static de.amr.easy.game.Application.ApplicationState.STARTING;
@@ -96,7 +95,7 @@ import de.amr.statemachine.core.StateMachine;
 public abstract class Application {
 
 	public enum ApplicationState {
-		CREATING_UI, STARTING, RUNNING, PAUSED, CLOSED;
+		STARTING, RUNNING, PAUSED, CLOSED;
 	}
 
 	enum ApplicationEvent {
@@ -117,7 +116,9 @@ public abstract class Application {
 	private Image icon;
 	private StateMachine<ApplicationState, ApplicationEvent> life;
 
-	/** Static access to the application instance. */
+	/**
+	 * @return the application instance
+	 */
 	public static Application app() {
 		if (theApplication == null) {
 			throw new IllegalStateException("Application instance not yet accessible");
@@ -206,33 +207,14 @@ public abstract class Application {
 		return StateMachine.
 		/*@formatter:off*/		
 		beginStateMachine(ApplicationState.class, ApplicationEvent.class, EventMatchStrategy.BY_EQUALITY)
-			.description(String.format("[%s]", getClass().getSimpleName()))
+			.description(String.format("[%s]", getClass().getName()))
 			.initialState(STARTING)
 			.states()
 				
 				.state(STARTING)
 					.onEntry(() -> {
 						init();
-						clock.start();
-						loginfo("Clock started, %d frames/second", clock.getTargetFramerate());
-					})
-				
-				.state(CREATING_UI)
-					.onEntry(() -> {
-						try {
-							UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
-						} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
-								| UnsupportedLookAndFeelException x) {
-							loginfo("Could not set Nimbus look and feel");
-						}
-						if (controller != null) {
-							shell = new AppShell(this, settings.width, settings.height);
-						} else {
-							shell = new AppShell(this, 800, 600);
-							setController(new AppInfoView(800,600));
-						}
-						loginfo("Application shell created");
-						SwingUtilities.invokeLater(() -> shell.display(settings.fullScreenOnStart));
+						SwingUtilities.invokeLater(this::createUIAndStartClock);
 					})
 				
 				.state(RUNNING)
@@ -256,9 +238,7 @@ public abstract class Application {
 					
 			.transitions()
 
-				.when(STARTING).then(CREATING_UI).condition(() -> clock.isTicking())
-				
-				.when(CREATING_UI).then(RUNNING).condition(() -> shell.isVisible())
+				.when(STARTING).then(RUNNING).condition(() -> clock.isTicking())
 				
 				.when(RUNNING).then(PAUSED).on(TOGGLE_PAUSE)
 				
@@ -278,6 +258,25 @@ public abstract class Application {
 
 		.endStateMachine();
 		/*@formatter:on*/
+	}
+
+	private void createUIAndStartClock() {
+		try {
+			UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
+		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+				| UnsupportedLookAndFeelException x) {
+			loginfo("Could not set Nimbus look and feel");
+		}
+		if (controller != null) {
+			shell = new AppShell(this, settings.width, settings.height);
+		} else {
+			shell = new AppShell(this, 800, 600);
+			// use fallback controller
+			setController(new AppInfoView(800, 600));
+		}
+		shell.display(settings.fullScreenOnStart);
+		clock.start();
+		loginfo("Clock started, %d frames/second", clock.getTargetFramerate());
 	}
 
 	/**
