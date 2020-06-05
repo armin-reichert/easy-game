@@ -157,17 +157,27 @@ public abstract class Application {
 		try {
 			loginfo("Creating application '%s'", appClass.getName());
 			theApplication = appClass.getDeclaredConstructor().newInstance();
+
 			loginfo("Configuring application '%s'", appClass.getName());
-			theApplication.settings = settings;
-			theApplication.configure(settings);
-			theApplication.processCommandLine(commandLine);
-			theApplication.printSettings();
+			theApplication.configureAndMergeCommandLine(settings, commandLine);
+
 			loginfo("Starting application '%s'", appClass.getName());
-			theApplication.start();
+			theApplication.createLife();
+			theApplication.clock = new Clock(settings.fps);
+			theApplication.clock.onTick = theApplication.life::update;
+			theApplication.life.init();
+
 		} catch (Exception e) {
 			loginfo("Could not launch application '%s'", appClass.getName());
 			e.printStackTrace(System.err);
 		}
+	}
+
+	private void configureAndMergeCommandLine(AppSettings settings, String... commandLine) {
+		this.settings = settings;
+		configure(settings);
+		processCommandLine(commandLine);
+		printSettings();
 	}
 
 	private void processCommandLine(String[] commandLine) {
@@ -180,31 +190,21 @@ public abstract class Application {
 		}
 	}
 
-	/**
-	 * Prints the application settings to the logger.
-	 */
-	protected void printSettings() {
-		loginfo("Configuration:");
-		printValue("Title", "%s", settings.title);
-		printValue("Width", "%d", settings.width);
-		printValue("Height", "%d", settings.height);
-		printValue("Scaling", "%.2f", settings.scale);
-		printValue("Framerate (ticks/sec)", "%d", settings.fps);
+	private void createUIAndStartClock(Lifecycle controller) {
+		try {
+			UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
+		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+				| UnsupportedLookAndFeelException x) {
+			loginfo("Could not set Nimbus look and feel");
+		}
+		shell.display(settings.fullScreenOnStart);
+
+		clock.start();
+		loginfo("Clock started, %d frames/second", clock.getTargetFramerate());
 	}
 
-	protected void printValue(String name, String format, Object value) {
-		loginfo("\t%-25s %s", name + ":", String.format(format, value));
-	}
-
-	private void start() {
-		life = createLife();
-		clock = new Clock(settings.fps);
-		clock.onTick = life::update;
-		life.init();
-	}
-
-	private StateMachine<ApplicationState, ApplicationEvent> createLife() {
-		return StateMachine.
+	private void createLife() {
+		life = StateMachine.
 		/*@formatter:off*/		
 		beginStateMachine(ApplicationState.class, ApplicationEvent.class, EventMatchStrategy.BY_EQUALITY)
 			.description(String.format("[%s]", getClass().getName()))
@@ -214,7 +214,14 @@ public abstract class Application {
 				.state(STARTING)
 					.onEntry(() -> {
 						init();
-						SwingUtilities.invokeLater(this::createUIAndStartClock);
+						if (controller != null) {
+							shell = new AppShell(this, settings.width, settings.height);
+						} else {
+							shell = new AppShell(this, 800, 600);
+							// use fallback controller
+							setController(new AppInfoView(this, 800, 600));
+						}
+						SwingUtilities.invokeLater(() -> createUIAndStartClock(controller));
 					})
 				
 				.state(RUNNING)
@@ -260,25 +267,6 @@ public abstract class Application {
 		/*@formatter:on*/
 	}
 
-	private void createUIAndStartClock() {
-		try {
-			UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
-		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
-				| UnsupportedLookAndFeelException x) {
-			loginfo("Could not set Nimbus look and feel");
-		}
-		if (controller != null) {
-			shell = new AppShell(this, settings.width, settings.height);
-		} else {
-			shell = new AppShell(this, 800, 600);
-			// use fallback controller
-			setController(new AppInfoView(800, 600));
-		}
-		shell.display(settings.fullScreenOnStart);
-		clock.start();
-		loginfo("Clock started, %d frames/second", clock.getTargetFramerate());
-	}
-
 	/**
 	 * Hook method where the application settings can be configured. The command-line arguments are
 	 * parsed and merged into the settings object immediately <em>after</em> this method has been called
@@ -287,6 +275,22 @@ public abstract class Application {
 	 * @param settings application settings
 	 */
 	protected abstract void configure(AppSettings settings);
+
+	/**
+	 * Prints the application settings to the logger.
+	 */
+	protected void printSettings() {
+		loginfo("Configuration:");
+		printValue("Title", "%s", settings.title);
+		printValue("Width", "%d", settings.width);
+		printValue("Height", "%d", settings.height);
+		printValue("Scaling", "%.2f", settings.scale);
+		printValue("Framerate (ticks/sec)", "%d", settings.fps);
+	}
+
+	protected void printValue(String name, String format, Object value) {
+		loginfo("\t%-25s %s", name + ":", String.format(format, value));
+	}
 
 	/**
 	 * Hook method getting called after the application has been configured and before the clock starts
