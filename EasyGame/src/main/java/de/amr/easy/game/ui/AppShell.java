@@ -67,18 +67,15 @@ public class AppShell extends JFrame {
 		this.app = app;
 		this.width = width;
 		this.height = height;
-		device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-		if (app.settings().fullScreenMode == null) {
-			DisplayMode[] modes = device.getDisplayModes();
-			app.settings().fullScreenMode = modes[modes.length - 1];
-		}
+
 		setIconImage(app.getIcon());
 		setTitle(app.settings().title);
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		int scaledWidth = (int) Math.ceil(width * app.settings().scale);
-		int scaledHeight = (int) Math.ceil(height * app.settings().scale);
-		Dimension size = new Dimension(scaledWidth, scaledHeight);
+
+		float scaledWidth = width * app.settings().scale;
+		float scaledHeight = height * app.settings().scale;
+		Dimension size = new Dimension(Math.round(scaledWidth), Math.round(scaledHeight));
 		canvas = new Canvas();
 		canvas.setPreferredSize(size);
 		canvas.setSize(size);
@@ -86,6 +83,12 @@ public class AppShell extends JFrame {
 		canvas.setIgnoreRepaint(true);
 		canvas.setFocusable(false);
 		add(canvas, BorderLayout.CENTER);
+
+		device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+		if (app.settings().fullScreenMode == null) {
+			DisplayMode[] modes = device.getDisplayModes();
+			app.settings().fullScreenMode = modes[modes.length - 1]; // TODO find best fitting mode
+		}
 		fullScreenWindow = createFullScreenWindow();
 
 		Keyboard.handler = new KeyboardHandler();
@@ -95,13 +98,13 @@ public class AppShell extends JFrame {
 		addKeyListener(internalKeyHandler);
 		addKeyListener(Keyboard.handler);
 		addWindowListener(windowHandler);
-		getCanvas().addMouseListener(Mouse.handler);
-		getCanvas().addMouseMotionListener(Mouse.handler);
-		getFullScreenWindow().addKeyListener(internalKeyHandler);
-		getFullScreenWindow().addKeyListener(Keyboard.handler);
-		getFullScreenWindow().addWindowListener(windowHandler);
-		getFullScreenWindow().addMouseListener(Mouse.handler);
-		getFullScreenWindow().addMouseMotionListener(Mouse.handler);
+		canvas.addMouseListener(Mouse.handler);
+		canvas.addMouseMotionListener(Mouse.handler);
+		fullScreenWindow.addKeyListener(internalKeyHandler);
+		fullScreenWindow.addKeyListener(Keyboard.handler);
+		fullScreenWindow.addWindowListener(windowHandler);
+		fullScreenWindow.addMouseListener(Mouse.handler);
+		fullScreenWindow.addMouseMotionListener(Mouse.handler);
 
 		pack();
 		setLocationRelativeTo(null);
@@ -135,15 +138,15 @@ public class AppShell extends JFrame {
 	}
 
 	public void showSettingsDialog() {
+		if (inFullScreenMode()) {
+			loginfo("Settings dialog cannot be opened in full-screen mode");
+			return;
+		}
 		if (settingsDialog == null) {
 			settingsDialog = new AppSettingsDialog(this);
 			settingsDialog.setApp(app);
 		}
-		if (inFullScreenMode()) {
-			loginfo("Settings dialog cannot be opened in full-screen mode");
-		} else {
-			settingsDialog.setVisible(true);
-		}
+		settingsDialog.setVisible(true);
 	}
 
 	public void display(boolean fullScreen) {
@@ -185,12 +188,12 @@ public class AppShell extends JFrame {
 	private void renderView(View view, Graphics2D g) {
 		g = (Graphics2D) g.create();
 		if (inFullScreenMode()) {
-			double screenWidth = fullScreenWindow.getWidth(), screenHeight = fullScreenWindow.getHeight();
-			double scale = Math.min(screenWidth / width, screenHeight / height);
-			int scaledWidth = (int) Math.round(scale * width);
-			int scaledHeight = (int) Math.round(scale * height);
+			float screenWidth = fullScreenWindow.getWidth(), screenHeight = fullScreenWindow.getHeight();
+			float scale = Math.min(screenWidth / width, screenHeight / height);
+			int scaledWidth = Math.round(scale * width);
+			int scaledHeight = Math.round(scale * height);
 			g.setColor(app.settings().bgColor);
-			g.fillRect(0, 0, (int) screenWidth, (int) screenHeight);
+			g.fillRect(0, 0, Math.round(screenWidth), Math.round(screenHeight));
 			g.translate((screenWidth - scaledWidth) / 2, (screenHeight - scaledHeight) / 2);
 			g.setClip(0, 0, scaledWidth, scaledHeight);
 			g.scale(scale, scale);
