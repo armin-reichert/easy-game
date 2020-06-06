@@ -1,6 +1,5 @@
 package de.amr.easy.game.ui;
 
-import static de.amr.easy.game.Application.LOGGER;
 import static de.amr.easy.game.Application.loginfo;
 import static java.lang.String.format;
 
@@ -94,12 +93,21 @@ public class AppShell extends JFrame {
 		Keyboard.handler = new KeyboardHandler();
 		Mouse.handler = new MouseHandler(app.settings().scale);
 		KeyListener internalKeyHandler = createInternalKeyHandler();
-		WindowListener windowHandler = createWindowHandler();
+		WindowListener windowHandler = new WindowAdapter() {
+
+			@Override
+			public void windowClosing(WindowEvent e) {
+				app.close();
+			}
+		};
+
 		addKeyListener(internalKeyHandler);
 		addKeyListener(Keyboard.handler);
 		addWindowListener(windowHandler);
+
 		canvas.addMouseListener(Mouse.handler);
 		canvas.addMouseMotionListener(Mouse.handler);
+
 		fullScreenWindow.addKeyListener(internalKeyHandler);
 		fullScreenWindow.addKeyListener(Keyboard.handler);
 		fullScreenWindow.addWindowListener(windowHandler);
@@ -122,17 +130,6 @@ public class AppShell extends JFrame {
 				} else if (e.getKeyCode() == KeyEvent.VK_F11 || (e.getKeyCode() == KeyEvent.VK_ESCAPE && inFullScreenMode())) {
 					app.toggleFullScreen();
 				}
-			}
-		};
-	}
-
-	private WindowListener createWindowHandler() {
-		return new WindowAdapter() {
-
-			@Override
-			public void windowClosing(WindowEvent e) {
-				LOGGER.info("Application window closing, app will exit...");
-				app.close();
 			}
 		};
 	}
