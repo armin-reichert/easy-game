@@ -1,6 +1,7 @@
 package de.amr.easy.game.ui;
 
 import static de.amr.easy.game.Application.loginfo;
+import static java.lang.Math.round;
 import static java.lang.String.format;
 
 import java.awt.BorderLayout;
@@ -67,14 +68,18 @@ public class AppShell extends JFrame {
 		this.width = width;
 		this.height = height;
 
+		device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+		if (app.settings().fullScreenMode == null) {
+			DisplayMode[] modes = device.getDisplayModes();
+			app.settings().fullScreenMode = modes[modes.length - 1]; // TODO find best fitting mode
+		}
+
 		setIconImage(app.getIcon());
 		setTitle(app.settings().title);
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
-		float scaledWidth = width * app.settings().scale;
-		float scaledHeight = height * app.settings().scale;
-		Dimension size = new Dimension(Math.round(scaledWidth), Math.round(scaledHeight));
+		Dimension size = new Dimension(round(width * app.settings().scale), round(height * app.settings().scale));
 		canvas = new Canvas();
 		canvas.setPreferredSize(size);
 		canvas.setSize(size);
@@ -83,12 +88,11 @@ public class AppShell extends JFrame {
 		canvas.setFocusable(false);
 		add(canvas, BorderLayout.CENTER);
 
-		device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-		if (app.settings().fullScreenMode == null) {
-			DisplayMode[] modes = device.getDisplayModes();
-			app.settings().fullScreenMode = modes[modes.length - 1]; // TODO find best fitting mode
-		}
-		fullScreenWindow = createFullScreenWindow();
+		fullScreenWindow = new JFrame();
+		fullScreenWindow.setBackground(app.settings().bgColor);
+		fullScreenWindow.setUndecorated(true);
+		fullScreenWindow.setResizable(false);
+		fullScreenWindow.setIgnoreRepaint(true);
 
 		// global keyboard and mouse handler
 		Keyboard.handler = new KeyboardHandler();
@@ -133,6 +137,64 @@ public class AppShell extends JFrame {
 
 		pack();
 		setLocationRelativeTo(null);
+	}
+
+	public boolean inFullScreenMode() {
+		return device.getFullScreenWindow() != null;
+	}
+
+	public JFrame getFullScreenWindow() {
+		return fullScreenWindow;
+	}
+
+	public Canvas getCanvas() {
+		return canvas;
+	}
+
+	public void toggleDisplayMode() {
+		if (inFullScreenMode()) {
+			displayWindow();
+		} else {
+			try {
+				displayFullScreen();
+			} catch (FullScreenModeException e) {
+				loginfo(e.getMessage());
+			}
+		}
+	}
+
+	private void displayWindow() {
+		device.setFullScreenWindow(null);
+		requestFocus();
+		canvas.createBufferStrategy(2);
+		setVisible(true);
+		loginfo("Entered window mode, resolution %dx%d (%dx%d px scaled by %.2f)", (int) (width * app.settings().scale),
+				(int) (height * app.settings().scale), width, height, app.settings().scale);
+	}
+
+	private void displayFullScreen() throws FullScreenModeException {
+		if (!device.isFullScreenSupported()) {
+			throw new FullScreenModeException("Device does not support full-screen exclusive mode.");
+		}
+		final DisplayMode mode = app.settings().fullScreenMode;
+		if (!isValidMode(mode)) {
+			throw new FullScreenModeException("Display mode not supported: " + displayModeText(mode));
+		}
+		if (!app.settings().fullScreenCursor) {
+			Cursor invisibleCursor = fullScreenWindow.getToolkit()
+					.createCustomCursor(new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB), new Point(), null);
+			fullScreenWindow.setCursor(invisibleCursor);
+		}
+		device.setFullScreenWindow(fullScreenWindow);
+		if (device.isDisplayChangeSupported()) {
+			device.setDisplayMode(mode);
+			fullScreenWindow.createBufferStrategy(2);
+			fullScreenWindow.requestFocus();
+			loginfo("Entered full-screen mode %s", displayModeText(mode));
+		} else {
+			device.setFullScreenWindow(null);
+			throw new FullScreenModeException("Display change not supported: " + displayModeText(mode));
+		}
 	}
 
 	public void showSettingsDialog() {
@@ -188,10 +250,10 @@ public class AppShell extends JFrame {
 		if (inFullScreenMode()) {
 			float screenWidth = fullScreenWindow.getWidth(), screenHeight = fullScreenWindow.getHeight();
 			float scale = Math.min(screenWidth / width, screenHeight / height);
-			int scaledWidth = Math.round(scale * width);
-			int scaledHeight = Math.round(scale * height);
+			int scaledWidth = round(scale * width);
+			int scaledHeight = round(scale * height);
 			g.setColor(app.settings().bgColor);
-			g.fillRect(0, 0, Math.round(screenWidth), Math.round(screenHeight));
+			g.fillRect(0, 0, round(screenWidth), round(screenHeight));
 			g.translate((screenWidth - scaledWidth) / 2, (screenHeight - scaledHeight) / 2);
 			g.setClip(0, 0, scaledWidth, scaledHeight);
 			g.scale(scale, scale);
@@ -202,80 +264,13 @@ public class AppShell extends JFrame {
 		}
 		view.draw(g);
 		if (app.isPaused()) {
-			int fontSize = Math.round((width / PAUSED_TEXT.length()) * 1.6f);
+			int fontSize = round((width / PAUSED_TEXT.length()) * 1.6f);
 			int textWidth = g.getFontMetrics().stringWidth(PAUSED_TEXT);
 			g.setColor(Color.RED);
 			g.setFont(new Font(Font.MONOSPACED, Font.BOLD, fontSize));
 			g.drawString(PAUSED_TEXT, (width - textWidth) / 2, height / 2);
 		}
 		g.dispose();
-	}
-
-	public void toggleDisplayMode() {
-		if (inFullScreenMode()) {
-			displayWindow();
-		} else {
-			try {
-				displayFullScreen();
-			} catch (FullScreenModeException e) {
-				loginfo(e.getMessage());
-			}
-		}
-	}
-
-	private JFrame createFullScreenWindow() {
-		JFrame window = new JFrame();
-		window.setBackground(app.settings().bgColor);
-		window.setUndecorated(true);
-		window.setResizable(false);
-		window.setIgnoreRepaint(true);
-		return window;
-	}
-
-	public JFrame getFullScreenWindow() {
-		return fullScreenWindow;
-	}
-
-	public Canvas getCanvas() {
-		return canvas;
-	}
-
-	private void displayWindow() {
-		device.setFullScreenWindow(null);
-		requestFocus();
-		canvas.createBufferStrategy(2);
-		setVisible(true);
-		loginfo("Entered window mode, resolution %dx%d (%dx%d px scaled by %.2f)", (int) (width * app.settings().scale),
-				(int) (height * app.settings().scale), width, height, app.settings().scale);
-	}
-
-	private void displayFullScreen() throws FullScreenModeException {
-		if (!device.isFullScreenSupported()) {
-			throw new FullScreenModeException("Device does not support full-screen exclusive mode.");
-		}
-		final DisplayMode mode = app.settings().fullScreenMode;
-		if (!isValidMode(mode)) {
-			throw new FullScreenModeException("Display mode not supported: " + displayModeText(mode));
-		}
-		if (!app.settings().fullScreenCursor) {
-			Cursor invisibleCursor = fullScreenWindow.getToolkit()
-					.createCustomCursor(new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB), new Point(), null);
-			fullScreenWindow.setCursor(invisibleCursor);
-		}
-		device.setFullScreenWindow(fullScreenWindow);
-		if (device.isDisplayChangeSupported()) {
-			device.setDisplayMode(mode);
-			fullScreenWindow.createBufferStrategy(2);
-			fullScreenWindow.requestFocus();
-			loginfo("Entered full-screen mode %s", displayModeText(mode));
-		} else {
-			device.setFullScreenWindow(null);
-			throw new FullScreenModeException("Display change not supported: " + displayModeText(mode));
-		}
-	}
-
-	public boolean inFullScreenMode() {
-		return device.getFullScreenWindow() != null;
 	}
 
 	private boolean isValidMode(DisplayMode mode) {
