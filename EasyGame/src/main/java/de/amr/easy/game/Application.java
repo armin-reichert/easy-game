@@ -182,7 +182,7 @@ public abstract class Application {
 				
 				.state(STARTING)
 					.onEntry(() -> {
-						// let application initialize and select main controller:
+						// let application initialize itself and select a main controller:
 						init();
 						if (controller == null) {
 							// use fallback controller
