@@ -90,9 +90,26 @@ public class AppShell extends JFrame {
 		}
 		fullScreenWindow = createFullScreenWindow();
 
+		// global keyboard and mouse handler
 		Keyboard.handler = new KeyboardHandler();
 		Mouse.handler = new MouseHandler(app.settings().scale);
-		KeyListener internalKeyHandler = createInternalKeyHandler();
+
+		KeyListener predefinedKeys = new KeyAdapter() {
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_P) {
+					app.togglePause();
+				} else if (e.getKeyCode() == KeyEvent.VK_F2) {
+					app.showSettingsDialog();
+				} else if (e.getKeyCode() == KeyEvent.VK_F11) {
+					app.toggleFullScreen();
+				} else if (e.getKeyCode() == KeyEvent.VK_ESCAPE && inFullScreenMode()) {
+					app.toggleFullScreen();
+				}
+			}
+		};
+
 		WindowListener windowHandler = new WindowAdapter() {
 
 			@Override
@@ -101,14 +118,14 @@ public class AppShell extends JFrame {
 			}
 		};
 
-		addKeyListener(internalKeyHandler);
+		addKeyListener(predefinedKeys);
 		addKeyListener(Keyboard.handler);
 		addWindowListener(windowHandler);
 
 		canvas.addMouseListener(Mouse.handler);
 		canvas.addMouseMotionListener(Mouse.handler);
 
-		fullScreenWindow.addKeyListener(internalKeyHandler);
+		fullScreenWindow.addKeyListener(predefinedKeys);
 		fullScreenWindow.addKeyListener(Keyboard.handler);
 		fullScreenWindow.addWindowListener(windowHandler);
 		fullScreenWindow.addMouseListener(Mouse.handler);
@@ -116,22 +133,6 @@ public class AppShell extends JFrame {
 
 		pack();
 		setLocationRelativeTo(null);
-	}
-
-	private KeyListener createInternalKeyHandler() {
-		return new KeyAdapter() {
-
-			@Override
-			public void keyPressed(KeyEvent e) {
-				if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_P) {
-					app.togglePause();
-				} else if (e.getKeyCode() == KeyEvent.VK_F2) {
-					app.showSettingsDialog();
-				} else if (e.getKeyCode() == KeyEvent.VK_F11 || (e.getKeyCode() == KeyEvent.VK_ESCAPE && inFullScreenMode())) {
-					app.toggleFullScreen();
-				}
-			}
-		};
 	}
 
 	public void showSettingsDialog() {
