@@ -160,11 +160,19 @@ public class AppShell extends JFrame {
 
 	public void render(View view) {
 		if (renderingEnabled) {
-			render(inFullScreenMode() ? fullScreenWindow.getBufferStrategy() : canvas.getBufferStrategy(), view);
-			++frames;
-			if (frames >= app.clock().getTargetFramerate()) {
-				EventQueue.invokeLater(() -> setTitle(titleText()));
+			BufferStrategy strategy = inFullScreenMode() ? fullScreenWindow.getBufferStrategy() : canvas.getBufferStrategy();
+			do {
+				do {
+					Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
+					renderView(view, g);
+					g.dispose();
+				} while (strategy.contentsRestored());
+				strategy.show();
+			} while (strategy.contentsLost());
+
+			if (++frames >= app.clock().getTargetFramerate()) {
 				frames = 0;
+				EventQueue.invokeLater(() -> setTitle(titleText()));
 			}
 		}
 	}
@@ -203,10 +211,10 @@ public class AppShell extends JFrame {
 		device.setFullScreenWindow(null);
 		requestFocus();
 		canvas.createBufferStrategy(2);
-		loginfo("Entered window mode, resolution %dx%d (%dx%d scaled by %.2f)", (int) (width * app.settings().scale),
-				(int) (height * app.settings().scale), width, height, app.settings().scale);
 		renderingEnabled = true;
 		setVisible(true);
+		loginfo("Entered window mode, resolution %dx%d (%dx%d px scaled by %.2f)", (int) (width * app.settings().scale),
+				(int) (height * app.settings().scale), width, height, app.settings().scale);
 	}
 
 	private void displayFullScreen() throws FullScreenModeException {
@@ -257,30 +265,7 @@ public class AppShell extends JFrame {
 		return app.settings().title;
 	}
 
-	private void render(BufferStrategy buffer, View view) {
-		do {
-			do {
-				Graphics2D g = null;
-				try {
-					g = (Graphics2D) buffer.getDrawGraphics();
-					drawView(view, g);
-				} catch (Exception x) {
-					x.printStackTrace(System.err);
-				} finally {
-					if (g != null) {
-						g.dispose();
-					}
-				}
-			} while (buffer.contentsRestored());
-			try {
-				buffer.show();
-			} catch (Exception x) {
-				x.printStackTrace(System.err);
-			}
-		} while (buffer.contentsLost());
-	}
-
-	private void drawView(View view, Graphics2D gc) {
+	private void renderView(View view, Graphics2D gc) {
 		Graphics2D g = (Graphics2D) gc.create();
 		if (inFullScreenMode()) {
 			int screenWidth = fullScreenWindow.getWidth(), screenHeight = fullScreenWindow.getHeight();
