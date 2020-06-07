@@ -20,6 +20,7 @@ public class Clock {
 	public Runnable onTick;
 
 	public volatile boolean logging = false;
+
 	private volatile boolean ticking;
 	private Thread thread;
 	private int targetSpeed;
@@ -27,7 +28,9 @@ public class Clock {
 	private long totalTicks;
 	private int ticks;
 	private int ticksPerSec;
-	private long measurementStart = 0;
+	private long measurementStart;
+	private float frameRateDiff;
+
 	private PropertyChangeSupport changes = new PropertyChangeSupport(this);
 
 	/**
@@ -88,24 +91,43 @@ public class Clock {
 
 		// measure FPS
 		++ticks;
-		if (System.nanoTime() >= measurementStart + SECONDS.toNanos(1)) {
-			ticksPerSec = ticks;
+		int intervals = targetSpeed / 10;
+		intervals = Math.max(intervals, 2);
+		intervals = Math.min(intervals, 10);
+		if (System.nanoTime() >= measurementStart + SECONDS.toNanos(1) / intervals) {
+			ticksPerSec = ticks * intervals;
 			ticks = 0;
 			measurementStart = System.nanoTime();
+
+			// measure difference from target frame rate
+			frameRateDiff = ((float) (ticksPerSec - targetSpeed)) / targetSpeed;
+			loginfo("frame rate difference: %.2f%%", frameRateDiff * 100);
 		}
 
 		// sleep as long as needed to reach target FPS
-		long timeLeft = (period - frameDuration);
-		if (timeLeft > 0) {
+		long sleep = period - frameDuration;
+		if (frameRateDiff < 0) {
+			sleep = Math.round(sleep * (1 + frameRateDiff));
+		}
+		if (sleep > 0) {
 			try {
-				NANOSECONDS.sleep(timeLeft * 975 / 1000); // give a little reserve time
+				NANOSECONDS.sleep(sleep);
 				if (logging) {
-					loginfo("Sleep: %5.2f ms", timeLeft / 1_000_000f);
+					loginfo("Sleep: %5.2f ms", sleep / 1_000_000f);
 				}
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	@SuppressWarnings("unused")
+	private static float average(float[] values) {
+		float average = 0;
+		for (float value : values) {
+			average += value;
+		}
+		return average / values.length;
 	}
 
 	/**
