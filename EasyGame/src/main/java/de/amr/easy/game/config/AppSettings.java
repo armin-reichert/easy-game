@@ -1,6 +1,5 @@
 package de.amr.easy.game.config;
 
-import java.awt.Color;
 import java.awt.DisplayMode;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,14 +17,6 @@ import com.beust.jcommander.ParameterException;
  * @author Armin Reichert
  */
 public class AppSettings {
-
-	private static class ColorConverter implements IStringConverter<Color> {
-
-		@Override
-		public Color convert(String rgb) {
-			return Color.decode(rgb);
-		}
-	}
 
 	private static class DisplayModeConverter implements IStringConverter<DisplayMode> {
 
@@ -91,15 +82,6 @@ public class AppSettings {
 	/** If <code>true</code>, the cursor is visible in full-screen mode. */
 	@Parameter(names = { "-fullScreenCursor" }, description = "cursor visible in fullscreen mode")
 	public boolean fullScreenCursor = false;
-
-	/** The background color of the application in hex format e.g. "0xff0000". */
-	@Parameter(names = {
-			"-bgColor" }, converter = ColorConverter.class, description = "application background color in hex format e.g. \"0xff0000\"")
-	public Color bgColor = Color.BLACK;
-
-	/** The volume (in percent) of the background music. */
-	@Parameter(names = { "-bgMusicVolume" }, description = "background music volume in percent")
-	public int bgMusicVolume = 75;
 
 	/**
 	 * @return stream of all keys of the generic settings

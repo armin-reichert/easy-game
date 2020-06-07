@@ -10,7 +10,6 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.DisplayMode;
-import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.GraphicsDevice;
@@ -27,6 +26,7 @@ import java.awt.image.BufferedImage;
 import java.util.Arrays;
 
 import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 
 import de.amr.easy.game.Application;
 import de.amr.easy.game.input.Keyboard;
@@ -83,13 +83,11 @@ public class AppShell extends JFrame {
 		canvas = new Canvas();
 		canvas.setPreferredSize(size);
 		canvas.setSize(size);
-		canvas.setBackground(app.settings().bgColor);
 		canvas.setIgnoreRepaint(true);
 		canvas.setFocusable(false);
 		add(canvas, BorderLayout.CENTER);
 
 		fullScreenWindow = new JFrame();
-		fullScreenWindow.setBackground(app.settings().bgColor);
 		fullScreenWindow.setUndecorated(true);
 		fullScreenWindow.setResizable(false);
 		fullScreenWindow.setIgnoreRepaint(true);
@@ -222,12 +220,24 @@ public class AppShell extends JFrame {
 	}
 
 	public void render(View view) {
-		BufferStrategy strategy = inFullScreenMode() ? fullScreenWindow.getBufferStrategy() : canvas.getBufferStrategy();
+		BufferStrategy strategy = null;
+		int width, height;
+		if (inFullScreenMode()) {
+			strategy = fullScreenWindow.getBufferStrategy();
+			width = fullScreenWindow.getWidth();
+			height = fullScreenWindow.getHeight();
+		} else {
+			strategy = canvas.getBufferStrategy();
+			width = canvas.getWidth();
+			height = canvas.getHeight();
+		}
 		if (strategy != null) {
 			try {
 				do {
 					do {
 						Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
+						g.setColor(Color.BLACK);
+						g.fillRect(0, 0, width, height);
 						renderView(view, g);
 						g.dispose();
 					} while (strategy.contentsRestored());
@@ -241,7 +251,7 @@ public class AppShell extends JFrame {
 		// update window title text
 		if (frames >= app.clock().getTargetFramerate()) {
 			frames = 0;
-			EventQueue.invokeLater(() -> setTitle(titleText()));
+			SwingUtilities.invokeLater(() -> setTitle(titleText()));
 		}
 	}
 
@@ -252,17 +262,18 @@ public class AppShell extends JFrame {
 			float scale = Math.min(screenWidth / width, screenHeight / height);
 			int scaledWidth = round(scale * width);
 			int scaledHeight = round(scale * height);
-			g.setColor(app.settings().bgColor);
-			g.fillRect(0, 0, round(screenWidth), round(screenHeight));
 			g.translate((screenWidth - scaledWidth) / 2, (screenHeight - scaledHeight) / 2);
 			g.setClip(0, 0, scaledWidth, scaledHeight);
 			g.scale(scale, scale);
 		} else {
-			g.setColor(app.settings().bgColor);
-			g.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
 			g.scale(app.settings().scale, app.settings().scale);
 		}
 		view.draw(g);
+		drawPausedText(g);
+		g.dispose();
+	}
+
+	private void drawPausedText(Graphics2D g) {
 		if (app.isPaused()) {
 			int fontSize = round((width / PAUSED_TEXT.length()) * 1.6f);
 			int textWidth = g.getFontMetrics().stringWidth(PAUSED_TEXT);
@@ -270,7 +281,6 @@ public class AppShell extends JFrame {
 			g.setFont(new Font(Font.MONOSPACED, Font.BOLD, fontSize));
 			g.drawString(PAUSED_TEXT, (width - textWidth) / 2, height / 2);
 		}
-		g.dispose();
 	}
 
 	private boolean isValidMode(DisplayMode mode) {

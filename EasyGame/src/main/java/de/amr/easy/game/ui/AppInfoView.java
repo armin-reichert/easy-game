@@ -75,7 +75,6 @@ public class AppInfoView implements Lifecycle, View {
 			if (mode != null) {
 				sb.append(String.format("%d x %d %d Bit", mode.getWidth(), mode.getHeight(), mode.getBitDepth())).append("\n");
 			}
-			sb.append("bgColor = " + app.settings().bgColor).append("\n");
 			app.settings().keys().forEach(key -> {
 				sb.append(key + " = " + app.settings().getAsString(key)).append("\n");
 			});
