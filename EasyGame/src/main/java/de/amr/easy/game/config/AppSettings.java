@@ -5,39 +5,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import com.beust.jcommander.IStringConverter;
 import com.beust.jcommander.Parameter;
-import com.beust.jcommander.ParameterException;
 
 /**
- * Application settings. Contains named properties and a generic map.
- * <p>
- * The named settings can be overwritten by corresponding command line parameters.
+ * Application settings. Contains predefined properties and a generic map. The predefined settings
+ * can be overwritten by corresponding command-line parameters.
  * 
  * @author Armin Reichert
  */
 public class AppSettings {
 
-	private static class DisplayModeConverter implements IStringConverter<DisplayMode> {
-
-		@Override
-		public DisplayMode convert(String str) {
-			String[] parts = str.split(",");
-			if (parts.length != 3) {
-				throw new ParameterException("Illegal display mode");
-			}
-			try {
-				int width = Integer.parseInt(parts[0]);
-				int height = Integer.parseInt(parts[1]);
-				int bitDepth = Integer.parseInt(parts[2]);
-				return new DisplayMode(width, height, bitDepth, DisplayMode.REFRESH_RATE_UNKNOWN);
-			} catch (Exception e) {
-				throw new ParameterException(e);
-			}
-		}
-	}
-
-	private final Map<String, Object> settings = new HashMap<>();
+	private final Map<String, Object> userDefined = new HashMap<>();
 
 	// Predefined properties
 
@@ -51,53 +29,53 @@ public class AppSettings {
 	/**
 	 * If <code>true</code>, additional info (frame rate, resolution) gets displayed in title.
 	 */
-	@Parameter(names = { "-titleExtended" }, description = "application title shows frame rate and screen resolution")
+	@Parameter(names = { "-titleExtended" }, description = "Application title shows frame rate and screen resolution")
 	public boolean titleExtended;
 
 	/** Frame rate of clock. */
-	@Parameter(names = { "-fps" }, description = "Frames/sec")
+	@Parameter(names = { "-fps" }, description = "Clock speed (ticks/sec)")
 	public int fps = 60;
 
 	/** The unscaled width of application area in pixel. */
-	@Parameter(names = { "-width" }, description = "application width (unscaled)")
+	@Parameter(names = { "-width" }, description = "Application window width (unscaled)")
 	public int width = 640;
 
 	/** The unscaled height of the application area in pixel. */
-	@Parameter(names = { "-height" }, description = "application height (unscaled)")
+	@Parameter(names = { "-height" }, description = "Application window height (unscaled)")
 	public int height = 480;
 
 	/** The scale factor for the screen. */
-	@Parameter(names = { "-scale" }, description = "application scaling factor")
+	@Parameter(names = { "-scale" }, description = "Application window scaling factor")
 	public float scale = 1f;
 
 	/** If <code>true</code>, the application starts in full-screen mode. */
-	@Parameter(names = { "-fullScreenOnStart", "-fullScreen" }, description = "start app in full-screen mode")
-	public boolean fullScreenOnStart = false;
+	@Parameter(names = { "-fullScreenOnStart", "-fullScreen" }, description = "Start in full-screen mode")
+	public boolean fullScreen = false;
+
+	/** If <code>true</code>, the cursor is visible in full-screen mode. */
+	@Parameter(names = { "-fullScreenCursor" }, description = "Cursor visible in fullscreen mode")
+	public boolean fullScreenCursor = false;
 
 	/** The full-screen mode (resolution, depth), see {@link FullScreenMode}. */
 	@Parameter(names = {
-			"-fullScreenMode" }, converter = DisplayModeConverter.class, description = "fullscreen display mode")
+			"-fullScreenMode" }, converter = DisplayModeConverter.class, description = "Full-screen display mode e.g. 800,600,16")
 	public DisplayMode fullScreenMode = null;
 
-	/** If <code>true</code>, the cursor is visible in full-screen mode. */
-	@Parameter(names = { "-fullScreenCursor" }, description = "cursor visible in fullscreen mode")
-	public boolean fullScreenCursor = false;
-
 	/**
-	 * @return stream of all keys of the generic settings
+	 * @return stream of all keys of the user-defined settings
 	 */
 	public Stream<String> keys() {
-		return settings.keySet().stream();
+		return userDefined.keySet().stream();
 	}
 
 	/**
-	 * Sets a property value.
+	 * Sets a user-defined setting value.
 	 * 
-	 * @param key   property name
-	 * @param value property value
+	 * @param name   setting name
+	 * @param value setting value
 	 */
-	public void set(String key, Object value) {
-		settings.put(key, value);
+	public void set(String name, Object value) {
+		userDefined.put(name, value);
 	}
 
 	/**
@@ -108,7 +86,7 @@ public class AppSettings {
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> T get(String key) {
-		return (T) settings.get(key);
+		return (T) userDefined.get(key);
 	}
 
 	/**
@@ -118,7 +96,7 @@ public class AppSettings {
 	 * @return property value as string
 	 */
 	public String getAsString(String key) {
-		return String.valueOf(settings.get(key));
+		return String.valueOf(userDefined.get(key));
 	}
 
 	/**
@@ -128,7 +106,7 @@ public class AppSettings {
 	 * @return property value as boolean
 	 */
 	public boolean getAsBoolean(String key) {
-		return settings.containsKey(key) ? (Boolean) get(key) : false;
+		return userDefined.containsKey(key) ? (Boolean) get(key) : false;
 	}
 
 	/**

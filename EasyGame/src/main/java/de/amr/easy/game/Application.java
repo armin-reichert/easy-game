@@ -263,7 +263,7 @@ public abstract class Application {
 				| UnsupportedLookAndFeelException x) {
 			loginfo("Could not set Nimbus look and feel");
 		}
-		shell.display(settings.fullScreenOnStart);
+		shell.display(settings.fullScreen);
 		clock.start();
 		loginfo("Clock started, %d frames/second", clock.getTargetFramerate());
 	}
