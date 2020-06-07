@@ -1,11 +1,12 @@
 package de.amr.easy.game.timing;
 
-import static de.amr.easy.game.Application.loginfo;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+
+import de.amr.easy.game.Application;
 
 /**
  * The clock that drives the application.
@@ -19,16 +20,25 @@ public class Clock {
 	 */
 	public Runnable onTick;
 
-	public volatile boolean logging = false;
+	public volatile boolean logging;
 
 	private volatile boolean ticking;
+
 	private Thread thread;
+
 	private int targetSpeed;
+
+	/** frame duration at current frame rate in nanoseconds */
 	private long period;
+
 	private long totalTicks;
+
 	private int ticks;
+
 	private int ticksPerSec;
+
 	private long measurementStart;
+
 	private float frameRateDiff;
 
 	private PropertyChangeSupport changes = new PropertyChangeSupport(this);
@@ -84,9 +94,7 @@ public class Clock {
 		long start = System.nanoTime();
 		onTick.run();
 		long frameDuration = System.nanoTime() - start;
-		if (logging) {
-			loginfo("Tick:  %5.2f ms", frameDuration / 1_000_000f);
-		}
+		loginfo("Tick:  %5.2f ms", frameDuration / 1_000_000f);
 		++totalTicks;
 
 		// measure FPS
@@ -101,23 +109,16 @@ public class Clock {
 
 			// measure difference from target frame rate
 			frameRateDiff = ((float) (ticksPerSec - targetSpeed)) / targetSpeed;
-			if (logging) {
-				loginfo("frame rate difference: %.2f%%", frameRateDiff * 100);
-			}
+			loginfo("frame rate difference: %.2f%%", frameRateDiff * 100);
 		}
 
 		// sleep as long as needed to reach target FPS
 		long sleep = period - frameDuration;
-		if (frameRateDiff < 0) {
-			// we are too slow, reduce sleep time
-			sleep += Math.round(sleep * frameRateDiff);
-		}
+		sleep += Math.round(sleep * frameRateDiff);
 		if (sleep > 0) {
 			try {
 				NANOSECONDS.sleep(sleep);
-				if (logging) {
-					loginfo("Sleep: %5.2f ms", sleep / 1_000_000f);
-				}
+				loginfo("Sleep: %5.2f ms", sleep / 1_000_000f);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -198,5 +199,11 @@ public class Clock {
 	 */
 	public int sec(float seconds) {
 		return Math.round(targetSpeed * seconds);
+	}
+
+	private void loginfo(String format, Object... args) {
+		if (logging) {
+			Application.loginfo(format, args);
+		}
 	}
 }
