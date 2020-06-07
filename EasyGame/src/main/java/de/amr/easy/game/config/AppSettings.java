@@ -71,7 +71,7 @@ public class AppSettings {
 	public float scale = 1f;
 
 	/** If <code>true</code>, the application starts in full-screen mode. */
-	@Parameter(names = { "-fullScreenOnStart" }, description = "start app in fullscreen mode")
+	@Parameter(names = { "-fullScreenOnStart", "-fullScreen" }, description = "start app in full-screen mode")
 	public boolean fullScreenOnStart = false;
 
 	/** The full-screen mode (resolution, depth), see {@link FullScreenMode}. */
