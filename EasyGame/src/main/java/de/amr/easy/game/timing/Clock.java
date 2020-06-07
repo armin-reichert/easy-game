@@ -44,7 +44,7 @@ public class Clock {
 	private PropertyChangeSupport changes = new PropertyChangeSupport(this);
 
 	/**
-	 * Creates a clock running at the given frequency.
+	 * Creates a clock ticking with the given frequency.
 	 * 
 	 * @param ticksPerSecond the target frequency (ticks per second)
 	 */
@@ -54,12 +54,15 @@ public class Clock {
 		};
 	}
 
+	/**
+	 * Creates a clock ticking 60 times/sec.
+	 */
 	public Clock() {
 		this(60);
 	}
 
 	/**
-	 * Starts the clock and the thread.
+	 * Starts the clock if not yet ticking.
 	 */
 	public synchronized void start() {
 		if (!ticking) {
@@ -71,7 +74,7 @@ public class Clock {
 	}
 
 	/**
-	 * Stops the clock and the thread.
+	 * Stops the clock and ends the thread.
 	 */
 	public synchronized void stop() {
 		if (ticking) {
@@ -91,11 +94,13 @@ public class Clock {
 	}
 
 	private void tickOnce() {
-		long tickStart, tickEnd, tickDuration;
+		long tickStart, tickEnd, tickDuration; // in nanoseconds
 
-		// tick and perform client action
+		// tick once and perform client action
 		tickStart = System.nanoTime();
-		onTick.run();
+		if (onTick != null) {
+			onTick.run();
+		}
 		tickEnd = System.nanoTime();
 
 		++ticksPerInterval;
@@ -109,7 +114,7 @@ public class Clock {
 		numIntervals = Math.max(numIntervals, 2);
 		numIntervals = Math.min(numIntervals, 10);
 		long intervalDuration = SECONDS.toNanos(1) / numIntervals;
-		
+
 		if (tickEnd >= intervalStart + intervalDuration) {
 			// next interval
 			frameRate = ticksPerInterval * numIntervals;
