@@ -101,13 +101,16 @@ public class Clock {
 
 			// measure difference from target frame rate
 			frameRateDiff = ((float) (ticksPerSec - targetSpeed)) / targetSpeed;
-			loginfo("frame rate difference: %.2f%%", frameRateDiff * 100);
+			if (logging) {
+				loginfo("frame rate difference: %.2f%%", frameRateDiff * 100);
+			}
 		}
 
 		// sleep as long as needed to reach target FPS
 		long sleep = period - frameDuration;
 		if (frameRateDiff < 0) {
-			sleep = Math.round(sleep * (1 + frameRateDiff));
+			// we are too slow, reduce sleep time
+			sleep += Math.round(sleep * frameRateDiff);
 		}
 		if (sleep > 0) {
 			try {
