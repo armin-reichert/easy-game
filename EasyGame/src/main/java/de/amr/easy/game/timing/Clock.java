@@ -33,11 +33,11 @@ public class Clock {
 
 	private long totalTicks;
 
-	private int ticks;
+	private int ticksPerInterval;
 
-	private int ticksPerSec;
+	private int frameRate;
 
-	private long measurementStart;
+	private long intervalStart;
 
 	private float frameRateDiff;
 
@@ -65,7 +65,7 @@ public class Clock {
 		if (!ticking) {
 			totalTicks = 0;
 			ticking = true;
-			thread = new Thread(this::run, "Clock");
+			thread = new Thread(this::tick, "Clock");
 			thread.start();
 		}
 	}
@@ -84,36 +84,43 @@ public class Clock {
 		}
 	}
 
-	private void run() {
+	private void tick() {
 		while (ticking) {
-			tick();
+			tickOnce();
 		}
 	}
 
-	private void tick() {
-		long start = System.nanoTime();
+	private void tickOnce() {
+		long tickStart, tickEnd, tickDuration;
+
+		// tick and perform client action
+		tickStart = System.nanoTime();
 		onTick.run();
-		long frameDuration = System.nanoTime() - start;
-		loginfo("Tick:  %5.2f ms", frameDuration / 1_000_000f);
+		tickEnd = System.nanoTime();
+
+		++ticksPerInterval;
 		++totalTicks;
 
-		// measure FPS
-		++ticks;
-		int intervals = targetSpeed / 10;
-		intervals = Math.max(intervals, 2);
-		intervals = Math.min(intervals, 10);
-		if (System.nanoTime() >= measurementStart + SECONDS.toNanos(1) / intervals) {
-			ticksPerSec = ticks * intervals;
-			ticks = 0;
-			measurementStart = System.nanoTime();
+		tickDuration = tickEnd - tickStart;
+		loginfo("Tick:  %5.2f ms", tickDuration / 1_000_000f);
 
-			// measure difference from target frame rate
-			frameRateDiff = ((float) (ticksPerSec - targetSpeed)) / targetSpeed;
-			loginfo("frame rate difference: %.2f%%", frameRateDiff * 100);
+		// measure frame rate
+		int numIntervals = targetSpeed / 10;
+		numIntervals = Math.max(numIntervals, 2);
+		numIntervals = Math.min(numIntervals, 10);
+		long intervalDuration = SECONDS.toNanos(1) / numIntervals;
+		
+		if (tickEnd >= intervalStart + intervalDuration) {
+			// next interval
+			frameRate = ticksPerInterval * numIntervals;
+			ticksPerInterval = 0;
+			frameRateDiff = ((float) (frameRate - targetSpeed)) / targetSpeed;
+			loginfo("current frame rate difference: %.2f%%", frameRateDiff * 100);
+			intervalStart = System.nanoTime();
 		}
 
 		// sleep as long as needed to reach target FPS
-		long sleep = period - frameDuration;
+		long sleep = period - tickDuration;
 		sleep += Math.round(sleep * frameRateDiff);
 		if (sleep > 0) {
 			try {
@@ -123,15 +130,6 @@ public class Clock {
 				e.printStackTrace();
 			}
 		}
-	}
-
-	@SuppressWarnings("unused")
-	private static float average(float[] values) {
-		float average = 0;
-		for (float value : values) {
-			average += value;
-		}
-		return average / values.length;
 	}
 
 	/**
@@ -154,7 +152,7 @@ public class Clock {
 	 * @return last reported number of frames/second
 	 */
 	public int getFrameRate() {
-		return ticksPerSec;
+		return frameRate;
 	}
 
 	/**
