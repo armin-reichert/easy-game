@@ -4,7 +4,10 @@ import static de.amr.easy.game.Application.LOGGER;
 
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsEnvironment;
 import java.awt.Image;
+import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -23,9 +26,6 @@ import javax.imageio.ImageIO;
  * @author Armin Reichert
  */
 public class Assets {
-
-	private Assets() {
-	}
 
 	private static final Map<String, Font> fontMap = new HashMap<>();
 	private static final Map<String, Image> imageMap = new HashMap<>();
@@ -61,8 +61,8 @@ public class Assets {
 	}
 
 	private static Font readTrueTypeFont(String fontFilePath) {
-		try (InputStream fontStream = stream(fontFilePath)) {
-			return Font.createFont(Font.TRUETYPE_FONT, fontStream);
+		try (InputStream is = stream(fontFilePath)) {
+			return Font.createFont(Font.TRUETYPE_FONT, is);
 		} catch (Exception e) {
 			LOGGER.severe(String.format("Assets: Could not read font '%s'", fontFilePath));
 			throw new RuntimeException(e);
@@ -76,8 +76,8 @@ public class Assets {
 	 * @return the image
 	 */
 	public static BufferedImage readImage(String path) {
-		try (InputStream stream = stream(path)) {
-			BufferedImage image = ImageIO.read(stream);
+		try (InputStream is = stream(path)) {
+			BufferedImage image = ImageIO.read(is);
 			if (image != null) {
 				return image;
 			}
@@ -99,10 +99,13 @@ public class Assets {
 	 */
 	public static BufferedImage scaledImage(Image image, int width, int height) {
 		Image scaled = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
-		BufferedImage bi = new BufferedImage(scaled.getWidth(null), scaled.getHeight(null), BufferedImage.TYPE_INT_ARGB);
-		Graphics2D g = bi.createGraphics();
-		g.drawImage(scaled, 0, 0, bi.getWidth(), bi.getHeight(), null);
-		return bi;
+		GraphicsConfiguration gc = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice()
+				.getDefaultConfiguration();
+		BufferedImage buffered = gc.createCompatibleImage(width, height, Transparency.TRANSLUCENT);
+		Graphics2D g = buffered.createGraphics();
+		g.drawImage(scaled, 0, 0, null);
+		g.dispose();
+		return buffered;
 	}
 
 	/**
