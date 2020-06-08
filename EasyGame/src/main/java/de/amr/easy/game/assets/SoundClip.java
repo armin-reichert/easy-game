@@ -1,6 +1,8 @@
 package de.amr.easy.game.assets;
 
 import static de.amr.easy.game.Application.loginfo;
+import static java.lang.Math.log10;
+import static java.lang.Math.pow;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -62,53 +64,91 @@ public class SoundClip {
 		return clip.toString();
 	}
 
+	/**
+	 * @return the internal Clip API
+	 */
 	public Clip internal() {
 		return clip;
 	}
 
+	/**
+	 * Closes the clip.
+	 */
 	public void close() {
 		clip.close();
 	}
 
+	/**
+	 * Starts or, if the clip is already running, restarts the clip playback.
+	 */
 	public void play() {
 		clip.stop();
 		clip.setFramePosition(0);
 		clip.start();
 	}
 
+	/**
+	 * Plays the clip in an infinite loop.
+	 */
 	public void loop() {
 		loop(Clip.LOOP_CONTINUOUSLY);
 	}
 
-	public void loop(int count) {
+	/**
+	 * Plays the clip the given number of times in a loop.
+	 * 
+	 * @param repetitions number of repetitions
+	 */
+	public void loop(int repetitions) {
 		clip.stop();
 		clip.setFramePosition(0);
-		clip.loop(count);
+		clip.loop(repetitions);
 	}
 
+	/**
+	 * Stops the clip and releases its resources.
+	 */
 	public void stop() {
 		clip.stop();
 		clip.flush();
 	}
 
+	/**
+	 * Tells if the clip is running.
+	 * 
+	 * @return if the clip is running
+	 */
 	public boolean isRunning() {
 		return clip.isRunning();
 	}
 
+	/**
+	 * Returns the volume ("master gain") of this clip as a number in the range [0..1].
+	 * 
+	 * @return the volumne ("master gain") as a value from the range [0..1]
+	 */
 	public float volume() {
 		FloatControl masterGain = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-		float volume = (float) Math.pow(10f, masterGain.getValue() / 20f);
-		return Math.min(volume, 1);
+		float masterGainDB = masterGain.getValue();
+		float linearValue = (float) pow(10.0, masterGainDB / 20.0);
+		return clipToRange(0, 1, linearValue);
 	}
 
+	/**
+	 * Sets the volume ("master gain") of this clip as a number in the range [0..1].
+	 * 
+	 * @param volume new volumne from the range [0..1]
+	 */
 	public void volume(float volume) {
-		if (volume < 0f || volume > 1f)
+		if (volume < 0f || volume > 1f) {
 			throw new IllegalArgumentException("Volume not valid: " + volume);
+		}
 		FloatControl masterGain = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-		float range = masterGain.getMaximum() - masterGain.getMinimum();
-		float gain = (range * volume) + masterGain.getMinimum();
-		masterGain.setValue(gain);
-		// TODO: clarify this
-//		gainControl.setValue(20f * (float) Math.log10(volume));
+		float masterGainDB = (float) log10(volume * 20.0);
+		masterGain.setValue(masterGainDB);
+	}
+
+	private float clipToRange(float min, float max, float value) {
+		return Math.max(Math.min(value, 1), 0);
 	}
 }
