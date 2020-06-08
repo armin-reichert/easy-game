@@ -88,6 +88,7 @@ public class SoundClip {
 
 	public void stop() {
 		clip.stop();
+		clip.flush();
 	}
 
 	public boolean isRunning() {
