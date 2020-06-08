@@ -95,17 +95,21 @@ public class Assets {
 	 * @param image  an image
 	 * @param width  the scaled width
 	 * @param height the scaled height
-	 * @return the scaled image
+	 * @return the scaled image of transparency type TRANSLUCENT
 	 */
 	public static BufferedImage scaledImage(Image image, int width, int height) {
 		Image scaled = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
-		GraphicsConfiguration gc = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice()
-				.getDefaultConfiguration();
-		BufferedImage buffered = gc.createCompatibleImage(width, height, Transparency.TRANSLUCENT);
+		BufferedImage buffered = createBufferedImage(width, height, Transparency.TRANSLUCENT);
 		Graphics2D g = buffered.createGraphics();
 		g.drawImage(scaled, 0, 0, null);
 		g.dispose();
 		return buffered;
+	}
+
+	public static BufferedImage createBufferedImage(int width, int height, int transparency) {
+		GraphicsConfiguration gc = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice()
+				.getDefaultConfiguration();
+		return gc.createCompatibleImage(width, height, transparency);
 	}
 
 	/**
