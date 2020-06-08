@@ -27,9 +27,9 @@ import javazoom.spi.mpeg.sampled.file.MpegAudioFormat;
  */
 public class SoundClip {
 
-	public static SoundClip of(InputStream is) {
+	public static SoundClip of(String path, InputStream is) {
 		try {
-			return new SoundClip(is);
+			return new SoundClip(path, is);
 		} catch (LineUnavailableException x) {
 			loginfo("Cannot create sound clip: line unavailable");
 			throw new RuntimeException(x);
@@ -42,9 +42,12 @@ public class SoundClip {
 		}
 	}
 
+	private final String path;
 	private final Clip clip;
 
-	private SoundClip(InputStream is) throws LineUnavailableException, IOException, UnsupportedAudioFileException {
+	private SoundClip(String path, InputStream is)
+			throws LineUnavailableException, IOException, UnsupportedAudioFileException {
+		this.path = path;
 		AudioInputStream ais = AudioSystem.getAudioInputStream(new BufferedInputStream(is));
 		if (ais.getFormat() instanceof MpegAudioFormat) {
 			AudioFormat mp3 = ais.getFormat();
@@ -61,7 +64,7 @@ public class SoundClip {
 
 	@Override
 	public String toString() {
-		return clip.toString();
+		return String.format("Clip[path: %s, info: %s", path, clip);
 	}
 
 	/**
@@ -131,7 +134,7 @@ public class SoundClip {
 		FloatControl masterGain = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
 		float masterGainDB = masterGain.getValue();
 		float linearValue = (float) pow(10.0, masterGainDB / 20.0);
-		return clipToRange(0, 1, linearValue);
+		return castToRange(0, 1, linearValue);
 	}
 
 	/**
@@ -148,7 +151,7 @@ public class SoundClip {
 		masterGain.setValue(masterGainDB);
 	}
 
-	private float clipToRange(float min, float max, float value) {
+	private float castToRange(float min, float max, float value) {
 		return Math.max(Math.min(value, 1), 0);
 	}
 }

@@ -224,7 +224,7 @@ public class Assets {
 			return soundMap.get(path);
 		}
 		try (InputStream is = stream(path)) {
-			SoundClip sound = SoundClip.of(is);
+			SoundClip sound = SoundClip.of(path, is);
 			soundMap.put(path, sound);
 			return sound;
 		} catch (Exception e) {
