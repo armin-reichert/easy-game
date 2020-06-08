@@ -276,9 +276,10 @@ public class AppShell extends JFrame {
 	private void drawPausedText(Graphics2D g) {
 		if (app.isPaused()) {
 			int fontSize = round((width / PAUSED_TEXT.length()) * 1.6f);
-			int textWidth = g.getFontMetrics().stringWidth(PAUSED_TEXT);
+			Font font = new Font(Font.MONOSPACED, Font.BOLD, fontSize);
 			g.setColor(Color.RED);
-			g.setFont(new Font(Font.MONOSPACED, Font.BOLD, fontSize));
+			g.setFont(font);
+			int textWidth = g.getFontMetrics(font).stringWidth(PAUSED_TEXT);
 			g.drawString(PAUSED_TEXT, (width - textWidth) / 2, height / 2);
 		}
 	}
