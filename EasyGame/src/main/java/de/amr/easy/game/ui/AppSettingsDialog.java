@@ -107,7 +107,7 @@ public class AppSettingsDialog extends JDialog {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				app.togglePause();
-				updatePausedButtonText(app.isPaused());
+				setPausedButtonText(app.isPaused());
 			}
 		});
 		getContentPane().add(togglePause, "flowx,cell 0 4 3 1,alignx center");
@@ -115,8 +115,8 @@ public class AppSettingsDialog extends JDialog {
 
 	public void setApp(Application app) {
 		this.app = app;
-		app.onStateEntry(PAUSED, paused -> updatePausedButtonText(true));
-		app.onStateExit(PAUSED, paused -> updatePausedButtonText(false));
+		app.onStateEntry(PAUSED, paused -> setPausedButtonText(true));
+		app.onStateExit(PAUSED, paused -> setPausedButtonText(false));
 		app.clock().addFrequencyChangeListener(e -> sliderFPS.setValue((Integer) e.getNewValue()));
 		fpsHistoryView.setApp(app);
 		updateState(app);
@@ -127,6 +127,7 @@ public class AppSettingsDialog extends JDialog {
 		sliderFPS.setValue(app.clock().getTargetFramerate());
 		comboDisplayMode.select(app.settings().fullScreenMode);
 		cbClockDebugging.setSelected(app.clock().logging);
+		setPausedButtonText(app.isPaused());
 	}
 
 	@Override
@@ -137,7 +138,7 @@ public class AppSettingsDialog extends JDialog {
 		}
 	}
 
-	private void updatePausedButtonText(boolean paused) {
+	private void setPausedButtonText(boolean paused) {
 		togglePause.setText(paused ? "Play" : "Pause");
 	}
 
