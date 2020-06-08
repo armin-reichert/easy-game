@@ -1,6 +1,7 @@
 package de.amr.easy.game.assets;
 
 import static de.amr.easy.game.Application.LOGGER;
+import static de.amr.easy.game.Application.loginfo;
 
 import java.awt.Font;
 import java.awt.Graphics2D;
@@ -12,7 +13,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
@@ -22,8 +26,7 @@ import javax.sound.sampled.Line;
 import javax.sound.sampled.Mixer;
 
 /**
- * This class provides functionality to access assets like image, sounds, fonts
- * etc.
+ * This class provides functionality to access assets like image, sounds, fonts etc.
  * 
  * @author Armin Reichert
  */
@@ -36,6 +39,7 @@ public class Assets {
 	private static final Map<String, Image> imageMap = new HashMap<>();
 	private static final Map<String, Sound> soundMap = new HashMap<>();
 	private static final Map<String, String> textMap = new HashMap<>();
+	private static Set<ClipSnapshot> snapshots = new HashSet<>();
 
 	private static InputStream stream(String path) {
 		InputStream stream = Assets.class.getClassLoader().getResourceAsStream(path);
@@ -155,6 +159,15 @@ public class Assets {
 		}
 	}
 
+	public static void muteClips() {
+		snapshots = Assets.sounds().filter(Sound::isRunning).map(ClipSnapshot::new).collect(Collectors.toSet());
+		snapshots.forEach(snapshot -> snapshot.clip.volume(0));
+	}
+
+	public static void unmuteClips() {
+		snapshots.forEach(snapshot -> snapshot.clip.volume(snapshot.volumeWhenMuted));
+	}
+
 	/**
 	 * Stores the given image under the given path name.
 	 * 
@@ -185,8 +198,7 @@ public class Assets {
 	}
 
 	/**
-	 * Stores the font derived from the given base font and given size and style
-	 * under the given key.
+	 * Stores the font derived from the given base font and given size and style under the given key.
 	 * 
 	 * @param key   key under which the font my be accessed
 	 * @param font  font from which this font is derived
@@ -216,8 +228,8 @@ public class Assets {
 	}
 
 	/**
-	 * Returns the image with the given path. If the image is requested for the
-	 * first time, it is loaded from the specified path.
+	 * Returns the image with the given path. If the image is requested for the first time, it is loaded
+	 * from the specified path.
 	 * 
 	 * @param path path under assets folder or key in assets map
 	 * @return image as requested
@@ -292,5 +304,20 @@ public class Assets {
 			s.append(entry.getKey()).append(": ").append(entry.getValue()).append("\n");
 		});
 		return s.toString();
+	}
+}
+
+class ClipSnapshot {
+	Sound clip;
+	float volumeWhenMuted;
+
+	ClipSnapshot(Sound clip) {
+		this.clip = clip;
+		if (clip.volume() > 1) {
+			loginfo("Illegal volume for clip %s: %f", clip, clip.volume());
+			clip.volume(1);
+		} else {
+			this.volumeWhenMuted = clip.volume();
+		}
 	}
 }

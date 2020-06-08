@@ -24,6 +24,7 @@ import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 
 import com.beust.jcommander.JCommander;
 
+import de.amr.easy.game.assets.Assets;
 import de.amr.easy.game.config.AppSettings;
 import de.amr.easy.game.controller.Lifecycle;
 import de.amr.easy.game.entity.collision.CollisionHandler;
@@ -219,7 +220,7 @@ public abstract class Application {
 
 				.when(STARTING).then(RUNNING).condition(() -> clock.isTicking())
 				
-				.when(RUNNING).then(PAUSED).on(TOGGLE_PAUSE)
+				.when(RUNNING).then(PAUSED).on(TOGGLE_PAUSE).act(Assets::muteClips)
 				
 				.when(RUNNING).then(CLOSED).on(CLOSE)
 	
@@ -227,7 +228,7 @@ public abstract class Application {
 					
 				.stay(RUNNING).on(SHOW_SETTINGS_DIALOG).act(() -> shell.showSettingsDialog())
 				
-				.when(PAUSED).then(RUNNING).on(TOGGLE_PAUSE)
+				.when(PAUSED).then(RUNNING).on(TOGGLE_PAUSE).act(Assets::unmuteClips)
 			
 				.when(PAUSED).then(CLOSED).on(CLOSE)
 				

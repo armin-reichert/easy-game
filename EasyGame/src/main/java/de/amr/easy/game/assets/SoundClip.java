@@ -5,6 +5,7 @@ import static de.amr.easy.game.assets.Silence.SILENCE;
 
 import java.io.BufferedInputStream;
 import java.io.InputStream;
+import java.util.Objects;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -15,8 +16,7 @@ import javax.sound.sampled.FloatControl;
 import javazoom.spi.mpeg.sampled.file.MpegAudioFormat;
 
 /**
- * Clips are usually short audio sequences that are loaded completely into
- * memory.
+ * Clips are usually short audio sequences that are loaded completely into memory.
  * 
  * @author Armin Reichert
  */
@@ -25,7 +25,15 @@ public class SoundClip implements Sound {
 	private final Clip clip;
 
 	private SoundClip(Clip clip) {
-		this.clip = clip;
+		this.clip = Objects.requireNonNull(clip);
+		if (volume() > 1) {
+			volume(1);
+		}
+	}
+
+	@Override
+	public String toString() {
+		return clip.toString();
 	}
 
 	public static Sound of(InputStream is) {
@@ -79,7 +87,8 @@ public class SoundClip implements Sound {
 	@Override
 	public float volume() {
 		FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-		return (float) Math.pow(10f, gainControl.getValue() / 20f);
+		float volume = (float) Math.pow(10f, gainControl.getValue() / 20f);
+		return Math.min(volume, 1);
 	}
 
 	@Override
@@ -87,11 +96,9 @@ public class SoundClip implements Sound {
 		if (volume < 0f || volume > 1f)
 			throw new IllegalArgumentException("Volume not valid: " + volume);
 		FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-
 		float range = gainControl.getMaximum() - gainControl.getMinimum();
 		float gain = (range * volume) + gainControl.getMinimum();
 		gainControl.setValue(gain);
-
 //		gainControl.setValue(20f * (float) Math.log10(volume));
 	}
 
