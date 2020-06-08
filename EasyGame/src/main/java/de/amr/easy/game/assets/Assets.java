@@ -1,7 +1,6 @@
 package de.amr.easy.game.assets;
 
 import static de.amr.easy.game.Application.LOGGER;
-import static de.amr.easy.game.Application.loginfo;
 
 import java.awt.Font;
 import java.awt.Graphics2D;
@@ -13,17 +12,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.BooleanControl;
-import javax.sound.sampled.Line;
-import javax.sound.sampled.Mixer;
 
 /**
  * This class provides functionality to access assets like image, sounds, fonts etc.
@@ -37,9 +29,8 @@ public class Assets {
 
 	private static final Map<String, Font> fontMap = new HashMap<>();
 	private static final Map<String, Image> imageMap = new HashMap<>();
-	private static final Map<String, Sound> soundMap = new HashMap<>();
+	private static final Map<String, SoundClip> soundMap = new HashMap<>();
 	private static final Map<String, String> textMap = new HashMap<>();
-	private static Set<ClipSnapshot> snapshots = new HashSet<>();
 
 	private static InputStream stream(String path) {
 		InputStream stream = Assets.class.getClassLoader().getResourceAsStream(path);
@@ -137,35 +128,8 @@ public class Assets {
 	 * 
 	 * @return the sound objects
 	 */
-	public static Stream<Sound> sounds() {
+	public static Stream<SoundClip> sounds() {
 		return soundMap.values().stream();
-	}
-
-	/**
-	 * Mutes all currently open lines.
-	 * 
-	 * @param muted if the line should get muted
-	 */
-	public static void muteAll(boolean muted) {
-		Mixer.Info[] infos = AudioSystem.getMixerInfo();
-		for (Mixer.Info info : infos) {
-			Mixer mixer = AudioSystem.getMixer(info);
-			for (Line line : mixer.getSourceLines()) {
-				BooleanControl bc = (BooleanControl) line.getControl(BooleanControl.Type.MUTE);
-				if (bc != null) {
-					bc.setValue(muted);
-				}
-			}
-		}
-	}
-
-	public static void muteClips() {
-		snapshots = Assets.sounds().filter(Sound::isRunning).map(ClipSnapshot::new).collect(Collectors.toSet());
-		snapshots.forEach(snapshot -> snapshot.clip.volume(0));
-	}
-
-	public static void unmuteClips() {
-		snapshots.forEach(snapshot -> snapshot.clip.volume(snapshot.volumeWhenMuted));
 	}
 
 	/**
@@ -248,12 +212,12 @@ public class Assets {
 	 * @param path path to sound file
 	 * @return sound object
 	 */
-	public static Sound sound(String path) {
+	public static SoundClip sound(String path) {
 		if (soundMap.containsKey(path)) {
 			return soundMap.get(path);
 		}
 		try (InputStream is = stream(path)) {
-			Sound sound = SoundClip.of(is);
+			SoundClip sound = SoundClip.of(is);
 			soundMap.put(path, sound);
 			return sound;
 		} catch (Exception e) {
@@ -296,7 +260,7 @@ public class Assets {
 		}
 		s.append("\n-- Sounds:\n");
 		for (String name : soundNames) {
-			Sound sound = sound(name);
+			SoundClip sound = sound(name);
 			s.append(name).append(": ").append(sound.getClass().getSimpleName()).append("\n");
 		}
 		s.append("\n-- Texts:\n");
@@ -304,20 +268,5 @@ public class Assets {
 			s.append(entry.getKey()).append(": ").append(entry.getValue()).append("\n");
 		});
 		return s.toString();
-	}
-}
-
-class ClipSnapshot {
-	Sound clip;
-	float volumeWhenMuted;
-
-	ClipSnapshot(Sound clip) {
-		this.clip = clip;
-		if (clip.volume() > 1) {
-			loginfo("Illegal volume for clip %s: %f", clip, clip.volume());
-			clip.volume(1);
-		} else {
-			this.volumeWhenMuted = clip.volume();
-		}
 	}
 }
