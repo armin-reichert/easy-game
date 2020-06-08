@@ -14,8 +14,6 @@ public class SoundSupport {
 
 	/**
 	 * Mutes all currently open lines.
-	 * 
-	 * @param muted if the line should get muted
 	 */
 	public static void muteAll() {
 		setAllLinesMuted(true);
@@ -23,27 +21,23 @@ public class SoundSupport {
 
 	/**
 	 * Unmutes all currently open lines.
-	 * 
-	 * @param muted if the line should get muted
 	 */
 	public static void unmuteAll() {
 		setAllLinesMuted(false);
 	}
 
 	private static void setAllLinesMuted(boolean muted) {
-		Mixer.Info[] infos = AudioSystem.getMixerInfo();
-		for (Mixer.Info info : infos) {
-			Mixer mixer = AudioSystem.getMixer(info);
-			for (Line line : mixer.getSourceLines()) {
+		for (Mixer.Info info : AudioSystem.getMixerInfo()) {
+			for (Line line : AudioSystem.getMixer(info).getSourceLines()) {
 				muteLine(line, muted);
 			}
 		}
 	}
 
 	private static void muteLine(Line line, boolean muted) {
-		BooleanControl bc = (BooleanControl) line.getControl(BooleanControl.Type.MUTE);
-		if (bc != null) {
-			bc.setValue(muted);
+		BooleanControl muteControl = (BooleanControl) line.getControl(BooleanControl.Type.MUTE);
+		if (muteControl != null) {
+			muteControl.setValue(muted);
 		}
 	}
 }
