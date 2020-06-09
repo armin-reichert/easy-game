@@ -38,7 +38,9 @@ class MyFirstAppController implements Lifecycle {
 }
 ```
 
-## Application lifecycle finite-state machine
+## Application lifecycle
+
+The lifecycle of any application is defined by the following finite-state machine:
 
 ```java
 StateMachine.beginStateMachine(ApplicationState.class, ApplicationEvent.class, EventMatchStrategy.BY_EQUALITY)
