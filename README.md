@@ -107,8 +107,15 @@ StateMachine.beginStateMachine(ApplicationState.class, ApplicationEvent.class, E
 ## Examples
 
 - [Pong](https://github.com/armin-reichert/pong)
+
+
 - [Flappy Bird](https://github.com/armin-reichert/birdy)
+
 - [PacMan](https://github.com/armin-reichert/pacman)
+
+<img src="screenshots/pacman.png">
+
 - [Nine-mens morris](https://github.com/armin-reichert/nine-mens-morris)
+
 - [Game of life](https://github.com/armin-reichert/school/GameOfLife)
 
