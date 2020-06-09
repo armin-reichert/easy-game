@@ -130,7 +130,7 @@ By pressing the F2-key an integrated dialog is opened where you can interactivel
 
 <img src="EasyGame/screenshots/nine-mens-morris.png">
 
-- [Game of life](https://github.com/armin-reichert/school/GameOfLife)
+- [Game of life](https://github.com/armin-reichert/game-of-life)
 
 <img src="EasyGame/screenshots/game-of-life.png">
 
