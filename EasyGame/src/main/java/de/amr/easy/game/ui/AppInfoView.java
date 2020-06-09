@@ -29,7 +29,7 @@ public class AppInfoView implements Lifecycle, View {
 		this.app = app;
 		this.width = width;
 		this.height = height;
-		text = TextWidget.create().text(buildInfoText()).color(Color.WHITE).font(new Font(Font.SANS_SERIF, Font.BOLD, 14))
+		text = TextWidget.create().text(buildInfoText()).color(Color.WHITE).font(new Font(Font.SANS_SERIF, Font.BOLD, 20))
 				.build();
 	}
 
@@ -52,7 +52,7 @@ public class AppInfoView implements Lifecycle, View {
 
 	@Override
 	public void draw(Graphics2D g) {
-		g.setColor(Color.DARK_GRAY);
+		g.setColor(new Color(40, 4, 100));
 		g.fillRect(0, 0, width, height);
 		g.setColor(Color.GREEN);
 		g.setStroke(new BasicStroke(2f));
