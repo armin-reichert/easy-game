@@ -108,8 +108,11 @@ StateMachine.beginStateMachine(ApplicationState.class, ApplicationEvent.class, E
 
 - [Pong](https://github.com/armin-reichert/pong)
 
+<img src="EasyGame/screenshots/pong.png">
 
 - [Flappy Bird](https://github.com/armin-reichert/birdy)
+
+<img src="EasyGame/screenshots/flappybird.png">
 
 - [PacMan](https://github.com/armin-reichert/pacman)
 
@@ -117,5 +120,10 @@ StateMachine.beginStateMachine(ApplicationState.class, ApplicationEvent.class, E
 
 - [Nine-mens morris](https://github.com/armin-reichert/nine-mens-morris)
 
+<img src="EasyGame/screenshots/nine-mens-morris.png">
+
 - [Game of life](https://github.com/armin-reichert/school/GameOfLife)
+
+<img src="EasyGame/screenshots/game-of-life.png">
+
 
