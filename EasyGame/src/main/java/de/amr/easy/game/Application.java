@@ -288,6 +288,7 @@ public abstract class Application {
 		printValue("Height", "%d", settings.height);
 		printValue("Scaling", "%.2f", settings.scale);
 		printValue("Framerate (ticks/sec)", "%d", settings.fps);
+		printValue("Smooth rendering", "%s", settings.smoothRendering);
 	}
 
 	protected void printValue(String name, String format, Object value) {
