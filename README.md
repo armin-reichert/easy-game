@@ -106,6 +106,12 @@ StateMachine.beginStateMachine(ApplicationState.class, ApplicationEvent.class, E
 .endStateMachine();
 ```
 
+## Integrated control dialog
+
+By pressing the F2-key an integrated dialog is opened where you can interactively change the frequency of the game clock, watch the frame rate history and change the resolution of the full-screen mode.
+
+<img src="EasyGame/screenshots/appcontrol.png">
+
 ## Examples
 
 - [Pong](https://github.com/armin-reichert/pong)
