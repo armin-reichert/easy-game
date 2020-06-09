@@ -52,7 +52,8 @@ import de.amr.easy.game.view.View;
  */
 public class AppShell extends JFrame {
 
-	private static final String PAUSED_TEXT = "PAUSED (Press CTRL+P to continue)";
+	// TODO localize
+	private static final String PAUSED_TEXT = "PAUSED\n(Press CTRL+P to continue)";
 
 	private final Application app;
 	private final int width;
@@ -265,22 +266,32 @@ public class AppShell extends JFrame {
 			g.translate((screenWidth - scaledWidth) / 2, (screenHeight - scaledHeight) / 2);
 			g.setClip(0, 0, scaledWidth, scaledHeight);
 			g.scale(scale, scale);
+			view.draw(g);
+			drawPausedText(g);
 		} else {
 			g.scale(app.settings().scale, app.settings().scale);
+			view.draw(g);
+			drawPausedText(g);
 		}
-		view.draw(g);
-		drawPausedText(g);
 		g.dispose();
 	}
 
 	private void drawPausedText(Graphics2D g) {
 		if (app.isPaused()) {
-			int fontSize = round((width / PAUSED_TEXT.length()) * 1.6f);
+			String[] lines = PAUSED_TEXT.split("\n");
+			int maxLineLength = Arrays.stream(lines).map(String::length).max(Integer::compare).get();
+			int fontSize = round((width / maxLineLength) * 1.6f);
 			Font font = new Font(Font.MONOSPACED, Font.BOLD, fontSize);
-			g.setColor(Color.RED);
+			g.setColor(new Color(180, 180, 180, 160));
+			g.fillRect(0, 0, width, height);
+			g.setColor(Color.WHITE);
 			g.setFont(font);
-			int textWidth = g.getFontMetrics(font).stringWidth(PAUSED_TEXT);
-			g.drawString(PAUSED_TEXT, (width - textWidth) / 2, height / 2);
+			int lineY = height / 2;
+			for (String line : lines) {
+				int lineWidth = g.getFontMetrics(font).stringWidth(line);
+				g.drawString(line, (width - lineWidth) / 2, lineY);
+				lineY += 2 * fontSize;
+			}
 		}
 	}
 
