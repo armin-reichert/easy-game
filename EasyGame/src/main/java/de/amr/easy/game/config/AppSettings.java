@@ -26,37 +26,30 @@ public class AppSettings {
 	@Parameter(names = { "-title" }, description = "application title")
 	public String title = "My Application!";
 
-	/**
-	 * If <code>true</code>, additional info (frame rate, resolution) gets displayed in title.
-	 */
+	@Parameter(names = { "-smoothRendering" }, description = "Use antialiased rendering")
+	public boolean smoothRendering = false;
+
 	@Parameter(names = { "-titleExtended" }, description = "Application title shows frame rate and screen resolution")
 	public boolean titleExtended;
 
-	/** Frame rate of clock. */
 	@Parameter(names = { "-fps" }, description = "Clock speed (ticks/sec)")
 	public int fps = 60;
 
-	/** The unscaled width of application area in pixel. */
 	@Parameter(names = { "-width" }, description = "Application window width (unscaled)")
 	public int width = 640;
 
-	/** The unscaled height of the application area in pixel. */
 	@Parameter(names = { "-height" }, description = "Application window height (unscaled)")
 	public int height = 480;
 
-	/** The scale factor for the screen. */
 	@Parameter(names = { "-scale" }, description = "Application window scaling factor")
 	public float scale = 1f;
 
-	/** If <code>true</code>, the application starts in full-screen mode. */
 	@Parameter(names = { "-fullScreenOnStart", "-fullScreen" }, description = "Start in full-screen mode")
 	public boolean fullScreen = false;
 
-	/** If <code>true</code>, the cursor is visible in full-screen mode. */
 	@Parameter(names = { "-fullScreenCursor" }, description = "Cursor visible in fullscreen mode")
 	public boolean fullScreenCursor = false;
 
-	/** The full-screen mode (resolution, depth), see {@link FullScreenMode}. */
 	@Parameter(names = {
 			"-fullScreenMode" }, converter = DisplayModeConverter.class, description = "Full-screen display mode e.g. 800,600,16")
 	public DisplayMode fullScreenMode = null;
@@ -71,7 +64,7 @@ public class AppSettings {
 	/**
 	 * Sets a user-defined setting value.
 	 * 
-	 * @param name   setting name
+	 * @param name  setting name
 	 * @param value setting value
 	 */
 	public void set(String name, Object value) {

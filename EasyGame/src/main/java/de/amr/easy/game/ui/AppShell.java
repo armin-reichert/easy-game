@@ -15,6 +15,7 @@ import java.awt.Graphics2D;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Point;
+import java.awt.RenderingHints;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -109,6 +110,10 @@ public class AppShell extends JFrame {
 					app.toggleFullScreen();
 				} else if (e.getKeyCode() == KeyEvent.VK_ESCAPE && inFullScreenMode()) {
 					app.toggleFullScreen();
+				} else if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_0) {
+					app.settings().smoothRendering = false;
+				} else if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_1) {
+					app.settings().smoothRendering = true;
 				}
 			}
 		};
@@ -258,6 +263,11 @@ public class AppShell extends JFrame {
 
 	private void renderView(View view, Graphics2D g) {
 		g = (Graphics2D) g.create();
+		if (app.settings().smoothRendering) {
+			g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+			g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+			g.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
+		}
 		if (inFullScreenMode()) {
 			float screenWidth = fullScreenWindow.getWidth(), screenHeight = fullScreenWindow.getHeight();
 			float scale = Math.min(screenWidth / width, screenHeight / height);
