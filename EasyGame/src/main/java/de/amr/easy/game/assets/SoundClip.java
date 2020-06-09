@@ -1,6 +1,5 @@
 package de.amr.easy.game.assets;
 
-import static de.amr.easy.game.Application.loginfo;
 import static java.lang.Math.log10;
 import static java.lang.Math.pow;
 
@@ -27,27 +26,9 @@ import javazoom.spi.mpeg.sampled.file.MpegAudioFormat;
  */
 public class SoundClip {
 
-	public static SoundClip of(String path, InputStream is) {
-		try {
-			return new SoundClip(path, is);
-		} catch (LineUnavailableException x) {
-			loginfo("Cannot create sound clip: line unavailable");
-			throw new RuntimeException(x);
-		} catch (IOException x) {
-			loginfo("Cannot read sound clip");
-			throw new RuntimeException(x);
-		} catch (UnsupportedAudioFileException x) {
-			loginfo("Unsupported audio format");
-			throw new RuntimeException(x);
-		}
-	}
-
-	private final String path;
 	private final Clip clip;
 
-	private SoundClip(String path, InputStream is)
-			throws LineUnavailableException, IOException, UnsupportedAudioFileException {
-		this.path = path;
+	public SoundClip(InputStream is) throws LineUnavailableException, IOException, UnsupportedAudioFileException {
 		AudioInputStream ais = AudioSystem.getAudioInputStream(new BufferedInputStream(is));
 		if (ais.getFormat() instanceof MpegAudioFormat) {
 			AudioFormat mp3 = ais.getFormat();
@@ -64,7 +45,7 @@ public class SoundClip {
 
 	@Override
 	public String toString() {
-		return String.format("Clip[path: %s, info: %s", path, clip);
+		return String.format("SoundClip[%s]", clip);
 	}
 
 	/**

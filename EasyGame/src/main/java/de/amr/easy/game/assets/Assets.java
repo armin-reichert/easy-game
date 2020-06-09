@@ -3,6 +3,7 @@ package de.amr.easy.game.assets;
 import static de.amr.easy.game.Application.LOGGER;
 
 import java.awt.Font;
+import java.awt.FontFormatException;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsEnvironment;
@@ -16,27 +17,39 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 
 /**
- * This class provides functionality to access assets like image, sounds, fonts etc.
+ * This class provides access to assets like images, sounds, fonts, texts etc. When an asset is
+ * accessed for the first time, it is stored inside a cache and the cached value is returned
+ * afterwards.
  * 
  * @author Armin Reichert
  */
 public class Assets {
 
-	private static final Map<String, Font> fontMap = new HashMap<>();
-	private static final Map<String, Image> imageMap = new HashMap<>();
-	private static final Map<String, SoundClip> soundMap = new HashMap<>();
-	private static final Map<String, String> textMap = new HashMap<>();
+	// caches
+	private static final Map<String, Font> fontCache = new HashMap<>();
+	private static final Map<String, BufferedImage> imageCache = new HashMap<>();
+	private static final Map<String, SoundClip> soundCache = new HashMap<>();
+	private static final Map<String, String> textCache = new HashMap<>();
 
-	private static InputStream stream(String path) {
+	/**
+	 * Returns a stream to the asset at the given path.
+	 * 
+	 * @param path path inside assets folder
+	 * @return inout stream for reading asset
+	 */
+	public static InputStream stream(String path) {
+		path = Objects.requireNonNull(path);
 		InputStream stream = Assets.class.getClassLoader().getResourceAsStream(path);
 		if (stream == null) {
-			LOGGER.severe(String.format("Assets: Resource '%s' not found", path));
-			throw new RuntimeException();
+			throw new AssetException(String.format("Asset with path '%s' not found", path));
 		}
 		return stream;
 	}
@@ -55,17 +68,23 @@ public class Assets {
 			}
 			return sb.toString();
 		} catch (IOException e) {
-			LOGGER.severe(String.format("Assets: Could not read text file '%s'", path));
-			throw new RuntimeException(e);
+			throw new AssetException(String.format("Text file with path '%s' could not be read", path));
 		}
 	}
 
-	private static Font readTrueTypeFont(String fontFilePath) {
-		try (InputStream is = stream(fontFilePath)) {
+	/**
+	 * Reads a true-type font from the given assets path.
+	 * 
+	 * @param path relative path inside "assets" folder
+	 * @return the font
+	 */
+	public static Font readTrueTypeFont(String path) {
+		try (InputStream is = stream(path)) {
 			return Font.createFont(Font.TRUETYPE_FONT, is);
-		} catch (Exception e) {
-			LOGGER.severe(String.format("Assets: Could not read font '%s'", fontFilePath));
-			throw new RuntimeException(e);
+		} catch (IOException e) {
+			throw new AssetException(String.format("True-type font with path '%s' could not be read", path));
+		} catch (FontFormatException x) {
+			throw new AssetException(String.format("Font with path '%s' has wrong format", path));
 		}
 	}
 
@@ -78,14 +97,12 @@ public class Assets {
 	public static BufferedImage readImage(String path) {
 		try (InputStream is = stream(path)) {
 			BufferedImage image = ImageIO.read(is);
-			if (image != null) {
-				return image;
+			if (image == null) {
+				throw new AssetException(String.format("Image with path '%s' not found", path));
 			}
-			LOGGER.severe(String.format("Assets: Image '%s' not found", path));
-			throw new RuntimeException();
+			return image;
 		} catch (IOException e) {
-			LOGGER.severe(String.format("Assets: Image '%s' could not be read", path));
-			throw new RuntimeException(e);
+			throw new RuntimeException(String.format("Image with path '%s' could not be read", path));
 		}
 	}
 
@@ -106,6 +123,14 @@ public class Assets {
 		return buffered;
 	}
 
+	/**
+	 * Creates a buffered image of the given dimensions and transparency.
+	 * 
+	 * @param width        image width in pixels
+	 * @param height       image height in pixels
+	 * @param transparency transparency, see {@link Transparency}
+	 * @return a buffered image
+	 */
 	public static BufferedImage createBufferedImage(int width, int height, int transparency) {
 		GraphicsConfiguration gc = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice()
 				.getDefaultConfiguration();
@@ -113,30 +138,39 @@ public class Assets {
 	}
 
 	/**
-	 * Returns the names of all images accessed so far.
+	 * Returns the names of all stored images.
 	 * 
 	 * @return the image names
 	 */
 	public static Iterable<String> imageNames() {
-		return imageMap.keySet();
+		return imageCache.keySet();
 	}
 
 	/**
-	 * Returns the names of all sounds accessed so far.
+	 * Returns a stream of all stored images.
+	 * 
+	 * @return stream of all stored images
+	 */
+	public static Stream<BufferedImage> images() {
+		return imageCache.values().stream();
+	}
+
+	/**
+	 * Returns the names of all stored sounds.
 	 * 
 	 * @return the sound names
 	 */
 	public static Iterable<String> soundNames() {
-		return soundMap.keySet();
+		return soundCache.keySet();
 	}
 
 	/**
-	 * Returns the sound objects accessed so far.
+	 * Returns a stream of all stored sound clips.
 	 * 
-	 * @return the sound objects
+	 * @return the sound clips
 	 */
 	public static Stream<SoundClip> sounds() {
-		return soundMap.values().stream();
+		return soundCache.values().stream();
 	}
 
 	/**
@@ -145,9 +179,9 @@ public class Assets {
 	 * @param path  path names
 	 * @param image image
 	 */
-	public static void storeImage(String path, Image image) {
-		if (imageMap.put(path, image) != null) {
-			LOGGER.warning(String.format("Assets: Image '%s' was replaced.", path));
+	public static void storeImage(String path, BufferedImage image) {
+		if (imageCache.put(path, image) != null) {
+			LOGGER.warning(String.format("Assets: Image '%s' has been replaced.", path));
 		}
 	}
 
@@ -161,11 +195,11 @@ public class Assets {
 	 * @return font as specified
 	 */
 	public static Font storeTrueTypeFont(String key, String fontName, int style, float size) {
-		if (!fontMap.containsKey(key)) {
+		if (!fontCache.containsKey(key)) {
 			Font font = readTrueTypeFont(fontName).deriveFont(style, size);
-			fontMap.put(key, font);
+			fontCache.put(key, font);
 		}
-		return fontMap.get(key);
+		return fontCache.get(key);
 	}
 
 	/**
@@ -178,11 +212,11 @@ public class Assets {
 	 * @return derived font
 	 */
 	public static Font storeFont(String key, Font baseFont, int style, float size) {
-		if (!fontMap.containsKey(key)) {
+		if (!fontCache.containsKey(key)) {
 			Font font = baseFont.deriveFont(style, size);
-			fontMap.put(key, font);
+			fontCache.put(key, font);
 		}
-		return fontMap.get(key);
+		return fontCache.get(key);
 	}
 
 	/**
@@ -192,10 +226,10 @@ public class Assets {
 	 * @return font as requested
 	 */
 	public static Font font(String key) {
-		if (fontMap.containsKey(key)) {
-			return fontMap.get(key);
+		if (fontCache.containsKey(key)) {
+			return fontCache.get(key);
 		}
-		throw new IllegalStateException("No font found with key: " + key);
+		throw new AssetException("No font found with key: " + key);
 	}
 
 	/**
@@ -205,31 +239,33 @@ public class Assets {
 	 * @param path path under assets folder or key in assets map
 	 * @return image as requested
 	 */
-	@SuppressWarnings("unchecked")
-	public static <T extends Image> T image(String path) {
-		if (!imageMap.containsKey(path)) {
-			imageMap.put(path, readImage(path));
+	public static BufferedImage image(String path) {
+		if (!imageCache.containsKey(path)) {
+			imageCache.put(path, readImage(path));
 		}
-		return (T) imageMap.get(path);
+		return imageCache.get(path);
 	}
 
 	/**
-	 * Returns the sound (clip) with the given path.
+	 * Returns the sound clip with the given path.
 	 * 
 	 * @param path path to sound file
 	 * @return sound object
 	 */
 	public static SoundClip sound(String path) {
-		if (soundMap.containsKey(path)) {
-			return soundMap.get(path);
+		if (soundCache.containsKey(path)) {
+			return soundCache.get(path);
 		}
 		try (InputStream is = stream(path)) {
-			SoundClip sound = SoundClip.of(path, is);
-			soundMap.put(path, sound);
+			SoundClip sound = new SoundClip(is);
+			soundCache.put(path, sound);
 			return sound;
-		} catch (Exception e) {
-			LOGGER.severe(String.format("Assets: Could not read sound resource '%s'", path));
-			throw new RuntimeException(e);
+		} catch (IOException e) {
+			throw new AssetException(String.format("Sound file at path '%s' could not be opened", path), e);
+		} catch (LineUnavailableException e) {
+			throw new AssetException(String.format("Sound file at path '%s' is not available", path), e);
+		} catch (UnsupportedAudioFileException e) {
+			throw new AssetException(String.format("Sound file at path '%s' has unsupported aufdio format", path), e);
 		}
 	}
 
@@ -240,19 +276,24 @@ public class Assets {
 	 * @return text file content as a single string
 	 */
 	public static String text(String path) {
-		if (textMap.containsKey(path)) {
-			return textMap.get(path);
+		if (textCache.containsKey(path)) {
+			return textCache.get(path);
 		}
 		String text = readTextFile(path);
-		textMap.put(path, text);
+		textCache.put(path, text);
 		return text;
 	}
 
-	public static String overview() {
+	/**
+	 * Table of content.
+	 * 
+	 * @return textual description of stored assets
+	 */
+	public static String toc() {
 		StringBuilder s = new StringBuilder();
-		String[] fontNames = fontMap.keySet().toArray(new String[fontMap.size()]);
-		String[] imageNames = imageMap.keySet().toArray(new String[imageMap.size()]);
-		String[] soundNames = soundMap.keySet().toArray(new String[soundMap.size()]);
+		String[] fontNames = fontCache.keySet().toArray(new String[fontCache.size()]);
+		String[] imageNames = imageCache.keySet().toArray(new String[imageCache.size()]);
+		String[] soundNames = soundCache.keySet().toArray(new String[soundCache.size()]);
 		Arrays.sort(fontNames);
 		Arrays.sort(imageNames);
 		Arrays.sort(soundNames);
@@ -271,7 +312,7 @@ public class Assets {
 			s.append(name).append(": ").append(sound.getClass().getSimpleName()).append("\n");
 		}
 		s.append("\n-- Texts:\n");
-		textMap.entrySet().stream().forEach(entry -> {
+		textCache.entrySet().stream().forEach(entry -> {
 			s.append(entry.getKey()).append(": ").append(entry.getValue()).append("\n");
 		});
 		return s.toString();
