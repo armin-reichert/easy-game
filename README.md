@@ -113,7 +113,7 @@ StateMachine.beginStateMachine(ApplicationState.class, ApplicationEvent.class, E
 
 - [PacMan](https://github.com/armin-reichert/pacman)
 
-<img src="screenshots/pacman.png">
+<img src="https://github.com/armin-reichert/easy-game/EasyGame/screenshots/pacman.png">
 
 - [Nine-mens morris](https://github.com/armin-reichert/nine-mens-morris)
 
