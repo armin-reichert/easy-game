@@ -1,10 +1,10 @@
 package de.amr.easy.game.timing;
 
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.concurrent.TimeUnit;
 
 import de.amr.easy.game.Application;
 
@@ -15,31 +15,23 @@ import de.amr.easy.game.Application;
  */
 public class Clock {
 
+	public volatile boolean logging;
+
 	/**
 	 * Action executed on every clock tick.
 	 */
 	public Runnable onTick;
 
-	public volatile boolean logging;
-
-	private volatile boolean ticking;
-
 	private Thread thread;
-
-	private int targetSpeed;
-
-	/** frame duration at current frame rate in nanoseconds */
-	private long period;
-
+	private volatile boolean ticking;
 	private long totalTicks;
+	private int targetFrameRate;
 
-	private int ticksPerInterval;
-
-	private int frameRate;
-
-	private long intervalStart;
-
-	private float frameRateDiff;
+	// frame rate control and measurement
+	private int currentFrameRate;
+	private long targetFrameDuration;
+	private long frameCountStarted;
+	private int countedFrames;
 
 	private PropertyChangeSupport changes = new PropertyChangeSupport(this);
 
@@ -89,52 +81,40 @@ public class Clock {
 
 	private void tick() {
 		while (ticking) {
-			tickOnce();
+			singleTick();
 		}
 	}
 
-	private void tickOnce() {
-		long tickStart, tickEnd, tickDuration; // in nanoseconds
-
-		// tick once and perform client action
-		tickStart = System.nanoTime();
+	private void singleTick() {
+		long startTime = System.nanoTime();
 		if (onTick != null) {
 			onTick.run();
 		}
-		tickEnd = System.nanoTime();
-
-		++ticksPerInterval;
-		++totalTicks;
-
-		tickDuration = tickEnd - tickStart;
-		loginfo("Tick:  %5.2f ms", tickDuration / 1_000_000f);
-
-		// measure frame rate
-		int numIntervals = targetSpeed / 10;
-		numIntervals = Math.max(numIntervals, 2);
-		numIntervals = Math.min(numIntervals, 10);
-		long intervalDuration = SECONDS.toNanos(1) / numIntervals;
-
-		if (tickEnd >= intervalStart + intervalDuration) {
-			// next interval
-			frameRate = ticksPerInterval * numIntervals;
-			ticksPerInterval = 0;
-			frameRateDiff = ((float) (frameRate - targetSpeed)) / targetSpeed;
-			loginfo("current frame rate difference: %.2f%%", frameRateDiff * 100);
-			intervalStart = System.nanoTime();
+		long currentFrameDuration = System.nanoTime() - startTime;
+		loginfo("Tick  %.2f millisec", currentFrameDuration / 1_000_000f);
+		++countedFrames;
+		long now = System.nanoTime();
+		if (now - frameCountStarted > TimeUnit.SECONDS.toNanos(1)) {
+			currentFrameRate = countedFrames;
+			countedFrames = 0;
+			frameCountStarted = now;
 		}
-
-		// sleep as long as needed to reach target FPS
-		long sleep = period - tickDuration;
-		sleep += Math.round(sleep * frameRateDiff);
-		if (sleep > 0) {
+		long sleepTime = sleepTime(currentFrameDuration);
+		if (sleepTime > 0) {
 			try {
-				NANOSECONDS.sleep(sleep);
-				loginfo("Sleep: %5.2f ms", sleep / 1_000_000f);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+				TimeUnit.NANOSECONDS.sleep(sleepTime);
+				loginfo("Sleep %.2f millisec", sleepTime / 1_000_000f);
+			} catch (InterruptedException x) {
+				x.printStackTrace();
 			}
 		}
+	}
+
+	private long sleepTime(long frameDuration) {
+		long timeLeft = targetFrameDuration - frameDuration;
+		return timeLeft;
+//		double fraction = (double) timeLeft / targetFrameDuration;
+//		return Math.round(fraction * timeLeft);
 	}
 
 	/**
@@ -157,33 +137,33 @@ public class Clock {
 	 * @return last reported number of frames/second
 	 */
 	public int getFrameRate() {
-		return frameRate;
+		return currentFrameRate;
 	}
 
 	/**
 	 * @return the clock's target frequency (ticks per second)
 	 */
 	public int getTargetFramerate() {
-		return targetSpeed;
+		return targetFrameRate;
 	}
 
 	/**
-	 * Sets the clock's target frequency to the given value (ticks per second).
+	 * Sets the clock's target framerate to the given value.
 	 * 
-	 * @param ticksPerSecond number of ticks per second
+	 * @param newTargetFrameRate new target framerate in ticks per second
 	 */
-	public void setTargetFrameRate(int ticksPerSecond) {
-		if (this.targetSpeed == ticksPerSecond) {
+	public void setTargetFrameRate(int newTargetFrameRate) {
+		if (newTargetFrameRate < 1) {
+			throw new IllegalArgumentException("Clock target framerate must be at least 1");
+		}
+		if (this.targetFrameRate == newTargetFrameRate) {
 			return;
 		}
-		if (ticksPerSecond < 1) {
-			throw new IllegalArgumentException("Clock frequency must be at least 1");
-		}
-		int oldTargetSpeed = targetSpeed;
-		targetSpeed = ticksPerSecond;
-		period = SECONDS.toNanos(1) / ticksPerSecond;
-		loginfo("Clock target frequency set to %d ticks/sec.", targetSpeed);
-		changes.firePropertyChange("frequency", oldTargetSpeed, targetSpeed);
+		int oldTargetFrameRate = targetFrameRate;
+		targetFrameRate = newTargetFrameRate;
+		targetFrameDuration = SECONDS.toNanos(1) / newTargetFrameRate;
+		loginfo("Clock target framerate set to %d ticks/sec.", targetFrameRate);
+		changes.firePropertyChange("frequency", oldTargetFrameRate, targetFrameRate);
 	}
 
 	/**
@@ -201,7 +181,7 @@ public class Clock {
 	 * @return number of clock ticks representing the given seconds
 	 */
 	public int sec(float seconds) {
-		return Math.round(targetSpeed * seconds);
+		return Math.round(targetFrameRate * seconds);
 	}
 
 	private void loginfo(String format, Object... args) {
