@@ -93,28 +93,33 @@ public class Clock {
 		long currentFrameDuration = System.nanoTime() - startTime;
 		loginfo("Tick  %.2f millisec", currentFrameDuration / 1_000_000f);
 		++countedFrames;
+
 		long now = System.nanoTime();
+
+		// half a second has passed, check if still fast enough
+		boolean tooSlow = false;
+		if (now - frameCountStarted > TimeUnit.SECONDS.toNanos(1) / 2) {
+			if (countedFrames < targetFrameRate / 2) {
+				tooSlow = true;
+			}
+		}
+
+		// one second has passed, store framerate
 		if (now - frameCountStarted > TimeUnit.SECONDS.toNanos(1)) {
 			currentFrameRate = countedFrames;
 			countedFrames = 0;
 			frameCountStarted = now;
 		}
-		long sleepTime = sleepTime(currentFrameDuration);
+
+		long sleepTime = targetFrameDuration - currentFrameDuration;
 		if (sleepTime > 0) {
 			try {
-				TimeUnit.NANOSECONDS.sleep(sleepTime);
+				TimeUnit.NANOSECONDS.sleep(tooSlow ? 0 : sleepTime);
 				loginfo("Sleep %.2f millisec", sleepTime / 1_000_000f);
 			} catch (InterruptedException x) {
 				x.printStackTrace();
 			}
 		}
-	}
-
-	private long sleepTime(long frameDuration) {
-		long timeLeft = targetFrameDuration - frameDuration;
-		return timeLeft;
-//		double fraction = (double) timeLeft / targetFrameDuration;
-//		return Math.round(fraction * timeLeft);
 	}
 
 	/**
