@@ -2,7 +2,27 @@
 
 A simple Java2D/Swing based library for programming Java 2D games and other applications using active rendering. Makes it easy to create and launch a game application, provides integrated window-mode/full-screen switching, polling for keyboard and mouse events, standard hooks for initializing, updating and rendering, game entities with an associated transform object, support for sprites with different animation types, asset management (images, fonts, sounds), some common widgets etc. The animation frequency ("frame rate") can be changed interactively using a dialog window. This allows to run each application at an arbitray frame rate and to inspect it at runtime in slow motion.
 
-## Minimal application
+## Common functionality
+
+- CTRL+P pauses/resumes the game
+- F2 opens a dialog where the game clock frequency and (full-)screen resolution can be changed
+- F11 toggles between window and full-screen exclusive mode
+ 
+## Command-line arguments:
+
+The following command-line arguments are available for every application:
+
+  - Framerate (default=60): `-fps 60`
+  - Scaling (default=1): `-scale 2.5`
+  - Full-screen mode on start (default=off): `-fullScreenOnStart`
+  - Full-screen resolution & depth (default=maximal available resolution): `-fullScreenMode 800,600,32`
+  - Window title (default="My Application!"): `-title "Pac-Man Game"`
+  - Window title àdditionally showing framerate and resolution (default=off): `-titleExtended
+  - Window width (default=640): `-width 1024`
+  - Window height (default=480): `-height 768`
+  - Rendering with image smoothing (default=off); `-smoothRendering`
+
+## A minimal application
 
 A minimal application is created by the following code:
 
