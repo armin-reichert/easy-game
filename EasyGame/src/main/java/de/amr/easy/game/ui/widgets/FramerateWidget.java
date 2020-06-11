@@ -15,7 +15,7 @@ import de.amr.easy.game.view.View;
  * 
  * @author Armin Reichert
  */
-public class FrameRateWidget extends Entity implements View {
+public class FramerateWidget extends Entity implements View {
 
 	public Color color = new Color(200, 200, 200);
 	public Font font = new Font(Font.MONOSPACED, Font.BOLD, 8);

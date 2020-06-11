@@ -1,10 +1,10 @@
 package de.amr.easy.game.timing;
 
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.util.concurrent.TimeUnit;
 
 import de.amr.easy.game.Application;
 
@@ -29,9 +29,8 @@ public class Clock {
 
 	// frame rate control and measurement
 	private int currentFrameRate;
-	private long targetFrameDuration;
-	private long frameCountStarted;
-	private int countedFrames;
+	private long frameCountStart;
+	private int frames;
 
 	private PropertyChangeSupport changes = new PropertyChangeSupport(this);
 
@@ -60,7 +59,7 @@ public class Clock {
 		if (!ticking) {
 			totalTicks = 0;
 			ticking = true;
-			thread = new Thread(this::tick, "Clock");
+			thread = new Thread(this::tick, "Clock-" + hashCode());
 			thread.start();
 		}
 	}
@@ -81,51 +80,52 @@ public class Clock {
 
 	private void tick() {
 		while (ticking) {
-			singleTick();
+			try {
+				singleTick();
+			} catch (InterruptedException x) {
+				// ignore
+			}
 		}
 	}
 
-	private void singleTick() {
+	private void singleTick() throws InterruptedException {
 		long startTime = System.nanoTime();
 		if (onTick != null) {
 			onTick.run();
 		}
-		long currentFrameDuration = System.nanoTime() - startTime;
-		loginfo("Tick  %.2f millisec", currentFrameDuration / 1_000_000f);
-		++countedFrames;
+		long frameDuration = System.nanoTime() - startTime;
+		loginfo("Tick  %.2f millisec", frameDuration / 1_000_000f);
+		++frames;
 
 		long now = System.nanoTime();
-
-		// half a second has passed, check if still fast enough
 		boolean tooSlow = false;
-		if (now - frameCountStarted > TimeUnit.SECONDS.toNanos(1) / 2) {
-			if (countedFrames < targetFrameRate / 2) {
+
+		// half a second has passed since last measurement start, check if running fast enough
+		if (now - frameCountStart > SECONDS.toNanos(1) / 2) {
+			if (frames < targetFrameRate / 2) {
 				tooSlow = true;
 			}
 		}
 
 		// one second has passed, store framerate
-		if (now - frameCountStarted > TimeUnit.SECONDS.toNanos(1)) {
-			currentFrameRate = countedFrames;
-			countedFrames = 0;
-			frameCountStarted = now;
+		if (now - frameCountStart > SECONDS.toNanos(1)) {
+			currentFrameRate = frames;
+			frames = 0;
+			frameCountStart = now;
 		}
 
-		long sleepTime = targetFrameDuration - currentFrameDuration;
+		// keep target framerate
+		long sleepTime = SECONDS.toNanos(1) / targetFrameRate - frameDuration;
 		if (sleepTime > 0) {
-			try {
-				TimeUnit.NANOSECONDS.sleep(tooSlow ? 0 : sleepTime);
-				loginfo("Sleep %.2f millisec", sleepTime / 1_000_000f);
-			} catch (InterruptedException x) {
-				x.printStackTrace();
-			}
+			NANOSECONDS.sleep(tooSlow ? 0 : sleepTime);
+			loginfo("Sleep %.2f millisec", sleepTime / 1_000_000f);
 		}
 	}
 
 	/**
-	 * Adds a listener for frequency changes.
+	 * Adds a listener for target frequency changes.
 	 * 
-	 * @param listener frequency change listener
+	 * @param listener target frequency change listener
 	 */
 	public void addFrequencyChangeListener(PropertyChangeListener listener) {
 		changes.addPropertyChangeListener("frequency", listener);
@@ -139,14 +139,14 @@ public class Clock {
 	}
 
 	/**
-	 * @return last reported number of frames/second
+	 * @return current number of frames/second
 	 */
 	public int getFrameRate() {
 		return currentFrameRate;
 	}
 
 	/**
-	 * @return the clock's target frequency (ticks per second)
+	 * @return the clock's target framerate (ticks per second)
 	 */
 	public int getTargetFramerate() {
 		return targetFrameRate;
@@ -161,12 +161,8 @@ public class Clock {
 		if (newTargetFrameRate < 1) {
 			throw new IllegalArgumentException("Clock target framerate must be at least 1");
 		}
-		if (this.targetFrameRate == newTargetFrameRate) {
-			return;
-		}
 		int oldTargetFrameRate = targetFrameRate;
 		targetFrameRate = newTargetFrameRate;
-		targetFrameDuration = SECONDS.toNanos(1) / newTargetFrameRate;
 		loginfo("Clock target framerate set to %d ticks/sec.", targetFrameRate);
 		changes.firePropertyChange("frequency", oldTargetFrameRate, targetFrameRate);
 	}
