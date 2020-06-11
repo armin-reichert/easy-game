@@ -17,7 +17,7 @@ The following command-line arguments are available for every application:
   - Full-screen mode on start (default=off): `-fullScreenOnStart`
   - Full-screen resolution & depth (default=maximal available resolution): `-fullScreenMode 800,600,32`
   - Window title (default="My Application!"): `-title "Pac-Man Game"`
-  - Window title àdditionally showing framerate and resolution (default=off): `-titleExtended
+  - Window title àdditionally showing framerate and resolution (default=off): `-titleExtended`
   - Window width (default=640): `-width 1024`
   - Window height (default=480): `-height 768`
   - Rendering with image smoothing (default=off); `-smoothRendering`
