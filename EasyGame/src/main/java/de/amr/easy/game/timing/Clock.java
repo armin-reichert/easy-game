@@ -114,10 +114,10 @@ public class Clock {
 			frameCountStart = now;
 		}
 
-		// keep target framerate
-		long sleepTime = SECONDS.toNanos(1) / targetFrameRate - frameDuration;
-		if (sleepTime > 0) {
-			NANOSECONDS.sleep(tooSlow ? 0 : sleepTime);
+		// sleep to keep target framerate
+		if (!tooSlow) {
+			long sleepTime = SECONDS.toNanos(1) / targetFrameRate - frameDuration;
+			NANOSECONDS.sleep(sleepTime);
 			loginfo("Sleep %.2f millisec", sleepTime / 1_000_000f);
 		}
 	}
