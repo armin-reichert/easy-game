@@ -12,12 +12,12 @@ A simple Java2D/Swing based library for programming Java 2D games and other appl
 
 The following command-line arguments are available for every application:
 
-  - Framerate (default=60): `-fps 60`
+  - Framerate (default=60): `-fps 30`
   - Scaling (default=1): `-scale 2.5`
   - Full-screen mode on start (default=off): `-fullScreenOnStart`
   - Full-screen resolution & depth (default=maximal available resolution): `-fullScreenMode 800,600,32`
   - Window title (default="My Application!"): `-title "Pac-Man Game"`
-  - Window title àdditionally showing framerate and resolution (default=off): `-titleExtended`
+  - Window title is additionally showing framerate and resolution (default=off): `-titleExtended`
   - Window width (default=640): `-width 1024`
   - Window height (default=480): `-height 768`
   - Rendering with image smoothing (default=off); `-smoothRendering`
