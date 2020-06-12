@@ -14,6 +14,7 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.event.KeyAdapter;
@@ -26,6 +27,7 @@ import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
@@ -57,8 +59,8 @@ public class AppShell extends JFrame {
 	private static final String PAUSED_TEXT = "PAUSED\n(Press CTRL+P to continue)";
 
 	private final Application app;
-	private final int width;
-	private final int height;
+	private final int viewWidth;
+	private final int viewHeight;
 	private final GraphicsDevice device;
 	private final Canvas canvas;
 	private final JFrame fullScreenWindow;
@@ -67,8 +69,8 @@ public class AppShell extends JFrame {
 
 	public AppShell(Application app, int width, int height) {
 		this.app = app;
-		this.width = width;
-		this.height = height;
+		this.viewWidth = width;
+		this.viewHeight = height;
 
 		device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 		if (app.settings().fullScreenMode == null) {
@@ -172,8 +174,8 @@ public class AppShell extends JFrame {
 		requestFocus();
 		canvas.createBufferStrategy(2);
 		setVisible(true);
-		loginfo("Entered window mode, resolution %dx%d (%dx%d px scaled by %.2f)", (int) (width * app.settings().scale),
-				(int) (height * app.settings().scale), width, height, app.settings().scale);
+		loginfo("Entered window mode, resolution %dx%d (%dx%d px scaled by %.2f)", (int) (viewWidth * app.settings().scale),
+				(int) (viewHeight * app.settings().scale), viewWidth, viewHeight, app.settings().scale);
 	}
 
 	private void displayFullScreen() throws FullScreenModeException {
@@ -245,6 +247,9 @@ public class AppShell extends JFrame {
 						g.setColor(Color.BLACK);
 						g.fillRect(0, 0, width, height);
 						renderView(view, g);
+						centerHorizontally(g);
+						drawPausedText(g);
+						drawMutedIcon(g);
 						g.dispose();
 					} while (strategy.contentsRestored());
 					strategy.show();
@@ -268,41 +273,63 @@ public class AppShell extends JFrame {
 			g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 			g.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
 		}
+		float scaling = scaling();
+		centerHorizontally(g);
+		g.scale(scaling, scaling);
+		view.draw(g);
+		g.dispose();
+	}
+
+	private void centerHorizontally(Graphics2D g) {
 		if (inFullScreenMode()) {
+			Dimension scaledViewSize = scaledViewSize();
 			float screenWidth = fullScreenWindow.getWidth(), screenHeight = fullScreenWindow.getHeight();
-			float scale = Math.min(screenWidth / width, screenHeight / height);
-			int scaledWidth = round(scale * width);
-			int scaledHeight = round(scale * height);
-			g.translate((screenWidth - scaledWidth) / 2, (screenHeight - scaledHeight) / 2);
-			g.setClip(0, 0, scaledWidth, scaledHeight);
-			g.scale(scale, scale);
-			view.draw(g);
-			drawPausedText(g);
-		} else {
-			g.scale(app.settings().scale, app.settings().scale);
-			view.draw(g);
-			drawPausedText(g);
+			g.translate((screenWidth - scaledViewSize.width) / 2, (screenHeight - scaledViewSize.height) / 2);
+			g.setClip(0, 0, scaledViewSize.width, scaledViewSize.height);
+		}
+	}
+
+	private void drawPausedText(Graphics2D g) {
+		g = (Graphics2D) g.create();
+		if (app.isPaused()) {
+			Dimension scaledViewSize = scaledViewSize();
+			String[] lines = PAUSED_TEXT.split("\n");
+			int maxLineLength = Arrays.stream(lines).map(String::length).max(Integer::compare).get();
+			int fontSize = round((scaledViewSize.width / maxLineLength) * 1.6f);
+			Font font = new Font(Font.MONOSPACED, Font.BOLD, fontSize);
+			g.setColor(new Color(120, 120, 120, 80));
+			g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+			g.fillRect(0, 0, scaledViewSize.width, scaledViewSize.height);
+			g.setColor(Color.WHITE);
+			g.setFont(font);
+			int lineY = scaledViewSize.height / 2;
+			for (String line : lines) {
+				int lineWidth = g.getFontMetrics(font).stringWidth(line);
+				g.drawString(line, (scaledViewSize.width - lineWidth) / 2, lineY);
+				lineY += 2 * fontSize;
+			}
 		}
 		g.dispose();
 	}
 
-	private void drawPausedText(Graphics2D g) {
-		if (app.isPaused()) {
-			String[] lines = PAUSED_TEXT.split("\n");
-			int maxLineLength = Arrays.stream(lines).map(String::length).max(Integer::compare).get();
-			int fontSize = round((width / maxLineLength) * 1.6f);
-			Font font = new Font(Font.MONOSPACED, Font.BOLD, fontSize);
-			g.setColor(new Color(180, 180, 180, 160));
-			g.fillRect(0, 0, width, height);
-			g.setColor(Color.WHITE);
-			g.setFont(font);
-			int lineY = height / 2;
-			for (String line : lines) {
-				int lineWidth = g.getFontMetrics(font).stringWidth(line);
-				g.drawString(line, (width - lineWidth) / 2, lineY);
-				lineY += 2 * fontSize;
-			}
+	private void drawMutedIcon(Graphics2D g) {
+		if (app.soundManager().isMuted()) {
+			Image icon = new ImageIcon(getClass().getResource("/icons/muted.png")).getImage();
+			int size = 32;
+			Dimension scaledViewSize = scaledViewSize();
+			g.drawImage(icon, (scaledViewSize.width - size) / 2, scaledViewSize.height - 80, size, size, null);
 		}
+	}
+
+	private float scaling() {
+		return inFullScreenMode()
+				? Math.min(fullScreenWindow.getWidth() / viewWidth, fullScreenWindow.getHeight() / viewHeight)
+				: app.settings().scale;
+	}
+
+	private Dimension scaledViewSize() {
+		float scaling = scaling();
+		return new Dimension(round(scaling * viewWidth), round(scaling * viewHeight));
 	}
 
 	private boolean isValidMode(DisplayMode mode) {
@@ -316,10 +343,7 @@ public class AppShell extends JFrame {
 	}
 
 	private String titleText() {
-		if (app.settings().titleExtended) {
-			return format("%s [%d Hz %dx%d px scaled by %.2f]", app.settings().title, app.clock().getFrameRate(), width,
-					height, app.settings().scale);
-		}
-		return app.settings().title;
+		return app.settings().titleExtended ? format("%s [%d Hz %dx%d px scaled by %.2f]", app.settings().title,
+				app.clock().getFrameRate(), viewWidth, viewHeight, app.settings().scale) : app.settings().title;
 	}
 }
