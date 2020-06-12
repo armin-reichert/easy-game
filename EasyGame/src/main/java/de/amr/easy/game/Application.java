@@ -100,7 +100,7 @@ public abstract class Application {
 		STARTING, RUNNING, PAUSED, CLOSED;
 	}
 
-	enum ApplicationEvent {
+	public enum ApplicationEvent {
 		TOGGLE_PAUSE, TOGGLE_FULLSCREEN, SHOW_SETTINGS_DIALOG, CLOSE
 	}
 
@@ -317,6 +317,10 @@ public abstract class Application {
 		return life.is(PAUSED);
 	}
 
+	public boolean isRunning() {
+		return life.is(RUNNING);
+	}
+
 	public void togglePause() {
 		life.process(TOGGLE_PAUSE);
 	}
@@ -425,22 +429,33 @@ public abstract class Application {
 	}
 
 	/**
-	 * Adds a listener that is called when the given state is entered.
+	 * Adds a listener that is called when the given state is entered. <br>
+	 * Example:
+	 * 
+	 * <pre>
+	 * app().onEntry(ApplicationState.PAUSED, state -> goNapping(state));
+	 * </pre>
 	 * 
 	 * @param state    state to be observed
 	 * @param listener called when the state is entered
 	 */
-	public void onStateEntry(ApplicationState state, Consumer<State<ApplicationState>> listener) {
+	public void onEntry(ApplicationState state, Consumer<State<ApplicationState>> listener) {
 		life.addStateEntryListener(state, listener);
 	}
 
 	/**
 	 * Adds a listener that is called when the given state is left.
 	 * 
+	 * Example:
+	 * 
+	 * <pre>
+	 * app().onExit(ApplicationState.PAUSED, state -> wakeUp(state));
+	 * </pre>
+	 * 
 	 * @param state    state to be observed
 	 * @param listener called when the state is left
 	 */
-	public void onStateExit(ApplicationState state, Consumer<State<ApplicationState>> listener) {
+	public void onExit(ApplicationState state, Consumer<State<ApplicationState>> listener) {
 		life.addStateExitListener(state, listener);
 	}
 }

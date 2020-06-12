@@ -6,8 +6,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.DisplayMode;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -40,7 +40,6 @@ public class AppSettingsDialog extends JDialog {
 	private DisplayModeSelector comboDisplayMode;
 	private JPanel fpsHistoryPanel;
 	private FramerateHistoryView fpsHistoryView;
-	private JButton togglePause;
 	private JCheckBox cbClockDebugging;
 	private JTabbedPane tabbedPane;
 	private JPanel panelClock;
@@ -117,15 +116,13 @@ public class AppSettingsDialog extends JDialog {
 		panelSound.add(cbMuted, "cell 0 0");
 		setFpsTooltip();
 
-		togglePause = new JButton("Pause");
-		togglePause.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				app.togglePause();
-				updateState(app);
-			}
-		});
-		getContentPane().add(togglePause, BorderLayout.SOUTH);
+		panelButtons = new JPanel();
+		getContentPane().add(panelButtons, BorderLayout.SOUTH);
+
+		btnPlayPause = new JButton("Pause");
+		btnPlayPause.setAction(actionTogglePlayPause);
+		btnPlayPause.setFont(new Font("SansSerif", Font.BOLD, 14));
+		panelButtons.add(btnPlayPause);
 	}
 
 	private final Action actionToggleClockDebugging = new AbstractAction() {
@@ -139,6 +136,21 @@ public class AppSettingsDialog extends JDialog {
 			app.clock().logging = !app.clock().logging;
 		}
 	};
+
+	private final Action actionTogglePlayPause = new AbstractAction() {
+
+		{
+			putValue(Action.NAME, "Play/Pause");
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			app.togglePause();
+			updatePlayPauseButton(app.isPaused());
+
+		}
+	};
+
 	private final Action actionToggleMuted = new AbstractAction() {
 
 		{
@@ -154,11 +166,13 @@ public class AppSettingsDialog extends JDialog {
 			}
 		}
 	};
+	private JPanel panelButtons;
+	private JButton btnPlayPause;
 
 	public void setApp(Application app) {
 		this.app = app;
-		app.onStateEntry(PAUSED, paused -> setPausedButtonText(true));
-		app.onStateExit(PAUSED, paused -> setPausedButtonText(false));
+		app.onEntry(PAUSED, state -> updatePlayPauseButton(true));
+		app.onExit(PAUSED, state -> updatePlayPauseButton(false));
 		app.clock().addFrequencyChangeListener(e -> sliderFPS.setValue((Integer) e.getNewValue()));
 		fpsHistoryView.setApp(app);
 		updateState(app);
@@ -170,7 +184,11 @@ public class AppSettingsDialog extends JDialog {
 		comboDisplayMode.select(app.settings().fullScreenMode);
 		cbClockDebugging.setSelected(app.clock().logging);
 		cbMuted.setSelected(app.soundManager().isMuted());
-		setPausedButtonText(app.isPaused());
+		updatePlayPauseButton(app.isPaused());
+	}
+
+	private void updatePlayPauseButton(boolean paused) {
+		btnPlayPause.setText(paused ? "Resume Game" : "Pause Game");
 	}
 
 	@Override
@@ -179,10 +197,6 @@ public class AppSettingsDialog extends JDialog {
 		if (visible) {
 			updateState(app);
 		}
-	}
-
-	private void setPausedButtonText(boolean paused) {
-		togglePause.setText(paused ? "Play" : "Pause");
 	}
 
 	private void setFpsTooltip() {
