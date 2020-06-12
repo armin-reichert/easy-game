@@ -116,6 +116,12 @@ public class AppShell extends JFrame {
 					app.settings().smoothRendering = false;
 				} else if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_1) {
 					app.settings().smoothRendering = true;
+				} else if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_M) {
+					if (app.soundManager().isMuted()) {
+						app.soundManager().unmuteAll();
+					} else {
+						app.soundManager().muteAll();
+					}
 				}
 			}
 		};
@@ -301,10 +307,11 @@ public class AppShell extends JFrame {
 			g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 			g.fillRect(0, 0, scaledViewSize.width, scaledViewSize.height);
 			g.setColor(Color.WHITE);
-			g.setFont(font);
 			int lineY = scaledViewSize.height / 2;
-			for (String line : lines) {
-				int lineWidth = g.getFontMetrics(font).stringWidth(line);
+			for (int i = 0; i < lines.length; ++i) {
+				String line = lines[i];
+				g.setFont(i == 0 ? font.deriveFont(2f * font.getSize()) : font);
+				int lineWidth = g.getFontMetrics().stringWidth(line);
 				g.drawString(line, (scaledViewSize.width - lineWidth) / 2, lineY);
 				lineY += 2 * fontSize;
 			}
