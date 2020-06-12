@@ -63,7 +63,7 @@ class MyFirstAppController implements Lifecycle {
 The lifecycle of any application is defined by the following finite-state machine:
 
 ```java
-StateMachine.beginStateMachine(ApplicationState.class, ApplicationEvent.class, EventMatchStrategy.BY_EQUALITY)
+beginStateMachine(ApplicationState.class, ApplicationEvent.class, EventMatchStrategy.BY_EQUALITY)
 	.description(String.format("[%s]", getClass().getName()))
 	.initialState(STARTING)
 	.states()
@@ -107,7 +107,7 @@ StateMachine.beginStateMachine(ApplicationState.class, ApplicationEvent.class, E
 
 		.when(STARTING).then(RUNNING).condition(() -> clock.isTicking())
 
-		.when(RUNNING).then(PAUSED).on(TOGGLE_PAUSE).act(SoundSupport::muteAll)
+		.when(RUNNING).then(PAUSED).on(TOGGLE_PAUSE).act(() -> soundManager.muteAll())
 
 		.when(RUNNING).then(CLOSED).on(CLOSE)
 
@@ -115,7 +115,7 @@ StateMachine.beginStateMachine(ApplicationState.class, ApplicationEvent.class, E
 
 		.stay(RUNNING).on(SHOW_SETTINGS_DIALOG).act(() -> shell.showSettingsDialog())
 
-		.when(PAUSED).then(RUNNING).on(TOGGLE_PAUSE).act(SoundSupport::unmuteAll)
+		.when(PAUSED).then(RUNNING).on(TOGGLE_PAUSE).act(() -> soundManager.unmuteAll())
 
 		.when(PAUSED).then(CLOSED).on(CLOSE)
 
