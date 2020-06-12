@@ -2,6 +2,7 @@ package de.amr.easy.game.ui;
 
 import static de.amr.easy.game.Application.ApplicationState.PAUSED;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.DisplayMode;
@@ -17,14 +18,14 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.JTabbedPane;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import de.amr.easy.game.Application;
+import de.amr.easy.game.assets.SoundManager;
 import net.miginfocom.swing.MigLayout;
-import javax.swing.JTabbedPane;
-import java.awt.BorderLayout;
 
 /**
  * Dialog for changing clock frequency and full-screen display mode.
@@ -42,20 +43,11 @@ public class AppSettingsDialog extends JDialog {
 	private FramerateHistoryView fpsHistoryView;
 	private JButton togglePause;
 	private JCheckBox cbClockDebugging;
-	private final Action actionToggleClockDebugging = new AbstractAction() {
-
-		{
-			putValue(Action.NAME, "Clock Debugging");
-		}
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			app.clock().logging = !app.clock().logging;
-		}
-	};
 	private JTabbedPane tabbedPane;
 	private JPanel panelClock;
 	private JPanel panelScreen;
+	private JPanel panelSound;
+	private JCheckBox cbMuted;
 
 	public AppSettingsDialog(JFrame parent) {
 		super(parent);
@@ -116,6 +108,14 @@ public class AppSettingsDialog extends JDialog {
 			app.settings().fullScreenMode = (DisplayMode) comboDisplayMode.getSelectedItem();
 		});
 		comboDisplayMode.setMaximumRowCount(comboDisplayMode.getItemCount());
+
+		panelSound = new JPanel();
+		tabbedPane.addTab("Sound", null, panelSound, null);
+		panelSound.setLayout(new MigLayout("", "[]", "[]"));
+
+		cbMuted = new JCheckBox("Muted");
+		cbMuted.setAction(actionToggleMuted);
+		panelSound.add(cbMuted, "cell 0 0");
 		setFpsTooltip();
 
 		togglePause = new JButton("Pause");
@@ -123,11 +123,38 @@ public class AppSettingsDialog extends JDialog {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				app.togglePause();
-				setPausedButtonText(app.isPaused());
+				updateState(app);
 			}
 		});
 		getContentPane().add(togglePause, BorderLayout.SOUTH);
 	}
+
+	private final Action actionToggleClockDebugging = new AbstractAction() {
+
+		{
+			putValue(Action.NAME, "Clock Debugging");
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			app.clock().logging = !app.clock().logging;
+		}
+	};
+	private final Action actionToggleMuted = new AbstractAction() {
+
+		{
+			putValue(Action.NAME, "Muted");
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (cbMuted.isSelected()) {
+				app.soundManager().muteAll();
+			} else {
+				app.soundManager().unmuteAll();
+			}
+		}
+	};
 
 	public void setApp(Application app) {
 		this.app = app;
@@ -143,6 +170,7 @@ public class AppSettingsDialog extends JDialog {
 		sliderFPS.setValue(app.clock().getTargetFramerate());
 		comboDisplayMode.select(app.settings().fullScreenMode);
 		cbClockDebugging.setSelected(app.clock().logging);
+		cbMuted.setSelected(app.soundManager().isMuted());
 		setPausedButtonText(app.isPaused());
 	}
 

@@ -24,7 +24,7 @@ import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 
 import com.beust.jcommander.JCommander;
 
-import de.amr.easy.game.assets.SoundSupport;
+import de.amr.easy.game.assets.SoundManager;
 import de.amr.easy.game.config.AppSettings;
 import de.amr.easy.game.controller.Lifecycle;
 import de.amr.easy.game.entity.collision.CollisionHandler;
@@ -116,6 +116,7 @@ public abstract class Application {
 	private Lifecycle controller;
 	private Image icon;
 	private StateMachine<ApplicationState, ApplicationEvent> life;
+	private SoundManager soundManager = new SoundManager();
 
 	/**
 	 * @return the application instance
@@ -220,7 +221,7 @@ public abstract class Application {
 
 				.when(STARTING).then(RUNNING).condition(() -> clock.isTicking())
 				
-				.when(RUNNING).then(PAUSED).on(TOGGLE_PAUSE).act(SoundSupport::muteAll)
+				.when(RUNNING).then(PAUSED).on(TOGGLE_PAUSE).act(() -> soundManager.muteAll())
 				
 				.when(RUNNING).then(CLOSED).on(CLOSE)
 	
@@ -228,7 +229,7 @@ public abstract class Application {
 					
 				.stay(RUNNING).on(SHOW_SETTINGS_DIALOG).act(() -> shell.showSettingsDialog())
 				
-				.when(PAUSED).then(RUNNING).on(TOGGLE_PAUSE).act(SoundSupport::unmuteAll)
+				.when(PAUSED).then(RUNNING).on(TOGGLE_PAUSE).act(() -> soundManager.unmuteAll())
 			
 				.when(PAUSED).then(CLOSED).on(CLOSE)
 				
@@ -355,6 +356,10 @@ public abstract class Application {
 
 	public Clock clock() {
 		return clock;
+	}
+
+	public SoundManager soundManager() {
+		return soundManager;
 	}
 
 	/**
