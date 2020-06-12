@@ -1,5 +1,7 @@
 package de.amr.easy.game.assets;
 
+import static de.amr.easy.game.Application.loginfo;
+
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.BooleanControl;
 import javax.sound.sampled.Clip;
@@ -27,6 +29,7 @@ public class SoundManager {
 	 */
 	public void muteAll() {
 		setLinesMuted(true);
+		loginfo("All lines muted");
 	}
 
 	/**
@@ -34,6 +37,7 @@ public class SoundManager {
 	 */
 	public void unmuteAll() {
 		setLinesMuted(false);
+		loginfo("All lines unmuted");
 	}
 
 	private void setLinesMuted(boolean muted) {
