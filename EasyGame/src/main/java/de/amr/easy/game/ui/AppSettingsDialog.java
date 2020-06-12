@@ -24,7 +24,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import de.amr.easy.game.Application;
-import de.amr.easy.game.assets.SoundManager;
 import net.miginfocom.swing.MigLayout;
 
 /**
