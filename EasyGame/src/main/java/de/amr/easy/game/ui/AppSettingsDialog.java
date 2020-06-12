@@ -23,6 +23,8 @@ import javax.swing.event.ChangeListener;
 
 import de.amr.easy.game.Application;
 import net.miginfocom.swing.MigLayout;
+import javax.swing.JTabbedPane;
+import java.awt.BorderLayout;
 
 /**
  * Dialog for changing clock frequency and full-screen display mode.
@@ -51,11 +53,25 @@ public class AppSettingsDialog extends JDialog {
 			app.clock().logging = !app.clock().logging;
 		}
 	};
+	private JTabbedPane tabbedPane;
+	private JPanel panelClock;
+	private JPanel panelScreen;
 
 	public AppSettingsDialog(JFrame parent) {
 		super(parent);
 		setSize(665, 452);
+		getContentPane().setLayout(new BorderLayout(0, 0));
+
+		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+		getContentPane().add(tabbedPane);
+
+		panelClock = new JPanel();
+		tabbedPane.addTab("Clock", null, panelClock, null);
+		panelClock.setLayout(new MigLayout("", "[][grow,fill]", "[][][grow,fill]"));
+		JLabel lblFPS = new JLabel("Ticks/sec");
+		panelClock.add(lblFPS, "cell 0 0");
 		sliderFPS = new JSlider(0, MAX_FPS);
+		panelClock.add(sliderFPS, "cell 1 0");
 		sliderFPS.addChangeListener(new ChangeListener() {
 
 			@Override
@@ -72,35 +88,35 @@ public class AppSettingsDialog extends JDialog {
 		sliderFPS.setMinorTickSpacing(10);
 		sliderFPS.setPaintTicks(true);
 		sliderFPS.setLabelTable(sliderFPS.createStandardLabels(10));
-		getContentPane().setLayout(new MigLayout("", "[][3px:n:3px][grow,fill]", "[][][][grow,fill][center]"));
-		JLabel lblDisplayMode = new JLabel("Fullscreen Resolution");
-		getContentPane().add(lblDisplayMode, "cell 0 0,alignx trailing");
-		comboDisplayMode = new DisplayModeSelector();
-		comboDisplayMode.setMinimumSize(new Dimension(220, 26));
-		comboDisplayMode.addActionListener(e -> {
-			app.settings().fullScreenMode = (DisplayMode) comboDisplayMode.getSelectedItem();
-		});
-		comboDisplayMode.setMaximumRowCount(comboDisplayMode.getItemCount());
-		getContentPane().add(comboDisplayMode, "cell 2 0");
-		JLabel lblFPS = new JLabel("Ticks/sec");
-		getContentPane().add(lblFPS, "cell 0 1,alignx right");
 		sliderFPS.setPaintLabels(true);
-		setFpsTooltip();
-		getContentPane().add(sliderFPS, "cell 2 1,growx");
 
 		cbClockDebugging = new JCheckBox("Clock Debugging");
+		panelClock.add(cbClockDebugging, "cell 1 1");
 		cbClockDebugging.setAction(actionToggleClockDebugging);
-		getContentPane().add(cbClockDebugging, "cell 2 2");
 
 		fpsHistoryPanel = new JPanel();
+		panelClock.add(fpsHistoryPanel, "cell 0 2 2 1,growx");
 		fpsHistoryPanel
 				.setBorder(new TitledBorder(null, "Framerate History", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		getContentPane().add(fpsHistoryPanel, "cell 0 3 3 1,grow");
 		fpsHistoryPanel.setLayout(new MigLayout("", "[grow,fill]", "[grow,fill]"));
 
 		fpsHistoryView = new FramerateHistoryView(500, 150, MAX_FPS);
 		fpsHistoryView.setBackground(Color.BLACK);
 		fpsHistoryPanel.add(fpsHistoryView, "cell 0 0,grow");
+
+		panelScreen = new JPanel();
+		tabbedPane.addTab("Screen", null, panelScreen, null);
+		panelScreen.setLayout(new MigLayout("", "[][]", "[]"));
+		JLabel lblDisplayMode = new JLabel("Fullscreen Resolution");
+		panelScreen.add(lblDisplayMode, "cell 0 0");
+		comboDisplayMode = new DisplayModeSelector();
+		panelScreen.add(comboDisplayMode, "cell 1 0");
+		comboDisplayMode.setMinimumSize(new Dimension(220, 26));
+		comboDisplayMode.addActionListener(e -> {
+			app.settings().fullScreenMode = (DisplayMode) comboDisplayMode.getSelectedItem();
+		});
+		comboDisplayMode.setMaximumRowCount(comboDisplayMode.getItemCount());
+		setFpsTooltip();
 
 		togglePause = new JButton("Pause");
 		togglePause.addActionListener(new ActionListener() {
@@ -110,7 +126,7 @@ public class AppSettingsDialog extends JDialog {
 				setPausedButtonText(app.isPaused());
 			}
 		});
-		getContentPane().add(togglePause, "flowx,cell 0 4 3 1,alignx center");
+		getContentPane().add(togglePause, BorderLayout.SOUTH);
 	}
 
 	public void setApp(Application app) {
