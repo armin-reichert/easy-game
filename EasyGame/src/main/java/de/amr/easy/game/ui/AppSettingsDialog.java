@@ -1,5 +1,6 @@
 package de.amr.easy.game.ui;
 
+import static de.amr.easy.game.Application.loginfo;
 import static de.amr.easy.game.Application.ApplicationState.PAUSED;
 
 import java.awt.BorderLayout;
@@ -35,6 +36,49 @@ public class AppSettingsDialog extends JDialog {
 
 	static final int MAX_FPS = 180;
 
+	private final Action actionToggleClockDebugging = new AbstractAction("Clock Debugging") {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			app.clock().logging = !app.clock().logging;
+		}
+	};
+
+	private final Action actionTogglePlayPause = new AbstractAction("Play/Pause") {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			app.togglePause();
+			updatePlayPauseButton(app.isPaused());
+
+		}
+	};
+
+	private final Action actionToggleMuted = new AbstractAction("Muted") {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (cbMuted.isSelected()) {
+				app.soundManager().muteAll();
+			} else {
+				app.soundManager().unmuteAll();
+			}
+		}
+	};
+
+	private final Action actionToggleSmoothRendering = new AbstractAction("Smooth Rendering") {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (cbSmoothRendering.isSelected()) {
+				app.settings().smoothRendering = true;
+			} else {
+				app.settings().smoothRendering = false;
+			}
+			loginfo("Smooth Rendering is %s", app.settings().smoothRendering);
+		}
+	};
+
 	private Application app;
 	private JSlider sliderFPS;
 	private DisplayModeSelector comboDisplayMode;
@@ -46,6 +90,9 @@ public class AppSettingsDialog extends JDialog {
 	private JPanel panelScreen;
 	private JPanel panelSound;
 	private JCheckBox cbMuted;
+	private JPanel panelButtons;
+	private JButton btnPlayPause;
+	private JCheckBox cbSmoothRendering;
 
 	public AppSettingsDialog(JFrame parent) {
 		super(parent);
@@ -96,7 +143,7 @@ public class AppSettingsDialog extends JDialog {
 
 		panelScreen = new JPanel();
 		tabbedPane.addTab("Screen", null, panelScreen, null);
-		panelScreen.setLayout(new MigLayout("", "[][]", "[]"));
+		panelScreen.setLayout(new MigLayout("", "[][]", "[][]"));
 		JLabel lblDisplayMode = new JLabel("Fullscreen Resolution");
 		panelScreen.add(lblDisplayMode, "cell 0 0");
 		comboDisplayMode = new DisplayModeSelector();
@@ -106,6 +153,10 @@ public class AppSettingsDialog extends JDialog {
 			app.settings().fullScreenMode = (DisplayMode) comboDisplayMode.getSelectedItem();
 		});
 		comboDisplayMode.setMaximumRowCount(comboDisplayMode.getItemCount());
+
+		cbSmoothRendering = new JCheckBox("");
+		cbSmoothRendering.setAction(actionToggleSmoothRendering);
+		panelScreen.add(cbSmoothRendering, "cell 1 1");
 
 		panelSound = new JPanel();
 		tabbedPane.addTab("Sound", null, panelSound, null);
@@ -124,50 +175,6 @@ public class AppSettingsDialog extends JDialog {
 		btnPlayPause.setFont(new Font("SansSerif", Font.BOLD, 14));
 		panelButtons.add(btnPlayPause);
 	}
-
-	private final Action actionToggleClockDebugging = new AbstractAction() {
-
-		{
-			putValue(Action.NAME, "Clock Debugging");
-		}
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			app.clock().logging = !app.clock().logging;
-		}
-	};
-
-	private final Action actionTogglePlayPause = new AbstractAction() {
-
-		{
-			putValue(Action.NAME, "Play/Pause");
-		}
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			app.togglePause();
-			updatePlayPauseButton(app.isPaused());
-
-		}
-	};
-
-	private final Action actionToggleMuted = new AbstractAction() {
-
-		{
-			putValue(Action.NAME, "Muted");
-		}
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			if (cbMuted.isSelected()) {
-				app.soundManager().muteAll();
-			} else {
-				app.soundManager().unmuteAll();
-			}
-		}
-	};
-	private JPanel panelButtons;
-	private JButton btnPlayPause;
 
 	public void setApp(Application app) {
 		this.app = app;
