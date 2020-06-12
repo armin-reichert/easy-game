@@ -19,11 +19,14 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import javazoom.spi.mpeg.sampled.file.MpegAudioFormat;
 
 /**
- * Clips are usually short audio sequences that are loaded completely into memory.
- * 
- * @see Clip
+ * Clips are usually short audio sequences that are loaded completely into memory. This class uses
+ * the Java audio {@link Clip} implementation and adds support for mp3-files. Also the global muting
+ * state of the application is respected.
  * 
  * @author Armin Reichert
+ * 
+ * @see Clip
+ * @see SoundManager
  */
 public class SoundClip {
 
@@ -57,13 +60,6 @@ public class SoundClip {
 	}
 
 	/**
-	 * Closes the clip.
-	 */
-	public void close() {
-		clip.close();
-	}
-
-	/**
 	 * Starts or, if the clip is already running, restarts the clip playback. If the application is
 	 * muted, this clip gets muted too.
 	 */
@@ -72,29 +68,26 @@ public class SoundClip {
 	}
 
 	/**
+	 * Stops the clip playback.
+	 */
+	public void stop() {
+		app().soundManager().stop(this);
+	}
+
+	/**
 	 * Plays the clip in an infinite loop.
 	 */
 	public void loop() {
-		loop(Clip.LOOP_CONTINUOUSLY);
+		app().soundManager().playLoop(this);
 	}
 
 	/**
 	 * Plays the clip the given number of times in a loop.
 	 * 
-	 * @param repetitions number of repetitions
+	 * @param times number of repetitions
 	 */
-	public void loop(int repetitions) {
-		clip.stop();
-		clip.setFramePosition(0);
-		clip.loop(repetitions);
-	}
-
-	/**
-	 * Stops the clip and releases its resources.
-	 */
-	public void stop() {
-		clip.stop();
-		clip.flush();
+	public void loop(int times) {
+		app().soundManager().playLoop(this, times);
 	}
 
 	/**
@@ -115,7 +108,11 @@ public class SoundClip {
 		FloatControl masterGain = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
 		float masterGainDB = masterGain.getValue();
 		float linearValue = (float) pow(10.0, masterGainDB / 20.0);
-		return castToRange(0, 1, linearValue);
+		return limitToRange(0, 1, linearValue);
+	}
+
+	private float limitToRange(float min, float max, float value) {
+		return Math.max(Math.min(value, 1), 0);
 	}
 
 	/**
@@ -132,7 +129,4 @@ public class SoundClip {
 		masterGain.setValue(masterGainDB);
 	}
 
-	private float castToRange(float min, float max, float value) {
-		return Math.max(Math.min(value, 1), 0);
-	}
 }

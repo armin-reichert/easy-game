@@ -7,9 +7,12 @@ import javax.sound.sampled.Line;
 import javax.sound.sampled.Mixer;
 
 /**
- * Sound manager.
+ * Sound manager. Handles global muting state and provides common functionality for playing sound
+ * clips.
  * 
  * @author Armin Reichert
+ * 
+ * @see SoundClip
  */
 public class SoundManager {
 
@@ -50,12 +53,26 @@ public class SoundManager {
 	}
 
 	public void play(SoundClip soundClip) {
-		Clip clip = soundClip.internal();
-		clip.stop();
-		clip.setFramePosition(0);
-		clip.start();
+		soundClip.internal().stop();
+		soundClip.internal().setFramePosition(0);
+		soundClip.internal().start();
 		if (muted) {
-			setLineMuted(muted, clip);
+			setLineMuted(muted, soundClip.internal());
 		}
+	}
+
+	public void stop(SoundClip soundClip) {
+		soundClip.internal().stop();
+		soundClip.internal().flush();
+	}
+
+	public void playLoop(SoundClip soundClip) {
+		soundClip.internal().loop(Clip.LOOP_CONTINUOUSLY);
+	}
+
+	public void playLoop(SoundClip soundClip, int times) {
+		soundClip.internal().stop();
+		soundClip.internal().setFramePosition(0);
+		soundClip.internal().loop(times);
 	}
 }
