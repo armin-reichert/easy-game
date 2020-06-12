@@ -1,5 +1,6 @@
 package de.amr.easy.game.assets;
 
+import static de.amr.easy.game.Application.app;
 import static java.lang.Math.log10;
 import static java.lang.Math.pow;
 
@@ -63,12 +64,11 @@ public class SoundClip {
 	}
 
 	/**
-	 * Starts or, if the clip is already running, restarts the clip playback.
+	 * Starts or, if the clip is already running, restarts the clip playback. If the application is
+	 * muted, this clip gets muted too.
 	 */
 	public void play() {
-		clip.stop();
-		clip.setFramePosition(0);
-		clip.start();
+		app().soundManager().play(this);
 	}
 
 	/**

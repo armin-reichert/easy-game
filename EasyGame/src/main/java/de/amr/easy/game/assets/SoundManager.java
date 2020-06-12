@@ -2,6 +2,7 @@ package de.amr.easy.game.assets;
 
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.BooleanControl;
+import javax.sound.sampled.Clip;
 import javax.sound.sampled.Line;
 import javax.sound.sampled.Mixer;
 
@@ -36,11 +37,25 @@ public class SoundManager {
 		this.muted = muted;
 		for (Mixer.Info info : AudioSystem.getMixerInfo()) {
 			for (Line line : AudioSystem.getMixer(info).getSourceLines()) {
-				BooleanControl muteControl = (BooleanControl) line.getControl(BooleanControl.Type.MUTE);
-				if (muteControl != null) {
-					muteControl.setValue(muted);
-				}
+				setLineMuted(muted, line);
 			}
+		}
+	}
+
+	private void setLineMuted(boolean muted, Line line) {
+		BooleanControl muteControl = (BooleanControl) line.getControl(BooleanControl.Type.MUTE);
+		if (muteControl != null) {
+			muteControl.setValue(muted);
+		}
+	}
+
+	public void play(SoundClip soundClip) {
+		Clip clip = soundClip.internal();
+		clip.stop();
+		clip.setFramePosition(0);
+		clip.start();
+		if (muted) {
+			setLineMuted(muted, clip);
 		}
 	}
 }
