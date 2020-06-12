@@ -8,6 +8,7 @@ import static de.amr.easy.game.Application.ApplicationState.CLOSED;
 import static de.amr.easy.game.Application.ApplicationState.PAUSED;
 import static de.amr.easy.game.Application.ApplicationState.RUNNING;
 import static de.amr.easy.game.Application.ApplicationState.STARTING;
+import static de.amr.statemachine.core.StateMachine.beginStateMachine;
 
 import java.awt.Image;
 import java.io.IOException;
@@ -177,7 +178,7 @@ public abstract class Application {
 	private void createLife() {
 		life =
 		/*@formatter:off*/		
-		StateMachine.beginStateMachine(ApplicationState.class, ApplicationEvent.class, EventMatchStrategy.BY_EQUALITY)
+		beginStateMachine(ApplicationState.class, ApplicationEvent.class, EventMatchStrategy.BY_EQUALITY)
 			.description(String.format("[%s]", getClass().getName()))
 			.initialState(STARTING)
 			.states()
