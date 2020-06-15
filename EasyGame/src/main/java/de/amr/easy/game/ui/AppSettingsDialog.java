@@ -79,6 +79,16 @@ public class AppSettingsDialog extends JDialog {
 		}
 	};
 
+	private final ChangeListener fpsSliderChanged = new ChangeListener() {
+
+		@Override
+		public void stateChanged(ChangeEvent e) {
+			int fps = Math.max(sliderFPS.getValue(), 1);
+			app.clock().setTargetFrameRate(fps);
+			updateUIState();
+		}
+	};
+
 	private Application app;
 
 	private JSlider sliderFPS;
@@ -110,18 +120,7 @@ public class AppSettingsDialog extends JDialog {
 		panelClock.add(lblFPS, "cell 0 0");
 		sliderFPS = new JSlider(0, MAX_FPS);
 		panelClock.add(sliderFPS, "cell 1 0");
-		sliderFPS.addChangeListener(new ChangeListener() {
-
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				if (sliderFPS.getValue() > 0) {
-					app.clock().setTargetFrameRate(sliderFPS.getValue());
-					updateUIState();
-				} else {
-					sliderFPS.setValue(1);
-				}
-			}
-		});
+		sliderFPS.addChangeListener(fpsSliderChanged);
 		sliderFPS.setMajorTickSpacing(50);
 		sliderFPS.setMinorTickSpacing(10);
 		sliderFPS.setPaintTicks(true);
