@@ -28,7 +28,7 @@ import de.amr.easy.game.Application;
 import net.miginfocom.swing.MigLayout;
 
 /**
- * Dialog for changing clock frequency and full-screen display mode.
+ * Dialog for changing application settings.
  * 
  * @author Armin Reichert
  */
@@ -49,7 +49,7 @@ public class AppSettingsDialog extends JDialog {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			app.togglePause();
-			updatePlayPauseButton(app.isPaused());
+			updatePlayPauseButtonText(app.isPaused());
 
 		}
 	};
@@ -80,6 +80,7 @@ public class AppSettingsDialog extends JDialog {
 	};
 
 	private Application app;
+
 	private JSlider sliderFPS;
 	private DisplayModeSelector comboDisplayMode;
 	private JPanel fpsHistoryPanel;
@@ -115,7 +116,7 @@ public class AppSettingsDialog extends JDialog {
 			public void stateChanged(ChangeEvent e) {
 				if (sliderFPS.getValue() > 0) {
 					app.clock().setTargetFrameRate(sliderFPS.getValue());
-					setFpsTooltip();
+					updateUIState();
 				} else {
 					sliderFPS.setValue(1);
 				}
@@ -165,7 +166,6 @@ public class AppSettingsDialog extends JDialog {
 		cbMuted = new JCheckBox("Muted");
 		cbMuted.setAction(actionToggleMuted);
 		panelSound.add(cbMuted, "cell 0 0");
-		setFpsTooltip();
 
 		panelButtons = new JPanel();
 		getContentPane().add(panelButtons, BorderLayout.SOUTH);
@@ -176,41 +176,36 @@ public class AppSettingsDialog extends JDialog {
 		panelButtons.add(btnPlayPause);
 	}
 
-	public void setApp(Application app) {
-		this.app = app;
-		app.onEntry(PAUSED, state -> updatePlayPauseButton(true));
-		app.onExit(PAUSED, state -> updatePlayPauseButton(false));
-		app.clock().addFrequencyChangeListener(e -> sliderFPS.setValue((Integer) e.getNewValue()));
-		app.soundManager().changes.addPropertyChangeListener("muted", change -> {
-			updateState(app);
-		});
-
-		fpsHistoryView.setApp(app);
-		updateState(app);
-	}
-
-	private void updateState(Application app) {
-		setTitle(String.format("Application '%s'", app.settings().title));
-		sliderFPS.setValue(app.clock().getTargetFramerate());
-		comboDisplayMode.select(app.settings().fullScreenMode);
-		cbClockDebugging.setSelected(app.clock().logging);
-		cbMuted.setSelected(app.soundManager().isMuted());
-		updatePlayPauseButton(app.isPaused());
-	}
-
-	private void updatePlayPauseButton(boolean paused) {
-		btnPlayPause.setText(paused ? "Resume Game" : "Pause Game");
-	}
-
 	@Override
 	public void setVisible(boolean visible) {
 		super.setVisible(visible);
-		if (visible) {
-			updateState(app);
-		}
+		updateUIState();
 	}
 
-	private void setFpsTooltip() {
+	public void setApp(Application app) {
+		this.app = app;
+		fpsHistoryView.setApp(app);
+		app.onEntry(PAUSED, state -> updatePlayPauseButtonText(true));
+		app.onExit(PAUSED, state -> updatePlayPauseButtonText(false));
+		app.clock().addFrequencyChangeListener(change -> updateUIState());
+		app.soundManager().changes.addPropertyChangeListener("muted", change -> updateUIState());
+		updateUIState();
+	}
+
+	private void updateUIState() {
+		if (app == null) {
+			return;
+		}
+		setTitle(String.format("Application '%s'", app.settings().title));
+		sliderFPS.setValue(app.clock().getTargetFramerate());
 		sliderFPS.setToolTipText("Frame rate = " + sliderFPS.getValue());
+		comboDisplayMode.select(app.settings().fullScreenMode);
+		cbClockDebugging.setSelected(app.clock().logging);
+		cbMuted.setSelected(app.soundManager().isMuted());
+		updatePlayPauseButtonText(app.isPaused());
+	}
+
+	private void updatePlayPauseButtonText(boolean paused) {
+		btnPlayPause.setText(paused ? "Resume Game" : "Pause Game");
 	}
 }
