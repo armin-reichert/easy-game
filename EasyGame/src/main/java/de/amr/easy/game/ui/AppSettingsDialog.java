@@ -181,6 +181,10 @@ public class AppSettingsDialog extends JDialog {
 		app.onEntry(PAUSED, state -> updatePlayPauseButton(true));
 		app.onExit(PAUSED, state -> updatePlayPauseButton(false));
 		app.clock().addFrequencyChangeListener(e -> sliderFPS.setValue((Integer) e.getNewValue()));
+		app.soundManager().changes.addPropertyChangeListener("muted", change -> {
+			updateState(app);
+		});
+
 		fpsHistoryView.setApp(app);
 		updateState(app);
 	}

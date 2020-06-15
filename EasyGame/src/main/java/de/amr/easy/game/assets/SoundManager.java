@@ -2,6 +2,8 @@ package de.amr.easy.game.assets;
 
 import static de.amr.easy.game.Application.loginfo;
 
+import java.beans.PropertyChangeSupport;
+
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.BooleanControl;
 import javax.sound.sampled.Clip;
@@ -19,6 +21,7 @@ import javax.sound.sampled.Mixer;
 public class SoundManager {
 
 	private boolean muted;
+	public PropertyChangeSupport changes = new PropertyChangeSupport(this);
 
 	public boolean isMuted() {
 		return muted;
@@ -28,16 +31,20 @@ public class SoundManager {
 	 * Mutes all currently open lines.
 	 */
 	public void muteAll() {
+		boolean wasMuted = muted;
 		setLinesMuted(true);
 		loginfo("All lines muted");
+		changes.firePropertyChange("muted", wasMuted, muted);
 	}
 
 	/**
 	 * Unmutes all currently open lines.
 	 */
 	public void unmuteAll() {
+		boolean wasMuted = muted;
 		setLinesMuted(false);
 		loginfo("All lines unmuted");
+		changes.firePropertyChange("muted", wasMuted, muted);
 	}
 
 	private void setLinesMuted(boolean muted) {
