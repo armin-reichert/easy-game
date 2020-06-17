@@ -34,7 +34,7 @@ public class FramerateWidget extends Entity implements View {
 				pen.font(font);
 				pen.smooth(() -> {
 					String text = String.format(format, app().clock().getFrameRate(), app().clock().getTargetFramerate());
-					pen.drawString(text, tf.x, tf.y);
+					pen.draw(text, tf.x, tf.y);
 				});
 			}
 		}
