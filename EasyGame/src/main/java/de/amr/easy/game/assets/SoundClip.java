@@ -59,12 +59,27 @@ public class SoundClip {
 		return clip;
 	}
 
+	public void mute() {
+		app().soundManager().mute(this);
+	}
+
+	public void unmute() {
+		app().soundManager().unmute(this);
+	}
+
 	/**
 	 * Starts or, if the clip is already running, restarts the clip playback. If the application is
 	 * muted, this clip gets muted too.
 	 */
 	public void play() {
 		app().soundManager().play(this);
+	}
+
+	/**
+	 * Starts the clip playback.
+	 */
+	public void start() {
+		app().soundManager().start(this);
 	}
 
 	/**

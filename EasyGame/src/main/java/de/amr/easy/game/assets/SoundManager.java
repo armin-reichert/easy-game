@@ -47,6 +47,14 @@ public class SoundManager {
 		changes.firePropertyChange("muted", wasMuted, muted);
 	}
 
+	public void mute(SoundClip soundClip) {
+		setLineMuted(true, soundClip.internal());
+	}
+
+	public void unmute(SoundClip soundClip) {
+		setLineMuted(false, soundClip.internal());
+	}
+
 	private void setLinesMuted(boolean muted) {
 		this.muted = muted;
 		for (Mixer.Info info : AudioSystem.getMixerInfo()) {
@@ -70,6 +78,10 @@ public class SoundManager {
 		if (muted) {
 			setLineMuted(muted, soundClip.internal());
 		}
+	}
+
+	public void start(SoundClip soundClip) {
+		soundClip.internal().start();
 	}
 
 	public void stop(SoundClip soundClip) {
