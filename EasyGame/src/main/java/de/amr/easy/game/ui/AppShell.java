@@ -282,8 +282,14 @@ public class AppShell extends JFrame {
 		float scaling = scaling();
 		centerHorizontally(g);
 		g.scale(scaling, scaling);
-		view.draw(g);
-		g.dispose();
+		try {
+			view.draw(g);
+		} catch (Exception x) {
+			loginfo("Exception occurred during view drawing");
+			x.printStackTrace();
+		} finally {
+			g.dispose();
+		}
 	}
 
 	private void centerHorizontally(Graphics2D g) {
