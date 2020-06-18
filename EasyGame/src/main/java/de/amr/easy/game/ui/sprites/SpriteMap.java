@@ -76,6 +76,7 @@ public class SpriteMap implements Iterable<Sprite> {
 	 * Selects the sprite with the given key.
 	 * 
 	 * @param spriteKey key for accessing sprite
+	 * @param the       currently selected sprite
 	 */
 	public Optional<Sprite> select(String spriteKey) {
 		selectedKey = spriteKey;
