@@ -28,9 +28,4 @@ public class BackForthAnimation extends SpriteAnimation {
 			}
 		}
 	}
-
-	@Override
-	public float getSeconds() {
-		return Float.MAX_VALUE;
-	}
 }

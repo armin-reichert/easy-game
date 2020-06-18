@@ -201,20 +201,23 @@ public class Sprite {
 	 */
 	public Sprite animate(AnimationType type, int millis) {
 		Objects.requireNonNull(type);
-		if (type == AnimationType.LINEAR) {
-			animation = new LinearAnimation(frames.length);
-		} else if (type == AnimationType.BACK_AND_FORTH) {
-			animation = new BackForthAnimation(frames.length);
-		} else if (type == AnimationType.CYCLIC) {
-			animation = new CyclicAnimation(frames.length);
-		}
+		animation = createAnimation(type);
 		animation.setFrameDuration(millis);
 		animation.setEnabled(true);
 		return this;
 	}
 
-	public float getAnimationSeconds() {
-		return animation != null ? animation.getSeconds() : 0;
+	private SpriteAnimation createAnimation(AnimationType type) {
+		switch (type) {
+		case BACK_AND_FORTH:
+			return new BackForthAnimation(frames.length);
+		case CYCLIC:
+			return new CyclicAnimation(frames.length);
+		case LINEAR:
+			return new LinearAnimation(frames.length);
+		default:
+			throw new IllegalArgumentException("Illegal animation type: " + type);
+		}
 	}
 
 	/**

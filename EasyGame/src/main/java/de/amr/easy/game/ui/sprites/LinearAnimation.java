@@ -11,9 +11,4 @@ public class LinearAnimation extends SpriteAnimation {
 		if (frameIndex < numFrames - 1)
 			++frameIndex;
 	}
-
-	@Override
-	public float getSeconds() {
-		return (numFrames * frameDurationMillis / 1000f);
-	}
 }

@@ -10,9 +10,4 @@ public class CyclicAnimation extends SpriteAnimation {
 	protected void nextFrame() {
 		frameIndex = (frameIndex + 1) % numFrames;
 	}
-
-	@Override
-	public float getSeconds() {
-		return Float.MAX_VALUE;
-	}
 }

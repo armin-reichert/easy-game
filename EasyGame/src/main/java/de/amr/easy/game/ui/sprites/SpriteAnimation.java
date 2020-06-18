@@ -1,8 +1,8 @@
 package de.amr.easy.game.ui.sprites;
 
 /**
- * Animation for a sprite. Loops through the image sequence of a sprite in a way
- * defined by the animation mode and frame timing.
+ * Animation for a sprite. Loops through the image sequence of a sprite in a way defined by the
+ * animation mode and frame timing.
  * 
  * @author Armin Reichert
  */
@@ -50,7 +50,6 @@ public abstract class SpriteAnimation {
 			this.enabled = enabled;
 			reset();
 		}
-
 	}
 
 	public boolean isEnabled() {
@@ -65,6 +64,4 @@ public abstract class SpriteAnimation {
 	public int currentFrame() {
 		return frameIndex;
 	}
-
-	public abstract float getSeconds();
 }
