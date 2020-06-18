@@ -4,17 +4,29 @@ import static de.amr.easy.game.assets.Assets.scaledImage;
 
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Optional;
 
 import de.amr.easy.game.assets.Assets;
 
 /**
  * A sprite.
  * 
+ * <p>
+ * In my understanding, a "sprite" is a sequence of images ("frames") which, when played in
+ * sequence, create the illusion of a movement or animation. In this implementation, the animation
+ * is driven by drawing the sprite which might be naive but is sufficient for my purposes.
+ * 
  * @author Armin Reichert
  */
 public class Sprite {
+
+	/**
+	 * Uses this constant if you want to insert blank frames.
+	 */
+	public static final Image BLANK_FRAME = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
 
 	private Image[] frames;
 	private SpriteAnimation animation;
@@ -34,6 +46,11 @@ public class Sprite {
 		}
 		Sprite sprite = new Sprite();
 		sprite.frames = Arrays.copyOf(frames, frames.length);
+		for (int i = 0; i < frames.length; ++i) {
+			if (frames[i] == null) {
+				frames[i] = BLANK_FRAME;
+			}
+		}
 		return sprite;
 	}
 
@@ -62,7 +79,7 @@ public class Sprite {
 	 * @param height target height
 	 * @return this sprite to allow method chaining
 	 */
-	public Sprite scaleFrame(int i, int width, int height) {
+	public Sprite scale(int i, int width, int height) {
 		if (i < 0 || i >= frames.length) {
 			throw new IllegalArgumentException("Sprite index out of range: " + i);
 		}
@@ -101,8 +118,9 @@ public class Sprite {
 	 * 
 	 * @return current frame or the single frame for a non-animated sprite
 	 */
-	public Image currentFrame() {
-		return frames[animation == null ? 0 : animation.currentFrame()];
+	public Optional<Image> currentFrame() {
+		Image frame = frames[animation == null ? 0 : animation.currentFrame()];
+		return Optional.ofNullable(frame);
 	}
 
 	/**
@@ -120,21 +138,7 @@ public class Sprite {
 	 * @return width of current frame
 	 */
 	public int getWidth() {
-		Image frame = currentFrame();
-		return frame != null ? frame.getWidth(null) : 0;
-	}
-
-	/**
-	 * Returns the maximum width of any frame.
-	 * 
-	 * @return maximum frame width
-	 */
-	public int getMaxWidth() {
-		int max = frames[0].getWidth(null);
-		for (int i = 1; i < frames.length; ++i) {
-			max = Math.max(max, frames[i].getWidth(null));
-		}
-		return max;
+		return currentFrame().map(frame -> frame.getWidth(null)).orElse(0);
 	}
 
 	/**
@@ -143,8 +147,16 @@ public class Sprite {
 	 * @return height of current frame
 	 */
 	public int getHeight() {
-		Image frame = currentFrame();
-		return frame != null ? frame.getHeight(null) : 0;
+		return currentFrame().map(frame -> frame.getHeight(null)).orElse(0);
+	}
+
+	/**
+	 * Returns the maximum width over all frames.
+	 * 
+	 * @return maximum frame width
+	 */
+	public int getMaxWidth() {
+		return Arrays.stream(frames).map(frame -> frame.getWidth(null)).max(Integer::compare).orElse(0);
 	}
 
 	/**
@@ -153,11 +165,7 @@ public class Sprite {
 	 * @return maximum frame height
 	 */
 	public int getMaxHeight() {
-		int max = frames[0].getHeight(null);
-		for (int i = 1; i < frames.length; ++i) {
-			max = Math.max(max, frames[i].getHeight(null));
-		}
-		return max;
+		return Arrays.stream(frames).map(frame -> frame.getHeight(null)).max(Integer::compare).orElse(0);
 	}
 
 	/**
@@ -166,10 +174,7 @@ public class Sprite {
 	 * @param g graphics context
 	 */
 	public void draw(Graphics2D g) {
-		Image frame = currentFrame();
-		if (frame != null) {
-			g.drawImage(frame, 0, 0, null);
-		}
+		currentFrame().ifPresent(frame -> g.drawImage(frame, 0, 0, null));
 		if (animation != null && animation.isEnabled()) {
 			animation.update();
 		}
