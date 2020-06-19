@@ -446,7 +446,11 @@ public abstract class Application {
 	}
 
 	public void addCustomSettingsTab(String title, JComponent component) {
-		customSettingsTabs.put(title, component);
+		if (shell == null) {
+			customSettingsTabs.put(title, component);
+		} else {
+			shell.settingsDialog().addCustomTab(title, component);
+		}
 	}
 
 	/**
