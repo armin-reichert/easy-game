@@ -28,7 +28,6 @@ import java.awt.image.BufferedImage;
 import java.util.Arrays;
 
 import javax.swing.ImageIcon;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
@@ -218,16 +217,12 @@ public class AppShell extends JFrame {
 		settingsDialog().setVisible(true);
 	}
 
-	private AppSettingsDialog settingsDialog() {
+	public AppSettingsDialog settingsDialog() {
 		if (settingsDialog == null) {
 			settingsDialog = new AppSettingsDialog(this);
 			settingsDialog.setApp(app);
 		}
 		return settingsDialog;
-	}
-
-	public void addCustomSettingsTab(String title, JComponent component) {
-		settingsDialog().addCustomTab(title, component);
 	}
 
 	public void display(boolean fullScreen) {

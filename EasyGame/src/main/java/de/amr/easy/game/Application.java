@@ -13,11 +13,14 @@ import static de.amr.statemachine.core.StateMachine.beginStateMachine;
 import java.awt.Image;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
+import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -118,6 +121,7 @@ public abstract class Application {
 	private Image icon;
 	private StateMachine<ApplicationState, ApplicationEvent> life;
 	private SoundManager soundManager = new SoundManager();
+	private Map<String, JComponent> customSettingsTabs = new LinkedHashMap<>();
 
 	/**
 	 * @return the application instance
@@ -269,6 +273,11 @@ public abstract class Application {
 				| UnsupportedLookAndFeelException x) {
 			loginfo("Could not set Nimbus look and feel");
 		}
+		if (!customSettingsTabs.isEmpty()) {
+			customSettingsTabs.entrySet().forEach(entry -> {
+				shell.settingsDialog().addCustomTab(entry.getKey(), entry.getValue());
+			});
+		}
 		shell.display(settings.fullScreen);
 		clock.start();
 		loginfo("Clock started, %d frames/second", clock.getTargetFramerate());
@@ -362,7 +371,7 @@ public abstract class Application {
 	public AppShell shell() {
 		return shell;
 	}
-	
+
 	public AppSettings settings() {
 		return settings;
 	}
@@ -434,6 +443,10 @@ public abstract class Application {
 		if (shell != null) {
 			shell.setIconImage(icon);
 		}
+	}
+
+	public void addCustomSettingsTab(String title, JComponent component) {
+		customSettingsTabs.put(title, component);
 	}
 
 	/**
