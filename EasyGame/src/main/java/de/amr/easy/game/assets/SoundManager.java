@@ -3,6 +3,7 @@ package de.amr.easy.game.assets;
 import static de.amr.easy.game.Application.loginfo;
 
 import java.beans.PropertyChangeSupport;
+import java.util.Optional;
 
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.BooleanControl;
@@ -21,8 +22,28 @@ import javax.sound.sampled.Mixer;
 public class SoundManager {
 
 	private boolean muted;
+
 	public PropertyChangeSupport changes = new PropertyChangeSupport(this);
 
+	private static Optional<BooleanControl> muteControl(Line line) {
+		return Optional.ofNullable((BooleanControl) line.getControl(BooleanControl.Type.MUTE));
+	}
+
+	private static void setLineMuted(Line line, boolean muted) {
+		muteControl(line).ifPresent(control -> control.setValue(muted));
+	}
+
+	private static void setAllLinesMuted(boolean muted) {
+		for (Mixer.Info info : AudioSystem.getMixerInfo()) {
+			for (Line line : AudioSystem.getMixer(info).getSourceLines()) {
+				setLineMuted(line, muted);
+			}
+		}
+	}
+
+	/**
+	 * @return if the sound is muted
+	 */
 	public boolean isMuted() {
 		return muted;
 	}
@@ -32,7 +53,8 @@ public class SoundManager {
 	 */
 	public void muteAll() {
 		boolean wasMuted = muted;
-		setLinesMuted(true);
+		muted = true;
+		setAllLinesMuted(true);
 		loginfo("All lines muted");
 		changes.firePropertyChange("muted", wasMuted, muted);
 	}
@@ -42,60 +64,62 @@ public class SoundManager {
 	 */
 	public void unmuteAll() {
 		boolean wasMuted = muted;
-		setLinesMuted(false);
+		muted = false;
+		setAllLinesMuted(false);
 		loginfo("All lines unmuted");
 		changes.firePropertyChange("muted", wasMuted, muted);
 	}
 
 	public void mute(SoundClip soundClip) {
-		setLineMuted(true, soundClip.internal());
+		setLineMuted(soundClip.internal(), true);
 	}
 
 	public void unmute(SoundClip soundClip) {
-		setLineMuted(false, soundClip.internal());
-	}
-
-	private void setLinesMuted(boolean muted) {
-		this.muted = muted;
-		for (Mixer.Info info : AudioSystem.getMixerInfo()) {
-			for (Line line : AudioSystem.getMixer(info).getSourceLines()) {
-				setLineMuted(muted, line);
-			}
-		}
-	}
-
-	private void setLineMuted(boolean muted, Line line) {
-		BooleanControl muteControl = (BooleanControl) line.getControl(BooleanControl.Type.MUTE);
-		if (muteControl != null) {
-			muteControl.setValue(muted);
-		}
+		setLineMuted(soundClip.internal(), false);
 	}
 
 	public void play(SoundClip soundClip) {
-		soundClip.internal().stop();
-		soundClip.internal().setFramePosition(0);
-		soundClip.internal().start();
+		Clip clip = soundClip.internal();
+		clip.stop();
+		clip.setFramePosition(0);
+		clip.start();
 		if (muted) {
-			setLineMuted(muted, soundClip.internal());
+			mute(soundClip);
 		}
 	}
 
 	public void start(SoundClip soundClip) {
-		soundClip.internal().start();
+		Clip clip = soundClip.internal();
+		clip.start();
+		if (muted) {
+			mute(soundClip);
+		}
 	}
 
 	public void stop(SoundClip soundClip) {
-		soundClip.internal().stop();
-		soundClip.internal().flush();
+		Clip clip = soundClip.internal();
+		clip.stop();
+		clip.flush();
+		if (muted) {
+			mute(soundClip);
+		}
 	}
 
 	public void playLoop(SoundClip soundClip) {
-		soundClip.internal().loop(Clip.LOOP_CONTINUOUSLY);
+		Clip clip = soundClip.internal();
+		clip.loop(Clip.LOOP_CONTINUOUSLY);
+		if (muted) {
+			mute(soundClip);
+		}
 	}
 
 	public void playLoop(SoundClip soundClip, int times) {
-		soundClip.internal().stop();
-		soundClip.internal().setFramePosition(0);
-		soundClip.internal().loop(times);
+		Clip clip = soundClip.internal();
+		clip.stop();
+		clip.setFramePosition(0);
+		clip.loop(times);
+		if (muted) {
+			mute(soundClip);
+		}
 	}
 }
