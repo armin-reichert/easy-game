@@ -195,6 +195,9 @@ public abstract class Application {
 						} else {
 							shell = new AppShell(this, settings.width, settings.height);
 						}
+						if (settings.muted) {
+							soundManager.muteAll();
+						}
 						loginfo("Starting application '%s'", getClass().getName());
 						SwingUtilities.invokeLater(this::showUIAndStartClock);
 					})
@@ -291,6 +294,7 @@ public abstract class Application {
 		printValue("Scaling", "%.2f", settings.scale);
 		printValue("Framerate (ticks/sec)", "%d", settings.fps);
 		printValue("Smooth rendering", "%s", settings.smoothRendering);
+		printValue("Muted", "%s", settings.muted);
 	}
 
 	protected void printValue(String name, String format, Object value) {

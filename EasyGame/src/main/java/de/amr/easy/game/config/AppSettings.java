@@ -54,6 +54,9 @@ public class AppSettings {
 			"-fullScreenMode" }, converter = DisplayModeConverter.class, description = "Full-screen display mode e.g. 800,600,16")
 	public DisplayMode fullScreenMode = null;
 
+	@Parameter(names = { "-muted" }, description = "Application starts with sound muted")
+	public boolean muted = false;
+
 	/**
 	 * @return stream of all keys of the user-defined settings
 	 */
