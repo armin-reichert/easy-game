@@ -14,6 +14,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -206,5 +207,9 @@ public class AppSettingsDialog extends JDialog {
 
 	private void updatePlayPauseButtonText(boolean paused) {
 		btnPlayPause.setText(paused ? "Resume Game" : "Pause Game");
+	}
+
+	public void addCustomTab(String title, JComponent component) {
+		tabbedPane.addTab(title, component);
 	}
 }

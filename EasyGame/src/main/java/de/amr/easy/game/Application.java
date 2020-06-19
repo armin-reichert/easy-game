@@ -359,6 +359,10 @@ public abstract class Application {
 		}
 	}
 
+	public AppShell shell() {
+		return shell;
+	}
+	
 	public AppSettings settings() {
 		return settings;
 	}

@@ -28,6 +28,7 @@ import java.awt.image.BufferedImage;
 import java.util.Arrays;
 
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
@@ -214,11 +215,19 @@ public class AppShell extends JFrame {
 			loginfo("Settings dialog cannot be opened in full-screen mode");
 			return;
 		}
+		settingsDialog().setVisible(true);
+	}
+
+	private AppSettingsDialog settingsDialog() {
 		if (settingsDialog == null) {
 			settingsDialog = new AppSettingsDialog(this);
 			settingsDialog.setApp(app);
 		}
-		settingsDialog.setVisible(true);
+		return settingsDialog;
+	}
+
+	public void addCustomSettingsTab(String title, JComponent component) {
+		settingsDialog().addCustomTab(title, component);
 	}
 
 	public void display(boolean fullScreen) {
