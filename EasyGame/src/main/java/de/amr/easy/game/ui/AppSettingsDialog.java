@@ -212,6 +212,7 @@ public class AppSettingsDialog extends JDialog {
 
 	public void addCustomTab(String title, JComponent component) {
 		tabbedPane.addTab(title, component);
+		revalidate();
 	}
 
 	public void selectCustomTab(int i) {
