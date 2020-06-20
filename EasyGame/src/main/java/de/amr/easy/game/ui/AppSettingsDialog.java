@@ -36,6 +36,7 @@ import net.miginfocom.swing.MigLayout;
 public class AppSettingsDialog extends JDialog {
 
 	static final int MAX_FPS = 180;
+	static final int CUSTOM_TABS_START = 3;
 
 	private final Action actionToggleClockDebugging = new AbstractAction("Clock Debugging") {
 
@@ -211,5 +212,9 @@ public class AppSettingsDialog extends JDialog {
 
 	public void addCustomTab(String title, JComponent component) {
 		tabbedPane.addTab(title, component);
+	}
+
+	public void selectCustomTab(int i) {
+		tabbedPane.setSelectedIndex(CUSTOM_TABS_START + i);
 	}
 }

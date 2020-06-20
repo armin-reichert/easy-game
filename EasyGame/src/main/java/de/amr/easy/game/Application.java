@@ -453,6 +453,12 @@ public abstract class Application {
 		}
 	}
 
+	public void selectCustomSettingsTab(int i) {
+		if (shell != null) {
+			shell.settingsDialog().selectCustomTab(i);
+		}
+	}
+
 	/**
 	 * Adds a listener that is called when the given state is entered. <br>
 	 * Example:
