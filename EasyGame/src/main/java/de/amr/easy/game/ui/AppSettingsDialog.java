@@ -109,7 +109,7 @@ public class AppSettingsDialog extends JDialog {
 
 	public AppSettingsDialog(JFrame parent) {
 		super(parent);
-		setSize(665, 452);
+		setSize(680, 460);
 		getContentPane().setLayout(new BorderLayout(0, 0));
 
 		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
