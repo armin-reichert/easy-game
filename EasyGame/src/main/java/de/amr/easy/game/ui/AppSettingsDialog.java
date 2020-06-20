@@ -27,6 +27,8 @@ import javax.swing.event.ChangeListener;
 
 import de.amr.easy.game.Application;
 import net.miginfocom.swing.MigLayout;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 
 /**
  * Dialog for changing application settings.
@@ -106,6 +108,8 @@ public class AppSettingsDialog extends JDialog {
 	private JPanel panelButtons;
 	private JButton btnPlayPause;
 	private JCheckBox cbSmoothRendering;
+	private JScrollPane scrollPane;
+	private JTable soundClipsTable;
 
 	public AppSettingsDialog(JFrame parent) {
 		super(parent);
@@ -162,11 +166,17 @@ public class AppSettingsDialog extends JDialog {
 
 		panelSound = new JPanel();
 		tabbedPane.addTab("Sound", null, panelSound, null);
-		panelSound.setLayout(new MigLayout("", "[]", "[]"));
+		panelSound.setLayout(new MigLayout("", "[grow]", "[][grow]"));
 
 		cbMuted = new JCheckBox("Muted");
 		cbMuted.setAction(actionToggleMuted);
 		panelSound.add(cbMuted, "cell 0 0");
+
+		scrollPane = new JScrollPane();
+		panelSound.add(scrollPane, "cell 0 1,grow");
+
+		soundClipsTable = new JTable();
+		scrollPane.setViewportView(soundClipsTable);
 
 		panelButtons = new JPanel();
 		getContentPane().add(panelButtons, BorderLayout.SOUTH);
@@ -190,6 +200,7 @@ public class AppSettingsDialog extends JDialog {
 		app.onExit(PAUSED, state -> updatePlayPauseButtonText(false));
 		app.clock().addFrequencyChangeListener(change -> updateUIState());
 		app.soundManager().changes.addPropertyChangeListener("muted", change -> updateUIState());
+		soundClipsTable.setModel(new SoundTableModel());
 		updateUIState();
 	}
 
