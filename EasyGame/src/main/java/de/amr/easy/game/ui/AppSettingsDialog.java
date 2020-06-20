@@ -217,5 +217,6 @@ public class AppSettingsDialog extends JDialog {
 
 	public void selectCustomTab(int i) {
 		tabbedPane.setSelectedIndex(CUSTOM_TABS_START + i);
+		repaint();
 	}
 }
