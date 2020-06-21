@@ -219,8 +219,8 @@ public class AppShell extends JFrame {
 
 	public AppSettingsDialog settingsDialog() {
 		if (settingsDialog == null) {
-			settingsDialog = new AppSettingsDialog(this);
-			settingsDialog.setSize(680,460);
+			settingsDialog = new AppSettingsDialog(null);
+			settingsDialog.setSize(680, 460);
 			settingsDialog.setApp(app);
 		}
 		return settingsDialog;

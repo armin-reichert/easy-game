@@ -2,12 +2,14 @@ package de.amr.easy.game.ui;
 
 import static de.amr.easy.game.Application.loginfo;
 import static de.amr.easy.game.Application.ApplicationState.PAUSED;
+import static javax.swing.SwingUtilities.invokeLater;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.DisplayMode;
 import java.awt.Font;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
@@ -16,19 +18,18 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTabbedPane;
+import javax.swing.JTable;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import de.amr.easy.game.Application;
 import net.miginfocom.swing.MigLayout;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
 
 /**
  * Dialog for changing application settings.
@@ -53,8 +54,6 @@ public class AppSettingsDialog extends JDialog {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			app.togglePause();
-			updatePlayPauseButtonText(app.isPaused());
-
 		}
 	};
 
@@ -111,8 +110,8 @@ public class AppSettingsDialog extends JDialog {
 	private JScrollPane scrollPane;
 	private JTable soundClipsTable;
 
-	public AppSettingsDialog(JFrame parent) {
-		super(parent);
+	public AppSettingsDialog(Window owner) {
+		super(owner);
 		setSize(680, 460);
 		getContentPane().setLayout(new BorderLayout(0, 0));
 
@@ -196,8 +195,8 @@ public class AppSettingsDialog extends JDialog {
 	public void setApp(Application app) {
 		this.app = app;
 		fpsHistoryView.setApp(app);
-		app.onEntry(PAUSED, state -> updatePlayPauseButtonText(true));
-		app.onExit(PAUSED, state -> updatePlayPauseButtonText(false));
+		app.onEntry(PAUSED, state -> invokeLater(() -> btnPlayPause.setText("Resume")));
+		app.onExit(PAUSED, state -> invokeLater(() -> btnPlayPause.setText("Pause")));
 		app.clock().addFrequencyChangeListener(change -> updateUIState());
 		app.soundManager().changes.addPropertyChangeListener("muted", change -> updateUIState());
 		soundClipsTable.setModel(new SoundTableModel());
@@ -214,11 +213,7 @@ public class AppSettingsDialog extends JDialog {
 		comboDisplayMode.select(app.settings().fullScreenMode);
 		cbClockDebugging.setSelected(app.clock().logging);
 		cbMuted.setSelected(app.soundManager().isMuted());
-		updatePlayPauseButtonText(app.isPaused());
-	}
-
-	private void updatePlayPauseButtonText(boolean paused) {
-		btnPlayPause.setText(paused ? "Resume Game" : "Pause Game");
+		btnPlayPause.setText(app.isPaused() ? "Resume" : "Pause");
 	}
 
 	public void addCustomTab(String title, JComponent component) {
