@@ -1,5 +1,6 @@
 package de.amr.easy.game.ui.f2dialog;
 
+import static de.amr.easy.game.Application.app;
 import static de.amr.easy.game.Application.loginfo;
 import static de.amr.easy.game.Application.ApplicationState.PAUSED;
 import static javax.swing.SwingUtilities.invokeLater;
@@ -28,71 +29,64 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import de.amr.easy.game.Application;
 import net.miginfocom.swing.MigLayout;
 
 /**
- * Dialog for changing application settings.
+ * Dialog for inspecting and changing application environment. Opened with F2 key.
  * 
  * @author Armin Reichert
  */
-public class AppSettingsDialog extends JDialog {
+public class F2Dialog extends JDialog {
 
 	static final int MAX_FPS = 180;
 	static final int CUSTOM_TABS_START = 3;
 
-	private final Action actionToggleClockDebugging = new AbstractAction("Clock Debugging") {
+	Action actionToggleClockDebugging = new AbstractAction("Clock Debugging") {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			app.clock().logging = !app.clock().logging;
+			app().clock().logging = !app().clock().logging;
 		}
 	};
 
-	private final Action actionTogglePlayPause = new AbstractAction("Play/Pause") {
+	Action actionTogglePlayPause = new AbstractAction("Play/Pause") {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			app.togglePause();
+			app().togglePause();
 		}
 	};
 
-	private final Action actionToggleMuted = new AbstractAction("Muted") {
+	Action actionToggleMuted = new AbstractAction("Muted") {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (cbMuted.isSelected()) {
-				app.soundManager().muteAll();
+				app().soundManager().muteAll();
 			} else {
-				app.soundManager().unmuteAll();
+				app().soundManager().unmuteAll();
 			}
 		}
 	};
 
-	private final Action actionToggleSmoothRendering = new AbstractAction("Smooth Rendering") {
+	Action actionToggleSmoothRendering = new AbstractAction("Smooth Rendering") {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			if (cbSmoothRendering.isSelected()) {
-				app.settings().smoothRendering = true;
-			} else {
-				app.settings().smoothRendering = false;
-			}
-			loginfo("Smooth Rendering is %s", app.settings().smoothRendering);
+			app().settings().smoothRendering = cbSmoothRendering.isSelected();
+			loginfo("Smooth Rendering is %s", app().settings().smoothRendering);
 		}
 	};
 
-	private final ChangeListener fpsSliderChanged = new ChangeListener() {
+	ChangeListener fpsSliderChanged = new ChangeListener() {
 
 		@Override
 		public void stateChanged(ChangeEvent e) {
 			int fps = Math.max(sliderFPS.getValue(), 1);
-			app.clock().setTargetFrameRate(fps);
-			updateUIState();
+			app().clock().setTargetFrameRate(fps);
+			updateViewState();
 		}
 	};
-
-	private Application app;
 
 	private JSlider sliderFPS;
 	private DisplayModeSelector comboDisplayMode;
@@ -110,7 +104,7 @@ public class AppSettingsDialog extends JDialog {
 	private JScrollPane scrollPane;
 	private JTable soundClipsTable;
 
-	public AppSettingsDialog(Window owner) {
+	public F2Dialog(Window owner) {
 		super(owner);
 		setSize(680, 460);
 		getContentPane().setLayout(new BorderLayout(0, 0));
@@ -155,7 +149,7 @@ public class AppSettingsDialog extends JDialog {
 		panelScreen.add(comboDisplayMode, "cell 1 0");
 		comboDisplayMode.setMinimumSize(new Dimension(220, 26));
 		comboDisplayMode.addActionListener(e -> {
-			app.settings().fullScreenMode = (DisplayMode) comboDisplayMode.getSelectedItem();
+			app().settings().fullScreenMode = (DisplayMode) comboDisplayMode.getSelectedItem();
 		});
 		comboDisplayMode.setMaximumRowCount(comboDisplayMode.getItemCount());
 
@@ -188,32 +182,28 @@ public class AppSettingsDialog extends JDialog {
 
 	@Override
 	public void setVisible(boolean visible) {
+		updateViewState();
 		super.setVisible(visible);
-		updateUIState();
 	}
 
-	public void setApp(Application app) {
-		this.app = app;
-		fpsHistoryView.setApp(app);
-		app.onEntry(PAUSED, state -> invokeLater(() -> btnPlayPause.setText("Resume")));
-		app.onExit(PAUSED, state -> invokeLater(() -> btnPlayPause.setText("Pause")));
-		app.clock().addFrequencyChangeListener(change -> updateUIState());
-		app.soundManager().changes.addPropertyChangeListener("muted", change -> updateUIState());
+	public void init() {
+		fpsHistoryView.init();
+		app().onEntry(PAUSED, state -> invokeLater(() -> btnPlayPause.setText("Resume")));
+		app().onExit(PAUSED, state -> invokeLater(() -> btnPlayPause.setText("Pause")));
+		app().clock().addFrequencyChangeListener(change -> invokeLater(this::updateViewState));
+		app().soundManager().changes.addPropertyChangeListener("muted", e -> updateViewState());
 		soundClipsTable.setModel(new SoundTableModel());
-		updateUIState();
+		updateViewState();
 	}
 
-	private void updateUIState() {
-		if (app == null) {
-			return;
-		}
-		setTitle(String.format("Application '%s'", app.settings().title));
-		sliderFPS.setValue(app.clock().getTargetFramerate());
+	private void updateViewState() {
+		setTitle(String.format("Application '%s'", app().settings().title));
+		sliderFPS.setValue(app().clock().getTargetFramerate());
 		sliderFPS.setToolTipText("Frame rate = " + sliderFPS.getValue());
-		comboDisplayMode.select(app.settings().fullScreenMode);
-		cbClockDebugging.setSelected(app.clock().logging);
-		cbMuted.setSelected(app.soundManager().isMuted());
-		btnPlayPause.setText(app.isPaused() ? "Resume" : "Pause");
+		comboDisplayMode.select(app().settings().fullScreenMode);
+		cbClockDebugging.setSelected(app().clock().logging);
+		cbMuted.setSelected(app().soundManager().isMuted());
+		btnPlayPause.setText(app().isPaused() ? "Resume" : "Pause");
 	}
 
 	public void addCustomTab(String title, JComponent component) {

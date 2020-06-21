@@ -36,7 +36,7 @@ import de.amr.easy.game.input.Keyboard;
 import de.amr.easy.game.input.KeyboardHandler;
 import de.amr.easy.game.input.Mouse;
 import de.amr.easy.game.input.MouseHandler;
-import de.amr.easy.game.ui.f2dialog.AppSettingsDialog;
+import de.amr.easy.game.ui.f2dialog.F2Dialog;
 import de.amr.easy.game.view.View;
 
 /**
@@ -66,7 +66,7 @@ public class AppShell extends JFrame {
 	private final Canvas canvas;
 	private final JFrame fullScreenWindow;
 	private int frames;
-	private AppSettingsDialog settingsDialog;
+	private F2Dialog settingsDialog;
 
 	public AppShell(Application app, int width, int height) {
 		this.app = app;
@@ -218,11 +218,11 @@ public class AppShell extends JFrame {
 		settingsDialog().setVisible(true);
 	}
 
-	public AppSettingsDialog settingsDialog() {
+	public F2Dialog settingsDialog() {
 		if (settingsDialog == null) {
-			settingsDialog = new AppSettingsDialog(null);
+			settingsDialog = new F2Dialog(null);
 			settingsDialog.setSize(680, 460);
-			settingsDialog.setApp(app);
+			settingsDialog.init();
 		}
 		return settingsDialog;
 	}
