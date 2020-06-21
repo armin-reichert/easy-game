@@ -189,6 +189,12 @@ public abstract class Application {
 				
 				.state(STARTING)
 					.onEntry(() -> {
+						try {
+							UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
+						} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+								| UnsupportedLookAndFeelException x) {
+							loginfo("Could not set Nimbus look and feel");
+						}
 						// let application initialize itself and select a main controller:
 						init();
 						if (controller == null) {
@@ -213,6 +219,7 @@ public abstract class Application {
 						collisionHandler().ifPresent(CollisionHandler::update);
 						controller.update();
 						currentView().ifPresent(shell::render);
+						shell.f2Dialog.updateViewState();
 					})
 				
 				.state(PAUSED)
@@ -267,15 +274,9 @@ public abstract class Application {
 	}
 
 	private void showUIAndStartClock() {
-		try {
-			UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
-		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
-				| UnsupportedLookAndFeelException x) {
-			loginfo("Could not set Nimbus look and feel");
-		}
 		if (!customSettingsTabs.isEmpty()) {
 			customSettingsTabs.entrySet().forEach(entry -> {
-				shell.f2Dialog().addCustomTab(entry.getKey(), entry.getValue());
+				shell.f2Dialog.addCustomTab(entry.getKey(), entry.getValue());
 			});
 		}
 		shell.display(settings.fullScreen);
@@ -449,13 +450,13 @@ public abstract class Application {
 		if (shell == null) {
 			customSettingsTabs.put(title, component);
 		} else {
-			shell.f2Dialog().addCustomTab(title, component);
+			shell.f2Dialog.addCustomTab(title, component);
 		}
 	}
 
 	public void selectCustomSettingsTab(int i) {
 		if (shell != null) {
-			shell.f2Dialog().selectCustomTab(i);
+			shell.f2Dialog.selectCustomTab(i);
 		}
 	}
 

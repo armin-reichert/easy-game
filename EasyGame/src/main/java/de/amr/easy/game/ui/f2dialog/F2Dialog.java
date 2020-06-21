@@ -142,7 +142,7 @@ public class F2Dialog extends JDialog {
 
 		soundView = new SoundView();
 		tabbedPane.addTab("Sound", null, soundView, null);
-		soundView.setLayout(new MigLayout("", "[664px]", "[][350px]"));
+		soundView.setLayout(new MigLayout("", "[grow,fill]", "[][]"));
 
 		panelButtons = new JPanel();
 		getContentPane().add(panelButtons, BorderLayout.SOUTH);
@@ -169,7 +169,7 @@ public class F2Dialog extends JDialog {
 		updateViewState();
 	}
 
-	private void updateViewState() {
+	public void updateViewState() {
 		setTitle(String.format("Application '%s'", app().settings().title));
 		sliderFPS.setValue(app().clock().getTargetFramerate());
 		sliderFPS.setToolTipText("Frame rate = " + sliderFPS.getValue());

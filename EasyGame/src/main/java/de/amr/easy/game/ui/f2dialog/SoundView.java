@@ -37,7 +37,7 @@ public class SoundView extends JPanel {
 
 		content = new JPanel();
 		add(content, BorderLayout.CENTER);
-		content.setLayout(new MigLayout("", "[456px]", "[18px][406px]"));
+		content.setLayout(new MigLayout("", "[grow]", "[][grow]"));
 
 		cbMuted = new JCheckBox("Muted");
 		content.add(cbMuted, "cell 0 0,aligny top");

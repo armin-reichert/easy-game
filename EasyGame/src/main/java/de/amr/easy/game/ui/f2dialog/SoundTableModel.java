@@ -16,7 +16,13 @@ public class SoundTableModel extends AbstractTableModel {
 	}
 
 	public enum Column {
-		Path, Running;
+		Path(String.class), Running(Boolean.class);
+
+		private Column(Class<?> class_) {
+			this.class_ = class_;
+		}
+
+		final Class<?> class_;
 
 		static Column at(int col) {
 			return values()[col];
@@ -44,6 +50,11 @@ public class SoundTableModel extends AbstractTableModel {
 	@Override
 	public String getColumnName(int col) {
 		return Column.at(col).name();
+	}
+
+	@Override
+	public Class<?> getColumnClass(int col) {
+		return Column.at(col).class_;
 	}
 
 	@Override
