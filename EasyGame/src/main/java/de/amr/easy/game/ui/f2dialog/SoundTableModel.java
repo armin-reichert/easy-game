@@ -10,27 +10,61 @@ import de.amr.easy.game.assets.SoundClip;
 
 public class SoundTableModel extends AbstractTableModel {
 
-	private List<SoundClip> clips = new ArrayList<>();
+	static class SoundInfo {
+		String path;
+		boolean running;
+	}
+
+	public enum Column {
+		Path, Running;
+
+		static Column at(int col) {
+			return values()[col];
+		}
+	}
+
+	private List<SoundInfo> data = new ArrayList<>();
+
+	public SoundTableModel() {
+		update();
+	}
 
 	public void update() {
-		clips.clear();
-		Assets.sounds().forEach(clips::add);
+		data.clear();
+		Assets.soundNames().forEach(path -> {
+			SoundClip sound = Assets.sound(path);
+			SoundInfo info = new SoundInfo();
+			info.path = path;
+			info.running = sound.isRunning();
+			data.add(info);
+		});
 		fireTableDataChanged();
 	}
 
 	@Override
+	public String getColumnName(int col) {
+		return Column.at(col).name();
+	}
+
+	@Override
 	public int getRowCount() {
-		return 0;
+		return data.size();
 	}
 
 	@Override
 	public int getColumnCount() {
-		return 0;
+		return 2;
 	}
 
 	@Override
 	public Object getValueAt(int row, int col) {
-		return null;
+		switch (Column.at(col)) {
+		case Path:
+			return data.get(row).path;
+		case Running:
+			return data.get(row).running;
+		default:
+			return null;
+		}
 	}
-
 }

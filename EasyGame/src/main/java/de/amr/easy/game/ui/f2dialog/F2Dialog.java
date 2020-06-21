@@ -21,10 +21,8 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTabbedPane;
-import javax.swing.JTable;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -57,18 +55,6 @@ public class F2Dialog extends JDialog {
 		}
 	};
 
-	Action actionToggleMuted = new AbstractAction("Muted") {
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			if (cbMuted.isSelected()) {
-				app().soundManager().muteAll();
-			} else {
-				app().soundManager().unmuteAll();
-			}
-		}
-	};
-
 	Action actionToggleSmoothRendering = new AbstractAction("Smooth Rendering") {
 
 		@Override
@@ -96,13 +82,10 @@ public class F2Dialog extends JDialog {
 	private JTabbedPane tabbedPane;
 	private JPanel panelClock;
 	private JPanel panelScreen;
-	private JPanel panelSound;
-	private JCheckBox cbMuted;
 	private JPanel panelButtons;
 	private JButton btnPlayPause;
 	private JCheckBox cbSmoothRendering;
-	private JScrollPane scrollPane;
-	private JTable soundClipsTable;
+	private SoundView soundView;
 
 	public F2Dialog(Window owner) {
 		super(owner);
@@ -157,19 +140,9 @@ public class F2Dialog extends JDialog {
 		cbSmoothRendering.setAction(actionToggleSmoothRendering);
 		panelScreen.add(cbSmoothRendering, "cell 1 1");
 
-		panelSound = new JPanel();
-		tabbedPane.addTab("Sound", null, panelSound, null);
-		panelSound.setLayout(new MigLayout("", "[grow]", "[][grow]"));
-
-		cbMuted = new JCheckBox("Muted");
-		cbMuted.setAction(actionToggleMuted);
-		panelSound.add(cbMuted, "cell 0 0");
-
-		scrollPane = new JScrollPane();
-		panelSound.add(scrollPane, "cell 0 1,grow");
-
-		soundClipsTable = new JTable();
-		scrollPane.setViewportView(soundClipsTable);
+		soundView = new SoundView();
+		tabbedPane.addTab("Sound", null, soundView, null);
+		soundView.setLayout(new MigLayout("", "[664px]", "[][350px]"));
 
 		panelButtons = new JPanel();
 		getContentPane().add(panelButtons, BorderLayout.SOUTH);
@@ -187,12 +160,12 @@ public class F2Dialog extends JDialog {
 	}
 
 	public void init() {
+		soundView.init();
 		fpsHistoryView.init();
 		app().onEntry(PAUSED, state -> invokeLater(() -> btnPlayPause.setText("Resume")));
 		app().onExit(PAUSED, state -> invokeLater(() -> btnPlayPause.setText("Pause")));
 		app().clock().addFrequencyChangeListener(change -> invokeLater(this::updateViewState));
 		app().soundManager().changes.addPropertyChangeListener("muted", e -> updateViewState());
-		soundClipsTable.setModel(new SoundTableModel());
 		updateViewState();
 	}
 
@@ -202,8 +175,8 @@ public class F2Dialog extends JDialog {
 		sliderFPS.setToolTipText("Frame rate = " + sliderFPS.getValue());
 		comboDisplayMode.select(app().settings().fullScreenMode);
 		cbClockDebugging.setSelected(app().clock().logging);
-		cbMuted.setSelected(app().soundManager().isMuted());
 		btnPlayPause.setText(app().isPaused() ? "Resume" : "Pause");
+		soundView.updateViewState();
 	}
 
 	public void addCustomTab(String title, JComponent component) {
