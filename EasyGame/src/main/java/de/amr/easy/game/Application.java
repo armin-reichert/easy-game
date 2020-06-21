@@ -235,7 +235,7 @@ public abstract class Application {
 	
 				.stay(RUNNING).on(TOGGLE_FULLSCREEN).act(() -> shell.toggleDisplayMode())
 					
-				.stay(RUNNING).on(SHOW_SETTINGS_DIALOG).act(() -> shell.showSettingsDialog())
+				.stay(RUNNING).on(SHOW_SETTINGS_DIALOG).act(() -> shell.showF2Dialog())
 				
 				.when(PAUSED).then(RUNNING).on(TOGGLE_PAUSE).act(() -> soundManager.unmuteAll())
 			
@@ -243,7 +243,7 @@ public abstract class Application {
 				
 				.stay(PAUSED).on(TOGGLE_FULLSCREEN).act(() -> shell.toggleDisplayMode())
 	
-				.stay(PAUSED).on(SHOW_SETTINGS_DIALOG).act(() -> shell.showSettingsDialog())
+				.stay(PAUSED).on(SHOW_SETTINGS_DIALOG).act(() -> shell.showF2Dialog())
 
 		.endStateMachine();
 		/*@formatter:on*/
@@ -275,7 +275,7 @@ public abstract class Application {
 		}
 		if (!customSettingsTabs.isEmpty()) {
 			customSettingsTabs.entrySet().forEach(entry -> {
-				shell.settingsDialog().addCustomTab(entry.getKey(), entry.getValue());
+				shell.f2Dialog().addCustomTab(entry.getKey(), entry.getValue());
 			});
 		}
 		shell.display(settings.fullScreen);
@@ -449,13 +449,13 @@ public abstract class Application {
 		if (shell == null) {
 			customSettingsTabs.put(title, component);
 		} else {
-			shell.settingsDialog().addCustomTab(title, component);
+			shell.f2Dialog().addCustomTab(title, component);
 		}
 	}
 
 	public void selectCustomSettingsTab(int i) {
 		if (shell != null) {
-			shell.settingsDialog().selectCustomTab(i);
+			shell.f2Dialog().selectCustomTab(i);
 		}
 	}
 

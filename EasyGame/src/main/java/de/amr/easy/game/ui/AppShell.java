@@ -66,7 +66,7 @@ public class AppShell extends JFrame {
 	private final Canvas canvas;
 	private final JFrame fullScreenWindow;
 	private int frames;
-	private F2Dialog settingsDialog;
+	private F2Dialog f2Dialog;
 
 	public AppShell(Application app, int width, int height) {
 		this.app = app;
@@ -210,21 +210,21 @@ public class AppShell extends JFrame {
 		}
 	}
 
-	public void showSettingsDialog() {
+	public void showF2Dialog() {
 		if (inFullScreenMode()) {
-			loginfo("Settings dialog cannot be opened in full-screen mode");
+			loginfo("F2 dialog cannot be opened in full-screen mode");
 			return;
 		}
-		settingsDialog().setVisible(true);
+		f2Dialog().setVisible(true);
 	}
 
-	public F2Dialog settingsDialog() {
-		if (settingsDialog == null) {
-			settingsDialog = new F2Dialog(null);
-			settingsDialog.setSize(680, 460);
-			settingsDialog.init();
+	public F2Dialog f2Dialog() {
+		if (f2Dialog == null) {
+			f2Dialog = new F2Dialog(null);
+			f2Dialog.setSize(680, 460);
+			f2Dialog.init();
 		}
-		return settingsDialog;
+		return f2Dialog;
 	}
 
 	public void display(boolean fullScreen) {
