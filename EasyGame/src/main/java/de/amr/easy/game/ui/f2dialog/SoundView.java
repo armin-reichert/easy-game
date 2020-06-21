@@ -11,6 +11,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
+import de.amr.easy.game.ui.f2dialog.SoundTableModel.Column;
 import net.miginfocom.swing.MigLayout;
 import java.awt.BorderLayout;
 
@@ -53,6 +54,7 @@ public class SoundView extends JPanel {
 	public void init() {
 		SoundTableModel tableModel = new SoundTableModel();
 		table.setModel(tableModel);
+		table.getColumnModel().getColumn(Column.Volume.ordinal()).setCellRenderer(new PercentRenderer());
 	}
 
 	public void updateViewState() {

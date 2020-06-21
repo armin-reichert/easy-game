@@ -12,18 +12,25 @@ public class SoundTableModel extends AbstractTableModel {
 
 	static class SoundData {
 		String path;
-		long durationMicroSeconds;
+		float durationSeconds;
 		float volume;
 		boolean running;
 	}
 
 	public enum Column {
-		Path(String.class), Duration(Float.class), Volume(Float.class), Running(Boolean.class);
+		Path(String.class), Duration("Duration (sec)", Float.class), Volume(Float.class), Running(Boolean.class);
 
 		private Column(Class<?> class_) {
 			this.class_ = class_;
+			this.text = name();
 		}
 
+		private Column(String text, Class<?> class_) {
+			this.class_ = class_;
+			this.text = text;
+		}
+
+		final String text;
 		final Class<?> class_;
 
 		static Column at(int col) {
@@ -43,7 +50,7 @@ public class SoundTableModel extends AbstractTableModel {
 			SoundClip sound = Assets.sound(path);
 			SoundData info = new SoundData();
 			info.path = path;
-			info.durationMicroSeconds = sound.internal().getMicrosecondLength();
+			info.durationSeconds = sound.internal().getMicrosecondLength() / 1_000_000f;
 			info.running = sound.isRunning();
 			info.volume = sound.volume();
 			data.add(info);
@@ -53,7 +60,7 @@ public class SoundTableModel extends AbstractTableModel {
 
 	@Override
 	public String getColumnName(int col) {
-		return Column.at(col).name();
+		return Column.at(col).text;
 	}
 
 	@Override
@@ -77,7 +84,7 @@ public class SoundTableModel extends AbstractTableModel {
 		case Path:
 			return data.get(row).path;
 		case Duration:
-			return data.get(row).durationMicroSeconds / 1000_000f;
+			return data.get(row).durationSeconds;
 		case Running:
 			return data.get(row).running;
 		case Volume:
