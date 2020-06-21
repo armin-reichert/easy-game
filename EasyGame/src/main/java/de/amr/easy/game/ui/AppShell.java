@@ -108,7 +108,7 @@ public class AppShell extends JFrame {
 				if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_P) {
 					app.togglePause();
 				} else if (e.getKeyCode() == KeyEvent.VK_F2) {
-					app.showSettingsDialog();
+					app.showF2Dialog();
 				} else if (e.getKeyCode() == KeyEvent.VK_F11) {
 					app.toggleFullScreen();
 				} else if (e.getKeyCode() == KeyEvent.VK_ESCAPE && inFullScreenMode()) {

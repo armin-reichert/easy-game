@@ -338,7 +338,7 @@ public abstract class Application {
 		life.process(TOGGLE_PAUSE);
 	}
 
-	public void showSettingsDialog() {
+	public void showF2Dialog() {
 		life.process(SHOW_SETTINGS_DIALOG);
 	}
 
