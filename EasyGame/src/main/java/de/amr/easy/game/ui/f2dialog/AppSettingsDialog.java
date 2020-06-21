@@ -1,4 +1,4 @@
-package de.amr.easy.game.ui;
+package de.amr.easy.game.ui.f2dialog;
 
 import static de.amr.easy.game.Application.loginfo;
 import static de.amr.easy.game.Application.ApplicationState.PAUSED;

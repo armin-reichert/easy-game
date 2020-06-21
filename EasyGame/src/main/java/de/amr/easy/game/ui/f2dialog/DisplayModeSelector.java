@@ -1,4 +1,4 @@
-package de.amr.easy.game.ui;
+package de.amr.easy.game.ui.f2dialog;
 
 import java.awt.Component;
 import java.awt.DisplayMode;

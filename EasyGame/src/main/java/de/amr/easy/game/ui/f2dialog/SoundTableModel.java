@@ -1,4 +1,4 @@
-package de.amr.easy.game.ui;
+package de.amr.easy.game.ui.f2dialog;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -36,6 +36,7 @@ import de.amr.easy.game.input.Keyboard;
 import de.amr.easy.game.input.KeyboardHandler;
 import de.amr.easy.game.input.Mouse;
 import de.amr.easy.game.input.MouseHandler;
+import de.amr.easy.game.ui.f2dialog.AppSettingsDialog;
 import de.amr.easy.game.view.View;
 
 /**
