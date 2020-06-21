@@ -10,13 +10,15 @@ import de.amr.easy.game.assets.SoundClip;
 
 public class SoundTableModel extends AbstractTableModel {
 
-	static class SoundInfo {
+	static class SoundData {
 		String path;
+		long durationMicroSeconds;
+		float volume;
 		boolean running;
 	}
 
 	public enum Column {
-		Path(String.class), Running(Boolean.class);
+		Path(String.class), Duration(Float.class), Volume(Float.class), Running(Boolean.class);
 
 		private Column(Class<?> class_) {
 			this.class_ = class_;
@@ -29,7 +31,7 @@ public class SoundTableModel extends AbstractTableModel {
 		}
 	}
 
-	private List<SoundInfo> data = new ArrayList<>();
+	private List<SoundData> data = new ArrayList<>();
 
 	public SoundTableModel() {
 		update();
@@ -39,9 +41,11 @@ public class SoundTableModel extends AbstractTableModel {
 		data.clear();
 		Assets.soundNames().forEach(path -> {
 			SoundClip sound = Assets.sound(path);
-			SoundInfo info = new SoundInfo();
+			SoundData info = new SoundData();
 			info.path = path;
+			info.durationMicroSeconds = sound.internal().getMicrosecondLength();
 			info.running = sound.isRunning();
+			info.volume = sound.volume();
 			data.add(info);
 		});
 		fireTableDataChanged();
@@ -64,7 +68,7 @@ public class SoundTableModel extends AbstractTableModel {
 
 	@Override
 	public int getColumnCount() {
-		return 2;
+		return Column.values().length;
 	}
 
 	@Override
@@ -72,8 +76,12 @@ public class SoundTableModel extends AbstractTableModel {
 		switch (Column.at(col)) {
 		case Path:
 			return data.get(row).path;
+		case Duration:
+			return data.get(row).durationMicroSeconds / 1000_000f;
 		case Running:
 			return data.get(row).running;
+		case Volume:
+			return data.get(row).volume;
 		default:
 			return null;
 		}
