@@ -1,5 +1,7 @@
 package de.amr.easy.game.view;
 
+import static de.amr.easy.game.Application.app;
+
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -20,6 +22,9 @@ public class Pen implements AutoCloseable {
 		g = (Graphics2D) g2.create();
 		g.setFont(new Font(Font.DIALOG, Font.PLAIN, 10));
 		g.setColor(Color.BLUE);
+		if (app().settings().smoothRendering) {
+			g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		}
 	}
 
 	@Override
