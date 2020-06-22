@@ -89,7 +89,7 @@ public class F2Dialog extends JDialog {
 
 	public F2Dialog(Window owner) {
 		super(owner);
-		setSize(680, 460);
+		setSize(680, 400);
 		getContentPane().setLayout(new BorderLayout(0, 0));
 
 		tabbedPane = new JTabbedPane(JTabbedPane.TOP);

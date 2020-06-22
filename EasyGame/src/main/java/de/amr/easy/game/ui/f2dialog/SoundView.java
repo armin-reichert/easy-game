@@ -2,6 +2,7 @@ package de.amr.easy.game.ui.f2dialog;
 
 import static de.amr.easy.game.Application.app;
 
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
@@ -13,15 +14,20 @@ import javax.swing.JTable;
 
 import de.amr.easy.game.ui.f2dialog.SoundTableModel.Column;
 import net.miginfocom.swing.MigLayout;
-import java.awt.BorderLayout;
 
+/**
+ * Displays all sounds loaded by the asset manager.
+ * 
+ * @author Armin Reichert
+ */
 public class SoundView extends JPanel {
 
 	Action actionToggleMuted = new AbstractAction("Muted") {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			if (cbMuted.isSelected()) {
+			JCheckBox cb = (JCheckBox) e.getSource();
+			if (cb.isSelected()) {
 				app().soundManager().muteAll();
 			} else {
 				app().soundManager().unmuteAll();
@@ -48,13 +54,18 @@ public class SoundView extends JPanel {
 		content.add(scrollPane, "cell 0 1,grow");
 
 		table = new JTable();
+		table.setRowHeight(24);
 		scrollPane.setViewportView(table);
+		setupTable(SoundTableModel.SAMPLE_DATA);
+	}
+
+	private void setupTable(SoundTableModel model) {
+		table.setModel(model);
+		table.getColumnModel().getColumn(Column.Volume.ordinal()).setCellRenderer(new PercentRenderer());
 	}
 
 	public void init() {
-		SoundTableModel tableModel = new SoundTableModel();
-		table.setModel(tableModel);
-		table.getColumnModel().getColumn(Column.Volume.ordinal()).setCellRenderer(new PercentRenderer());
+		setupTable(new SoundTableModel());
 	}
 
 	public void updateViewState() {

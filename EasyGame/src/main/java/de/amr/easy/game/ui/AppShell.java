@@ -222,7 +222,7 @@ public class AppShell extends JFrame {
 
 	public void createF2Dialog() {
 		f2Dialog = new F2Dialog(null);
-		f2Dialog.setSize(680, 460);
+		f2Dialog.setSize(680, 500);
 		f2Dialog.init();
 	}
 

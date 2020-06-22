@@ -38,22 +38,37 @@ public class SoundTableModel extends AbstractTableModel {
 		}
 	}
 
-	private List<SoundData> data = new ArrayList<>();
+	static final SoundTableModel SAMPLE_DATA = new SoundTableModel() {
+
+		Object[] sampleRow = { "path", 90, .76f, true };
+
+		@Override
+		public Object getValueAt(int row, int col) {
+			return sampleRow[col];
+		}
+
+		@Override
+		public int getRowCount() {
+			return 7;
+		}
+
+	};
+	private List<SoundData> tableData = new ArrayList<>();
 
 	public SoundTableModel() {
 		update();
 	}
 
-	public void update() {
-		data.clear();
+	public synchronized void update() {
+		tableData.clear();
 		Assets.soundNames().forEach(path -> {
 			SoundClip sound = Assets.sound(path);
-			SoundData info = new SoundData();
-			info.path = path;
-			info.durationSeconds = sound.internal().getMicrosecondLength() / 1_000_000f;
-			info.running = sound.isRunning();
-			info.volume = sound.volume();
-			data.add(info);
+			SoundData data = new SoundData();
+			data.path = path;
+			data.durationSeconds = sound.internal().getMicrosecondLength() / 1_000_000f;
+			data.running = sound.isRunning();
+			data.volume = sound.volume();
+			tableData.add(data);
 		});
 		fireTableDataChanged();
 	}
@@ -70,7 +85,7 @@ public class SoundTableModel extends AbstractTableModel {
 
 	@Override
 	public int getRowCount() {
-		return data.size();
+		return tableData.size();
 	}
 
 	@Override
@@ -82,13 +97,13 @@ public class SoundTableModel extends AbstractTableModel {
 	public Object getValueAt(int row, int col) {
 		switch (Column.at(col)) {
 		case Path:
-			return data.get(row).path;
+			return tableData.get(row).path;
 		case Duration:
-			return data.get(row).durationSeconds;
+			return tableData.get(row).durationSeconds;
 		case Running:
-			return data.get(row).running;
+			return tableData.get(row).running;
 		case Volume:
-			return data.get(row).volume;
+			return tableData.get(row).volume;
 		default:
 			return null;
 		}
