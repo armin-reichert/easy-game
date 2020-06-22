@@ -10,22 +10,29 @@ import de.amr.easy.game.assets.SoundClip;
 
 public class SoundTableModel extends AbstractTableModel {
 
-	static class SoundData {
+	static class Record {
 		String path;
+		String audioFormat;
 		float durationSeconds;
 		float volume;
 		boolean running;
 	}
 
-	public enum Column {
-		Path(String.class), Duration("Duration (sec)", Float.class), Volume(Float.class), Running(Boolean.class);
+	public enum Field {
+		//@formatter:off
+		Running(Boolean.class),
+		Path(String.class), 
+		Duration(Float.class),
+		Volume(Float.class),
+		Format(String.class);
+		//@formatter:on
 
-		private Column(Class<?> class_) {
+		private Field(Class<?> class_) {
 			this.class_ = class_;
 			this.text = name();
 		}
 
-		private Column(String text, Class<?> class_) {
+		private Field(String text, Class<?> class_) {
 			this.class_ = class_;
 			this.text = text;
 		}
@@ -33,79 +40,84 @@ public class SoundTableModel extends AbstractTableModel {
 		final String text;
 		final Class<?> class_;
 
-		static Column at(int col) {
+		static Field at(int col) {
 			return values()[col];
 		}
 	}
 
 	static final SoundTableModel SAMPLE_DATA = new SoundTableModel() {
 
-		Object[] sampleRow = { "path", 90, .76f, true };
+		Object[] sampleRecord = { "path", "mp3", 90, .76f, true };
 
 		@Override
 		public Object getValueAt(int row, int col) {
-			return sampleRow[col];
+			return sampleRecord[col];
 		}
 
 		@Override
 		public int getRowCount() {
 			return 7;
 		}
-
 	};
-	private List<SoundData> tableData = new ArrayList<>();
+
+	private List<Record> records = new ArrayList<>();
 
 	public SoundTableModel() {
-		update();
 	}
 
-	public synchronized void update() {
-		tableData.clear();
+	public void update() {
+		List<Record> newRecords = new ArrayList<>();
+		newRecords.clear();
 		Assets.soundNames().forEach(path -> {
 			SoundClip sound = Assets.sound(path);
-			SoundData data = new SoundData();
-			data.path = path;
-			data.durationSeconds = sound.internal().getMicrosecondLength() / 1_000_000f;
-			data.running = sound.isRunning();
-			data.volume = sound.volume();
-			tableData.add(data);
+			Record r = new Record();
+			r.path = path;
+			r.audioFormat = sound.internal().getFormat().toString();
+			r.durationSeconds = sound.internal().getMicrosecondLength() / 1_000_000f;
+			r.running = sound.isRunning();
+			r.volume = sound.volume();
+			newRecords.add(r);
 		});
+		records = newRecords;
 		fireTableDataChanged();
 	}
 
 	@Override
+	public Object getValueAt(int row, int col) {
+		Record r = records.get(row);
+		switch (Field.at(col)) {
+		case Path:
+			return r.path;
+		case Format:
+			return r.audioFormat;
+		case Duration:
+			return r.durationSeconds;
+		case Running:
+			return r.running;
+		case Volume:
+			return r.volume;
+		default:
+			return null;
+		}
+	}
+
+	@Override
 	public String getColumnName(int col) {
-		return Column.at(col).text;
+		return Field.at(col).text;
 	}
 
 	@Override
 	public Class<?> getColumnClass(int col) {
-		return Column.at(col).class_;
+		return Field.at(col).class_;
 	}
 
 	@Override
 	public int getRowCount() {
-		return tableData.size();
+		return records.size();
 	}
 
 	@Override
 	public int getColumnCount() {
-		return Column.values().length;
-	}
-
-	@Override
-	public Object getValueAt(int row, int col) {
-		switch (Column.at(col)) {
-		case Path:
-			return tableData.get(row).path;
-		case Duration:
-			return tableData.get(row).durationSeconds;
-		case Running:
-			return tableData.get(row).running;
-		case Volume:
-			return tableData.get(row).volume;
-		default:
-			return null;
-		}
+		return Field.values().length;
 	}
 }

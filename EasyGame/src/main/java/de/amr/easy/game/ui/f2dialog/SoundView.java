@@ -11,8 +11,9 @@ import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.table.TableCellRenderer;
 
-import de.amr.easy.game.ui.f2dialog.SoundTableModel.Column;
+import de.amr.easy.game.ui.f2dialog.SoundTableModel.Field;
 import net.miginfocom.swing.MigLayout;
 
 /**
@@ -61,7 +62,12 @@ public class SoundView extends JPanel {
 
 	private void setupTable(SoundTableModel model) {
 		table.setModel(model);
-		table.getColumnModel().getColumn(Column.Volume.ordinal()).setCellRenderer(new PercentRenderer());
+		setCellRenderer(Field.Volume, new PercentRenderer());
+		setCellRenderer(Field.Duration, new SecondsRenderer());
+	}
+
+	private void setCellRenderer(Field column, TableCellRenderer r) {
+		table.getColumnModel().getColumn(column.ordinal()).setCellRenderer(r);
 	}
 
 	public void init() {
