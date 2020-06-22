@@ -4,6 +4,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Stroke;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.image.BufferedImage;
@@ -49,14 +50,14 @@ public class FramerateHistoryView extends JComponent implements Lifecycle, View 
 		fpsIndex = 0;
 	}
 
-	private void updateBgImage(int w, int h) {
+	private void updateImage(int w, int h) {
 		bgImg = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
 		Graphics2D g = bgImg.createGraphics();
 		g.translate(0, -vmargin);
 		int hh = h - 2 * vmargin;
 		float yScale = 1f * hh / maxFps;
 		g.setColor(Color.LIGHT_GRAY);
-		g.setStroke(new BasicStroke(0.1f));
+		g.setStroke(new BasicStroke(0.05f));
 		for (int f = 0; f <= maxFps; f += 20) {
 			int y = h - Math.round(f * yScale);
 			g.drawLine(xOffset, y, w, y);
@@ -64,8 +65,11 @@ public class FramerateHistoryView extends JComponent implements Lifecycle, View 
 		}
 		int f = app != null ? app.clock().getTargetFramerate() : 60;
 		g.setColor(Color.YELLOW);
+		Stroke dashed = new BasicStroke(0.05f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] { 5 }, 0);
+		g.setStroke(dashed);
 		int y = h - Math.round(f * yScale);
 		g.drawLine(xOffset, y, w, y);
+		g.dispose();
 	}
 
 	private void drawValues(Graphics2D g, int w, int h) {
@@ -94,7 +98,7 @@ public class FramerateHistoryView extends JComponent implements Lifecycle, View 
 	@Override
 	public void draw(Graphics2D g) {
 		if (bgImg == null) {
-			updateBgImage(getWidth(), getHeight());
+			updateImage(getWidth(), getHeight());
 		}
 		g.drawImage(bgImg, 0, 0, null);
 		drawValues(g, getWidth(), getHeight() - 2 * vmargin);

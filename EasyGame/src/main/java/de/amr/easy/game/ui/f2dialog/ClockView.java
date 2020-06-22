@@ -12,14 +12,14 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import de.amr.easy.game.controller.Lifecycle;
 import net.miginfocom.swing.MigLayout;
-import javax.swing.SwingConstants;
-import javax.swing.border.EmptyBorder;
 
 public class ClockView extends JPanel implements Lifecycle {
 
@@ -85,7 +85,7 @@ public class ClockView extends JPanel implements Lifecycle {
 
 	@Override
 	public void init() {
-		fpsHistoryView.init();
+		fpsHistoryView.setApp(app());
 	}
 
 	@Override

@@ -50,7 +50,6 @@ public class ScreenView extends JPanel implements Lifecycle {
 
 	@Override
 	public void init() {
-
 	}
 
 	@Override
