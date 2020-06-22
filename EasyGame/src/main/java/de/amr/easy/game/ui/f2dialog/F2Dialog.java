@@ -1,14 +1,11 @@
 package de.amr.easy.game.ui.f2dialog;
 
 import static de.amr.easy.game.Application.app;
-import static de.amr.easy.game.Application.loginfo;
 import static de.amr.easy.game.Application.ApplicationState.PAUSED;
 import static javax.swing.SwingUtilities.invokeLater;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.DisplayMode;
 import java.awt.Font;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -55,15 +52,6 @@ public class F2Dialog extends JDialog {
 		}
 	};
 
-	Action actionToggleSmoothRendering = new AbstractAction("Smooth Rendering") {
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			app().settings().smoothRendering = cbSmoothRendering.isSelected();
-			loginfo("Smooth Rendering is %s", app().settings().smoothRendering);
-		}
-	};
-
 	ChangeListener fpsSliderChanged = new ChangeListener() {
 
 		@Override
@@ -75,17 +63,15 @@ public class F2Dialog extends JDialog {
 	};
 
 	private JSlider sliderFPS;
-	private DisplayModeSelector comboDisplayMode;
 	private JPanel fpsHistoryPanel;
 	private FramerateHistoryView fpsHistoryView;
 	private JCheckBox cbClockDebugging;
 	private JTabbedPane tabbedPane;
 	private JPanel panelClock;
-	private JPanel panelScreen;
 	private JPanel panelButtons;
 	private JButton btnPlayPause;
-	private JCheckBox cbSmoothRendering;
 	private SoundView soundView;
+	private ScreenView screenView;
 
 	public F2Dialog(Window owner) {
 		super(owner);
@@ -123,26 +109,12 @@ public class F2Dialog extends JDialog {
 		fpsHistoryView.setBackground(Color.BLACK);
 		fpsHistoryPanel.add(fpsHistoryView, "cell 0 0,grow");
 
-		panelScreen = new JPanel();
-		tabbedPane.addTab("Screen", null, panelScreen, null);
-		panelScreen.setLayout(new MigLayout("", "[][]", "[][]"));
-		JLabel lblDisplayMode = new JLabel("Fullscreen Resolution");
-		panelScreen.add(lblDisplayMode, "cell 0 0");
-		comboDisplayMode = new DisplayModeSelector();
-		panelScreen.add(comboDisplayMode, "cell 1 0");
-		comboDisplayMode.setMinimumSize(new Dimension(220, 26));
-		comboDisplayMode.addActionListener(e -> {
-			app().settings().fullScreenMode = (DisplayMode) comboDisplayMode.getSelectedItem();
-		});
-		comboDisplayMode.setMaximumRowCount(comboDisplayMode.getItemCount());
-
-		cbSmoothRendering = new JCheckBox("");
-		cbSmoothRendering.setAction(actionToggleSmoothRendering);
-		panelScreen.add(cbSmoothRendering, "cell 1 1");
-
 		soundView = new SoundView();
 		tabbedPane.addTab("Sound", null, soundView, null);
 		soundView.setLayout(new MigLayout("", "[grow,fill]", "[][]"));
+
+		screenView = new ScreenView();
+		tabbedPane.addTab("Screen", null, screenView, null);
 
 		panelButtons = new JPanel();
 		getContentPane().add(panelButtons, BorderLayout.SOUTH);
@@ -173,10 +145,10 @@ public class F2Dialog extends JDialog {
 		setTitle(String.format("Application '%s'", app().settings().title));
 		sliderFPS.setValue(app().clock().getTargetFramerate());
 		sliderFPS.setToolTipText("Frame rate = " + sliderFPS.getValue());
-		comboDisplayMode.select(app().settings().fullScreenMode);
 		cbClockDebugging.setSelected(app().clock().logging);
 		btnPlayPause.setText(app().isPaused() ? "Resume" : "Pause");
 		soundView.updateViewState();
+//		comboDisplayMode.select(app().settings().fullScreenMode);
 	}
 
 	public void addCustomTab(String title, JComponent component) {
