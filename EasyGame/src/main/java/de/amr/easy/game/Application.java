@@ -219,7 +219,7 @@ public abstract class Application {
 						collisionHandler().ifPresent(CollisionHandler::update);
 						controller.update();
 						currentView().ifPresent(shell::render);
-						shell.f2Dialog.updateViewState();
+						shell.f2Dialog.update();
 					})
 				
 				.state(PAUSED)

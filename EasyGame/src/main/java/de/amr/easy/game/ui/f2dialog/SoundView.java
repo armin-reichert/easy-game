@@ -41,7 +41,7 @@ public class SoundView extends JPanel {
 	private JPanel content;
 
 	public SoundView() {
-		setLayout(new BorderLayout(0, 0));
+		setLayout(new MigLayout("", "[grow,fill]", "[][]"));
 
 		content = new JPanel();
 		add(content, BorderLayout.CENTER);
@@ -74,7 +74,7 @@ public class SoundView extends JPanel {
 		setupTable(new SoundTableModel());
 	}
 
-	public void updateViewState() {
+	public void update() {
 		cbMuted.setSelected(app().soundManager().isMuted());
 		SoundTableModel tableModel = (SoundTableModel) table.getModel();
 		tableModel.update();

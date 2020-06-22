@@ -13,15 +13,17 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import de.amr.easy.game.controller.Lifecycle;
 import net.miginfocom.swing.MigLayout;
 
-public class ScreenView extends JPanel {
+public class ScreenView extends JPanel implements Lifecycle {
 
 	Action actionToggleSmoothRendering = new AbstractAction("Smooth Rendering") {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			app().settings().smoothRendering = cbSmoothRendering.isSelected();
+			JCheckBox cb = (JCheckBox) e.getSource();
+			app().settings().smoothRendering = cb.isSelected();
 			loginfo("Smooth Rendering is %s", app().settings().smoothRendering);
 		}
 	};
@@ -46,4 +48,13 @@ public class ScreenView extends JPanel {
 		add(cbSmoothRendering, "cell 1 1");
 	}
 
+	@Override
+	public void init() {
+
+	}
+
+	@Override
+	public void update() {
+		comboDisplayMode.select(app().settings().fullScreenMode);
+	}
 }
