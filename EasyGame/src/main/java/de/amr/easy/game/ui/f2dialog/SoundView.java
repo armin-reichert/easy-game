@@ -41,7 +41,7 @@ public class SoundView extends JPanel {
 	private JPanel content;
 
 	public SoundView() {
-		setLayout(new MigLayout("", "[grow,fill]", "[][]"));
+		setLayout(new BorderLayout());
 
 		content = new JPanel();
 		add(content, BorderLayout.CENTER);
