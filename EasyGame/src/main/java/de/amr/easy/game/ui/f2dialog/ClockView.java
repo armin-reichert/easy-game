@@ -20,6 +20,7 @@ import javax.swing.event.ChangeListener;
 
 import de.amr.easy.game.controller.Lifecycle;
 import net.miginfocom.swing.MigLayout;
+import java.awt.Dimension;
 
 public class ClockView extends JPanel implements Lifecycle {
 
@@ -50,15 +51,16 @@ public class ClockView extends JPanel implements Lifecycle {
 	private JLabel lblFPS;
 
 	public ClockView() {
-		setLayout(new MigLayout("", "[][grow,fill]", "[][grow,fill][]"));
-		lblFPS = new JLabel("60 Ticks/sec");
+		setLayout(new MigLayout("", "[150px:150px,left][grow,fill]", "[][grow,fill][]"));
+		lblFPS = new JLabel("100 Ticks/sec");
+		lblFPS.setMinimumSize(new Dimension(80, 16));
 		lblFPS.setBorder(new EmptyBorder(0, 3, 0, 6));
 		lblFPS.setForeground(Color.BLUE);
 		lblFPS.setFont(new Font("SansSerif", Font.BOLD, 18));
 		add(lblFPS, "cell 0 0,aligny center");
 		sliderFPS = new JSlider(0, MAX_FPS);
 		lblFPS.setLabelFor(sliderFPS);
-		add(sliderFPS, "cell 1 0");
+		add(sliderFPS, "cell 1 0,growx");
 		sliderFPS.addChangeListener(fpsSliderChanged);
 		sliderFPS.setMajorTickSpacing(50);
 		sliderFPS.setMinorTickSpacing(10);
