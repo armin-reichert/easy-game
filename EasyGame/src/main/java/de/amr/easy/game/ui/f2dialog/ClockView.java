@@ -53,7 +53,9 @@ public class ClockView extends JPanel implements Lifecycle {
 	public ClockView() {
 		setLayout(new MigLayout("", "[150px:150px,left][grow,fill]", "[][grow,fill][]"));
 		lblFPS = new JLabel("100 Ticks/sec");
-		lblFPS.setMinimumSize(new Dimension(80, 16));
+		lblFPS.setPreferredSize(new Dimension(140, 16));
+		lblFPS.setMaximumSize(new Dimension(140, 16));
+		lblFPS.setMinimumSize(new Dimension(140, 16));
 		lblFPS.setBorder(new EmptyBorder(0, 3, 0, 6));
 		lblFPS.setForeground(Color.BLUE);
 		lblFPS.setFont(new Font("SansSerif", Font.BOLD, 18));
