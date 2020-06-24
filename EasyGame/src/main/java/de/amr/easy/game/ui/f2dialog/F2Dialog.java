@@ -4,7 +4,6 @@ import static de.amr.easy.game.Application.app;
 import static de.amr.easy.game.Application.ApplicationState.PAUSED;
 import static javax.swing.SwingUtilities.invokeLater;
 
-import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -19,6 +18,7 @@ import javax.swing.JTabbedPane;
 
 import de.amr.easy.game.Application;
 import de.amr.easy.game.controller.Lifecycle;
+import net.miginfocom.swing.MigLayout;
 
 /**
  * Dialog for inspecting and changing application environment. Opened with F2 key.
@@ -47,14 +47,15 @@ public class F2Dialog extends JDialog implements Lifecycle, F2DialogAPI {
 	private SoundView soundView;
 	private ScreenView screenView;
 	private ClockView clockView;
+	private FramerateSelector framerateSelector;
 
 	public F2Dialog(Window owner) {
 		super(owner);
 		setSize(680, 400);
-		getContentPane().setLayout(new BorderLayout(0, 0));
+		getContentPane().setLayout(new MigLayout("", "[664px]", "[320px][41px][]"));
 
 		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-		getContentPane().add(tabbedPane);
+		getContentPane().add(tabbedPane, "cell 0 0,grow");
 
 		clockView = new ClockView();
 		tabbedPane.addTab("Clock", null, clockView, null);
@@ -66,12 +67,15 @@ public class F2Dialog extends JDialog implements Lifecycle, F2DialogAPI {
 		tabbedPane.addTab("Sound", null, soundView, null);
 
 		panelButtons = new JPanel();
-		getContentPane().add(panelButtons, BorderLayout.SOUTH);
+		getContentPane().add(panelButtons, "cell 0 1,alignx left,aligny top");
 
 		btnPlayPause = new JButton("Pause");
 		btnPlayPause.setAction(actionTogglePlayPause);
 		btnPlayPause.setFont(new Font("SansSerif", Font.BOLD, 14));
 		panelButtons.add(btnPlayPause);
+
+		framerateSelector = new FramerateSelector();
+		getContentPane().add(framerateSelector, "cell 0 2,growx");
 	}
 
 	@Override
@@ -85,6 +89,7 @@ public class F2Dialog extends JDialog implements Lifecycle, F2DialogAPI {
 		clockView.init();
 		soundView.init();
 		screenView.init();
+		framerateSelector.init();
 		app().onEntry(PAUSED, state -> invokeLater(() -> btnPlayPause.setText("Resume")));
 		app().onExit(PAUSED, state -> invokeLater(() -> btnPlayPause.setText("Pause")));
 		app().clock().addFrequencyChangeListener(change -> invokeLater(this::update));
@@ -97,6 +102,7 @@ public class F2Dialog extends JDialog implements Lifecycle, F2DialogAPI {
 		clockView.update();
 		screenView.update();
 		soundView.update();
+		framerateSelector.update();
 		setTitle(String.format("Application '%s'", app().settings().title));
 		btnPlayPause.setText(app().isPaused() ? "Resume" : "Pause");
 	}
