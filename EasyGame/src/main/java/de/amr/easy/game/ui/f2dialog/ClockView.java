@@ -32,7 +32,7 @@ public class ClockView extends JPanel implements Lifecycle {
 		setLayout(new MigLayout("", "[150px:150px,left][grow,fill]", "[grow,fill][]"));
 
 		fpsHistoryPanel = new JPanel();
-		add(fpsHistoryPanel, "cell 0 0 2 1,growx");
+		add(fpsHistoryPanel, "cell 0 0 2 1,grow");
 		fpsHistoryPanel
 				.setBorder(new TitledBorder(null, "Framerate History", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		fpsHistoryPanel.setLayout(new MigLayout("", "[grow,fill]", "[grow,fill]"));
