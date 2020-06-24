@@ -38,7 +38,7 @@ public class SettingsTableModel extends AbstractTableModel {
 		keys.clear();
 		values.clear();
 		AppSettings s = app().settings();
-		addString("-- Prefined settings --", "");
+		addString("-- Predefined settings --", "");
 		addInteger("fps", s.fps);
 		addBoolean("fullScreen", s.fullScreen);
 		addBoolean("fullScreenCursor", s.fullScreenCursor);
