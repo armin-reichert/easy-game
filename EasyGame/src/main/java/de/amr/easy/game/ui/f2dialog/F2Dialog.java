@@ -8,11 +8,8 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Window;
-import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -35,21 +32,14 @@ import net.miginfocom.swing.MigLayout;
  */
 public class F2Dialog extends JDialog implements Lifecycle, F2DialogAPI {
 
-	public static final int CUSTOM_TABS_START = 3;
+	public static final int CUSTOM_TABS_START = 4;
 
-	Action actionTogglePlayPause = new AbstractAction("Play/Pause") {
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			app().togglePause();
-		}
-	};
-
-	JTabbedPane tabbedPane;
-	private JButton btnPlayPause;
 	private SoundView soundView;
 	private ScreenView screenView;
 	private ClockView clockView;
+	private SettingsView settingsView;
+	private JTabbedPane tabbedPane;
+	private JButton btnPlayPause;
 	private FramerateSelector framerateSelector;
 	private Icon pauseIcon, playIcon;
 
@@ -79,9 +69,11 @@ public class F2Dialog extends JDialog implements Lifecycle, F2DialogAPI {
 		soundView = new SoundView();
 		tabbedPane.addTab("Sound", null, soundView, null);
 
+		settingsView = new SettingsView();
+		tabbedPane.addTab("Settings", null, settingsView, null);
+
 		btnPlayPause = new JButton("Pause");
 		getContentPane().add(btnPlayPause, "flowx,cell 0 1");
-		btnPlayPause.setAction(actionTogglePlayPause);
 		btnPlayPause.setFont(new Font("SansSerif", Font.BOLD, 14));
 
 		framerateSelector = new FramerateSelector();
@@ -100,22 +92,26 @@ public class F2Dialog extends JDialog implements Lifecycle, F2DialogAPI {
 		clockView.init();
 		soundView.init();
 		screenView.init();
+		settingsView.init();
 		framerateSelector.init();
 		app().onEntry(PAUSED, state -> invokeLater(this::updatePlayPauseButton));
 		app().onExit(PAUSED, state -> invokeLater(this::updatePlayPauseButton));
 		app().clock().addFrequencyChangeListener(change -> invokeLater(this::update));
 		app().soundManager().changes.addPropertyChangeListener("muted", e -> update());
+		btnPlayPause.addActionListener(e -> app().togglePause());
+		setTitle(String.format("Application '%s'", app().settings().title));
+		updatePlayPauseButton();
 		update();
 	}
 
 	@Override
 	public void update() {
+		// TODO only update selected view
 		clockView.update();
 		screenView.update();
 		soundView.update();
+		settingsView.update();
 		framerateSelector.update();
-		setTitle(String.format("Application '%s'", app().settings().title));
-		updatePlayPauseButton();
 	}
 
 	private void updatePlayPauseButton() {
@@ -143,5 +139,9 @@ public class F2Dialog extends JDialog implements Lifecycle, F2DialogAPI {
 	@Override
 	public void selectTab(int i) {
 		tabbedPane.setSelectedIndex(i);
+	}
+
+	public JTabbedPane getTabbedPane() {
+		return tabbedPane;
 	}
 }

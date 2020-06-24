@@ -16,6 +16,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -161,7 +162,7 @@ public class Assets {
 	 * @return the sound names
 	 */
 	public static Iterable<String> soundNames() {
-		return soundCache.keySet();
+		return new HashSet<>(soundCache.keySet());
 	}
 
 	/**

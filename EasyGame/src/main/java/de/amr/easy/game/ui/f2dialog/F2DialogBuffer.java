@@ -36,7 +36,7 @@ public class F2DialogBuffer implements F2DialogAPI {
 
 	public void addTo(F2Dialog dialog) {
 		for (Map.Entry<String, JComponent> entry : tabs.entrySet()) {
-			dialog.tabbedPane.addTab(entry.getKey(), entry.getValue());
+			dialog.getTabbedPane().addTab(entry.getKey(), entry.getValue());
 		}
 		if (selection != -1) {
 			dialog.selectTab(selection);
