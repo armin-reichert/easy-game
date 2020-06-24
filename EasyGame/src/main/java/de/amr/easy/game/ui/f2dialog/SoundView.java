@@ -13,6 +13,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
+import de.amr.easy.game.controller.Lifecycle;
 import de.amr.easy.game.ui.f2dialog.SoundTableModel.Field;
 import net.miginfocom.swing.MigLayout;
 
@@ -21,7 +22,7 @@ import net.miginfocom.swing.MigLayout;
  * 
  * @author Armin Reichert
  */
-public class SoundView extends JPanel {
+public class SoundView extends JPanel implements Lifecycle {
 
 	Action actionToggleMuted = new AbstractAction("Muted") {
 
@@ -70,10 +71,12 @@ public class SoundView extends JPanel {
 		table.getColumnModel().getColumn(column.ordinal()).setCellRenderer(r);
 	}
 
+	@Override
 	public void init() {
 		setupTable(new SoundTableModel());
 	}
 
+	@Override
 	public void update() {
 		cbMuted.setSelected(app().soundManager().isMuted());
 		SoundTableModel tableModel = (SoundTableModel) table.getModel();

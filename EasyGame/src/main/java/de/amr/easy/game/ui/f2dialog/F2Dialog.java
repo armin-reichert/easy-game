@@ -4,6 +4,7 @@ import static de.amr.easy.game.Application.app;
 import static de.amr.easy.game.Application.ApplicationState.PAUSED;
 import static javax.swing.SwingUtilities.invokeLater;
 
+import java.awt.Component;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -106,11 +107,11 @@ public class F2Dialog extends JDialog implements Lifecycle, F2DialogAPI {
 
 	@Override
 	public void update() {
-		// TODO only update selected view
-		clockView.update();
-		screenView.update();
-		soundView.update();
-		settingsView.update();
+		Component comp = tabbedPane.getSelectedComponent();
+		if (comp instanceof Lifecycle) {
+			((Lifecycle) comp).update();
+		}
+		// always visible
 		framerateSelector.update();
 	}
 

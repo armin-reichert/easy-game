@@ -9,13 +9,13 @@ import java.awt.Font;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JSlider;
+import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import de.amr.easy.game.controller.Lifecycle;
 import net.miginfocom.swing.MigLayout;
-import javax.swing.SwingConstants;
 
 public class FramerateSelector extends JComponent implements Lifecycle {
 	private static final int MAX_FPS = 180;
@@ -61,8 +61,9 @@ public class FramerateSelector extends JComponent implements Lifecycle {
 
 	@Override
 	public void update() {
-		lblFPS.setText(String.format("%d ticks/sec", app().clock().getTargetFramerate()));
-		sliderFPS.setValue(app().clock().getTargetFramerate());
-		sliderFPS.setToolTipText("Frame rate = " + sliderFPS.getValue());
+		int current = app().clock().getFrameRate();
+		int target = app().clock().getTargetFramerate();
+		lblFPS.setText(String.format("%d of %d fps", current, target));
+		sliderFPS.setValue(target);
 	}
 }
