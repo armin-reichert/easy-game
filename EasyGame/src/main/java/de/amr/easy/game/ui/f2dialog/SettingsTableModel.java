@@ -49,9 +49,11 @@ public class SettingsTableModel extends AbstractTableModel {
 		addBoolean("smoothRendering", s.smoothRendering);
 		addString("title", s.title);
 		addBoolean("titleExtended", s.titleExtended);
-		addString("-- Application defined settings --", "");
 		addInteger("width", s.width);
 		// add generic entries
+		if (s.keys().count() != 0) {
+			addString("-- Application defined settings --", "");
+		}
 		s.keys().forEach(key -> {
 			Object value = s.get(key);
 			if (value instanceof Boolean) {
