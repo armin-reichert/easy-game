@@ -130,6 +130,8 @@ beginStateMachine(ApplicationState.class, ApplicationEvent.class, EventMatchStra
 
 By pressing the F2-key an integrated dialog is opened where you can interactively change the frequency of the game clock, watch the frame rate history and change the resolution of the full-screen mode. Applications can add custom tabs to this dialog, see for an example my Pac-Man game implementation.
 
+<img src="EasyGame/screenshots/appcontrol-sound.png">
+
 <img src="https://raw.githubusercontent.com/armin-reichert/pacman/master/PacManDoc/game-state-view.png">
 
 ## Examples
