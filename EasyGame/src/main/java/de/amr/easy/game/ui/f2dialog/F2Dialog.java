@@ -29,9 +29,9 @@ import de.amr.easy.game.controller.Lifecycle;
  * 
  * @author Armin Reichert
  */
-public class F2Dialog extends JDialog implements Lifecycle {
+public class F2Dialog extends JDialog implements Lifecycle, F2DialogAPI {
 
-	static final int CUSTOM_TABS_START = 3;
+	public static final int CUSTOM_TABS_START = 3;
 
 	Action actionTogglePlayPause = new AbstractAction("Play/Pause") {
 
@@ -41,7 +41,7 @@ public class F2Dialog extends JDialog implements Lifecycle {
 		}
 	};
 
-	private JTabbedPane tabbedPane;
+	JTabbedPane tabbedPane;
 	private JPanel panelButtons;
 	private JButton btnPlayPause;
 	private SoundView soundView;
@@ -101,13 +101,19 @@ public class F2Dialog extends JDialog implements Lifecycle {
 		btnPlayPause.setText(app().isPaused() ? "Resume" : "Pause");
 	}
 
-	public void addCustomTab(String title, JComponent component) {
+	@Override
+	public void addTab(String title, JComponent component) {
 		tabbedPane.addTab(title, component);
 		revalidate();
 	}
 
+	@Override
 	public void selectCustomTab(int i) {
 		tabbedPane.setSelectedIndex(CUSTOM_TABS_START + i);
-		repaint();
+	}
+
+	@Override
+	public void selectTab(int i) {
+		tabbedPane.setSelectedIndex(i);
 	}
 }

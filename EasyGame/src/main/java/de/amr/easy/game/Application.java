@@ -13,14 +13,11 @@ import static de.amr.statemachine.core.StateMachine.beginStateMachine;
 import java.awt.Image;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
-import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -37,6 +34,8 @@ import de.amr.easy.game.input.Mouse;
 import de.amr.easy.game.timing.Clock;
 import de.amr.easy.game.ui.AppInfoView;
 import de.amr.easy.game.ui.AppShell;
+import de.amr.easy.game.ui.f2dialog.F2DialogAPI;
+import de.amr.easy.game.ui.f2dialog.F2DialogBuffer;
 import de.amr.easy.game.view.View;
 import de.amr.easy.game.view.VisualController;
 import de.amr.statemachine.api.EventMatchStrategy;
@@ -121,7 +120,7 @@ public abstract class Application {
 	private Image icon;
 	private StateMachine<ApplicationState, ApplicationEvent> life;
 	private SoundManager soundManager = new SoundManager();
-	private Map<String, JComponent> customSettingsTabs = new LinkedHashMap<>();
+	private F2DialogBuffer f2DialogBuffer = new F2DialogBuffer();
 
 	/**
 	 * @return the application instance
@@ -205,6 +204,8 @@ public abstract class Application {
 						} else {
 							shell = new AppShell(this, settings.width, settings.height);
 						}
+						f2DialogBuffer.addTo(shell.f2Dialog);
+						
 						if (settings.muted) {
 							soundManager.muteAll();
 						}
@@ -274,11 +275,6 @@ public abstract class Application {
 	}
 
 	private void showUIAndStartClock() {
-		if (!customSettingsTabs.isEmpty()) {
-			customSettingsTabs.entrySet().forEach(entry -> {
-				shell.f2Dialog.addCustomTab(entry.getKey(), entry.getValue());
-			});
-		}
 		shell.display(settings.fullScreen);
 		clock.start();
 		loginfo("Clock started, %d frames/second", clock.getTargetFramerate());
@@ -446,18 +442,8 @@ public abstract class Application {
 		}
 	}
 
-	public void addCustomSettingsTab(String title, JComponent component) {
-		if (shell == null) {
-			customSettingsTabs.put(title, component);
-		} else {
-			shell.f2Dialog.addCustomTab(title, component);
-		}
-	}
-
-	public void selectCustomSettingsTab(int i) {
-		if (shell != null) {
-			shell.f2Dialog.selectCustomTab(i);
-		}
+	public F2DialogAPI f2Dialog() {
+		return shell != null ? shell.f2Dialog : f2DialogBuffer;
 	}
 
 	/**
