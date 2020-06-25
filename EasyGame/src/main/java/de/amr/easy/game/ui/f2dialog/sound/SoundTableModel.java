@@ -10,13 +10,34 @@ import de.amr.easy.game.assets.SoundClip;
 
 public class SoundTableModel extends AbstractTableModel {
 
-	static final SoundTableModel SAMPLE_DATA = new SoundTableModel() {
+	static final SoundTableModel LOREM_IPSUM = new SoundTableModel() {
 
-		Object[] sampleRecord = { true, "path", 90f, .76f, "audio format" };
+		private final Record sampleRecord = new Record();
+
+		{
+			sampleRecord.running = true;
+			sampleRecord.path = "/path/to/sound/file";
+			sampleRecord.durationSeconds = 90;
+			sampleRecord.volume = 0.66f;
+			sampleRecord.audioFormat = "wav";
+		};
 
 		@Override
 		public Object getValueAt(int row, int col) {
-			return sampleRecord[col];
+			switch (ColumnInfo.at(col)) {
+			case Running:
+				return sampleRecord.running;
+			case Path:
+				return sampleRecord.path;
+			case Duration:
+				return sampleRecord.durationSeconds;
+			case Format:
+				return sampleRecord.audioFormat;
+			case Volume:
+				return sampleRecord.volume;
+			default:
+				return null;
+			}
 		}
 
 		@Override
@@ -33,25 +54,25 @@ public class SoundTableModel extends AbstractTableModel {
 		boolean running;
 	}
 
-	public enum Field {
+	public enum ColumnInfo {
 		//@formatter:off
-		Running(Boolean.class),
+		Running("", Boolean.class),
 		Path(String.class), 
 		Duration(Float.class),
 		Volume(Float.class),
 		Format(String.class);
 		//@formatter:on
 
-		static Field at(int col) {
+		static ColumnInfo at(int col) {
 			return values()[col];
 		}
 
-		private Field(Class<?> class_) {
+		private ColumnInfo(Class<?> class_) {
 			this.class_ = class_;
 			this.text = name();
 		}
 
-		private Field(String text, Class<?> class_) {
+		private ColumnInfo(String text, Class<?> class_) {
 			this.class_ = class_;
 			this.text = text;
 		}
@@ -86,7 +107,7 @@ public class SoundTableModel extends AbstractTableModel {
 	@Override
 	public Object getValueAt(int row, int col) {
 		Record r = records.get(row);
-		switch (Field.at(col)) {
+		switch (ColumnInfo.at(col)) {
 		case Running:
 			return r.running;
 		case Path:
@@ -104,12 +125,12 @@ public class SoundTableModel extends AbstractTableModel {
 
 	@Override
 	public String getColumnName(int col) {
-		return Field.at(col).text;
+		return ColumnInfo.at(col).text;
 	}
 
 	@Override
 	public Class<?> getColumnClass(int col) {
-		return Field.at(col).class_;
+		return ColumnInfo.at(col).class_;
 	}
 
 	@Override
@@ -119,6 +140,6 @@ public class SoundTableModel extends AbstractTableModel {
 
 	@Override
 	public int getColumnCount() {
-		return Field.values().length;
+		return ColumnInfo.values().length;
 	}
 }

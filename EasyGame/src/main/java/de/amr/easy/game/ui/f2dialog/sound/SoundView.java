@@ -14,9 +14,10 @@ import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
 import de.amr.easy.game.controller.Lifecycle;
-import de.amr.easy.game.ui.f2dialog.sound.SoundTableModel.Field;
+import de.amr.easy.game.ui.f2dialog.sound.SoundTableModel.ColumnInfo;
 import de.amr.easy.game.ui.f2dialog.util.PercentRenderer;
 import de.amr.easy.game.ui.f2dialog.util.SecondsRenderer;
+import de.amr.easy.game.ui.f2dialog.util.SoundWaveRenderer;
 import net.miginfocom.swing.MigLayout;
 
 /**
@@ -58,18 +59,26 @@ public class SoundView extends JPanel implements Lifecycle {
 		content.add(scrollPane, "cell 0 1,grow");
 
 		table = new JTable();
+		table.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
+		table.setRowSelectionAllowed(false);
 		table.setRowHeight(24);
 		scrollPane.setViewportView(table);
-		setupTable(SoundTableModel.SAMPLE_DATA);
+		setupTable(SoundTableModel.LOREM_IPSUM);
 	}
 
 	private void setupTable(SoundTableModel model) {
 		table.setModel(model);
-		setCellRenderer(Field.Volume, new PercentRenderer());
-		setCellRenderer(Field.Duration, new SecondsRenderer());
+		setCellRenderer(ColumnInfo.Running, new SoundWaveRenderer(table.getRowHeight()));
+		setCellRenderer(ColumnInfo.Volume, new PercentRenderer());
+		setCellRenderer(ColumnInfo.Duration, new SecondsRenderer());
+		table.getColumnModel().getColumn(0).setPreferredWidth(50);
+		table.getColumnModel().getColumn(1).setPreferredWidth(140);
+		table.getColumnModel().getColumn(2).setPreferredWidth(70);
+		table.getColumnModel().getColumn(3).setPreferredWidth(60);
+		table.getColumnModel().getColumn(4).setPreferredWidth(360);
 	}
 
-	private void setCellRenderer(Field column, TableCellRenderer r) {
+	private void setCellRenderer(ColumnInfo column, TableCellRenderer r) {
 		table.getColumnModel().getColumn(column.ordinal()).setCellRenderer(r);
 	}
 
