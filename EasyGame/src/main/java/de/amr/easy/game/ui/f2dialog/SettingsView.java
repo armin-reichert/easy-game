@@ -23,17 +23,14 @@ public class SettingsView extends JPanel implements Lifecycle {
 		scrollPane.setViewportView(table);
 	}
 
-	private SettingsTableModel getSettingsModel() {
-		return (SettingsTableModel) table.getModel();
-	}
-
 	@Override
 	public void init() {
 		table.setModel(new SettingsTableModel());
-		getSettingsModel().update();
 	}
 
 	@Override
 	public void update() {
+		SettingsTableModel model = (SettingsTableModel) table.getModel();
+		model.readAppSettings();
 	}
 }

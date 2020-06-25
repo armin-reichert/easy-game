@@ -50,10 +50,13 @@ public class ScreenView extends JPanel implements Lifecycle {
 
 	@Override
 	public void init() {
+		comboDisplayMode.select(app().settings().fullScreenMode);
+		cbSmoothRendering.setSelected(app().settings().smoothRendering);
 	}
 
 	@Override
 	public void update() {
 		comboDisplayMode.select(app().settings().fullScreenMode);
+		cbSmoothRendering.setSelected(app().settings().smoothRendering);
 	}
 }

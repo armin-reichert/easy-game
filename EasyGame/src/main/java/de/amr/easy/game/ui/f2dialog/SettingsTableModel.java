@@ -7,12 +7,17 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
+import de.amr.easy.game.Application;
 import de.amr.easy.game.config.AppSettings;
 
 public class SettingsTableModel extends AbstractTableModel {
 
 	private List<String> keys = new ArrayList<>();
 	private List<String> values = new ArrayList<>();
+
+	public SettingsTableModel() {
+		readAppSettings();
+	}
 
 	@Override
 	public int getRowCount() {
@@ -31,10 +36,14 @@ public class SettingsTableModel extends AbstractTableModel {
 
 	@Override
 	public Object getValueAt(int row, int col) {
+		if (row >= keys.size() || row >= values.size()) {
+			Application.loginfo("Table data access failed: row=%d col=%d", row, col);
+			return null;
+		}
 		return col == 0 ? keys.get(row) : values.get(row);
 	}
 
-	public void update() {
+	public void readAppSettings() {
 		keys.clear();
 		values.clear();
 		AppSettings s = app().settings();
@@ -66,7 +75,8 @@ public class SettingsTableModel extends AbstractTableModel {
 				addString(key, String.valueOf(value));
 			}
 		});
-		fireTableDataChanged();
+		int last = Math.min(keys.size() - 1, values.size() - 1);
+		fireTableRowsUpdated(0, last);
 	}
 
 	private void addFloat(String key, float value) {

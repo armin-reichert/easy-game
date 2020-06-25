@@ -69,6 +69,7 @@ public class F2Dialog extends JDialog implements Lifecycle, F2DialogAPI {
 
 		soundView = new SoundView();
 		tabbedPane.addTab("Sound", null, soundView, null);
+		tabbedPane.addChangeListener(e -> tabChanged());
 
 		settingsView = new SettingsView();
 		tabbedPane.addTab("Settings", null, settingsView, null);
@@ -113,6 +114,10 @@ public class F2Dialog extends JDialog implements Lifecycle, F2DialogAPI {
 		}
 		// always visible
 		framerateSelector.update();
+	}
+
+	private void tabChanged() {
+		update();
 	}
 
 	private void updatePlayPauseButton() {
