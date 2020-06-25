@@ -1,4 +1,4 @@
-package de.amr.easy.game.ui.f2dialog;
+package de.amr.easy.game.ui.f2dialog.core;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.swing.JComponent;
 
 import de.amr.easy.game.Application;
+import de.amr.easy.game.ui.f2dialog.F2DialogAPI;
 
 /**
  * When the {@link F2DialogAPI} is used while the UI is not yet created, for example inside the
@@ -20,7 +21,7 @@ public class F2DialogBuffer implements F2DialogAPI {
 	private int selection = -1;
 
 	@Override
-	public void addTab(String title, JComponent component) {
+	public void addCustomTab(String title, JComponent component) {
 		tabs.put(title, component);
 	}
 

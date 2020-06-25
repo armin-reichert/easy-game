@@ -1,4 +1,4 @@
-package de.amr.easy.game.ui.f2dialog;
+package de.amr.easy.game.ui.f2dialog.sound;
 
 import static de.amr.easy.game.Application.app;
 
@@ -14,7 +14,9 @@ import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
 import de.amr.easy.game.controller.Lifecycle;
-import de.amr.easy.game.ui.f2dialog.SoundTableModel.Field;
+import de.amr.easy.game.ui.f2dialog.sound.SoundTableModel.Field;
+import de.amr.easy.game.ui.f2dialog.util.PercentRenderer;
+import de.amr.easy.game.ui.f2dialog.util.SecondsRenderer;
 import net.miginfocom.swing.MigLayout;
 
 /**

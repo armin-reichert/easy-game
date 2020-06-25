@@ -1,4 +1,4 @@
-package de.amr.easy.game.ui.f2dialog;
+package de.amr.easy.game.ui.f2dialog.core;
 
 import static de.amr.easy.game.Application.app;
 import static de.amr.easy.game.Application.ApplicationState.PAUSED;
@@ -20,6 +20,12 @@ import javax.swing.JTabbedPane;
 
 import de.amr.easy.game.Application;
 import de.amr.easy.game.controller.Lifecycle;
+import de.amr.easy.game.ui.f2dialog.F2DialogAPI;
+import de.amr.easy.game.ui.f2dialog.clock.ClockView;
+import de.amr.easy.game.ui.f2dialog.clock.FramerateSelector;
+import de.amr.easy.game.ui.f2dialog.screen.ScreenView;
+import de.amr.easy.game.ui.f2dialog.settings.SettingsView;
+import de.amr.easy.game.ui.f2dialog.sound.SoundView;
 import net.miginfocom.swing.MigLayout;
 
 /**
@@ -132,7 +138,7 @@ public class F2Dialog extends JDialog implements Lifecycle, F2DialogAPI {
 	}
 
 	@Override
-	public void addTab(String title, JComponent component) {
+	public void addCustomTab(String title, JComponent component) {
 		tabbedPane.addTab(title, component);
 		revalidate();
 	}

@@ -35,7 +35,7 @@ import de.amr.easy.game.timing.Clock;
 import de.amr.easy.game.ui.AppInfoView;
 import de.amr.easy.game.ui.AppShell;
 import de.amr.easy.game.ui.f2dialog.F2DialogAPI;
-import de.amr.easy.game.ui.f2dialog.F2DialogBuffer;
+import de.amr.easy.game.ui.f2dialog.core.F2DialogBuffer;
 import de.amr.easy.game.view.View;
 import de.amr.easy.game.view.VisualController;
 import de.amr.statemachine.api.EventMatchStrategy;

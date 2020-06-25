@@ -1,4 +1,4 @@
-package de.amr.easy.game.ui.f2dialog;
+package de.amr.easy.game.ui.f2dialog.clock;
 
 import java.awt.BasicStroke;
 import java.awt.Color;

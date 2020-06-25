@@ -2,7 +2,7 @@ package de.amr.easy.game.tests;
 
 import de.amr.easy.game.Application;
 import de.amr.easy.game.config.AppSettings;
-import de.amr.easy.game.ui.f2dialog.FramerateHistoryView;
+import de.amr.easy.game.ui.f2dialog.clock.FramerateHistoryView;
 
 public class FramerateTestApp extends Application {
 

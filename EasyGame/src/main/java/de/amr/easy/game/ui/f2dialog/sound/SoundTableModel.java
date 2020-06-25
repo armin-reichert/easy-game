@@ -1,4 +1,4 @@
-package de.amr.easy.game.ui.f2dialog;
+package de.amr.easy.game.ui.f2dialog.sound;
 
 import java.util.ArrayList;
 import java.util.List;

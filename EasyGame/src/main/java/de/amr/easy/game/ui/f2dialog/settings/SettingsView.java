@@ -1,4 +1,4 @@
-package de.amr.easy.game.ui.f2dialog;
+package de.amr.easy.game.ui.f2dialog.settings;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;

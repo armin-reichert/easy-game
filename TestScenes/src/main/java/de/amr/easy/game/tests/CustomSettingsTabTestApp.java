@@ -33,9 +33,9 @@ class UI implements View, Lifecycle {
 
 	@Override
 	public void init() {
-		app().f2Dialog().addTab("Custom-Tab-0", new JLabel("Custom tab #0"));
-		app().f2Dialog().addTab("Custom-Tab-1", new JLabel("Custom tab #1"));
-		app().f2Dialog().addTab("Custom-Tab-2", new JLabel("Custom tab #2"));
+		app().f2Dialog().addCustomTab("Custom-Tab-0", new JLabel("Custom tab #0"));
+		app().f2Dialog().addCustomTab("Custom-Tab-1", new JLabel("Custom tab #1"));
+		app().f2Dialog().addCustomTab("Custom-Tab-2", new JLabel("Custom tab #2"));
 		app().f2Dialog().selectCustomTab(1);
 	}
 
