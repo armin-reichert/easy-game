@@ -10,6 +10,7 @@ import javax.swing.JLabel;
 import de.amr.easy.game.Application;
 import de.amr.easy.game.config.AppSettings;
 import de.amr.easy.game.controller.Lifecycle;
+import de.amr.easy.game.ui.f2dialog.F2DialogAPI;
 import de.amr.easy.game.view.View;
 
 public class CustomSettingsTabTestApp extends Application {
@@ -24,6 +25,14 @@ public class CustomSettingsTabTestApp extends Application {
 	}
 
 	@Override
+	public void configureF2Dialog(F2DialogAPI dialog) {
+		dialog.addCustomTab("Custom-Tab-0", new JLabel("Custom tab #0"));
+		dialog.addCustomTab("Custom-Tab-1", new JLabel("Custom tab #1"));
+		dialog.addCustomTab("Custom-Tab-2", new JLabel("Custom tab #2"));
+		dialog.selectCustomTab(1);
+	}
+
+	@Override
 	public void init() {
 		setController(new UI());
 	}
@@ -33,10 +42,6 @@ class UI implements View, Lifecycle {
 
 	@Override
 	public void init() {
-		app().f2Dialog().addCustomTab("Custom-Tab-0", new JLabel("Custom tab #0"));
-		app().f2Dialog().addCustomTab("Custom-Tab-1", new JLabel("Custom tab #1"));
-		app().f2Dialog().addCustomTab("Custom-Tab-2", new JLabel("Custom tab #2"));
-		app().f2Dialog().selectCustomTab(1);
 	}
 
 	@Override

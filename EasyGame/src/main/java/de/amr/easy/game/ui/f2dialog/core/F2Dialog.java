@@ -10,6 +10,9 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Window;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.BooleanSupplier;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -39,6 +42,11 @@ import net.miginfocom.swing.MigLayout;
  */
 public class F2Dialog extends JDialog implements Lifecycle, F2DialogAPI {
 
+	static class CustomTab {
+		int index;
+		BooleanSupplier fnEnabled;
+	}
+
 	public static final int CUSTOM_TABS_START = 4;
 
 	private SoundView soundView;
@@ -49,6 +57,7 @@ public class F2Dialog extends JDialog implements Lifecycle, F2DialogAPI {
 	private JButton btnPlayPause;
 	private FramerateSelector framerateSelector;
 	private Icon pauseIcon, playIcon;
+	private List<CustomTab> customTabs = new ArrayList<>();
 
 	private void loadIcons() {
 		Image icons = new ImageIcon(getClass().getResource("/icons/pause-play-and-stop-blank-icons.png")).getImage();
@@ -118,6 +127,9 @@ public class F2Dialog extends JDialog implements Lifecycle, F2DialogAPI {
 		if (comp instanceof Lifecycle) {
 			((Lifecycle) comp).update();
 		}
+		for (CustomTab tab : customTabs) {
+			tabbedPane.setEnabledAt(tab.index, tab.fnEnabled.getAsBoolean());
+		}
 		// always visible
 		framerateSelector.update();
 	}
@@ -138,14 +150,20 @@ public class F2Dialog extends JDialog implements Lifecycle, F2DialogAPI {
 	}
 
 	@Override
-	public void addCustomTab(String title, JComponent component) {
+	public void addCustomTab(String title, JComponent component, BooleanSupplier fnEnabled) {
+		CustomTab tab = new CustomTab();
+		tab.index = CUSTOM_TABS_START + customTabs.size();
+		tab.fnEnabled = fnEnabled;
+		customTabs.add(tab);
 		tabbedPane.addTab(title, component);
-		revalidate();
 	}
 
 	@Override
 	public void selectCustomTab(int i) {
-		tabbedPane.setSelectedIndex(CUSTOM_TABS_START + i);
+		CustomTab tab = customTabs.get(i);
+		if (tab.fnEnabled.getAsBoolean()) {
+			tabbedPane.setSelectedIndex(CUSTOM_TABS_START + i);
+		}
 	}
 
 	@Override

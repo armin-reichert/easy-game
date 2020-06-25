@@ -35,7 +35,6 @@ import de.amr.easy.game.timing.Clock;
 import de.amr.easy.game.ui.AppInfoView;
 import de.amr.easy.game.ui.AppShell;
 import de.amr.easy.game.ui.f2dialog.F2DialogAPI;
-import de.amr.easy.game.ui.f2dialog.core.F2DialogBuffer;
 import de.amr.easy.game.view.View;
 import de.amr.easy.game.view.VisualController;
 import de.amr.statemachine.api.EventMatchStrategy;
@@ -120,7 +119,6 @@ public abstract class Application {
 	private Image icon;
 	private StateMachine<ApplicationState, ApplicationEvent> life;
 	private SoundManager soundManager = new SoundManager();
-	private F2DialogBuffer f2DialogBuffer = new F2DialogBuffer();
 
 	/**
 	 * @return the application instance
@@ -204,8 +202,6 @@ public abstract class Application {
 						} else {
 							shell = new AppShell(this, settings.width, settings.height);
 						}
-						f2DialogBuffer.addTo(shell.f2Dialog);
-						
 						if (settings.muted) {
 							soundManager.muteAll();
 						}
@@ -219,8 +215,8 @@ public abstract class Application {
 						Mouse.handler.poll();
 						collisionHandler().ifPresent(CollisionHandler::update);
 						controller.update();
-						currentView().ifPresent(shell::render);
 						shell.f2Dialog.update();
+						currentView().ifPresent(shell::render);
 					})
 				
 				.state(PAUSED)
@@ -275,6 +271,7 @@ public abstract class Application {
 	}
 
 	private void showUIAndStartClock() {
+		configureF2Dialog(shell.f2Dialog);
 		shell.display(settings.fullScreen);
 		clock.start();
 		loginfo("Clock started, %d frames/second", clock.getTargetFramerate());
@@ -312,6 +309,19 @@ public abstract class Application {
 	 * ticking.
 	 */
 	public abstract void init();
+
+	/**
+	 * Hook method that is called after the application shell has been created. Used to configure the F2
+	 * dialog.
+	 * 
+	 * @param dialog the F2 dialog
+	 */
+	public void configureF2Dialog(F2DialogAPI dialog) {
+	}
+
+	public Optional<F2DialogAPI> f2Dialog() {
+		return shell != null ? Optional.of(shell.f2Dialog) : Optional.empty();
+	}
 
 	/**
 	 * Convenience method for logging to application logger with level INFO.
@@ -440,10 +450,6 @@ public abstract class Application {
 		if (shell != null) {
 			shell.setIconImage(icon);
 		}
-	}
-
-	public F2DialogAPI f2Dialog() {
-		return shell != null ? shell.f2Dialog : f2DialogBuffer;
 	}
 
 	/**

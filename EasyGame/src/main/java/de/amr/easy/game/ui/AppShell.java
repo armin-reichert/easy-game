@@ -148,7 +148,7 @@ public class AppShell extends JFrame {
 		fullScreenWindow.addMouseListener(Mouse.handler);
 		fullScreenWindow.addMouseMotionListener(Mouse.handler);
 
-		createF2Dialog();
+		createF2Dialog(650, 550);
 
 		pack();
 		setLocationRelativeTo(null);
@@ -220,9 +220,9 @@ public class AppShell extends JFrame {
 		f2Dialog.setVisible(true);
 	}
 
-	public void createF2Dialog() {
+	public void createF2Dialog(int width, int height) {
 		f2Dialog = new F2Dialog(null);
-		f2Dialog.setSize(680, 500);
+		f2Dialog.setSize(width, height);
 		f2Dialog.init();
 	}
 
