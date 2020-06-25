@@ -1,5 +1,7 @@
 package de.amr.easy.game.config;
 
+import static de.amr.easy.game.Application.loginfo;
+
 import java.awt.DisplayMode;
 import java.util.HashMap;
 import java.util.Map;
@@ -123,5 +125,22 @@ public class AppSettings {
 	 */
 	public float getAsFloat(String key) {
 		return (float) get(key);
+	}
+
+	/**
+	 * Prints the current settings to the application log.
+	 */
+	public void print() {
+		printValue("Title", "%s", title);
+		printValue("Width", "%d", width);
+		printValue("Height", "%d", height);
+		printValue("Scaling", "%.2f", scale);
+		printValue("Framerate (ticks/sec)", "%d", fps);
+		printValue("Smooth rendering", "%s", smoothRendering);
+		printValue("Muted", "%s", muted);
+	}
+
+	public void printValue(String name, String format, Object value) {
+		loginfo("\t%-25s %s", name + ":", String.format(format, value));
 	}
 }

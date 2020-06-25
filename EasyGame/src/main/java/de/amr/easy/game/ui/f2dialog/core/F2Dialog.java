@@ -20,6 +20,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JTabbedPane;
+import javax.swing.Timer;
 
 import de.amr.easy.game.Application;
 import de.amr.easy.game.controller.Lifecycle;
@@ -49,6 +50,7 @@ public class F2Dialog extends JDialog implements Lifecycle, F2DialogAPI {
 
 	public static final int CUSTOM_TABS_START = 4;
 
+	private Timer updateTimer;
 	private SoundView soundView;
 	private ScreenView screenView;
 	private ClockView clockView;
@@ -118,7 +120,10 @@ public class F2Dialog extends JDialog implements Lifecycle, F2DialogAPI {
 		btnPlayPause.addActionListener(e -> app().togglePause());
 		setTitle(String.format("Application '%s'", app().settings().title));
 		updatePlayPauseButton();
-		update();
+		updateTimer = new Timer(200, e -> {
+			update();
+		});
+		updateTimer.start();
 	}
 
 	@Override

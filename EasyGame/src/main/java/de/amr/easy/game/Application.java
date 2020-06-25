@@ -215,7 +215,6 @@ public abstract class Application {
 						Mouse.handler.poll();
 						collisionHandler().ifPresent(CollisionHandler::update);
 						controller.update();
-						shell.f2Dialog.update();
 						currentView().ifPresent(shell::render);
 					})
 				
@@ -287,24 +286,6 @@ public abstract class Application {
 	protected abstract void configure(AppSettings settings);
 
 	/**
-	 * Prints the application settings to the logger.
-	 */
-	protected void printSettings() {
-		loginfo("Configuration:");
-		printValue("Title", "%s", settings.title);
-		printValue("Width", "%d", settings.width);
-		printValue("Height", "%d", settings.height);
-		printValue("Scaling", "%.2f", settings.scale);
-		printValue("Framerate (ticks/sec)", "%d", settings.fps);
-		printValue("Smooth rendering", "%s", settings.smoothRendering);
-		printValue("Muted", "%s", settings.muted);
-	}
-
-	protected void printValue(String name, String format, Object value) {
-		loginfo("\t%-25s %s", name + ":", String.format(format, value));
-	}
-
-	/**
 	 * Hook method getting called after the application has been configured and before the clock starts
 	 * ticking.
 	 */
@@ -319,6 +300,17 @@ public abstract class Application {
 	public void configureF2Dialog(F2DialogAPI dialog) {
 	}
 
+	/**
+	 * Prints the application settings to the logger.
+	 */
+	protected void printSettings() {
+		loginfo("Configuration:");
+		settings.print();
+	}
+
+	/**
+	 * @return the F2 dialog if already created
+	 */
 	public Optional<F2DialogAPI> f2Dialog() {
 		return shell != null ? Optional.of(shell.f2Dialog) : Optional.empty();
 	}

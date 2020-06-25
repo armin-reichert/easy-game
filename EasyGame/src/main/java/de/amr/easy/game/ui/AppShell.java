@@ -340,9 +340,10 @@ public class AppShell extends JFrame {
 	}
 
 	private float scaling() {
-		return inFullScreenMode()
+		float scale = inFullScreenMode()
 				? Math.min(fullScreenWindow.getWidth() / viewWidth, fullScreenWindow.getHeight() / viewHeight)
 				: app.settings().scale;
+		return Math.max(scale, 0.01f); // avoid 'Determinant is 0' error
 	}
 
 	private Dimension scaledViewSize() {
