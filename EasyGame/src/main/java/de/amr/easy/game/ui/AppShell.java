@@ -340,9 +340,13 @@ public class AppShell extends JFrame {
 	}
 
 	private float scaling() {
-		float scale = inFullScreenMode()
-				? Math.min(fullScreenWindow.getWidth() / viewWidth, fullScreenWindow.getHeight() / viewHeight)
-				: app.settings().scale;
+		float scale = app.settings().scale;
+		if (inFullScreenMode()) {
+			scale = 1f * fullScreenWindow.getHeight() / viewHeight;
+			if (viewWidth * scale > fullScreenWindow.getWidth()) {
+				scale = 1f * fullScreenWindow.getWidth() / viewWidth;
+			}
+		}
 		return Math.max(scale, 0.01f); // avoid 'Determinant is 0' error
 	}
 
