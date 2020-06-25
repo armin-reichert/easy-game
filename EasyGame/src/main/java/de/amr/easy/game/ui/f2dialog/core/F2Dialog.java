@@ -1,19 +1,17 @@
 package de.amr.easy.game.ui.f2dialog.core;
 
 import static de.amr.easy.game.Application.app;
-import static de.amr.easy.game.Application.ApplicationState.PAUSED;
-import static javax.swing.SwingUtilities.invokeLater;
 
 import java.awt.Component;
 import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.Window;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 
+import javax.imageio.ImageIO;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -43,13 +41,14 @@ import net.miginfocom.swing.MigLayout;
  */
 public class F2Dialog extends JDialog implements Lifecycle, F2DialogAPI {
 
-	static class CustomTab {
+	private static class CustomTab {
 		int index;
 		BooleanSupplier fnEnabled;
 	}
 
 	public static final int CUSTOM_TABS_START = 4;
 
+	private List<CustomTab> customTabs = new ArrayList<>();
 	private Timer updateTimer;
 	private SoundView soundView;
 	private ScreenView screenView;
@@ -59,20 +58,10 @@ public class F2Dialog extends JDialog implements Lifecycle, F2DialogAPI {
 	private JButton btnPlayPause;
 	private FramerateSelector framerateSelector;
 	private Icon pauseIcon, playIcon;
-	private List<CustomTab> customTabs = new ArrayList<>();
-
-	private void loadIcons() {
-		Image icons = new ImageIcon(getClass().getResource("/icons/pause-play-and-stop-blank-icons.png")).getImage();
-		BufferedImage buf = new BufferedImage(550, 155, BufferedImage.TYPE_INT_ARGB);
-		Graphics2D g = buf.createGraphics();
-		g.drawImage(icons, 0, 0, icons.getWidth(null), icons.getHeight(null), null);
-		pauseIcon = new ImageIcon(buf.getSubimage(0, 0, 155, 155).getScaledInstance(32, 32, BufferedImage.SCALE_SMOOTH));
-		playIcon = new ImageIcon(buf.getSubimage(198, 0, 155, 155).getScaledInstance(32, 32, BufferedImage.SCALE_SMOOTH));
-	}
 
 	public F2Dialog(Window owner) {
 		super(owner);
-		setSize(754, 480);
+		setSize(700, 500);
 		getContentPane().setLayout(new MigLayout("", "[grow,fill]", "[grow,fill][]"));
 
 		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
@@ -91,9 +80,10 @@ public class F2Dialog extends JDialog implements Lifecycle, F2DialogAPI {
 		settingsView = new SettingsView();
 		tabbedPane.addTab("Settings", null, settingsView, null);
 
-		btnPlayPause = new JButton("Pause");
+		btnPlayPause = new JButton("Play/Pause");
 		getContentPane().add(btnPlayPause, "flowx,cell 0 1");
 		btnPlayPause.setFont(new Font("SansSerif", Font.BOLD, 14));
+		btnPlayPause.addActionListener(e -> app().togglePause());
 
 		framerateSelector = new FramerateSelector();
 		getContentPane().add(framerateSelector, "cell 0 1,growx");
@@ -101,29 +91,23 @@ public class F2Dialog extends JDialog implements Lifecycle, F2DialogAPI {
 
 	@Override
 	public void setVisible(boolean visible) {
-		update();
 		super.setVisible(visible);
+		if (visible) {
+			updateTimer.restart();
+		} else {
+			updateTimer.stop();
+		}
 	}
 
 	@Override
 	public void init() {
-		loadIcons();
+		setTitle(String.format("Application '%s'", app().settings().title));
 		clockView.init();
 		soundView.init();
 		screenView.init();
 		settingsView.init();
 		framerateSelector.init();
-		app().onEntry(PAUSED, state -> invokeLater(this::updatePlayPauseButton));
-		app().onExit(PAUSED, state -> invokeLater(this::updatePlayPauseButton));
-		app().clock().addFrequencyChangeListener(change -> invokeLater(this::update));
-		app().soundManager().changes.addPropertyChangeListener("muted", e -> update());
-		btnPlayPause.addActionListener(e -> app().togglePause());
-		setTitle(String.format("Application '%s'", app().settings().title));
-		updatePlayPauseButton();
-		updateTimer = new Timer(200, e -> {
-			update();
-		});
-		updateTimer.start();
+		updateTimer = new Timer(200, e -> update());
 	}
 
 	@Override
@@ -132,41 +116,26 @@ public class F2Dialog extends JDialog implements Lifecycle, F2DialogAPI {
 		if (comp instanceof Lifecycle) {
 			((Lifecycle) comp).update();
 		}
-		for (CustomTab tab : customTabs) {
-			tabbedPane.setEnabledAt(tab.index, tab.fnEnabled.getAsBoolean());
+		for (CustomTab customTab : customTabs) {
+			tabbedPane.setEnabledAt(customTab.index, customTab.fnEnabled.getAsBoolean());
 		}
-		// always visible
-		framerateSelector.update();
-	}
-
-	private void tabChanged() {
-		update();
-	}
-
-	private void updatePlayPauseButton() {
-		btnPlayPause.setText("");
-		if (app().isPaused()) {
-			btnPlayPause.setIcon(playIcon);
-			btnPlayPause.setToolTipText("Press to PLAY");
-		} else {
-			btnPlayPause.setIcon(pauseIcon);
-			btnPlayPause.setToolTipText("Press to PAUSE");
-		}
+		updatePlayPauseButton();
+		framerateSelector.update(); // always visible
 	}
 
 	@Override
 	public void addCustomTab(String title, JComponent component, BooleanSupplier fnEnabled) {
-		CustomTab tab = new CustomTab();
-		tab.index = CUSTOM_TABS_START + customTabs.size();
-		tab.fnEnabled = fnEnabled;
-		customTabs.add(tab);
+		CustomTab customTab = new CustomTab();
+		customTab.index = CUSTOM_TABS_START + customTabs.size();
+		customTab.fnEnabled = fnEnabled;
+		customTabs.add(customTab);
 		tabbedPane.addTab(title, component);
 	}
 
 	@Override
 	public void selectCustomTab(int i) {
-		CustomTab tab = customTabs.get(i);
-		if (tab.fnEnabled.getAsBoolean()) {
+		CustomTab customTab = customTabs.get(i);
+		if (customTab.fnEnabled.getAsBoolean()) {
 			tabbedPane.setSelectedIndex(CUSTOM_TABS_START + i);
 		}
 	}
@@ -176,7 +145,31 @@ public class F2Dialog extends JDialog implements Lifecycle, F2DialogAPI {
 		tabbedPane.setSelectedIndex(i);
 	}
 
-	public JTabbedPane getTabbedPane() {
-		return tabbedPane;
+	private void tabChanged() {
+		update();
+	}
+
+	private void loadIcons() throws IOException {
+		BufferedImage sheet = ImageIO.read(getClass().getResource("/icons/pause-play-and-stop-blank-icons.png"));
+		pauseIcon = new ImageIcon(sheet.getSubimage(0, 0, 155, 155).getScaledInstance(32, 32, BufferedImage.SCALE_SMOOTH));
+		playIcon = new ImageIcon(sheet.getSubimage(198, 0, 155, 155).getScaledInstance(32, 32, BufferedImage.SCALE_SMOOTH));
+	}
+
+	private void updatePlayPauseButton() {
+		if (pauseIcon == null) { // first time
+			try {
+				loadIcons();
+			} catch (Exception x) {
+				throw new RuntimeException(x);
+			}
+			btnPlayPause.setText("");
+		}
+		if (app().isPaused()) {
+			btnPlayPause.setIcon(playIcon);
+			btnPlayPause.setToolTipText("Press to PLAY");
+		} else {
+			btnPlayPause.setIcon(pauseIcon);
+			btnPlayPause.setToolTipText("Press to PAUSE");
+		}
 	}
 }

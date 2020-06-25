@@ -148,7 +148,7 @@ public class AppShell extends JFrame {
 		fullScreenWindow.addMouseListener(Mouse.handler);
 		fullScreenWindow.addMouseMotionListener(Mouse.handler);
 
-		createF2Dialog(650, 550);
+		createF2Dialog(700, 500);
 
 		pack();
 		setLocationRelativeTo(null);
