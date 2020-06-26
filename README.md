@@ -36,7 +36,7 @@ public class MyFirstApp extends Application {
 	@Override
 	public void init() {
 		setController(new MyFirstAppController());
-		}
+	}
 }
  
 class MyFirstAppController implements Lifecycle {
