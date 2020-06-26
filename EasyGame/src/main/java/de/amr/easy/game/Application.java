@@ -150,28 +150,28 @@ public abstract class Application {
 			String loggingConfigPath = "de/amr/easy/game/logging.properties";
 			InputStream in = Application.class.getClassLoader().getResourceAsStream(loggingConfigPath);
 			if (in == null) {
-				System.err.println("Could not start application " + appClass.getName());
+				System.err.println("Could not start application");
 				System.err.println("Reason: logging configuration at '" + loggingConfigPath + "' not available.");
 				return;
 			}
 			LogManager.getLogManager().readConfiguration(
 					Application.class.getClassLoader().getResourceAsStream("de/amr/easy/game/logging.properties"));
 
-			loginfo("Creating application '%s'", appClass.getName());
+			loginfo("Creating application of class '%s'", appClass.getName());
 			theApplication = appClass.getDeclaredConstructor().newInstance();
 
-			loginfo("Configuring application '%s'", appClass.getName());
+			loginfo("Configuring application '%s'", theApplication.getName());
 			theApplication.configureAndMergeCommandLine(settings, commandLine);
 
 			theApplication.clock = new Clock();
 			theApplication.clock.setTargetFrameRate(settings.fps);
 
-			loginfo("Creating life cycle for application '%s'", appClass.getName());
+			loginfo("Creating life cycle for application '%s'", theApplication.getName());
 			createLife(theApplication);
 			theApplication.life.init();
 
 		} catch (Exception e) {
-			loginfo("Could not launch application '%s'", appClass.getName());
+			loginfo("Could not launch application");
 			e.printStackTrace(System.err);
 		}
 	}
@@ -180,33 +180,14 @@ public abstract class Application {
 		app.life = StateMachine. // cool line ;-)
 		/*@formatter:off*/		
 		beginStateMachine(ApplicationState.class, ApplicationEvent.class, EventMatchStrategy.BY_EQUALITY)
-			.description(String.format("[%s]", app.getClass().getName()))
+			.description(String.format("[%s]", app.getName()))
 			.initialState(STARTING)
 			.states()
 				
 				.state(STARTING)
 					.onEntry(() -> {
-						try {
-							UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
-						} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
-								| UnsupportedLookAndFeelException x) {
-							loginfo("Could not set Nimbus look and feel");
-						}
-						// let application initialize itself and select a main controller:
 						app.init();
-						if (app.controller == null) {
-							// use fallback controller
-							int width = 640, height = 480;
-							app.setController(new AppInfoView(app, width, height));
-							app.shell = new AppShell(app, width, height);
-						} else {
-							app.shell = new AppShell(app, app.settings.width, app.settings.height);
-						}
-						if (app.settings.muted) {
-							app.soundManager.muteAll();
-						}
-						loginfo("Starting application '%s'", app.getClass().getName());
-						SwingUtilities.invokeLater(app::showUIAndStartClock);
+						SwingUtilities.invokeLater(app::showUIAndStart);
 					})
 				
 				.state(RUNNING)
@@ -221,7 +202,7 @@ public abstract class Application {
 				
 				.state(CLOSING)
 					.onEntry(() -> {
-						loginfo("Closing application '%s'", app.getClass().getName());
+						loginfo("Closing application '%s'", app.getName());
 						app.shell.dispose();
 						System.exit(0);
 					})
@@ -261,13 +242,31 @@ public abstract class Application {
 		JCommander commander = JCommander.newBuilder().addObject(settings).build();
 		commander.parse(commandLine);
 		if (settings.help) {
-			commander.setProgramName(getClass().getSimpleName());
+			commander.setProgramName(getName());
 			commander.usage();
 			System.exit(0);
 		}
 	}
 
-	private void showUIAndStartClock() {
+	private void showUIAndStart() {
+		loginfo("Starting application '%s'", getName());
+		if (settings.muted) {
+			soundManager.muteAll();
+		}
+		try {
+			UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
+		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+				| UnsupportedLookAndFeelException x) {
+			loginfo("Could not set Nimbus look and feel");
+		}
+		int width = settings.width, height = settings.height;
+		if (controller == null) {
+			width = 640;
+			height = 480;
+			// use fallback controller
+			setController(new AppInfoView(this, width, height));
+		}
+		shell = new AppShell(this, width, height);
 		configureF2Dialog(shell.f2Dialog);
 		shell.display(settings.fullScreen);
 		clock.onTick = life::update;
@@ -332,6 +331,10 @@ public abstract class Application {
 	 */
 	public static void loginfo(String format, Object... args) {
 		LOGGER.info(String.format(format, args));
+	}
+
+	public String getName() {
+		return getClass().getSimpleName();
 	}
 
 	public boolean isPaused() {
