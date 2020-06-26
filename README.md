@@ -34,26 +34,21 @@ public class MyFirstApp extends Application {
 	}
 
 	@Override
-	public void configure(AppSettings settings) {
-		settings.width = 800;
-		settings.height = 600;
-		settings.title = "My First Application";
-	}
-
-	@Override
 	public void init() {
 		setController(new MyFirstAppController());
+		}
 }
  
 class MyFirstAppController implements Lifecycle {
  
 	@Override
 	public void init() {
+		// do whatever
 	}
 
 	@Override
-	// gets called at every tick of the application clock, normally 60 times/sec
 	public void update() {
+		// called at every tick of the application clock, be default 60 times/sec
 	}
 }
 ```
