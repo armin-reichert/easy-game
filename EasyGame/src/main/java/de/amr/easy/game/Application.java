@@ -4,14 +4,12 @@ import static de.amr.easy.game.Application.ApplicationEvent.CLOSE;
 import static de.amr.easy.game.Application.ApplicationEvent.SHOW_SETTINGS_DIALOG;
 import static de.amr.easy.game.Application.ApplicationEvent.TOGGLE_FULLSCREEN;
 import static de.amr.easy.game.Application.ApplicationEvent.TOGGLE_PAUSE;
-import static de.amr.easy.game.Application.ApplicationState.CLOSED;
+import static de.amr.easy.game.Application.ApplicationState.CLOSING;
 import static de.amr.easy.game.Application.ApplicationState.PAUSED;
 import static de.amr.easy.game.Application.ApplicationState.RUNNING;
 import static de.amr.easy.game.Application.ApplicationState.STARTING;
-import static de.amr.statemachine.core.StateMachine.beginStateMachine;
 
 import java.awt.Image;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -98,26 +96,24 @@ import de.amr.statemachine.core.StateMachine;
 public abstract class Application {
 
 	public enum ApplicationState {
-		STARTING, RUNNING, PAUSED, CLOSED;
+		STARTING, RUNNING, PAUSED, CLOSING;
 	}
 
-	public enum ApplicationEvent {
+	enum ApplicationEvent {
 		TOGGLE_PAUSE, TOGGLE_FULLSCREEN, SHOW_SETTINGS_DIALOG, CLOSE
 	}
-
-	/** Application singleton. */
-	private static Application theApplication;
 
 	/** Application-global logger. */
 	public static final Logger LOGGER = Logger.getLogger(Application.class.getName());
 
+	private static Application theApplication;
 	private AppSettings settings;
-	private AppShell shell;
-	private final Clock clock = new Clock();
+	private StateMachine<ApplicationState, ApplicationEvent> life;
+	private Clock clock;
 	private CollisionHandler collisionHandler;
 	private Lifecycle controller;
+	private AppShell shell;
 	private Image icon;
-	private StateMachine<ApplicationState, ApplicationEvent> life;
 	private SoundManager soundManager = new SoundManager();
 
 	/**
@@ -125,7 +121,7 @@ public abstract class Application {
 	 */
 	public static Application app() {
 		if (theApplication == null) {
-			throw new IllegalStateException("Application instance not yet accessible");
+			throw new IllegalStateException("Application not yet created");
 		}
 		return theApplication;
 	}
@@ -151,23 +147,27 @@ public abstract class Application {
 	 */
 	public static void launch(Class<? extends Application> appClass, AppSettings settings, String[] commandLine) {
 		try {
-			InputStream in = appClass.getClassLoader().getResourceAsStream("de/amr/easy/game/logging.properties");
-			LogManager.getLogManager().readConfiguration(in);
-		} catch (NullPointerException | SecurityException | IOException e) {
-			System.err.println("Could not load logging configuration");
-			e.printStackTrace(System.err);
-			return;
-		}
-		try {
+			String loggingConfigPath = "de/amr/easy/game/logging.properties";
+			InputStream in = Application.class.getClassLoader().getResourceAsStream(loggingConfigPath);
+			if (in == null) {
+				System.err.println("Could not start application " + appClass.getName());
+				System.err.println("Reason: logging configuration at '" + loggingConfigPath + "' not available.");
+				return;
+			}
+			LogManager.getLogManager().readConfiguration(
+					Application.class.getClassLoader().getResourceAsStream("de/amr/easy/game/logging.properties"));
+
 			loginfo("Creating application '%s'", appClass.getName());
 			theApplication = appClass.getDeclaredConstructor().newInstance();
-			theApplication.createLife();
 
 			loginfo("Configuring application '%s'", appClass.getName());
 			theApplication.configureAndMergeCommandLine(settings, commandLine);
 
+			theApplication.clock = new Clock();
 			theApplication.clock.setTargetFrameRate(settings.fps);
-			theApplication.clock.onTick = theApplication.life::update;
+
+			loginfo("Creating life cycle for application '%s'", appClass.getName());
+			createLife(theApplication);
 			theApplication.life.init();
 
 		} catch (Exception e) {
@@ -176,11 +176,11 @@ public abstract class Application {
 		}
 	}
 
-	private void createLife() {
-		life =
+	private static void createLife(Application app) {
+		app.life = StateMachine. // cool line ;-)
 		/*@formatter:off*/		
 		beginStateMachine(ApplicationState.class, ApplicationEvent.class, EventMatchStrategy.BY_EQUALITY)
-			.description(String.format("[%s]", getClass().getName()))
+			.description(String.format("[%s]", app.getClass().getName()))
 			.initialState(STARTING)
 			.states()
 				
@@ -193,60 +193,58 @@ public abstract class Application {
 							loginfo("Could not set Nimbus look and feel");
 						}
 						// let application initialize itself and select a main controller:
-						init();
-						if (controller == null) {
+						app.init();
+						if (app.controller == null) {
 							// use fallback controller
 							int width = 640, height = 480;
-							setController(new AppInfoView(this, width, height));
-							shell = new AppShell(this, width, height);
+							app.setController(new AppInfoView(app, width, height));
+							app.shell = new AppShell(app, width, height);
 						} else {
-							shell = new AppShell(this, settings.width, settings.height);
+							app.shell = new AppShell(app, app.settings.width, app.settings.height);
 						}
-						if (settings.muted) {
-							soundManager.muteAll();
+						if (app.settings.muted) {
+							app.soundManager.muteAll();
 						}
-						loginfo("Starting application '%s'", getClass().getName());
-						SwingUtilities.invokeLater(this::showUIAndStartClock);
+						loginfo("Starting application '%s'", app.getClass().getName());
+						SwingUtilities.invokeLater(app::showUIAndStartClock);
 					})
 				
 				.state(RUNNING)
 					.onTick(() -> {
-						Keyboard.handler.poll();
-						Mouse.handler.poll();
-						collisionHandler().ifPresent(CollisionHandler::update);
-						controller.update();
-						currentView().ifPresent(shell::render);
+						app.readInput();
+						app.controller.update();
+						app.render();
 					})
 				
 				.state(PAUSED)
-					.onTick(() -> currentView().ifPresent(shell::render))
+					.onTick(app::render)
 				
-				.state(CLOSED)
-					.onTick(() -> {
-						shell.dispose();
-						loginfo("Exit application '%s'", getClass().getName());
+				.state(CLOSING)
+					.onEntry(() -> {
+						loginfo("Closing application '%s'", app.getClass().getName());
+						app.shell.dispose();
 						System.exit(0);
 					})
 					
 			.transitions()
 
-				.when(STARTING).then(RUNNING).condition(() -> clock.isTicking())
+				.when(STARTING).then(RUNNING).condition(() -> app.clock.isTicking())
 				
-				.when(RUNNING).then(PAUSED).on(TOGGLE_PAUSE).act(() -> soundManager.muteAll())
+				.when(RUNNING).then(PAUSED).on(TOGGLE_PAUSE).act(() -> app.soundManager.muteAll())
 				
-				.when(RUNNING).then(CLOSED).on(CLOSE)
+				.when(RUNNING).then(CLOSING).on(CLOSE)
 	
-				.stay(RUNNING).on(TOGGLE_FULLSCREEN).act(() -> shell.toggleDisplayMode())
+				.stay(RUNNING).on(ApplicationEvent.TOGGLE_FULLSCREEN).act(() -> app.shell.toggleDisplayMode())
 					
-				.stay(RUNNING).on(SHOW_SETTINGS_DIALOG).act(() -> shell.showF2Dialog())
+				.stay(RUNNING).on(SHOW_SETTINGS_DIALOG).act(() -> app.shell.showF2Dialog())
 				
-				.when(PAUSED).then(RUNNING).on(TOGGLE_PAUSE).act(() -> soundManager.unmuteAll())
+				.when(PAUSED).then(RUNNING).on(TOGGLE_PAUSE).act(() -> app.soundManager.unmuteAll())
 			
-				.when(PAUSED).then(CLOSED).on(CLOSE)
+				.when(PAUSED).then(CLOSING).on(CLOSE)
 				
-				.stay(PAUSED).on(TOGGLE_FULLSCREEN).act(() -> shell.toggleDisplayMode())
+				.stay(PAUSED).on(TOGGLE_FULLSCREEN).act(() -> app.shell.toggleDisplayMode())
 	
-				.stay(PAUSED).on(SHOW_SETTINGS_DIALOG).act(() -> shell.showF2Dialog())
+				.stay(PAUSED).on(SHOW_SETTINGS_DIALOG).act(() -> app.shell.showF2Dialog())
 
 		.endStateMachine();
 		/*@formatter:on*/
@@ -272,8 +270,19 @@ public abstract class Application {
 	private void showUIAndStartClock() {
 		configureF2Dialog(shell.f2Dialog);
 		shell.display(settings.fullScreen);
+		clock.onTick = life::update;
 		clock.start();
-		loginfo("Clock started, %d frames/second", clock.getTargetFramerate());
+		loginfo("Application is running, %d frames/second", clock.getTargetFramerate());
+	}
+
+	private void readInput() {
+		Keyboard.handler.poll();
+		Mouse.handler.poll();
+		collisionHandler().ifPresent(CollisionHandler::update);
+	}
+
+	private void render() {
+		currentView().ifPresent(shell::render);
 	}
 
 	/**
