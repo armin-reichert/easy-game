@@ -34,26 +34,21 @@ public class MyFirstApp extends Application {
 	}
 
 	@Override
-	public void configure(AppSettings settings) {
-		settings.width = 800;
-		settings.height = 600;
-		settings.title = "My First Application";
-	}
-
-	@Override
 	public void init() {
 		setController(new MyFirstAppController());
+	}
 }
  
 class MyFirstAppController implements Lifecycle {
  
 	@Override
 	public void init() {
+		// do whatever
 	}
 
 	@Override
-	// gets called at every tick of the application clock, normally 60 times/sec
 	public void update() {
+		// called at every tick of the application clock, be default 60 times/sec
 	}
 }
 ```
@@ -64,64 +59,52 @@ The lifecycle of any application is defined by the following finite-state machin
 
 ```java
 beginStateMachine(ApplicationState.class, ApplicationEvent.class, EventMatchStrategy.BY_EQUALITY)
-	.description(String.format("[%s]", getClass().getName()))
+	.description(String.format("[%s]", app.getName()))
 	.initialState(STARTING)
 	.states()
 
 		.state(STARTING)
 			.onEntry(() -> {
-				// let application initialize itself and select a main controller:
-				init();
-				if (controller == null) {
-					// use fallback controller
-					int width = 640, height = 480;
-					setController(new AppInfoView(this, width, height));
-					shell = new AppShell(this, width, height);
-				} else {
-					shell = new AppShell(this, settings.width, settings.height);
-				}
-				loginfo("Starting application '%s'", getClass().getName());
-				SwingUtilities.invokeLater(this::showUIAndStartClock);
+				app.init();
+				SwingUtilities.invokeLater(app::showUIAndStart);
 			})
 
 		.state(RUNNING)
 			.onTick(() -> {
-				Keyboard.handler.poll();
-				Mouse.handler.poll();
-				collisionHandler().ifPresent(CollisionHandler::update);
-				controller.update();
-				currentView().ifPresent(shell::render);
+				app.readInput();
+				app.controller.update();
+				app.render();
 			})
 
 		.state(PAUSED)
-			.onTick(() -> currentView().ifPresent(shell::render))
+			.onTick(app::render)
 
-		.state(CLOSED)
-			.onTick(() -> {
-				shell.dispose();
-				loginfo("Exit application '%s'", getClass().getName());
+		.state(CLOSING)
+			.onEntry(() -> {
+				loginfo("Closing application '%s'", app.getName());
+				app.shell.dispose();
 				System.exit(0);
 			})
 
 	.transitions()
 
-		.when(STARTING).then(RUNNING).condition(() -> clock.isTicking())
+		.when(STARTING).then(RUNNING).condition(() -> app.clock.isTicking())
 
-		.when(RUNNING).then(PAUSED).on(TOGGLE_PAUSE).act(() -> soundManager.muteAll())
+		.when(RUNNING).then(PAUSED).on(TOGGLE_PAUSE).act(() -> app.soundManager.muteAll())
 
-		.when(RUNNING).then(CLOSED).on(CLOSE)
+		.when(RUNNING).then(CLOSING).on(CLOSE)
 
-		.stay(RUNNING).on(TOGGLE_FULLSCREEN).act(() -> shell.toggleDisplayMode())
+		.stay(RUNNING).on(ApplicationEvent.TOGGLE_FULLSCREEN).act(() -> app.shell.toggleDisplayMode())
 
-		.stay(RUNNING).on(SHOW_SETTINGS_DIALOG).act(() -> shell.showSettingsDialog())
+		.stay(RUNNING).on(SHOW_SETTINGS_DIALOG).act(() -> app.shell.showF2Dialog())
 
-		.when(PAUSED).then(RUNNING).on(TOGGLE_PAUSE).act(() -> soundManager.unmuteAll())
+		.when(PAUSED).then(RUNNING).on(TOGGLE_PAUSE).act(() -> app.soundManager.unmuteAll())
 
-		.when(PAUSED).then(CLOSED).on(CLOSE)
+		.when(PAUSED).then(CLOSING).on(CLOSE)
 
-		.stay(PAUSED).on(TOGGLE_FULLSCREEN).act(() -> shell.toggleDisplayMode())
+		.stay(PAUSED).on(TOGGLE_FULLSCREEN).act(() -> app.shell.toggleDisplayMode())
 
-		.stay(PAUSED).on(SHOW_SETTINGS_DIALOG).act(() -> shell.showSettingsDialog())
+		.stay(PAUSED).on(SHOW_SETTINGS_DIALOG).act(() -> app.shell.showF2Dialog())
 
 .endStateMachine();
 ```
