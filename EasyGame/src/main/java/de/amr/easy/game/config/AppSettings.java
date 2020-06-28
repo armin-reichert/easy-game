@@ -135,6 +135,8 @@ public class AppSettings {
 		printValue("Width", "%d", width);
 		printValue("Height", "%d", height);
 		printValue("Scaling", "%.2f", scale);
+		printValue("Full-screen mode", "%s", fullScreen);
+		printValue("Full-screen resolution", "%s", fullScreenMode);
 		printValue("Framerate (ticks/sec)", "%d", fps);
 		printValue("Smooth rendering", "%s", smoothRendering);
 		printValue("Muted", "%s", muted);
