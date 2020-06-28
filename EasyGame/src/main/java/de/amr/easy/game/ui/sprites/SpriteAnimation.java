@@ -61,7 +61,7 @@ public abstract class SpriteAnimation {
 		reset();
 	}
 
-	public int currentFrame() {
+	public int currentFrameIndex() {
 		return frameIndex;
 	}
 }

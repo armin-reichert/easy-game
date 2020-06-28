@@ -28,28 +28,36 @@ public class Sprite {
 	 */
 	public static final Image BLANK_FRAME = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
 
-	private Image[] frames;
+	private final Image[] frames;
 	private SpriteAnimation animation;
 
-	private Sprite() {
-		/* use static factory method instead */
+	private Sprite(int numFrames) {
+		this.frames = new Image[numFrames];
+	}
+
+	private void setFrame(int i, Image image) {
+		rangeCheck(i);
+		frames[i] = image != null ? image : BLANK_FRAME;
+	}
+
+	private void rangeCheck(int i) {
+		if (i < 0 || i >= frames.length) {
+			throw new IllegalArgumentException("Sprite index out of range: " + i);
+		}
 	}
 
 	/**
 	 * Creates a sprite with the given frames.
 	 * 
-	 * @param frames non-empty list of animation frames
+	 * @param images non-empty list of images
 	 */
-	public static Sprite of(Image... frames) {
-		if (frames.length == 0) {
+	public static Sprite of(Image... images) {
+		if (images.length == 0) {
 			throw new IllegalArgumentException("Sprite needs at least a single frame");
 		}
-		Sprite sprite = new Sprite();
-		sprite.frames = Arrays.copyOf(frames, frames.length);
-		for (int i = 0; i < frames.length; ++i) {
-			if (frames[i] == null) {
-				frames[i] = BLANK_FRAME;
-			}
+		Sprite sprite = new Sprite(images.length);
+		for (int i = 0; i < images.length; ++i) {
+			sprite.setFrame(i, images[i]);
 		}
 		return sprite;
 	}
@@ -63,10 +71,9 @@ public class Sprite {
 		if (keys.length == 0) {
 			throw new IllegalArgumentException("Sprite needs at least one image");
 		}
-		Sprite sprite = new Sprite();
-		sprite.frames = new Image[keys.length];
+		Sprite sprite = new Sprite(keys.length);
 		for (int i = 0; i < keys.length; ++i) {
-			sprite.frames[i] = Assets.image(keys[i]);
+			sprite.setFrame(i, Assets.image(keys[i]));
 		}
 		return sprite;
 	}
@@ -74,17 +81,15 @@ public class Sprite {
 	/**
 	 * Scales the i'th frame of this sprite to the given size.
 	 * 
-	 * @param i      index of frame to be scaled
-	 * @param width  target width
-	 * @param height target height
+	 * @param i            index of frame to be scaled
+	 * @param targetWidth  target width
+	 * @param targetHeight target height
 	 * @return this sprite to allow method chaining
 	 */
-	public Sprite scale(int i, int width, int height) {
-		if (i < 0 || i >= frames.length) {
-			throw new IllegalArgumentException("Sprite index out of range: " + i);
-		}
-		if (frames[i] != null) {
-			frames[i] = scaledImage(frames[i], width, height);
+	public Sprite scale(int i, int targetWidth, int targetHeight) {
+		rangeCheck(i);
+		if (frames[i] != BLANK_FRAME) {
+			frames[i] = scaledImage(frames[i], targetWidth, targetHeight);
 		}
 		return this;
 	}
@@ -92,13 +97,13 @@ public class Sprite {
 	/**
 	 * Scales all images of this sprite to the given size.
 	 * 
-	 * @param width  target width
-	 * @param height target height
+	 * @param targetWidth  target width
+	 * @param targetHeight target height
 	 * @return this sprite to allow method chaining
 	 */
-	public Sprite scale(int width, int height) {
+	public Sprite scale(int targetWidth, int targetHeight) {
 		for (int i = 0; i < frames.length; ++i) {
-			frames[i] = scaledImage(frames[i], width, height);
+			scale(i, targetWidth, targetHeight);
 		}
 		return this;
 	}
@@ -110,6 +115,9 @@ public class Sprite {
 	 * @return the sprite
 	 */
 	public Sprite scale(int size) {
+		if (size <= 0) {
+			throw new IllegalArgumentException("Size must be positive, is " + size);
+		}
 		return scale(size, size);
 	}
 
@@ -118,17 +126,16 @@ public class Sprite {
 	 * 
 	 * @return current frame or the single frame for a non-animated sprite
 	 */
-	public Optional<Image> currentFrame() {
-		Image frame = frames[animation == null ? 0 : animation.currentFrame()];
-		return Optional.ofNullable(frame);
+	public Optional<Image> currentAnimationFrame() {
+		return Optional.ofNullable(frames[animation == null ? 0 : animation.currentFrameIndex()]);
 	}
 
 	/**
-	 * 
 	 * @param i frame index
 	 * @return i'th frame of the sprite
 	 */
 	public Image frame(int i) {
+		rangeCheck(i);
 		return frames[i];
 	}
 
@@ -138,7 +145,7 @@ public class Sprite {
 	 * @return width of current frame
 	 */
 	public int getWidth() {
-		return currentFrame().map(frame -> frame.getWidth(null)).orElse(0);
+		return currentAnimationFrame().map(frame -> frame.getWidth(null)).orElse(0);
 	}
 
 	/**
@@ -147,7 +154,7 @@ public class Sprite {
 	 * @return height of current frame
 	 */
 	public int getHeight() {
-		return currentFrame().map(frame -> frame.getHeight(null)).orElse(0);
+		return currentAnimationFrame().map(frame -> frame.getHeight(null)).orElse(0);
 	}
 
 	/**
@@ -174,20 +181,21 @@ public class Sprite {
 	 * @param g graphics context
 	 */
 	public void draw(Graphics2D g) {
-		currentFrame().ifPresent(frame -> g.drawImage(frame, 0, 0, null));
+		currentAnimationFrame().ifPresent(frame -> g.drawImage(frame, 0, 0, null));
 		if (animation != null && animation.isEnabled()) {
 			animation.update();
 		}
 	}
 
 	/**
-	 * Draws the current animation frame and moves to the next animation frame.
+	 * Draws the current animation frame at the specified position and moves to the next animation
+	 * frame.
 	 * 
 	 * @param g graphics context
 	 * @param x x-position
 	 * @param y y-position
 	 */
-	public void draw(Graphics2D g, float x, float y) {
+	public void draw(Graphics2D g, double x, double y) {
 		g.translate(x, y);
 		draw(g);
 		g.translate(-x, -y);
