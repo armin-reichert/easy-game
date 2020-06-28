@@ -7,7 +7,7 @@ package de.amr.easy.game.model;
  */
 public abstract class ByteMap {
 
-	private byte[][] data;
+	protected byte[][] data;
 
 	public final int numCols;
 	public final int numRows;
@@ -22,14 +22,8 @@ public abstract class ByteMap {
 		return 0 <= row && row < numRows && 0 <= col && col < numCols;
 	}
 
-	// bit fiddling
-
-	public boolean is1(int row, int col, byte bit) {
+	public boolean is(int row, int col, byte bit) {
 		return (data[row][col] & (1 << bit)) != 0;
-	}
-
-	public boolean is0(int row, int col, byte bit) {
-		return (data[row][col] & (1 << bit)) == 0;
 	}
 
 	public void set0(int row, int col, byte bit) {
