@@ -16,6 +16,7 @@ import java.util.function.Consumer;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
+import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -454,6 +455,15 @@ public abstract class Application {
 		if (shell != null) {
 			shell.setIconImage(icon);
 		}
+	}
+
+	/**
+	 * Sets the icon displayed in the application window.
+	 * 
+	 * @param path image path in class path e.g. "/images/icon.png"
+	 */
+	public void setIcon(String path) {
+		setIcon(new ImageIcon(getClass().getResource(path)).getImage());
 	}
 
 	/**
