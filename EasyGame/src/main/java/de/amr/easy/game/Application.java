@@ -338,6 +338,10 @@ public abstract class Application {
 		return getClass().getSimpleName();
 	}
 
+	public Lifecycle getController() {
+		return controller;
+	}
+
 	public boolean isPaused() {
 		return life.is(PAUSED);
 	}
