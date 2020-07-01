@@ -16,7 +16,7 @@ public interface F2DialogAPI {
 	 * Adds a custom tab at the end of the tabbed pane in the dialog.
 	 * 
 	 * @param title     tab title text
-	 * @param component tab content
+	 * @param content tab content
 	 * @param fnEnabled supplies the enabled state of the tab
 	 */
 	void addCustomTab(String title, JComponent content, BooleanSupplier fnEnabled);
@@ -25,7 +25,7 @@ public interface F2DialogAPI {
 	 * Adds a custom tab at the end of the tabbed pane in the dialog.
 	 * 
 	 * @param title     tab title text
-	 * @param component tab content
+	 * @param content tab content
 	 */
 	default void addCustomTab(String title, JComponent content) {
 		addCustomTab(title, content, () -> true);
