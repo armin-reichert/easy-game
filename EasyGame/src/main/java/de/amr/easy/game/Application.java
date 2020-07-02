@@ -204,7 +204,10 @@ public abstract class Application {
 				.state(CLOSING)
 					.onEntry(() -> {
 						loginfo("Closing application '%s'", app.getName());
+					})
+					.onTick(() -> {
 						app.shell.dispose();
+						// cannot exit in onEntry because CLOSING listeners would not get executed!
 						System.exit(0);
 					})
 					
