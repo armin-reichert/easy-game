@@ -55,6 +55,7 @@ public class KeyCodes {
 		codeByName.put("+", KeyEvent.VK_PLUS);
 		codeByName.put("-", KeyEvent.VK_MINUS);
 		codeByName.put(" ", KeyEvent.VK_SPACE);
+		codeByName.put("space", KeyEvent.VK_SPACE);
 
 		codeByName.put("left", KeyEvent.VK_LEFT);
 		codeByName.put("right", KeyEvent.VK_RIGHT);
