@@ -91,6 +91,16 @@ public abstract class Application {
 	public static final Logger LOGGER = Logger.getLogger(Application.class.getName());
 
 	/**
+	 * Convenience method for logging to application logger with level INFO.
+	 * 
+	 * @param format message format
+	 * @param args   message arguments
+	 */
+	public static void loginfo(String format, Object... args) {
+		LOGGER.info(String.format(format, args));
+	}
+
+	/**
 	 * Creates and starts the application of the given class. The command-line arguments are parsed and
 	 * assigned to the implicitly created application settings.
 	 * 
@@ -141,16 +151,9 @@ public abstract class Application {
 	 * Hook method that is called after the application shell has been created. Used to configure the F2
 	 * dialog.
 	 * 
-	 * @param dialog the F2 dialog
+	 * @param f2 the F2 dialog
 	 */
-	public void configureF2Dialog(F2DialogAPI dialog) {
-	}
-
-	/**
-	 * Prints the application settings to the logger.
-	 */
-	protected void printSettings() {
-		impl.settings().print();
+	public void configureF2Dialog(F2DialogAPI f2) {
 	}
 
 	/**
@@ -161,15 +164,15 @@ public abstract class Application {
 	}
 
 	/**
-	 * Convenience method for logging to application logger with level INFO.
-	 * 
-	 * @param format message format
-	 * @param args   message arguments
+	 * Prints the application settings to the logger.
 	 */
-	public static void loginfo(String format, Object... args) {
-		LOGGER.info(String.format(format, args));
+	protected void printSettings() {
+		impl.settings().print();
 	}
 
+	/**
+	 * @return the current application controller
+	 */
 	public Lifecycle getController() {
 		return impl.controller();
 	}
@@ -186,32 +189,44 @@ public abstract class Application {
 	/**
 	 * Makes the given controller the current one and optionally initializes it.
 	 * 
-	 * @param controller   the new application controller
-	 * @param initializeIt if the controller should be initialized
+	 * @param controller the new application controller
+	 * @param init       if the controller should be initialized
 	 */
-	public void setController(Lifecycle controller, boolean initializeIt) {
-		impl.setController(controller, initializeIt);
+	public void setController(Lifecycle controller, boolean init) {
+		impl.setController(controller, init);
 	}
 
+	/**
+	 * @return the application name
+	 */
 	public String getName() {
 		return getClass().getSimpleName();
 	}
 
+	/**
+	 * @return the application settings
+	 */
 	public AppSettings settings() {
 		return impl.settings();
 	}
 
 	/**
-	 * @return the current view if available
+	 * @return the optional current view
 	 */
 	public Optional<View> currentView() {
 		return impl.currentView();
 	}
 
+	/**
+	 * @return the application clock
+	 */
 	public Clock clock() {
 		return impl.clock();
 	}
 
+	/**
+	 * @return the optional collision handler
+	 */
 	public Optional<CollisionHandler> collisionHandler() {
 		return impl.collisionHandler();
 	}
@@ -224,20 +239,29 @@ public abstract class Application {
 		impl.createCollisionHandler();
 	}
 
+	/**
+	 * @return the application sound handler
+	 */
 	public SoundManager soundManager() {
 		return impl.soundManager();
 	}
 
+	/**
+	 * @return the application shell
+	 */
 	public Optional<AppShell> shell() {
 		return impl.shell();
 	}
 
+	/**
+	 * Opens the F2-dialog.
+	 */
 	public void showF2Dialog() {
 		impl.process(SHOW_SETTINGS_DIALOG);
 	}
 
 	/**
-	 * @return the application window icon
+	 * @return the application icon
 	 */
 	public Image getIcon() {
 		return impl.icon();
@@ -255,20 +279,29 @@ public abstract class Application {
 	/**
 	 * Sets the icon displayed in the application window.
 	 * 
-	 * @param icon the icon to use
+	 * @param image image of the icon
 	 */
-	public void setIcon(Image icon) {
-		impl.setIcon(icon);
+	public void setIcon(Image image) {
+		impl.setIcon(image);
 	}
 
+	/**
+	 * Pauses the application.
+	 */
 	public void pause() {
 		impl.process(PAUSE);
 	}
 
+	/**
+	 * Resumes the application.
+	 */
 	public void resume() {
 		impl.process(RESUME);
 	}
 
+	/**
+	 * Toggles between the pause and running state.
+	 */
 	public void togglePause() {
 		if (isPaused()) {
 			resume();
@@ -277,18 +310,30 @@ public abstract class Application {
 		}
 	}
 
+	/**
+	 * @return if the application is paused
+	 */
 	public boolean isPaused() {
 		return impl.is(PAUSED);
 	}
 
+	/**
+	 * @return if the application is running
+	 */
 	public boolean isRunning() {
 		return impl.is(RUNNING);
 	}
 
+	/**
+	 * @return if the application window is in fullscreen state
+	 */
 	public boolean inFullScreenMode() {
 		return shell().map(AppShell::inFullScreenMode).orElse(false);
 	}
 
+	/**
+	 * Toggles between fullscreen and window mode.
+	 */
 	public void toggleFullScreen() {
 		shell().ifPresent(shell -> {
 			if (shell.inFullScreenMode()) {
@@ -299,10 +344,18 @@ public abstract class Application {
 		});
 	}
 
+	/**
+	 * Sends a close request to the application.
+	 */
 	public void close() {
 		impl.process(CLOSE);
 	}
 
+	/**
+	 * Handler that gets called just before closing the application.
+	 * 
+	 * @param closeHandler
+	 */
 	public void onClose(Runnable closeHandler) {
 		impl.addStateEntryListener(CLOSING, state -> closeHandler.run());
 	}

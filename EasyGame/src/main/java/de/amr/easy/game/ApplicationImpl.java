@@ -47,15 +47,6 @@ import de.amr.statemachine.core.StateMachine;
  */
 class ApplicationImpl extends StateMachine<ApplicationState, ApplicationEvent> {
 
-	private final Application app;
-	private final AppSettings settings;
-	private AppShell shell;
-	private Image icon;
-	private SoundManager soundManager;
-	private CollisionHandler collisionHandler;
-	private Lifecycle controller;
-	private final Clock clock = new Clock();
-
 	public enum ApplicationState {
 		STARTING, RUNNING, PAUSED, CLOSING;
 	}
@@ -64,16 +55,26 @@ class ApplicationImpl extends StateMachine<ApplicationState, ApplicationEvent> {
 		PAUSE, RESUME, ENTER_FULLSCREEN_MODE, ENTER_WINDOW_MODE, SHOW_SETTINGS_DIALOG, CLOSE
 	}
 
+	private final Application app;
+	private final AppSettings settings;
+	private final Clock clock;
+	private final SoundManager soundManager;
+
+	private AppShell shell;
+	private Image icon;
+	private CollisionHandler collisionHandler;
+	private Lifecycle controller;
+
 	public ApplicationImpl(Application app, AppSettings settings, String[] cmdLine) {
 		super(ApplicationState.class, EventMatchStrategy.BY_EQUALITY);
 		this.app = app;
 		this.settings = settings;
-		readLoggingConfig(app.getClass());
-		Application.loginfo("Reading configuring for application '%s'", app.getName());
-		app.configure(settings);
-		mergeCommandLineIntoSettings(cmdLine);
+		soundManager = new SoundManager();
+		clock = new Clock();
 		clock.setTargetFrameRate(settings.fps);
 		clock.onTick = this::update;
+		Application.loginfo("Configuring logger for application '%s'", app.getName());
+		configureLogger(app.getClass());
 		/*@formatter:off*/		
 		beginStateMachine()
 			.description(String.format("[%s]", app.getName()))
@@ -82,6 +83,9 @@ class ApplicationImpl extends StateMachine<ApplicationState, ApplicationEvent> {
 				
 				.state(STARTING)
 					.onEntry(() -> {
+						Application.loginfo("Configuring application '%s'", app.getName());
+						app.configure(settings);
+						mergeCommandLineIntoSettings(cmdLine);
 						app.printSettings();
 						app.init();
 						SwingUtilities.invokeLater(() -> {
@@ -139,7 +143,7 @@ class ApplicationImpl extends StateMachine<ApplicationState, ApplicationEvent> {
 		/*@formatter:on*/
 	}
 
-	private void readLoggingConfig(Class<? extends Application> appClass) {
+	private void configureLogger(Class<? extends Application> appClass) {
 		String path = "de/amr/easy/game/logging.properties";
 		InputStream config = Application.class.getClassLoader().getResourceAsStream(path);
 		if (config != null) {
@@ -177,7 +181,6 @@ class ApplicationImpl extends StateMachine<ApplicationState, ApplicationEvent> {
 		} else {
 			shell.showWindow();
 		}
-		soundManager = new SoundManager();
 		if (settings.muted) {
 			soundManager.muteAll();
 		}
