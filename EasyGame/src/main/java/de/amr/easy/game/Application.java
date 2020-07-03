@@ -1,25 +1,23 @@
 package de.amr.easy.game;
 
-import static de.amr.easy.game.Application.ApplicationEvent.CLOSE;
-import static de.amr.easy.game.Application.ApplicationEvent.SHOW_SETTINGS_DIALOG;
-import static de.amr.easy.game.Application.ApplicationEvent.TOGGLE_FULLSCREEN;
-import static de.amr.easy.game.Application.ApplicationEvent.TOGGLE_PAUSE;
-import static de.amr.easy.game.Application.ApplicationState.CLOSING;
-import static de.amr.easy.game.Application.ApplicationState.PAUSED;
-import static de.amr.easy.game.Application.ApplicationState.RUNNING;
-import static de.amr.easy.game.Application.ApplicationState.STARTING;
+import static de.amr.easy.game.ApplicationLifecycle.ApplicationEvent.CLOSE;
+import static de.amr.easy.game.ApplicationLifecycle.ApplicationEvent.PAUSE;
+import static de.amr.easy.game.ApplicationLifecycle.ApplicationEvent.RESUME;
+import static de.amr.easy.game.ApplicationLifecycle.ApplicationEvent.SHOW_SETTINGS_DIALOG;
+import static de.amr.easy.game.ApplicationLifecycle.ApplicationState.CLOSING;
+import static de.amr.easy.game.ApplicationLifecycle.ApplicationState.PAUSED;
+import static de.amr.easy.game.ApplicationLifecycle.ApplicationState.RUNNING;
+import static javax.swing.SwingUtilities.invokeLater;
 
 import java.awt.Image;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import javax.swing.ImageIcon;
-import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 
 import com.beust.jcommander.JCommander;
@@ -36,9 +34,6 @@ import de.amr.easy.game.ui.AppShell;
 import de.amr.easy.game.ui.f2dialog.F2DialogAPI;
 import de.amr.easy.game.view.View;
 import de.amr.easy.game.view.VisualController;
-import de.amr.statemachine.api.EventMatchStrategy;
-import de.amr.statemachine.core.State;
-import de.amr.statemachine.core.StateMachine;
 
 /**
  * Every application must extend this class and provide a public constructor without arguments. To
@@ -96,146 +91,83 @@ import de.amr.statemachine.core.StateMachine;
  */
 public abstract class Application {
 
-	public enum ApplicationState {
-		STARTING, RUNNING, PAUSED, CLOSING;
-	}
-
-	enum ApplicationEvent {
-		TOGGLE_PAUSE, TOGGLE_FULLSCREEN, SHOW_SETTINGS_DIALOG, CLOSE
-	}
-
-	/** Application-global logger. */
-	public static final Logger LOGGER = Logger.getLogger(Application.class.getName());
-
-	private static Application theApplication;
-	private AppSettings settings;
-	private StateMachine<ApplicationState, ApplicationEvent> life;
-	private Clock clock;
-	private CollisionHandler collisionHandler;
-	private Lifecycle controller;
-	private AppShell shell;
-	private Image icon;
-	private SoundManager soundManager = new SoundManager();
+	private static Application theApp;
 
 	/**
 	 * @return the application instance
 	 */
 	public static Application app() {
-		if (theApplication == null) {
+		if (theApp == null) {
 			throw new IllegalStateException("Application not yet created");
 		}
-		return theApplication;
+		return theApp;
 	}
+
+	/** Application-global logger. */
+	public static final Logger LOGGER = Logger.getLogger(Application.class.getName());
 
 	/**
 	 * Creates and starts the application of the given class. The command-line arguments are parsed and
 	 * assigned to the implicitly created application settings.
 	 * 
 	 * @param appClass application class
-	 * @param args     command-line arguments
+	 * @param cmdLine  command-line arguments
 	 */
-	public static void launch(Class<? extends Application> appClass, String[] args) {
-		launch(appClass, new AppSettings(), args);
+	public static void launch(Class<? extends Application> appClass, String[] cmdLine) {
+		launch(appClass, new AppSettings(), cmdLine);
 	}
 
 	/**
 	 * Creates and starts the application of the given class. The command-line arguments are parsed and
 	 * assigned to the given application settings.
 	 * 
-	 * @param appClass    application class
-	 * @param settings    application settings
-	 * @param commandLine command-line arguments
+	 * @param appClass application class
+	 * @param settings application settings
+	 * @param cmdLine  command-line arguments
 	 */
-	public static void launch(Class<? extends Application> appClass, AppSettings settings, String[] commandLine) {
+	public static void launch(Class<? extends Application> appClass, AppSettings settings, String[] cmdLine) {
 		try {
-			String loggingConfigPath = "de/amr/easy/game/logging.properties";
-			InputStream in = Application.class.getClassLoader().getResourceAsStream(loggingConfigPath);
-			if (in == null) {
-				System.err.println("Could not start application");
-				System.err.println("Reason: logging configuration at '" + loggingConfigPath + "' not available.");
-				return;
-			}
-			LogManager.getLogManager().readConfiguration(
-					Application.class.getClassLoader().getResourceAsStream("de/amr/easy/game/logging.properties"));
+			readLoggingConfig(appClass);
 
 			loginfo("Creating application of class '%s'", appClass.getName());
-			theApplication = appClass.getDeclaredConstructor().newInstance();
+			theApp = appClass.getDeclaredConstructor().newInstance();
 
-			loginfo("Configuring application '%s'", theApplication.getName());
-			theApplication.configureAndMergeCommandLine(settings, commandLine);
+			loginfo("Reading configuring for application '%s'", theApp.getName());
+			theApp.configure(settings, cmdLine);
 
-			theApplication.clock = new Clock();
-			theApplication.clock.setTargetFrameRate(settings.fps);
+			loginfo("Creating life cycle for application '%s'", theApp.getName());
+			theApp.lifecycle = new ApplicationLifecycle(theApp);
 
-			loginfo("Creating life cycle for application '%s'", theApplication.getName());
-			createLife(theApplication);
-			theApplication.life.init();
+			loginfo("Initializing application '%s'", theApp.getName());
+			theApp.lifecycle.init();
 
 		} catch (Exception e) {
-			loginfo("Could not launch application");
+			loginfo("Error during launch of application '%s'", theApp.getName());
 			e.printStackTrace(System.err);
 		}
 	}
 
-	private static void createLife(Application app) {
-		app.life = StateMachine. // cool line ;-)
-		/*@formatter:off*/		
-		beginStateMachine(ApplicationState.class, ApplicationEvent.class, EventMatchStrategy.BY_EQUALITY)
-			.description(String.format("[%s]", app.getName()))
-			.initialState(STARTING)
-			.states()
-				
-				.state(STARTING)
-					.onEntry(() -> {
-						app.init();
-						SwingUtilities.invokeLater(app::showUIAndStart);
-					})
-				
-				.state(RUNNING)
-					.onTick(() -> {
-						app.readInput();
-						app.controller.update();
-						app.render();
-					})
-				
-				.state(PAUSED)
-					.onTick(app::render)
-				
-				.state(CLOSING)
-					.onEntry(() -> {
-						loginfo("Closing application '%s'", app.getName());
-					})
-					.onTick(() -> {
-						app.shell.dispose();
-						// cannot exit in onEntry because CLOSING listeners would not get executed!
-						System.exit(0);
-					})
-					
-			.transitions()
-
-				.when(STARTING).then(RUNNING).condition(() -> app.clock.isTicking())
-				
-				.when(RUNNING).then(PAUSED).on(TOGGLE_PAUSE).act(() -> app.soundManager.muteAll())
-				
-				.when(RUNNING).then(CLOSING).on(CLOSE)
-	
-				.stay(RUNNING).on(ApplicationEvent.TOGGLE_FULLSCREEN).act(() -> app.shell.toggleDisplayMode())
-					
-				.stay(RUNNING).on(SHOW_SETTINGS_DIALOG).act(() -> app.shell.showF2Dialog())
-				
-				.when(PAUSED).then(RUNNING).on(TOGGLE_PAUSE).act(() -> app.soundManager.unmuteAll())
-			
-				.when(PAUSED).then(CLOSING).on(CLOSE)
-				
-				.stay(PAUSED).on(TOGGLE_FULLSCREEN).act(() -> app.shell.toggleDisplayMode())
-	
-				.stay(PAUSED).on(SHOW_SETTINGS_DIALOG).act(() -> app.shell.showF2Dialog())
-
-		.endStateMachine();
-		/*@formatter:on*/
+	private static void readLoggingConfig(Class<? extends Application> appClass) throws IOException {
+		String path = "de/amr/easy/game/logging.properties";
+		InputStream config = Application.class.getClassLoader().getResourceAsStream(path);
+		if (config != null) {
+			LogManager.getLogManager().readConfiguration(config);
+		} else {
+			System.err.println("Logging configuration '" + path + "' not available.");
+			System.err.println(String.format("Application of class '%s' could not be launched.", appClass));
+			System.exit(0);
+		}
 	}
 
-	private void configureAndMergeCommandLine(AppSettings settings, String... commandLine) {
+	SoundManager soundManager;
+	CollisionHandler collisionHandler;
+	Lifecycle controller;
+	ApplicationLifecycle lifecycle;
+	AppSettings settings;
+	AppShell shell;
+	Image icon;
+
+	private void configure(AppSettings settings, String... commandLine) {
 		this.settings = settings;
 		configure(settings);
 		processCommandLine(commandLine);
@@ -252,40 +184,43 @@ public abstract class Application {
 		}
 	}
 
-	private void showUIAndStart() {
-		loginfo("Starting application '%s'", getName());
+	void createUserInterface(int width, int height, boolean fullScreen) {
+		loginfo("Creating user interface for application '%s'", getName());
+		String lafName = NimbusLookAndFeel.class.getName();
+		try {
+			UIManager.setLookAndFeel(lafName);
+		} catch (Exception x) {
+			loginfo("Could not set look and feel %s", lafName);
+		}
+		if (controller == null) {
+			int defaultWidth = 640, defaultHeight = 480;
+			Lifecycle defaultController = new AppInfoView(this, defaultWidth, defaultHeight);
+			setController(defaultController);
+			shell = new AppShell(this, defaultWidth, defaultHeight);
+		} else {
+			shell = new AppShell(this, width, height);
+		}
+		configureF2Dialog(shell.f2Dialog);
+		if (fullScreen) {
+			shell.showFullScreenWindow();
+		} else {
+			shell.showWindow();
+		}
+		soundManager = new SoundManager();
 		if (settings.muted) {
 			soundManager.muteAll();
 		}
-		try {
-			UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
-		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
-				| UnsupportedLookAndFeelException x) {
-			loginfo("Could not set Nimbus look and feel");
-		}
-		int width = settings.width, height = settings.height;
-		if (controller == null) {
-			width = 640;
-			height = 480;
-			// use fallback controller
-			setController(new AppInfoView(this, width, height));
-		}
-		shell = new AppShell(this, width, height);
-		configureF2Dialog(shell.f2Dialog);
-		shell.display(settings.fullScreen);
-		clock.onTick = life::update;
-		clock.start();
-		loginfo("Application is running, %d frames/second", clock.getTargetFramerate());
+		loginfo("User interface for application '%s' has been created", getName());
 	}
 
-	private void readInput() {
+	void readInput() {
 		Keyboard.handler.poll();
 		Mouse.handler.poll();
 		collisionHandler().ifPresent(CollisionHandler::update);
 	}
 
-	private void render() {
-		currentView().ifPresent(shell::render);
+	void render() {
+		currentView().ifPresent(view -> invokeLater(() -> shell.render(view)));
 	}
 
 	/**
@@ -324,7 +259,7 @@ public abstract class Application {
 	 * @return the F2 dialog if already created
 	 */
 	public Optional<F2DialogAPI> f2Dialog() {
-		return shell != null ? Optional.of(shell.f2Dialog) : Optional.empty();
+		return shell().map(shell -> shell.f2Dialog);
 	}
 
 	/**
@@ -341,36 +276,54 @@ public abstract class Application {
 		return getClass().getSimpleName();
 	}
 
-	public Lifecycle getController() {
-		return controller;
-	}
-
 	public boolean isPaused() {
-		return life.is(PAUSED);
+		return lifecycle.is(PAUSED);
 	}
 
 	public boolean isRunning() {
-		return life.is(RUNNING);
+		return lifecycle.is(RUNNING);
+	}
+
+	public void pause() {
+		lifecycle.process(PAUSE);
+	}
+
+	public void resume() {
+		lifecycle.process(RESUME);
 	}
 
 	public void togglePause() {
-		life.process(TOGGLE_PAUSE);
+		if (isPaused()) {
+			resume();
+		} else {
+			pause();
+		}
 	}
 
 	public void showF2Dialog() {
-		life.process(SHOW_SETTINGS_DIALOG);
+		lifecycle.process(SHOW_SETTINGS_DIALOG);
 	}
 
 	public void toggleFullScreen() {
-		life.process(TOGGLE_FULLSCREEN);
+		shell().ifPresent(shell -> {
+			if (shell.inFullScreenMode()) {
+				shell.showWindow();
+			} else {
+				shell.showFullScreenWindow();
+			}
+		});
 	}
 
 	public void close() {
-		life.process(CLOSE);
+		lifecycle.process(CLOSE);
+	}
+
+	public void onClose(Runnable closeHandler) {
+		lifecycle.addStateEntryListener(CLOSING, state -> closeHandler.run());
 	}
 
 	public boolean inFullScreenMode() {
-		return shell != null && shell.inFullScreenMode();
+		return shell().map(AppShell::inFullScreenMode).orElse(false);
 	}
 
 	public Optional<CollisionHandler> collisionHandler() {
@@ -387,8 +340,21 @@ public abstract class Application {
 		}
 	}
 
-	public AppShell shell() {
-		return shell;
+	public Optional<AppShell> shell() {
+		return Optional.ofNullable(shell);
+	}
+
+	/**
+	 * @return the current view if available
+	 */
+	public Optional<View> currentView() {
+		if (controller instanceof View) {
+			return Optional.ofNullable((View) controller);
+		}
+		if (controller instanceof VisualController) {
+			return ((VisualController) controller).currentView();
+		}
+		return Optional.empty();
 	}
 
 	public AppSettings settings() {
@@ -396,11 +362,15 @@ public abstract class Application {
 	}
 
 	public Clock clock() {
-		return clock;
+		return lifecycle.clock();
 	}
 
 	public SoundManager soundManager() {
 		return soundManager;
+	}
+
+	public Lifecycle getController() {
+		return controller;
 	}
 
 	/**
@@ -433,19 +403,6 @@ public abstract class Application {
 	}
 
 	/**
-	 * @return the current view if available
-	 */
-	public Optional<View> currentView() {
-		if (controller instanceof View) {
-			return Optional.ofNullable((View) controller);
-		}
-		if (controller instanceof VisualController) {
-			return ((VisualController) controller).currentView();
-		}
-		return Optional.empty();
-	}
-
-	/**
 	 * @return the application window icon
 	 */
 	public Image getIcon() {
@@ -459,9 +416,7 @@ public abstract class Application {
 	 */
 	public void setIcon(Image icon) {
 		this.icon = icon;
-		if (shell != null) {
-			shell.setIconImage(icon);
-		}
+		shell().ifPresent(shell -> shell.setIconImage(icon));
 	}
 
 	/**
@@ -473,34 +428,4 @@ public abstract class Application {
 		setIcon(new ImageIcon(getClass().getResource(path)).getImage());
 	}
 
-	/**
-	 * Adds a listener that is called when the given state is entered. <br>
-	 * Example:
-	 * 
-	 * <pre>
-	 * app().onEntry(ApplicationState.PAUSED, state -> goNapping(state));
-	 * </pre>
-	 * 
-	 * @param state    state to be observed
-	 * @param listener called when the state is entered
-	 */
-	public void onEntry(ApplicationState state, Consumer<State<ApplicationState>> listener) {
-		life.addStateEntryListener(state, listener);
-	}
-
-	/**
-	 * Adds a listener that is called when the given state is left.
-	 * 
-	 * Example:
-	 * 
-	 * <pre>
-	 * app().onExit(ApplicationState.PAUSED, state -> wakeUp(state));
-	 * </pre>
-	 * 
-	 * @param state    state to be observed
-	 * @param listener called when the state is left
-	 */
-	public void onExit(ApplicationState state, Consumer<State<ApplicationState>> listener) {
-		life.addStateExitListener(state, listener);
-	}
 }

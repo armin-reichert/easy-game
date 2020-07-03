@@ -113,10 +113,8 @@ public class AppShell extends JFrame {
 					app.toggleFullScreen();
 				} else if (e.getKeyCode() == KeyEvent.VK_ESCAPE && inFullScreenMode()) {
 					app.toggleFullScreen();
-				} else if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_0) {
-					app.settings().smoothRendering = false;
 				} else if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_1) {
-					app.settings().smoothRendering = true;
+					app.settings().smoothRendering = !app.settings().smoothRendering;
 				} else if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_M) {
 					if (app.soundManager().isMuted()) {
 						app.soundManager().unmuteAll();
@@ -168,17 +166,13 @@ public class AppShell extends JFrame {
 
 	public void toggleDisplayMode() {
 		if (inFullScreenMode()) {
-			displayWindow();
+			showWindow();
 		} else {
-			try {
-				displayFullScreen();
-			} catch (FullScreenModeException e) {
-				loginfo(e.getMessage());
-			}
+			showFullScreenWindow();
 		}
 	}
 
-	private void displayWindow() {
+	public void showWindow() {
 		device.setFullScreenWindow(null);
 		requestFocus();
 		canvas.createBufferStrategy(2);
@@ -187,13 +181,15 @@ public class AppShell extends JFrame {
 				(int) (viewHeight * app.settings().scale), viewWidth, viewHeight, app.settings().scale);
 	}
 
-	private void displayFullScreen() throws FullScreenModeException {
+	public void showFullScreenWindow() {
 		if (!device.isFullScreenSupported()) {
-			throw new FullScreenModeException("Device does not support full-screen exclusive mode.");
+			loginfo("Device does not support full-screen exclusive mode.");
+			return;
 		}
 		final DisplayMode mode = app.settings().fullScreenMode;
 		if (!isValidMode(mode)) {
-			throw new FullScreenModeException("Display mode not supported: " + displayModeText(mode));
+			loginfo("Display mode not supported: %s", displayModeText(mode));
+			return;
 		}
 		if (!app.settings().fullScreenCursor) {
 			Cursor invisibleCursor = fullScreenWindow.getToolkit()
@@ -208,7 +204,8 @@ public class AppShell extends JFrame {
 			loginfo("Entered full-screen mode %s", displayModeText(mode));
 		} else {
 			device.setFullScreenWindow(null);
-			throw new FullScreenModeException("Display change not supported: " + displayModeText(mode));
+			loginfo("Display change not supported: %s", displayModeText(mode));
+			return;
 		}
 	}
 
@@ -224,18 +221,6 @@ public class AppShell extends JFrame {
 		f2Dialog = new F2Dialog(null);
 		f2Dialog.setSize(width, height);
 		f2Dialog.init();
-	}
-
-	public void display(boolean fullScreen) {
-		if (fullScreen) {
-			try {
-				displayFullScreen();
-			} catch (FullScreenModeException e) {
-				displayWindow();
-			}
-		} else {
-			displayWindow();
-		}
 	}
 
 	public void render(View view) {

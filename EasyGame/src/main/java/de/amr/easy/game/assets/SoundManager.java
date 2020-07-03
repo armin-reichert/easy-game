@@ -1,7 +1,5 @@
 package de.amr.easy.game.assets;
 
-import static de.amr.easy.game.Application.loginfo;
-
 import java.beans.PropertyChangeSupport;
 import java.util.Optional;
 
@@ -52,22 +50,22 @@ public class SoundManager {
 	 * Mutes all currently open lines.
 	 */
 	public void muteAll() {
-		boolean wasMuted = muted;
-		muted = true;
-		setAllLinesMuted(true);
-		loginfo("All lines muted");
-		changes.firePropertyChange("muted", wasMuted, muted);
+		if (!muted) {
+			muted = true;
+			setAllLinesMuted(true);
+			changes.firePropertyChange("muted", false, true);
+		}
 	}
 
 	/**
 	 * Unmutes all currently open lines.
 	 */
 	public void unmuteAll() {
-		boolean wasMuted = muted;
-		muted = false;
-		setAllLinesMuted(false);
-		loginfo("All lines unmuted");
-		changes.firePropertyChange("muted", wasMuted, muted);
+		if (muted) {
+			muted = false;
+			setAllLinesMuted(false);
+			changes.firePropertyChange("muted", true, false);
+		}
 	}
 
 	public void mute(SoundClip soundClip) {

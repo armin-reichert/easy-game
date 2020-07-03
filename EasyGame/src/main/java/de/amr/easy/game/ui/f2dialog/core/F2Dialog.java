@@ -19,6 +19,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JTabbedPane;
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 import de.amr.easy.game.Application;
@@ -108,7 +109,7 @@ public class F2Dialog extends JDialog implements Lifecycle, F2DialogAPI {
 		screenView.init();
 		settingsView.init();
 		framerateSelector.init();
-		updateTimer = new Timer(200, e -> update());
+		updateTimer = new Timer(200, e -> SwingUtilities.invokeLater(this::update));
 	}
 
 	@Override
@@ -175,4 +176,5 @@ public class F2Dialog extends JDialog implements Lifecycle, F2DialogAPI {
 			btnPlayPause.setToolTipText("Press to PAUSE");
 		}
 	}
+
 }
