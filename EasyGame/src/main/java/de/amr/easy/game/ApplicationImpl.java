@@ -88,6 +88,9 @@ class ApplicationImpl extends StateMachine<ApplicationState, ApplicationEvent> {
 						mergeCommandLineIntoSettings(cmdLine);
 						app.printSettings();
 						app.init();
+						if (settings.muted) {
+							soundManager.muteAll();
+						}
 						SwingUtilities.invokeLater(() -> {
 							createUserInterface(settings.width, settings.height, settings.fullScreen);
 							clock.start();
@@ -169,7 +172,7 @@ class ApplicationImpl extends StateMachine<ApplicationState, ApplicationEvent> {
 		}
 		if (controller == null) {
 			int defaultWidth = 640, defaultHeight = 480;
-			Lifecycle defaultController = new AppInfoView(app, defaultWidth, defaultHeight);
+			AppInfoView defaultController = new AppInfoView(app, defaultWidth, defaultHeight);
 			app.setController(defaultController);
 			shell = new AppShell(app, defaultWidth, defaultHeight);
 		} else {
@@ -180,9 +183,6 @@ class ApplicationImpl extends StateMachine<ApplicationState, ApplicationEvent> {
 			shell.showFullScreenWindow();
 		} else {
 			shell.showWindow();
-		}
-		if (settings.muted) {
-			soundManager.muteAll();
 		}
 		Application.loginfo("User interface for application '%s' has been created", app.getName());
 	}
