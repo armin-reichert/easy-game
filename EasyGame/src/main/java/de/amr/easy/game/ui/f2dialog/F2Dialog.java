@@ -10,7 +10,7 @@ import javax.swing.JComponent;
  * @author Armin Reichert
  *
  */
-public interface F2DialogAPI {
+public interface F2Dialog {
 
 	/**
 	 * Adds a custom tab at the end of the tabbed pane in the dialog.

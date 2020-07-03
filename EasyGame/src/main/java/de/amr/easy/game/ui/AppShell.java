@@ -36,7 +36,7 @@ import de.amr.easy.game.input.Keyboard;
 import de.amr.easy.game.input.KeyboardHandler;
 import de.amr.easy.game.input.Mouse;
 import de.amr.easy.game.input.MouseHandler;
-import de.amr.easy.game.ui.f2dialog.core.F2Dialog;
+import de.amr.easy.game.ui.f2dialog.core.F2DialogImpl;
 import de.amr.easy.game.view.View;
 
 /**
@@ -66,7 +66,7 @@ public class AppShell extends JFrame {
 	private final Canvas canvas;
 	private final JFrame fullScreenWindow;
 	private int frames;
-	public F2Dialog f2Dialog;
+	public F2DialogImpl f2Dialog;
 
 	public AppShell(Application app, int width, int height) {
 		this.app = app;
@@ -218,7 +218,7 @@ public class AppShell extends JFrame {
 	}
 
 	public void createF2Dialog(int width, int height) {
-		f2Dialog = new F2Dialog(null);
+		f2Dialog = new F2DialogImpl(null);
 		f2Dialog.setSize(width, height);
 		f2Dialog.init();
 	}

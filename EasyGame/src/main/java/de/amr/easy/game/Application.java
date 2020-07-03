@@ -20,7 +20,7 @@ import de.amr.easy.game.controller.Lifecycle;
 import de.amr.easy.game.entity.collision.CollisionHandler;
 import de.amr.easy.game.timing.Clock;
 import de.amr.easy.game.ui.AppShell;
-import de.amr.easy.game.ui.f2dialog.F2DialogAPI;
+import de.amr.easy.game.ui.f2dialog.F2Dialog;
 import de.amr.easy.game.view.View;
 
 /**
@@ -153,13 +153,13 @@ public abstract class Application {
 	 * 
 	 * @param f2 the F2 dialog
 	 */
-	public void configureF2Dialog(F2DialogAPI f2) {
+	public void configureF2Dialog(F2Dialog f2) {
 	}
 
 	/**
 	 * @return the F2 dialog if already created
 	 */
-	public Optional<F2DialogAPI> f2Dialog() {
+	public Optional<F2Dialog> f2Dialog() {
 		return shell().map(shell -> shell.f2Dialog);
 	}
 

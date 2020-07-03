@@ -24,7 +24,7 @@ import javax.swing.Timer;
 
 import de.amr.easy.game.Application;
 import de.amr.easy.game.controller.Lifecycle;
-import de.amr.easy.game.ui.f2dialog.F2DialogAPI;
+import de.amr.easy.game.ui.f2dialog.F2Dialog;
 import de.amr.easy.game.ui.f2dialog.clock.ClockView;
 import de.amr.easy.game.ui.f2dialog.clock.FramerateSelector;
 import de.amr.easy.game.ui.f2dialog.screen.ScreenView;
@@ -41,7 +41,7 @@ import net.miginfocom.swing.MigLayout;
  * 
  * @author Armin Reichert
  */
-public class F2Dialog extends JDialog implements Lifecycle, F2DialogAPI {
+public class F2DialogImpl extends JDialog implements Lifecycle, F2Dialog {
 
 	private static class CustomTab {
 		int index;
@@ -61,7 +61,7 @@ public class F2Dialog extends JDialog implements Lifecycle, F2DialogAPI {
 	private FramerateSelector framerateSelector;
 	private Icon pauseIcon, playIcon;
 
-	public F2Dialog(Window owner) {
+	public F2DialogImpl(Window owner) {
 		super(owner);
 		setSize(700, 500);
 		getContentPane().setLayout(new MigLayout("", "[grow,fill]", "[grow,fill][]"));
