@@ -85,7 +85,7 @@ class ApplicationImpl extends StateMachine<ApplicationState, ApplicationEvent> {
 					.onEntry(() -> {
 						Application.loginfo("Configuring application '%s'", app.getName());
 						app.configure(settings);
-						mergeCommandLineIntoSettings(cmdLine);
+						processCommandLine(cmdLine);
 						app.printSettings();
 						app.init();
 						if (settings.muted) {
@@ -195,10 +195,6 @@ class ApplicationImpl extends StateMachine<ApplicationState, ApplicationEvent> {
 
 	private void render() {
 		app.currentView().ifPresent(view -> invokeLater(() -> shell.render(view)));
-	}
-
-	private void mergeCommandLineIntoSettings(String... commandLine) {
-		processCommandLine(commandLine);
 	}
 
 	private void processCommandLine(String[] commandLine) {
