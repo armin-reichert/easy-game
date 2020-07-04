@@ -82,6 +82,7 @@ public class Clock {
 		while (ticking) {
 			try {
 				singleTick();
+				++totalTicks;
 			} catch (InterruptedException x) {
 				// ignore
 			}
