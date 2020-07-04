@@ -249,7 +249,7 @@ class ApplicationImpl extends StateMachine<ApplicationState, ApplicationEvent> {
 		}
 		if (controller != this.controller) {
 			this.controller = controller;
-			Application.loginfo("Application controller is: ", controller);
+			Application.loginfo("Application controller is: %s", controller);
 			if (initializeIt) {
 				controller.init();
 				Application.loginfo("Controller initialized.");
