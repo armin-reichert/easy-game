@@ -188,7 +188,7 @@ class ApplicationImpl extends StateMachine<ApplicationState, ApplicationEvent> {
 	}
 
 	private void readInput() {
-		Keyboard.handler.poll();
+		Keyboard.poll();
 		Mouse.handler.poll();
 		app.collisionHandler().ifPresent(CollisionHandler::update);
 	}

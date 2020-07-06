@@ -33,7 +33,6 @@ import javax.swing.SwingUtilities;
 
 import de.amr.easy.game.Application;
 import de.amr.easy.game.input.Keyboard;
-import de.amr.easy.game.input.KeyboardHandler;
 import de.amr.easy.game.input.Mouse;
 import de.amr.easy.game.input.MouseHandler;
 import de.amr.easy.game.ui.f2dialog.core.F2DialogImpl;
@@ -97,8 +96,6 @@ public class AppShell extends JFrame {
 		fullScreenWindow.setResizable(false);
 		fullScreenWindow.setIgnoreRepaint(true);
 
-		// global keyboard and mouse handler
-		Keyboard.handler = new KeyboardHandler();
 		Mouse.handler = new MouseHandler(app.settings().scale);
 
 		KeyListener predefinedKeys = new KeyAdapter() {
@@ -134,14 +131,14 @@ public class AppShell extends JFrame {
 		};
 
 		addKeyListener(predefinedKeys);
-		addKeyListener(Keyboard.handler);
+		Keyboard.listenTo(this);
 		addWindowListener(windowHandler);
 
 		canvas.addMouseListener(Mouse.handler);
 		canvas.addMouseMotionListener(Mouse.handler);
 
 		fullScreenWindow.addKeyListener(predefinedKeys);
-		fullScreenWindow.addKeyListener(Keyboard.handler);
+		Keyboard.listenTo(fullScreenWindow);
 		fullScreenWindow.addWindowListener(windowHandler);
 		fullScreenWindow.addMouseListener(Mouse.handler);
 		fullScreenWindow.addMouseMotionListener(Mouse.handler);
