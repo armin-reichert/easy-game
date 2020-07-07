@@ -81,4 +81,12 @@ public class Pen implements AutoCloseable {
 		float x = (containerWidth - getFontMetrics().stringWidth(s)) / 2, y = row * cellSize;
 		g.drawString(s, x, y);
 	}
+
+	public void turnSmoothRenderingOn() {
+		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+	}
+
+	public void turnSmoothRenderingOff() {
+		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+	}
 }
