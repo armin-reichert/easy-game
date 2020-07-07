@@ -17,6 +17,7 @@ import java.awt.geom.Rectangle2D;
 public class Pen implements AutoCloseable {
 
 	private final Graphics2D g;
+	private int cellSize = 8;
 
 	public Pen(Graphics2D g2) {
 		g = (Graphics2D) g2.create();
@@ -62,9 +63,13 @@ public class Pen implements AutoCloseable {
 		g.translate(0, pixels);
 	}
 
-	public void drawAtGridPosition(String s, int col, int row, int cellSize) {
-		FontMetrics fm = g.getFontMetrics();
-		g.drawString(s, col * cellSize, row * cellSize + fm.getAscent());
+	public void setCellSize(int cellSize) {
+		this.cellSize = cellSize;
+	}
+
+	public void drawAtGridPosition(String s, int col, int row) {
+		int y = row * cellSize;
+		g.drawString(s, col * cellSize, y);
 	}
 
 	public void draw(String s, float x, float y) {
@@ -77,7 +82,7 @@ public class Pen implements AutoCloseable {
 		g.drawString(s, (float) (x - box.getWidth() / 2), y - fm.getAscent()); // TODO not sure
 	}
 
-	public void hcenter(String s, int containerWidth, int row, int cellSize) {
+	public void hcenter(String s, int containerWidth, int row) {
 		float x = (containerWidth - getFontMetrics().stringWidth(s)) / 2, y = row * cellSize;
 		g.drawString(s, x, y);
 	}
