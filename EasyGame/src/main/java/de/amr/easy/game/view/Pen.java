@@ -32,6 +32,10 @@ public class Pen implements AutoCloseable {
 	public void close() {
 		g.dispose();
 	}
+	
+	public void move(double x, double y) {
+		g.translate(x, y);
+	}
 
 	public void color(Color c) {
 		g.setColor(c);
@@ -82,9 +86,9 @@ public class Pen implements AutoCloseable {
 		g.drawString(s, (float) (x - box.getWidth() / 2), y - fm.getAscent()); // TODO not sure
 	}
 
-	public void hcenter(String s, int containerWidth, int row) {
-		float x = (containerWidth - getFontMetrics().stringWidth(s)) / 2, y = row * cellSize;
-		g.drawString(s, x, y);
+	public void hcenter(String s, int containerWidth) {
+		float x = (containerWidth - getFontMetrics().stringWidth(s)) / 2;
+		g.drawString(s, x, 0);
 	}
 
 	public void turnSmoothRenderingOn() {
