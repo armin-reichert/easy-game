@@ -1,27 +1,38 @@
 package de.amr.easy.game;
 
-import static de.amr.easy.game.ApplicationImpl.ApplicationEvent.CLOSE;
-import static de.amr.easy.game.ApplicationImpl.ApplicationEvent.PAUSE;
-import static de.amr.easy.game.ApplicationImpl.ApplicationEvent.RESUME;
-import static de.amr.easy.game.ApplicationImpl.ApplicationEvent.SHOW_SETTINGS_DIALOG;
-import static de.amr.easy.game.ApplicationImpl.ApplicationState.CLOSING;
-import static de.amr.easy.game.ApplicationImpl.ApplicationState.PAUSED;
-import static de.amr.easy.game.ApplicationImpl.ApplicationState.RUNNING;
+import static de.amr.easy.game.ApplicationLifecycle.ApplicationEvent.CLOSE;
+import static de.amr.easy.game.ApplicationLifecycle.ApplicationEvent.PAUSE;
+import static de.amr.easy.game.ApplicationLifecycle.ApplicationEvent.RESUME;
+import static de.amr.easy.game.ApplicationLifecycle.ApplicationEvent.SHOW_SETTINGS_DIALOG;
+import static de.amr.easy.game.ApplicationLifecycle.ApplicationState.CLOSING;
+import static de.amr.easy.game.ApplicationLifecycle.ApplicationState.PAUSED;
+import static de.amr.easy.game.ApplicationLifecycle.ApplicationState.RUNNING;
 
 import java.awt.Image;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Optional;
+import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import javax.swing.ImageIcon;
+import javax.swing.UIManager;
+import javax.swing.plaf.nimbus.NimbusLookAndFeel;
+
+import com.beust.jcommander.JCommander;
 
 import de.amr.easy.game.assets.SoundManager;
 import de.amr.easy.game.config.AppSettings;
 import de.amr.easy.game.controller.Lifecycle;
 import de.amr.easy.game.entity.collision.CollisionHandler;
+import de.amr.easy.game.input.Keyboard;
+import de.amr.easy.game.input.Mouse;
 import de.amr.easy.game.timing.Clock;
+import de.amr.easy.game.ui.AppInfoView;
 import de.amr.easy.game.ui.AppShell;
 import de.amr.easy.game.ui.f2dialog.F2Dialog;
 import de.amr.easy.game.view.View;
+import de.amr.easy.game.view.VisualController;
 
 /**
  * Applications must extend this abstract class and provide a public no-args constructor. To start
@@ -90,6 +101,22 @@ public abstract class Application {
 	/** Application-global logger. */
 	public static final Logger LOGGER = Logger.getLogger(Application.class.getName());
 
+	static void configureLogger(Class<? extends Application> appClass) {
+		String path = "de/amr/easy/game/logging.properties";
+		InputStream config = Application.class.getClassLoader().getResourceAsStream(path);
+		if (config != null) {
+			try {
+				LogManager.getLogManager().readConfiguration(config);
+				return;
+			} catch (IOException x) {
+				x.printStackTrace(System.err);
+			}
+		}
+		System.err.println("Logging configuration '" + path + "' not available.");
+		System.err.println(String.format("Application of class '%s' could not be launched.", appClass));
+		System.exit(0);
+	}
+
 	/**
 	 * Convenience method for logging to application logger with level INFO.
 	 * 
@@ -121,16 +148,80 @@ public abstract class Application {
 	 */
 	public static void launch(Class<? extends Application> appClass, AppSettings settings, String[] cmdLine) {
 		try {
+			configureLogger(appClass);
 			theApp = appClass.getDeclaredConstructor().newInstance();
-			theApp.impl = new ApplicationImpl(theApp, settings, cmdLine);
-			theApp.impl.init();
+			theApp.build(settings, cmdLine);
+			theApp.lifecycle.init();
 		} catch (Exception e) {
 			loginfo("Application '%s' could not be created", theApp.getName());
 			e.printStackTrace(System.err);
 		}
 	}
 
-	private ApplicationImpl impl;
+	ApplicationLifecycle lifecycle;
+	AppSettings settings;
+	Clock clock;
+	Lifecycle controller;
+	CollisionHandler collisionHandler;
+	AppShell shell;
+	Image icon;
+	SoundManager soundManager;
+
+	private void build(AppSettings settings, String[] cmdLine) {
+		this.settings = settings;
+		soundManager = new SoundManager();
+		clock = new Clock();
+		clock.setTargetFrameRate(settings.fps);
+		lifecycle = new ApplicationLifecycle(this, cmdLine);
+		clock.onTick = lifecycle::update;
+	}
+
+	void processCommandLine(String[] commandLine) {
+		JCommander commander = JCommander.newBuilder().addObject(settings).build();
+		commander.parse(commandLine);
+		if (settings.help) {
+			commander.setProgramName(getName());
+			commander.usage();
+			System.exit(0);
+		}
+	}
+
+	void readInput() {
+		Keyboard.poll();
+		Mouse.handler.poll();
+		collisionHandler().ifPresent(CollisionHandler::update);
+	}
+
+	void renderCurrentView() {
+		currentView().ifPresent(shell::render);
+	}
+
+	void createUserInterface() {
+		loginfo("Creating user interface for application '%s'", getName());
+		String lafName = NimbusLookAndFeel.class.getName();
+		try {
+			UIManager.setLookAndFeel(lafName);
+			loginfo("Look-and-Feel is %s", UIManager.getLookAndFeel().toString());
+		} catch (Exception x) {
+			loginfo("Could not set look and feel %s", lafName);
+		}
+		if (controller == null) {
+			loginfo("No controller has been set, using default controller");
+			int defaultWidth = 640, defaultHeight = 480;
+			AppInfoView defaultController = new AppInfoView(this, defaultWidth, defaultHeight);
+			setController(defaultController);
+			shell = new AppShell(this, defaultWidth, defaultHeight);
+		} else {
+			shell = new AppShell(this, settings.width, settings.height);
+		}
+		configureF2Dialog(shell.f2Dialog);
+		if (settings.fullScreen) {
+			shell.showFullScreenWindow();
+		} else {
+			shell.showWindow();
+		}
+		loginfo("User interface for application '%s' has been created", getName());
+	}
 
 	/**
 	 * Hook method where the application settings can be configured. The command-line arguments are
@@ -167,14 +258,14 @@ public abstract class Application {
 	 * Prints the application settings to the logger.
 	 */
 	protected void printSettings() {
-		impl.settings().print();
+		settings.print();
 	}
 
 	/**
 	 * @return the current application controller
 	 */
 	public Lifecycle getController() {
-		return impl.controller();
+		return controller;
 	}
 
 	/**
@@ -189,11 +280,21 @@ public abstract class Application {
 	/**
 	 * Makes the given controller the current one and optionally initializes it.
 	 * 
-	 * @param controller the new application controller
-	 * @param init       if the controller should be initialized
+	 * @param newController the new application controller
+	 * @param init          if the controller should be initialized
 	 */
-	public void setController(Lifecycle controller, boolean init) {
-		impl.setController(controller, init);
+	public void setController(Lifecycle newController, boolean init) {
+		if (newController == null) {
+			throw new IllegalArgumentException("Application controller must not be null.");
+		}
+		if (controller != newController) {
+			controller = newController;
+			loginfo("Application controller: %s", controller.getClass().getName());
+			if (init) {
+				controller.init();
+				loginfo("Controller %s initialized.", controller.getClass().getName());
+			}
+		}
 	}
 
 	/**
@@ -207,28 +308,34 @@ public abstract class Application {
 	 * @return the application settings
 	 */
 	public AppSettings settings() {
-		return impl.settings();
+		return settings;
 	}
 
 	/**
 	 * @return the optional current view
 	 */
 	public Optional<View> currentView() {
-		return impl.currentView();
+		if (getController() instanceof View) {
+			return Optional.ofNullable((View) getController());
+		}
+		if (getController() instanceof VisualController) {
+			return ((VisualController) getController()).currentView();
+		}
+		return Optional.empty();
 	}
 
 	/**
 	 * @return the application clock
 	 */
 	public Clock clock() {
-		return impl.clock();
+		return clock;
 	}
 
 	/**
 	 * @return the optional collision handler
 	 */
 	public Optional<CollisionHandler> collisionHandler() {
-		return impl.collisionHandler();
+		return Optional.ofNullable(collisionHandler);
 	}
 
 	/**
@@ -236,35 +343,37 @@ public abstract class Application {
 	 * method.
 	 */
 	public void createCollisionHandler() {
-		impl.createCollisionHandler();
+		if (collisionHandler != null) {
+			collisionHandler = new CollisionHandler();
+		}
 	}
 
 	/**
 	 * @return the application sound handler
 	 */
 	public SoundManager soundManager() {
-		return impl.soundManager();
+		return soundManager;
 	}
 
 	/**
 	 * @return the application shell
 	 */
 	public Optional<AppShell> shell() {
-		return impl.shell();
+		return Optional.ofNullable(shell);
 	}
 
 	/**
 	 * Opens the F2-dialog.
 	 */
 	public void showF2Dialog() {
-		impl.process(SHOW_SETTINGS_DIALOG);
+		lifecycle.process(SHOW_SETTINGS_DIALOG);
 	}
 
 	/**
 	 * @return the application icon
 	 */
 	public Image getIcon() {
-		return impl.icon();
+		return icon;
 	}
 
 	/**
@@ -279,24 +388,27 @@ public abstract class Application {
 	/**
 	 * Sets the icon displayed in the application window.
 	 * 
-	 * @param image image of the icon
+	 * @param icon icon image
 	 */
-	public void setIcon(Image image) {
-		impl.setIcon(image);
+	public void setIcon(Image icon) {
+		this.icon = icon;
+		if (shell != null) {
+			shell.setIconImage(icon);
+		}
 	}
 
 	/**
 	 * Pauses the application.
 	 */
 	public void pause() {
-		impl.process(PAUSE);
+		lifecycle.process(PAUSE);
 	}
 
 	/**
 	 * Resumes the application.
 	 */
 	public void resume() {
-		impl.process(RESUME);
+		lifecycle.process(RESUME);
 	}
 
 	/**
@@ -314,14 +426,14 @@ public abstract class Application {
 	 * @return if the application is paused
 	 */
 	public boolean isPaused() {
-		return impl.is(PAUSED);
+		return lifecycle.is(PAUSED);
 	}
 
 	/**
 	 * @return if the application is running
 	 */
 	public boolean isRunning() {
-		return impl.is(RUNNING);
+		return lifecycle.is(RUNNING);
 	}
 
 	/**
@@ -348,7 +460,7 @@ public abstract class Application {
 	 * Sends a close request to the application.
 	 */
 	public void close() {
-		impl.process(CLOSE);
+		lifecycle.process(CLOSE);
 	}
 
 	/**
@@ -357,6 +469,6 @@ public abstract class Application {
 	 * @param closeHandler
 	 */
 	public void onClose(Runnable closeHandler) {
-		impl.addStateEntryListener(CLOSING, state -> closeHandler.run());
+		lifecycle.addStateEntryListener(CLOSING, state -> closeHandler.run());
 	}
 }
