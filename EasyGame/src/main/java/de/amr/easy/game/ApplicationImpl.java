@@ -1,5 +1,6 @@
 package de.amr.easy.game;
 
+import static de.amr.easy.game.Application.loginfo;
 import static de.amr.easy.game.ApplicationImpl.ApplicationEvent.CLOSE;
 import static de.amr.easy.game.ApplicationImpl.ApplicationEvent.ENTER_FULLSCREEN_MODE;
 import static de.amr.easy.game.ApplicationImpl.ApplicationEvent.ENTER_WINDOW_MODE;
@@ -73,7 +74,7 @@ class ApplicationImpl extends StateMachine<ApplicationState, ApplicationEvent> {
 		clock = new Clock();
 		clock.setTargetFrameRate(settings.fps);
 		clock.onTick = this::update;
-		Application.loginfo("Configuring logger for application '%s'", app.getName());
+		loginfo("Configuring logger for application '%s'", app.getName());
 		configureLogger(app.getClass());
 		/*@formatter:off*/		
 		beginStateMachine()
@@ -83,7 +84,7 @@ class ApplicationImpl extends StateMachine<ApplicationState, ApplicationEvent> {
 				
 				.state(STARTING)
 					.onEntry(() -> {
-						Application.loginfo("Configuring application '%s'", app.getName());
+						loginfo("Configuring application '%s'", app.getName());
 						app.configure(settings);
 						processCommandLine(cmdLine);
 						app.printSettings();
@@ -94,7 +95,7 @@ class ApplicationImpl extends StateMachine<ApplicationState, ApplicationEvent> {
 						SwingUtilities.invokeLater(() -> {
 							createUserInterface(settings.width, settings.height, settings.fullScreen);
 							clock.start();
-							Application.loginfo("Application is running, %d frames/second", clock.getTargetFramerate());
+							loginfo("Application is running, %d frames/second", clock.getTargetFramerate());
 						});
 					})
 				
@@ -110,7 +111,7 @@ class ApplicationImpl extends StateMachine<ApplicationState, ApplicationEvent> {
 				
 				.state(CLOSING)
 					.onEntry(() -> {
-						Application.loginfo("Closing application '%s'", app.getName());
+						loginfo("Closing application '%s'", app.getName());
 					})
 					.onTick(() -> {
 						shell.dispose();
@@ -163,14 +164,16 @@ class ApplicationImpl extends StateMachine<ApplicationState, ApplicationEvent> {
 	}
 
 	private void createUserInterface(int width, int height, boolean fullScreen) {
-		Application.loginfo("Creating user interface for application '%s'", app.getName());
+		loginfo("Creating user interface for application '%s'", app.getName());
 		String lafName = NimbusLookAndFeel.class.getName();
 		try {
 			UIManager.setLookAndFeel(lafName);
+			loginfo("Look-and-Feel is %s", UIManager.getLookAndFeel().toString());
 		} catch (Exception x) {
-			Application.loginfo("Could not set look and feel %s", lafName);
+			loginfo("Could not set look and feel %s", lafName);
 		}
 		if (controller == null) {
+			loginfo("No controller has been set, using default controller");
 			int defaultWidth = 640, defaultHeight = 480;
 			AppInfoView defaultController = new AppInfoView(app, defaultWidth, defaultHeight);
 			app.setController(defaultController);
@@ -184,7 +187,7 @@ class ApplicationImpl extends StateMachine<ApplicationState, ApplicationEvent> {
 		} else {
 			shell.showWindow();
 		}
-		Application.loginfo("User interface for application '%s' has been created", app.getName());
+		loginfo("User interface for application '%s' has been created", app.getName());
 	}
 
 	private void readInput() {
@@ -249,10 +252,10 @@ class ApplicationImpl extends StateMachine<ApplicationState, ApplicationEvent> {
 		}
 		if (controller != this.controller) {
 			this.controller = controller;
-			Application.loginfo("Application controller is: %s", controller);
+			loginfo("Application controller is: %s", controller);
 			if (initializeIt) {
 				controller.init();
-				Application.loginfo("Controller initialized.");
+				loginfo("Controller initialized.");
 			}
 		}
 	}
