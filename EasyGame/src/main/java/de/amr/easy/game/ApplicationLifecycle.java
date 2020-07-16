@@ -17,7 +17,7 @@ import javax.swing.SwingUtilities;
 
 import de.amr.easy.game.ApplicationLifecycle.ApplicationEvent;
 import de.amr.easy.game.ApplicationLifecycle.ApplicationState;
-import de.amr.statemachine.api.EventMatchStrategy;
+import de.amr.statemachine.api.TransitionMatchStrategy;
 import de.amr.statemachine.core.StateMachine;
 
 /**
@@ -36,7 +36,7 @@ class ApplicationLifecycle extends StateMachine<ApplicationState, ApplicationEve
 	}
 
 	ApplicationLifecycle(Application app, String[] cmdLine) {
-		super(ApplicationState.class, EventMatchStrategy.BY_EQUALITY);
+		super(ApplicationState.class, TransitionMatchStrategy.BY_VALUE);
 		/*@formatter:off*/		
 		beginStateMachine()
 			.description(String.format("[%s]", app.getName()))
