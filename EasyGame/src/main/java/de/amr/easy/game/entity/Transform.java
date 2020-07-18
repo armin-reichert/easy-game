@@ -55,17 +55,17 @@ public class Transform {
 		y += vy;
 	}
 
-	public void centerX(int outerWidth) {
-		x = (outerWidth - width) / 2;
+	public void centerBoth(float left, float top, float width, float height) {
+		x = left + (width - this.width) / 2;
+		y = top + (height - this.height) / 2;
 	}
 
-	public void centerY(int outerHeight) {
-		y = (outerHeight - height) / 2;
+	public void centerHorizontally(float left, float right) {
+		x = (left + right - width) / 2;
 	}
 
-	public void center(int width, int height) {
-		centerX(width);
-		centerY(height);
+	public void centerVertically(float top, float bottom) {
+		y = (top + bottom - height) / 2;
 	}
 
 	public void setVelocity(float vx, float vy) {

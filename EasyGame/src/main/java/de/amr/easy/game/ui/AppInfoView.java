@@ -35,7 +35,7 @@ public class AppInfoView implements Lifecycle, View {
 
 	@Override
 	public void init() {
-		text.tf.centerX(width);
+		text.tf.centerHorizontally(0, width);
 		text.tf.y = (height);
 		text.tf.vy = -1.0f;
 		text.start();

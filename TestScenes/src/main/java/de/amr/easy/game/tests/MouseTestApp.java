@@ -80,7 +80,7 @@ class MouseTestScene implements Lifecycle, View {
 	public void draw(Graphics2D g) {
 		g.setColor(Color.white);
 		g.fillRect(0, 0, getWidth(), getHeight());
-		messageDisplay.tf.center(getWidth(), getHeight());
+		messageDisplay.tf.centerBoth(0, 0, getWidth(), getHeight());
 		messageDisplay.draw(g);
 		g.translate(Mouse.getX(), Mouse.getY());
 		g.setColor(Color.BLACK);
