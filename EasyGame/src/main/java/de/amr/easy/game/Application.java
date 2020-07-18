@@ -343,7 +343,7 @@ public abstract class Application {
 	 * method.
 	 */
 	public void createCollisionHandler() {
-		if (collisionHandler != null) {
+		if (collisionHandler == null) {
 			collisionHandler = new CollisionHandler();
 		}
 	}
