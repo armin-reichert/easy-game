@@ -1,6 +1,7 @@
 package de.amr.easy.game.ui.widgets;
 
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -8,7 +9,6 @@ import java.awt.font.TextAttribute;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collections;
@@ -23,9 +23,6 @@ import de.amr.easy.game.view.View;
 
 /**
  * A link widget.
- * 
- * <p>
- * TODO: Opening a link works only under Windows.
  * 
  * @author Armin Reichert
  */
@@ -143,7 +140,11 @@ public class LinkWidget extends Entity implements Lifecycle, View {
 	@Override
 	public void update() {
 		if (Mouse.clicked() && getCollisionBox().contains(new Point2D.Float(Mouse.getX(), Mouse.getY()))) {
-			openURL();
+			try {
+				Desktop.getDesktop().browse(url.toURI());
+			} catch (Exception x) {
+				x.printStackTrace();
+			}
 		}
 	}
 
@@ -168,14 +169,5 @@ public class LinkWidget extends Entity implements Lifecycle, View {
 		tf.width = ((int) bounds.getWidth());
 		tf.height = ((int) bounds.getHeight());
 		g.dispose();
-	}
-
-	private void openURL() {
-		// TODO only works under Windows
-		try {
-			Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + url);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 }
