@@ -92,6 +92,11 @@ public class F2DialogImpl extends JDialog implements Lifecycle, F2Dialog {
 	}
 
 	@Override
+	public JDialog window() {
+		return this;
+	}
+
+	@Override
 	public void setVisible(boolean visible) {
 		super.setVisible(visible);
 		if (visible) {

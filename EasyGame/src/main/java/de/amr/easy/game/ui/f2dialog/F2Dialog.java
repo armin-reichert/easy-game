@@ -3,6 +3,7 @@ package de.amr.easy.game.ui.f2dialog;
 import java.util.function.BooleanSupplier;
 
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 
 /**
  * API for accessing F2 dialog.
@@ -16,7 +17,7 @@ public interface F2Dialog {
 	 * Adds a custom tab at the end of the tabbed pane in the dialog.
 	 * 
 	 * @param title     tab title text
-	 * @param content tab content
+	 * @param content   tab content
 	 * @param fnEnabled supplies the enabled state of the tab
 	 */
 	void addCustomTab(String title, JComponent content, BooleanSupplier fnEnabled);
@@ -24,7 +25,7 @@ public interface F2Dialog {
 	/**
 	 * Adds a custom tab at the end of the tabbed pane in the dialog.
 	 * 
-	 * @param title     tab title text
+	 * @param title   tab title text
 	 * @param content tab content
 	 */
 	default void addCustomTab(String title, JComponent content) {
@@ -45,4 +46,8 @@ public interface F2Dialog {
 	 */
 	void selectTab(int i);
 
+	/**
+	 * @return the window realizing this dialog.
+	 */
+	JDialog window();
 }
