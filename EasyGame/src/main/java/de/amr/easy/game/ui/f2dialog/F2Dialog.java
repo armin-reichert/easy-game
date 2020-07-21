@@ -3,7 +3,6 @@ package de.amr.easy.game.ui.f2dialog;
 import java.util.function.BooleanSupplier;
 
 import javax.swing.JComponent;
-import javax.swing.JDialog;
 
 /**
  * API for accessing F2 dialog.
@@ -46,8 +45,7 @@ public interface F2Dialog {
 	 */
 	void selectTab(int i);
 
-	/**
-	 * @return the window realizing this dialog.
-	 */
-	JDialog window();
+	void setSize(int width, int height);
+
+	void setRelativeLocation(int dx, int dy);
 }
