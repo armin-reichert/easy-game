@@ -18,6 +18,13 @@ public interface Lifecycle {
 	void update();
 
 	/**
+	 * Called before entity/component/controller ends its lifecycle.
+	 */
+	default void exit() {
+
+	}
+
+	/**
 	 * Called when an entity/component/controller is started.
 	 */
 	default void start() {
@@ -34,7 +41,6 @@ public interface Lifecycle {
 	/**
 	 * Tells if an entity/component/controller has completed its lifecycle.
 	 */
-
 	default boolean isComplete() {
 		return true;
 	}
