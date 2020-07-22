@@ -51,8 +51,8 @@ public class F2DialogImpl extends JDialog implements Lifecycle, F2Dialog {
 
 	public static final int CUSTOM_TABS_START = 4;
 
-	private int dx = -1;
-	private int dy = -1;
+	private int dx;
+	private int dy;
 	private List<CustomTab> customTabs = new ArrayList<>();
 	private Timer updateTimer;
 	private SoundView soundView;
@@ -105,14 +105,7 @@ public class F2DialogImpl extends JDialog implements Lifecycle, F2Dialog {
 		super.setVisible(visible);
 		if (visible) {
 			AppShell shell = Application.app().shell().get();
-			int x = 0, y = 0;
-			if (dx != -1) {
-				x += dx;
-			}
-			if (dy != -1) {
-				y += dy;
-			}
-			setLocation(shell.getX() + x, shell.getY() + y);
+			setLocation(shell.getX() + dx, shell.getY() + dy);
 			updateTimer.restart();
 		} else {
 			updateTimer.stop();
