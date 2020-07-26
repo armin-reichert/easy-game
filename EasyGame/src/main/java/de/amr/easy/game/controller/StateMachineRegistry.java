@@ -17,7 +17,7 @@ import de.amr.statemachine.core.StateMachine;
  */
 public final class StateMachineRegistry {
 
-	public static final StateMachineRegistry IT = new StateMachineRegistry();
+	public static final StateMachineRegistry REGISTRY = new StateMachineRegistry();
 
 	private final Set<StateMachine<?, ?>> machines;
 	private boolean shutUp;
