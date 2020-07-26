@@ -96,6 +96,14 @@ public class Vector2f {
 	}
 
 	/**
+	 * @param f a scalar value
+	 * @return the vector given by multiplying this vector with the scalar value
+	 */
+	public Vector2f times(float f) {
+		return vector(f * x, f * y);
+	}
+
+	/**
 	 * @param v first vector
 	 * @param w second vector
 	 * @return the dot product ("Skalarprodukt") of both vectors
