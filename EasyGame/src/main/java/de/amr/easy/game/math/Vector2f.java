@@ -54,6 +54,22 @@ public class Vector2f {
 	}
 
 	/**
+	 * @param v other vector
+	 * @return sum of this and the other vector
+	 */
+	public Vector2f add(Vector2f v) {
+		return vector(x + v.x, y + v.y);
+	}
+
+	/**
+	 * @param v other vector
+	 * @return difference of this and the other vector
+	 */
+	public Vector2f subtract(Vector2f v) {
+		return vector(x - v.x, y - v.y);
+	}
+
+	/**
 	 * @param v a vector
 	 * @return the inverse vector
 	 */
@@ -131,8 +147,7 @@ public class Vector2f {
 	}
 
 	/**
-	 * @return The normalized vector, that is the unit vector with the same
-	 *         direction.
+	 * @return The normalized vector, that is the unit vector with the same direction.
 	 */
 	public Vector2f normalized() {
 		float len = length();
