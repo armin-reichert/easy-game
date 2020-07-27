@@ -75,7 +75,8 @@ public class SoundView extends JPanel implements Lifecycle {
 		table.getColumnModel().getColumn(1).setPreferredWidth(140);
 		table.getColumnModel().getColumn(2).setPreferredWidth(80);
 		table.getColumnModel().getColumn(3).setPreferredWidth(60);
-		table.getColumnModel().getColumn(4).setPreferredWidth(360);
+		table.getColumnModel().getColumn(4).setPreferredWidth(60);
+		table.getColumnModel().getColumn(5).setPreferredWidth(360);
 	}
 
 	private void setCellRenderer(ColumnInfo column, TableCellRenderer r) {
