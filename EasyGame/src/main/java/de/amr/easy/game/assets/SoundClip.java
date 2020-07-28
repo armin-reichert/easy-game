@@ -120,14 +120,8 @@ public class SoundClip {
 	 * @return the volumne ("master gain") as a value from the range [0..1]
 	 */
 	public float volume() {
-		FloatControl masterGain = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-		float masterGainDB = masterGain.getValue();
-		float linearValue = (float) pow(10.0, masterGainDB / 20.0);
-		return limitToRange(0, 1, linearValue);
-	}
-
-	private float limitToRange(float min, float max, float value) {
-		return Math.max(Math.min(value, 1), 0);
+		FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+		return (float) pow(10.0, gainControl.getValue() / 20f);
 	}
 
 	/**
@@ -139,9 +133,7 @@ public class SoundClip {
 		if (volume < 0f || volume > 1f) {
 			throw new IllegalArgumentException("Volume not valid: " + volume);
 		}
-		FloatControl masterGain = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-		float masterGainDB = (float) log10(volume * 20.0);
-		masterGain.setValue(masterGainDB);
+		FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+		gainControl.setValue(20f * (float) log10(volume));
 	}
-
 }
