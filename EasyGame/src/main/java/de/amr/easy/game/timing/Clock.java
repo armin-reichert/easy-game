@@ -182,7 +182,7 @@ public class Clock {
 	 * @param seconds seconds
 	 * @return number of clock ticks representing the given seconds
 	 */
-	public int sec(float seconds) {
+	public long sec(float seconds) {
 		return Math.round(targetFrameRate * seconds);
 	}
 
