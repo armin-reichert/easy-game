@@ -19,7 +19,6 @@ public class SoundTableModel extends AbstractTableModel {
 			sampleRecord.path = "/path/to/sound/file";
 			sampleRecord.durationSeconds = 90;
 			sampleRecord.volume = 0.66f;
-			sampleRecord.active = true;
 			sampleRecord.audioFormat = "wav";
 		};
 
@@ -36,8 +35,6 @@ public class SoundTableModel extends AbstractTableModel {
 				return sampleRecord.audioFormat;
 			case Volume:
 				return sampleRecord.volume;
-			case Active:
-				return sampleRecord.active;
 			default:
 				return null;
 			}
@@ -45,7 +42,7 @@ public class SoundTableModel extends AbstractTableModel {
 
 		@Override
 		public int getRowCount() {
-			return 7;
+			return 10;
 		}
 	};
 
@@ -54,17 +51,15 @@ public class SoundTableModel extends AbstractTableModel {
 		String audioFormat;
 		float durationSeconds;
 		float volume;
-		boolean active;
 		boolean running;
 	}
 
 	public enum ColumnInfo {
 		//@formatter:off
-		Running("", Boolean.class),
+		Running(Boolean.class),
 		Path(String.class), 
 		Duration(Float.class),
 		Volume(Float.class),
-		Active(Boolean.class),
 		Format(String.class);
 		//@formatter:on
 
@@ -103,7 +98,6 @@ public class SoundTableModel extends AbstractTableModel {
 			r.durationSeconds = sound.internal().getMicrosecondLength() / 1_000_000f;
 			r.running = sound.isRunning();
 			r.volume = sound.volume();
-			r.active = sound.internal().isActive();
 			newRecords.add(r);
 		});
 		records = newRecords;
@@ -124,8 +118,6 @@ public class SoundTableModel extends AbstractTableModel {
 			return r.audioFormat;
 		case Volume:
 			return r.volume;
-		case Active:
-			return r.active;
 		default:
 			return null;
 		}

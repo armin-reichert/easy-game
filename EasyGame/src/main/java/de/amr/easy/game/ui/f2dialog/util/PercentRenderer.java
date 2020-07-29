@@ -15,6 +15,7 @@ public class PercentRenderer extends DefaultTableCellRenderer implements TableCe
 			int row, int column) {
 		super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 		float floatValue = (float) value;
+		setHorizontalAlignment(TRAILING);
 		setText(DecimalFormat.getPercentInstance(Locale.ENGLISH).format(floatValue));
 		return this;
 	}

@@ -3,6 +3,8 @@ package de.amr.easy.game.ui.f2dialog.sound;
 import static de.amr.easy.game.Application.app;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
@@ -59,6 +61,9 @@ public class SoundView extends JPanel implements Lifecycle {
 		content.add(scrollPane, "cell 0 1,grow");
 
 		table = new JTable();
+		table.setPreferredScrollableViewportSize(new Dimension(600, 400));
+		table.setShowGrid(false);
+		table.setFont(new Font("Arial Narrow", Font.PLAIN, 14));
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
 		table.setRowSelectionAllowed(false);
 		table.setRowHeight(24);
@@ -71,12 +76,11 @@ public class SoundView extends JPanel implements Lifecycle {
 		setCellRenderer(ColumnInfo.Running, new SoundWaveRenderer(table.getRowHeight()));
 		setCellRenderer(ColumnInfo.Volume, new PercentRenderer());
 		setCellRenderer(ColumnInfo.Duration, new SecondsRenderer());
-		table.getColumnModel().getColumn(0).setPreferredWidth(50);
-		table.getColumnModel().getColumn(1).setPreferredWidth(140);
-		table.getColumnModel().getColumn(2).setPreferredWidth(80);
-		table.getColumnModel().getColumn(3).setPreferredWidth(60);
-		table.getColumnModel().getColumn(4).setPreferredWidth(60);
-		table.getColumnModel().getColumn(5).setPreferredWidth(360);
+		table.getColumnModel().getColumn(0).setPreferredWidth(100);
+		table.getColumnModel().getColumn(1).setPreferredWidth(400);
+		table.getColumnModel().getColumn(2).setPreferredWidth(120);
+		table.getColumnModel().getColumn(3).setPreferredWidth(100);
+		table.getColumnModel().getColumn(4).setPreferredWidth(500);
 	}
 
 	private void setCellRenderer(ColumnInfo column, TableCellRenderer r) {
