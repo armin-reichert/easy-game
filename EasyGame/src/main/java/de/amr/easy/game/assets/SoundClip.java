@@ -92,8 +92,8 @@ public class SoundClip {
 	/**
 	 * Plays the clip in an infinite loop.
 	 */
-	public void loop() {
-		app().soundManager().playLoop(this);
+	public void startEndlessLoop() {
+		app().soundManager().loopForeverRestart(this);
 	}
 
 	/**
@@ -101,8 +101,15 @@ public class SoundClip {
 	 * 
 	 * @param times number of repetitions
 	 */
-	public void loop(int times) {
-		app().soundManager().playLoop(this, times);
+	public void startLoop(int times) {
+		app().soundManager().loop(this, times);
+	}
+
+	/**
+	 * Continues the clip from the last running position in an infinite loop.
+	 */
+	public void continueLoop() {
+		app().soundManager().loopForeverContinue(this);
 	}
 
 	/**

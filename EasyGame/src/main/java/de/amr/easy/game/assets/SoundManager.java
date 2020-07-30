@@ -103,19 +103,27 @@ public class SoundManager {
 		}
 	}
 
-	public void playLoop(SoundClip soundClip) {
+	public void loop(SoundClip soundClip, int times) {
 		Clip clip = soundClip.internal();
+		clip.setFramePosition(0);
+		clip.loop(times);
+		if (muted) {
+			mute(soundClip);
+		}
+	}
+
+	public void loopForeverRestart(SoundClip soundClip) {
+		Clip clip = soundClip.internal();
+		clip.setFramePosition(0);
 		clip.loop(Clip.LOOP_CONTINUOUSLY);
 		if (muted) {
 			mute(soundClip);
 		}
 	}
 
-	public void playLoop(SoundClip soundClip, int times) {
+	public void loopForeverContinue(SoundClip soundClip) {
 		Clip clip = soundClip.internal();
-		clip.stop();
-		clip.setFramePosition(0);
-		clip.loop(times);
+		clip.loop(Clip.LOOP_CONTINUOUSLY);
 		if (muted) {
 			mute(soundClip);
 		}
