@@ -1,11 +1,15 @@
 package de.amr.easy.game.assets;
 
+import static java.lang.Math.log10;
+import static java.lang.Math.pow;
+
 import java.beans.PropertyChangeSupport;
 import java.util.Optional;
 
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.BooleanControl;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.Line;
 import javax.sound.sampled.Mixer;
 
@@ -27,16 +31,41 @@ public class SoundManager {
 		return Optional.ofNullable((BooleanControl) line.getControl(BooleanControl.Type.MUTE));
 	}
 
-	private static void setLineMuted(Line line, boolean muted) {
+	private static Optional<FloatControl> masterGainControl(Line line) {
+		return Optional.ofNullable((FloatControl) line.getControl(FloatControl.Type.MASTER_GAIN));
+	}
+
+	public static void setLineMuted(Line line, boolean muted) {
 		muteControl(line).ifPresent(control -> control.setValue(muted));
 	}
 
-	private static void setAllLinesMuted(boolean muted) {
+	public static void setAllLinesMuted(boolean muted) {
 		for (Mixer.Info info : AudioSystem.getMixerInfo()) {
 			for (Line line : AudioSystem.getMixer(info).getSourceLines()) {
 				setLineMuted(line, muted);
 			}
 		}
+	}
+
+	/**
+	 * Sets the volume ("master gain"), if possible, as a number between 0 and 1.
+	 * 
+	 * @param value new volume, number between 0 and 1
+	 */
+	public static void setLineVolume(Line line, float value) {
+		if (value < 0 || value > 1) {
+			throw new IllegalArgumentException("Volume must be between 0 and 1, but is: " + value);
+		}
+		masterGainControl(line).ifPresent(control -> control.setValue((float) (20 * log10(value))));
+	}
+
+	/**
+	 * Returns the (optional) volume ("master gain") of this clip as a number between 0 and 1.
+	 * 
+	 * @return the optional volume as a value between 0 and 1
+	 */
+	public static Optional<Float> getLineVolume(Line line) {
+		return masterGainControl(line).map(control -> (float) pow(10, control.getValue() / 20));
 	}
 
 	/**
@@ -68,64 +97,53 @@ public class SoundManager {
 		}
 	}
 
-	public void mute(SoundClip soundClip) {
-		setLineMuted(soundClip.internal(), true);
-	}
-
-	public void unmute(SoundClip soundClip) {
-		setLineMuted(soundClip.internal(), false);
-	}
-
-	public void play(SoundClip soundClip) {
-		Clip clip = soundClip.internal();
-		clip.stop();
+	/**
+	 * Starts or, if the clip is already running, restarts the clip playback. If the application is
+	 * muted, this clip gets muted too.
+	 */
+	public void startFromBeginning(SoundClip soundClip) {
+		Clip clip = soundClip.line();
+		if (clip.isRunning()) {
+			clip.stop();
+		}
 		clip.setFramePosition(0);
 		clip.start();
-		if (muted) {
-			mute(soundClip);
-		}
+		setLineMuted(clip, muted);
 	}
 
+	/**
+	 * Starts the clip playback.
+	 */
 	public void start(SoundClip soundClip) {
-		Clip clip = soundClip.internal();
+		Clip clip = soundClip.line();
+		if (clip.isRunning()) {
+			clip.stop();
+		}
 		clip.start();
-		if (muted) {
-			mute(soundClip);
-		}
+		setLineMuted(clip, muted);
 	}
 
+	/**
+	 * Stops the clip playback.
+	 */
 	public void stop(SoundClip soundClip) {
-		Clip clip = soundClip.internal();
-		clip.stop();
-		clip.flush();
-		if (muted) {
-			mute(soundClip);
+		Clip clip = soundClip.line();
+		if (clip.isRunning()) {
+			clip.stop();
 		}
+		setLineMuted(clip, muted);
 	}
 
-	public void loop(SoundClip soundClip, int times) {
-		Clip clip = soundClip.internal();
-		clip.setFramePosition(0);
-		clip.loop(times);
-		if (muted) {
-			mute(soundClip);
+	/**
+	 * Plays the clip in an infinite loop.
+	 */
+	public void loop(SoundClip soundClip) {
+		Clip clip = soundClip.line();
+		if (clip.isRunning()) {
+			clip.stop();
 		}
-	}
-
-	public void loopForeverRestart(SoundClip soundClip) {
-		Clip clip = soundClip.internal();
 		clip.setFramePosition(0);
 		clip.loop(Clip.LOOP_CONTINUOUSLY);
-		if (muted) {
-			mute(soundClip);
-		}
-	}
-
-	public void loopForeverContinue(SoundClip soundClip) {
-		Clip clip = soundClip.internal();
-		clip.loop(Clip.LOOP_CONTINUOUSLY);
-		if (muted) {
-			mute(soundClip);
-		}
+		setLineMuted(clip, muted);
 	}
 }

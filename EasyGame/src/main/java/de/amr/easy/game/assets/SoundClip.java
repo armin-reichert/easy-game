@@ -1,8 +1,6 @@
 package de.amr.easy.game.assets;
 
 import static de.amr.easy.game.Application.app;
-import static java.lang.Math.log10;
-import static java.lang.Math.pow;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -12,7 +10,6 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
-import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -30,7 +27,7 @@ import javazoom.spi.mpeg.sampled.file.MpegAudioFormat;
  */
 public class SoundClip {
 
-	private final Clip clip;
+	private final Clip line;
 
 	public SoundClip(InputStream is) throws LineUnavailableException, IOException, UnsupportedAudioFileException {
 		AudioInputStream ais = AudioSystem.getAudioInputStream(new BufferedInputStream(is));
@@ -40,107 +37,65 @@ public class SoundClip {
 					mp3.getChannels() * 2, mp3.getSampleRate(), false);
 			ais = AudioSystem.getAudioInputStream(pcm, ais);
 		}
-		clip = AudioSystem.getClip(null);
-		clip.open(ais);
+		line = AudioSystem.getClip(null);
+		line.open(ais);
 		if (volume() > 1) {
-			volume(1);
+			setVolume(1);
 		}
 	}
 
 	@Override
 	public String toString() {
-		return String.format("SoundClip[%s]", clip);
+		return String.format("SoundClip[%s]", line);
 	}
 
 	/**
 	 * @return the internal Clip API
 	 */
-	public Clip internal() {
-		return clip;
+	public Clip line() {
+		return line;
 	}
 
 	public void mute() {
-		app().soundManager().mute(this);
+		SoundManager.setLineMuted(line(), true);
 	}
 
 	public void unmute() {
-		app().soundManager().unmute(this);
+		SoundManager.setLineMuted(line(), false);
 	}
 
-	/**
-	 * Starts or, if the clip is already running, restarts the clip playback. If the application is
-	 * muted, this clip gets muted too.
-	 */
 	public void play() {
-		app().soundManager().play(this);
+		app().soundManager().startFromBeginning(this);
 	}
 
-	/**
-	 * Starts the clip playback.
-	 */
 	public void start() {
 		app().soundManager().start(this);
 	}
 
-	/**
-	 * Stops the clip playback.
-	 */
 	public void stop() {
 		app().soundManager().stop(this);
 	}
 
-	/**
-	 * Plays the clip in an infinite loop.
-	 */
-	public void startEndlessLoop() {
-		app().soundManager().loopForeverRestart(this);
+	public void loop() {
+		app().soundManager().loop(this);
 	}
 
-	/**
-	 * Plays the clip the given number of times in a loop.
-	 * 
-	 * @param times number of repetitions
-	 */
-	public void startLoop(int times) {
-		app().soundManager().loop(this, times);
-	}
-
-	/**
-	 * Continues the clip from the last running position in an infinite loop.
-	 */
-	public void continueLoop() {
-		app().soundManager().loopForeverContinue(this);
-	}
-
-	/**
-	 * Tells if the clip is running.
-	 * 
-	 * @return if the clip is running
-	 */
 	public boolean isRunning() {
-		return clip.isRunning();
+		return line.isRunning();
 	}
 
 	/**
-	 * Returns the volume ("master gain") of this clip as a number in the range [0..1].
-	 * 
-	 * @return the volumne ("master gain") as a value from the range [0..1]
+	 * @see SoundManager#getLineVolume(javax.sound.sampled.Line)
 	 */
 	public float volume() {
-		FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-		return (float) pow(10.0, gainControl.getValue() / 20f);
+		return SoundManager.getLineVolume(line()).orElse(0f);
 	}
 
 	/**
-	 * Sets the volume ("master gain") of this clip as a number in the range [0..1].
-	 * 
-	 * @param volume new volumne from the range [0..1]
+	 * @param value value between 0 and 1
+	 * @see SoundManager#setLineVolume(javax.sound.sampled.Line, float)
 	 */
-	public void volume(float volume) {
-		if (volume < 0f || volume > 1f) {
-			throw new IllegalArgumentException("Volume not valid: " + volume);
-		}
-		FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-		gainControl.setValue(20f * (float) log10(volume));
+	public void setVolume(float value) {
+		SoundManager.setLineVolume(line(), value);
 	}
 }

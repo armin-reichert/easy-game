@@ -94,8 +94,8 @@ public class SoundTableModel extends AbstractTableModel {
 			SoundClip sound = Assets.sound(path);
 			Record r = new Record();
 			r.path = path;
-			r.audioFormat = sound.internal().getFormat().toString();
-			r.durationSeconds = sound.internal().getMicrosecondLength() / 1_000_000f;
+			r.audioFormat = sound.line().getFormat().toString();
+			r.durationSeconds = sound.line().getMicrosecondLength() / 1_000_000f;
 			r.running = sound.isRunning();
 			r.volume = sound.volume();
 			newRecords.add(r);
