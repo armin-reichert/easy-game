@@ -121,22 +121,20 @@ By pressing the F2-key an integrated dialog is opened where you can interactivel
 
 - [Pong](https://github.com/armin-reichert/pong)
 
-<img src="EasyGame/screenshots/pong.png">
+<img src="screenshots/pong.png">
 
 - [Flappy Bird](https://github.com/armin-reichert/birdy)
 
-<img src="EasyGame/screenshots/flappybird.png">
+<img src="screenshots/flappybird.png">
 
 - [PacMan](https://github.com/armin-reichert/pacman)
 
-<img src="EasyGame/screenshots/pacman.png">
+<img src="screenshots/pacman.png">
 
 - [Nine-mens morris](https://github.com/armin-reichert/nine-mens-morris)
 
-<img src="EasyGame/screenshots/nine-mens-morris.png">
+<img src="screenshots/nine-mens-morris.png">
 
 - [Game of life](https://github.com/armin-reichert/game-of-life)
 
-<img src="EasyGame/screenshots/game-of-life.png">
-
-
+<img src="screenshots/game-of-life.png">
