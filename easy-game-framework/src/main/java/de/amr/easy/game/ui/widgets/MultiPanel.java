@@ -38,11 +38,13 @@ public class MultiPanel extends JPanel {
 		setLayout(new BorderLayout(0, 0));
 
 		JSplitPane verticalSplitPane = new JSplitPane();
+		verticalSplitPane.setOneTouchExpandable(true);
 		verticalSplitPane.setResizeWeight(0.5);
 		verticalSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		add(verticalSplitPane, BorderLayout.CENTER);
 
 		JSplitPane horizontalSplitTop = new JSplitPane();
+		horizontalSplitTop.setOneTouchExpandable(true);
 		horizontalSplitTop.setResizeWeight(0.5);
 		verticalSplitPane.setLeftComponent(horizontalSplitTop);
 
@@ -79,6 +81,7 @@ public class MultiPanel extends JPanel {
 		panel1.setLayout(new BorderLayout(0, 0));
 
 		horizontalSplitBottom = new JSplitPane();
+		horizontalSplitBottom.setOneTouchExpandable(true);
 		horizontalSplitBottom.setResizeWeight(0.5);
 		verticalSplitPane.setRightComponent(horizontalSplitBottom);
 
