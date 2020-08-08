@@ -25,12 +25,14 @@ public class ForwardBackwardAnimation extends SpriteAnimation {
 		if (forward) {
 			if (frameIndex == numFrames - 1) {
 				forward = false;
+				--frameIndex;
 			} else {
 				++frameIndex;
 			}
 		} else {
 			if (frameIndex == 0) {
 				forward = true;
+				++frameIndex;
 			} else {
 				--frameIndex;
 			}
