@@ -8,12 +8,12 @@ package de.amr.easy.game.ui.sprites;
  */
 public abstract class SpriteAnimation {
 
-	protected final int numFrames;
-	protected boolean enabled;
+	protected int numFrames;
 	protected int frameDurationMillis;
 	protected int frameIndex;
 	protected long frameTime;
 	protected long lastUpdateTime;
+	protected boolean enabled;
 
 	protected SpriteAnimation(int numFrames) {
 		this.numFrames = numFrames;
@@ -46,10 +46,7 @@ public abstract class SpriteAnimation {
 	}
 
 	public void setEnabled(boolean enabled) {
-		if (this.enabled != enabled) {
-			this.enabled = enabled;
-			reset();
-		}
+		this.enabled = enabled;
 	}
 
 	public boolean isEnabled() {

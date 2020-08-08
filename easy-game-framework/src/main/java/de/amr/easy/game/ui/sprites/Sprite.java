@@ -217,8 +217,8 @@ public class Sprite {
 
 	private SpriteAnimation createAnimation(AnimationType type) {
 		switch (type) {
-		case BACK_AND_FORTH:
-			return new BackForthAnimation(frames.length);
+		case FORWARD_BACKWARDS:
+			return new ForwardBackwardAnimation(frames.length);
 		case CYCLIC:
 			return new CyclicAnimation(frames.length);
 		case LINEAR:

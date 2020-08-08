@@ -156,7 +156,7 @@ public class TextWidget extends GameObject {
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
 
 		// store sprite and set collision box
-		sprite = Sprite.of(image, null).animate(AnimationType.BACK_AND_FORTH, blinkTimeMillis / 2);
+		sprite = Sprite.of(image, null).animate(AnimationType.FORWARD_BACKWARDS, blinkTimeMillis / 2);
 	}
 
 	public String getText() {
@@ -189,7 +189,7 @@ public class TextWidget extends GameObject {
 	}
 
 	public void setBlinkTime(int millis) {
-		sprite.animate(AnimationType.BACK_AND_FORTH, millis);
+		sprite.animate(AnimationType.FORWARD_BACKWARDS, millis);
 	}
 
 	public void setSpaceExpansion(int spaceExpansion) {

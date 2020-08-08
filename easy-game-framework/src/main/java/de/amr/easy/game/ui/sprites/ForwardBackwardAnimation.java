@@ -1,30 +1,38 @@
 package de.amr.easy.game.ui.sprites;
 
-public class BackForthAnimation extends SpriteAnimation {
+/**
+ * An animation going through the frames forward, backwards etc.
+ * 
+ * @author Armin Reichert
+ */
+public class ForwardBackwardAnimation extends SpriteAnimation {
 
 	private boolean forward;
 
-	public BackForthAnimation(int numFrames) {
+	public ForwardBackwardAnimation(int numFrames) {
 		super(numFrames);
+		forward = true;
 	}
 
 	@Override
 	public void reset() {
-		forward = true;
 		super.reset();
+		forward = true;
 	}
 
 	@Override
 	protected void nextFrame() {
 		if (forward) {
-			++frameIndex;
 			if (frameIndex == numFrames - 1) {
 				forward = false;
+			} else {
+				++frameIndex;
 			}
 		} else {
-			--frameIndex;
 			if (frameIndex == 0) {
 				forward = true;
+			} else {
+				--frameIndex;
 			}
 		}
 	}

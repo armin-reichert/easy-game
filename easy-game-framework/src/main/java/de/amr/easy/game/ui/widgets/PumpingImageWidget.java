@@ -1,6 +1,6 @@
 package de.amr.easy.game.ui.widgets;
 
-import static de.amr.easy.game.ui.sprites.AnimationType.BACK_AND_FORTH;
+import static de.amr.easy.game.ui.sprites.AnimationType.FORWARD_BACKWARDS;
 import static java.lang.Math.round;
 
 import java.awt.Graphics2D;
@@ -86,7 +86,7 @@ public class PumpingImageWidget extends Entity implements Lifecycle, View {
 			frames[i] = image.getScaledInstance(-1, frameHeight, BufferedImage.SCALE_FAST);
 		}
 		sprite = Sprite.of(frames);
-		sprite.animate(BACK_AND_FORTH, periodMillis / frameCount);
+		sprite.animate(FORWARD_BACKWARDS, periodMillis / frameCount);
 		sprite.enableAnimation(true);
 		tf.width = (sprite.getMaxWidth());
 		tf.height = (sprite.getMaxHeight());
