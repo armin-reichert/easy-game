@@ -9,11 +9,12 @@ import static de.amr.easy.game.ApplicationLifecycle.ApplicationState.PAUSED;
 import static de.amr.easy.game.ApplicationLifecycle.ApplicationState.RUNNING;
 
 import java.awt.Image;
-import java.io.IOException;
-import java.io.InputStream;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
-import java.util.logging.LogManager;
-import java.util.logging.Logger;
 
 import javax.swing.ImageIcon;
 import javax.swing.UIManager;
@@ -99,23 +100,7 @@ public abstract class Application {
 	}
 
 	/** Application-global logger. */
-	private static final Logger LOGGER = Logger.getLogger(Application.class.getName());
-
-	static void configureLogger(Class<? extends Application> appClass) {
-		String path = "de/amr/easy/game/logging.properties";
-		InputStream config = Application.class.getClassLoader().getResourceAsStream(path);
-		if (config != null) {
-			try {
-				LogManager.getLogManager().readConfiguration(config);
-				return;
-			} catch (IOException x) {
-				x.printStackTrace(System.err);
-			}
-		}
-		System.err.println("Logging configuration '" + path + "' not available.");
-		System.err.println(String.format("Application of class '%s' could not be launched.", appClass));
-		System.exit(0);
-	}
+	private static List<String> loggedMessages = new ArrayList<>();
 
 	/**
 	 * Convenience method for logging to application logger with level INFO.
@@ -124,7 +109,15 @@ public abstract class Application {
 	 * @param args   message arguments
 	 */
 	public static void loginfo(String format, Object... args) {
-		LOGGER.info(String.format(format, args));
+		DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss:SSS");
+		String timestamp = LocalDateTime.now().format(df);
+		String message = String.format("[%s] %s", timestamp, String.format(format, args));
+		loggedMessages.add(message);
+		System.out.println(message);
+	}
+
+	public static List<String> getLoggedLines() {
+		return Collections.unmodifiableList(loggedMessages);
 	}
 
 	/**
@@ -148,7 +141,6 @@ public abstract class Application {
 	 */
 	public static void launch(Class<? extends Application> appClass, AppSettings settings, String[] cmdLine) {
 		try {
-			configureLogger(appClass);
 			theApp = appClass.getDeclaredConstructor().newInstance();
 			theApp.build(settings, cmdLine);
 			theApp.lifecycle.init();
