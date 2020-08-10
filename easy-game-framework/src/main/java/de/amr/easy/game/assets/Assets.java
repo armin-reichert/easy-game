@@ -1,7 +1,5 @@
 package de.amr.easy.game.assets;
 
-import static de.amr.easy.game.Application.LOGGER;
-
 import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.Graphics2D;
@@ -24,6 +22,8 @@ import java.util.stream.Stream;
 import javax.imageio.ImageIO;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
+
+import de.amr.easy.game.Application;
 
 /**
  * This class provides access to assets like images, sounds, fonts, texts etc. When an asset is
@@ -182,7 +182,7 @@ public class Assets {
 	 */
 	public static void storeImage(String path, BufferedImage image) {
 		if (imageCache.put(path, image) != null) {
-			LOGGER.warning(String.format("Assets: Image '%s' has been replaced.", path));
+			Application.loginfo("Assets: Image '%s' has been replaced.", path);
 		}
 	}
 

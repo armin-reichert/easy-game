@@ -1,7 +1,5 @@
 package de.amr.easy.game.entity.collision;
 
-import static de.amr.easy.game.Application.LOGGER;
-
 import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -56,7 +54,6 @@ public class CollisionHandler {
 				Collision event = new Collision(pair.either(), pair.other(), pair.getIntersection(), collisionStarts.get(pair),
 						true);
 				events.add(event);
-				LOGGER.fine(event.toString());
 			}
 		}
 		for (CollisionPair pair : collisionEnds.keySet()) {
@@ -64,7 +61,6 @@ public class CollisionHandler {
 				Collision event = new Collision(pair.either(), pair.other(), pair.getIntersection(), collisionEnds.get(pair),
 						false);
 				events.add(event);
-				LOGGER.fine(event.toString());
 			}
 		}
 	}

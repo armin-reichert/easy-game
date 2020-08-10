@@ -59,7 +59,7 @@ public class LinkWidget extends Entity implements Lifecycle, View {
 			try {
 				link.url = new URL(spec);
 			} catch (MalformedURLException e) {
-				Application.LOGGER.info("Invalid link URL: " + spec);
+				Application.loginfo("Invalid link URL: " + spec);
 			}
 			return this;
 		}
@@ -129,7 +129,7 @@ public class LinkWidget extends Entity implements Lifecycle, View {
 		try {
 			url = new URL(spec);
 		} catch (MalformedURLException e) {
-			Application.LOGGER.info("Invalid link URL: " + spec);
+			Application.loginfo("Invalid link URL: " + spec);
 		}
 	}
 

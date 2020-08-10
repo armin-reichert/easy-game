@@ -99,7 +99,7 @@ public abstract class Application {
 	}
 
 	/** Application-global logger. */
-	public static final Logger LOGGER = Logger.getLogger(Application.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(Application.class.getName());
 
 	static void configureLogger(Class<? extends Application> appClass) {
 		String path = "de/amr/easy/game/logging.properties";

@@ -32,6 +32,7 @@ import de.amr.easy.game.ui.f2dialog.screen.ScreenView;
 import de.amr.easy.game.ui.f2dialog.settings.SettingsView;
 import de.amr.easy.game.ui.f2dialog.sound.SoundView;
 import net.miginfocom.swing.MigLayout;
+import de.amr.easy.game.ui.f2dialog.applog.LogView;
 
 /**
  * Dialog for inspecting and changing application environment. Opened with F2 key.
@@ -63,6 +64,7 @@ public class F2DialogImpl extends JDialog implements Lifecycle, F2Dialog {
 	private JButton btnPlayPause;
 	private FramerateSelector framerateSelector;
 	private Icon pauseIcon, playIcon;
+	private LogView logView;
 
 	public F2DialogImpl(Window owner) {
 		super(owner);
@@ -75,6 +77,9 @@ public class F2DialogImpl extends JDialog implements Lifecycle, F2Dialog {
 		clockView = new ClockView();
 		tabbedPane.addTab("Clock", null, clockView, null);
 
+		settingsView = new SettingsView();
+		tabbedPane.addTab("Settings", null, settingsView, null);
+
 		screenView = new ScreenView();
 		tabbedPane.addTab("Screen", null, screenView, null);
 
@@ -82,8 +87,8 @@ public class F2DialogImpl extends JDialog implements Lifecycle, F2Dialog {
 		tabbedPane.addTab("Sound", null, soundView, null);
 		tabbedPane.addChangeListener(e -> tabChanged());
 
-		settingsView = new SettingsView();
-		tabbedPane.addTab("Settings", null, settingsView, null);
+		logView = new LogView();
+		tabbedPane.addTab("Logging", null, logView, null);
 
 		btnPlayPause = new JButton("Play/Pause");
 		getContentPane().add(btnPlayPause, "flowx,cell 0 1");
