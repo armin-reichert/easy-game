@@ -20,11 +20,11 @@ public final class StateMachineRegistry {
 	public static final StateMachineRegistry REGISTRY = new StateMachineRegistry();
 
 	private final Set<StateMachine<?, ?>> machines;
-	private boolean shutUp;
+	private boolean silent;
 
 	private StateMachineRegistry() {
 		machines = new HashSet<>();
-		shutUp = true;
+		silent = true;
 	}
 
 	public Collection<StateMachine<?, ?>> machines() {
@@ -34,7 +34,7 @@ public final class StateMachineRegistry {
 	public <FSM extends StateMachine<?, ?>> void register(Stream<FSM> machines) {
 		machines.filter(Objects::nonNull).forEach(fsm -> {
 			this.machines.add(fsm);
-			fsm.getTracer().shutUp(shutUp);
+			fsm.getTracer().shutUp(silent);
 			Application.loginfo("State machine registered: %s", fsm);
 		});
 	}
@@ -42,18 +42,18 @@ public final class StateMachineRegistry {
 	public <FSM extends StateMachine<?, ?>> void unregister(Stream<FSM> machines) {
 		machines.filter(Objects::nonNull).forEach(fsm -> {
 			this.machines.remove(fsm);
-			fsm.getTracer().shutUp(false);
+			fsm.getTracer().shutUp(true);
 			Application.loginfo("State machine unregistered: %s", fsm);
 		});
 	}
 
 	public void shutUp(boolean shutUp) {
-		this.shutUp = shutUp;
+		this.silent = shutUp;
 		machines.stream().map(StateMachine::getTracer).forEach(tracer -> tracer.shutUp(shutUp));
 		Application.loginfo("State machines are silent: %s", shutUp);
 	}
 
 	public boolean isKeepingItsMouth() {
-		return shutUp;
+		return silent;
 	}
 }
