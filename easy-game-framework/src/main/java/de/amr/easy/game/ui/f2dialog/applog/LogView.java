@@ -47,5 +47,4 @@ public class LogView extends JPanel implements Lifecycle {
 			}
 		}
 	}
-
 }
