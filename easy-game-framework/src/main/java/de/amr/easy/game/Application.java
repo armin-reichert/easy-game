@@ -9,11 +9,6 @@ import static de.amr.easy.game.ApplicationLifecycle.ApplicationState.PAUSED;
 import static de.amr.easy.game.ApplicationLifecycle.ApplicationState.RUNNING;
 
 import java.awt.Image;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 import javax.swing.ImageIcon;
@@ -28,6 +23,7 @@ import de.amr.easy.game.controller.Lifecycle;
 import de.amr.easy.game.entity.collision.CollisionHandler;
 import de.amr.easy.game.input.Keyboard;
 import de.amr.easy.game.input.Mouse;
+import de.amr.easy.game.logging.ApplicationLog;
 import de.amr.easy.game.timing.Clock;
 import de.amr.easy.game.ui.AppInfoView;
 import de.amr.easy.game.ui.AppShell;
@@ -99,9 +95,6 @@ public abstract class Application {
 		return theApp;
 	}
 
-	/** Application-global logger. */
-	private static List<String> loggedMessages = new ArrayList<>();
-
 	/**
 	 * Convenience method for logging to application logger with level INFO.
 	 * 
@@ -109,15 +102,9 @@ public abstract class Application {
 	 * @param args   message arguments
 	 */
 	public static void loginfo(String format, Object... args) {
-		DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss:SSS");
-		String timestamp = LocalDateTime.now().format(df);
-		String message = String.format("[%s] %s", timestamp, String.format(format, args));
-		loggedMessages.add(message);
-		System.out.println(message);
-	}
-
-	public static List<String> getLoggedLines() {
-		return Collections.unmodifiableList(loggedMessages);
+		if (theApp != null) {
+			theApp.logger.loginfo(format, args);
+		}
 	}
 
 	/**
@@ -152,6 +139,7 @@ public abstract class Application {
 
 	ApplicationLifecycle lifecycle;
 	AppSettings settings;
+	ApplicationLog logger;
 	Clock clock;
 	Lifecycle controller;
 	CollisionHandler collisionHandler;
@@ -161,6 +149,7 @@ public abstract class Application {
 
 	private void build(AppSettings settings, String[] cmdLine) {
 		this.settings = settings;
+		logger = new ApplicationLog();
 		soundManager = new SoundManager();
 		clock = new Clock();
 		clock.setTargetFrameRate(settings.fps);
@@ -301,6 +290,13 @@ public abstract class Application {
 	 */
 	public AppSettings settings() {
 		return settings;
+	}
+
+	/**
+	 * @return the application logger
+	 */
+	public ApplicationLog getLogger() {
+		return logger;
 	}
 
 	/**

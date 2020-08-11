@@ -26,13 +26,13 @@ import de.amr.easy.game.Application;
 import de.amr.easy.game.controller.Lifecycle;
 import de.amr.easy.game.ui.AppShell;
 import de.amr.easy.game.ui.f2dialog.F2Dialog;
+import de.amr.easy.game.ui.f2dialog.applog.LogView;
 import de.amr.easy.game.ui.f2dialog.clock.ClockView;
 import de.amr.easy.game.ui.f2dialog.clock.FramerateSelector;
 import de.amr.easy.game.ui.f2dialog.screen.ScreenView;
 import de.amr.easy.game.ui.f2dialog.settings.SettingsView;
 import de.amr.easy.game.ui.f2dialog.sound.SoundView;
 import net.miginfocom.swing.MigLayout;
-import de.amr.easy.game.ui.f2dialog.applog.LogView;
 
 /**
  * Dialog for inspecting and changing application environment. Opened with F2 key.
@@ -50,21 +50,23 @@ public class F2DialogImpl extends JDialog implements Lifecycle, F2Dialog {
 		BooleanSupplier fnEnabled;
 	}
 
-	public static final int CUSTOM_TABS_START = 4;
+	private int customTabsStartIndex;
 
 	private int dx;
 	private int dy;
+
+	private ClockView clockView;
+	private ScreenView screenView;
+	private SoundView soundView;
+	private SettingsView settingsView;
+	private LogView logView;
+
 	private List<CustomTab> customTabs = new ArrayList<>();
 	private Timer updateTimer;
-	private SoundView soundView;
-	private ScreenView screenView;
-	private ClockView clockView;
-	private SettingsView settingsView;
 	private JTabbedPane tabbedPane;
 	private JButton btnPlayPause;
 	private FramerateSelector framerateSelector;
 	private Icon pauseIcon, playIcon;
-	private LogView logView;
 
 	public F2DialogImpl(Window owner) {
 		super(owner);
@@ -97,6 +99,8 @@ public class F2DialogImpl extends JDialog implements Lifecycle, F2Dialog {
 
 		framerateSelector = new FramerateSelector();
 		getContentPane().add(framerateSelector, "cell 0 1,growx");
+
+		customTabsStartIndex = tabbedPane.getTabCount();
 	}
 
 	@Override
@@ -144,7 +148,7 @@ public class F2DialogImpl extends JDialog implements Lifecycle, F2Dialog {
 	@Override
 	public void addCustomTab(String title, JComponent component, BooleanSupplier fnEnabled) {
 		CustomTab customTab = new CustomTab();
-		customTab.index = CUSTOM_TABS_START + customTabs.size();
+		customTab.index = customTabsStartIndex + customTabs.size();
 		customTab.fnEnabled = fnEnabled;
 		customTabs.add(customTab);
 		tabbedPane.addTab(title, component);
@@ -154,7 +158,7 @@ public class F2DialogImpl extends JDialog implements Lifecycle, F2Dialog {
 	public void selectCustomTab(int i) {
 		CustomTab customTab = customTabs.get(i);
 		if (customTab.fnEnabled.getAsBoolean()) {
-			tabbedPane.setSelectedIndex(CUSTOM_TABS_START + i);
+			tabbedPane.setSelectedIndex(customTabsStartIndex + i);
 		}
 	}
 
@@ -192,5 +196,4 @@ public class F2DialogImpl extends JDialog implements Lifecycle, F2Dialog {
 			btnPlayPause.setToolTipText("Press to PAUSE");
 		}
 	}
-
 }

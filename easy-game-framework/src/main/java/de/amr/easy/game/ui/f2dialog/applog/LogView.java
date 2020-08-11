@@ -1,5 +1,7 @@
 package de.amr.easy.game.ui.f2dialog.applog;
 
+import static de.amr.easy.game.Application.app;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
@@ -9,7 +11,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-import de.amr.easy.game.Application;
 import de.amr.easy.game.controller.Lifecycle;
 
 public class LogView extends JPanel implements Lifecycle {
@@ -35,7 +36,7 @@ public class LogView extends JPanel implements Lifecycle {
 
 	@Override
 	public void update() {
-		List<String> lines = Application.getLoggedLines();
+		List<String> lines = app().getLogger().getLoggedLines();
 		if (lines.size() > textField.getLineCount()) {
 			if (textField.getLineCount() == 1) {
 				textField.append(lines.get(0));
