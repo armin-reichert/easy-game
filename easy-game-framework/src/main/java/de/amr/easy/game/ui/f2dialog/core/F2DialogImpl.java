@@ -45,8 +45,6 @@ import net.miginfocom.swing.MigLayout;
  */
 public class F2DialogImpl extends JDialog implements Lifecycle, F2Dialog {
 
-	private static final int UPDATES_SEC = 5;
-
 	private static class CustomTab {
 		int index;
 		BooleanSupplier fnEnabled;
@@ -65,6 +63,7 @@ public class F2DialogImpl extends JDialog implements Lifecycle, F2Dialog {
 
 	private List<CustomTab> customTabs = new ArrayList<>();
 	private Timer updateTimer;
+	private int updateIntervallMillis = 200;
 	private JTabbedPane tabbedPane;
 	private JButton btnPlayPause;
 	private FramerateSelector framerateSelector;
@@ -131,7 +130,7 @@ public class F2DialogImpl extends JDialog implements Lifecycle, F2Dialog {
 		screenView.init();
 		settingsView.init();
 		framerateSelector.init();
-		updateTimer = new Timer(1000 / UPDATES_SEC, e -> SwingUtilities.invokeLater(this::update));
+		updateTimer = new Timer(updateIntervallMillis, e -> SwingUtilities.invokeLater(this::update));
 	}
 
 	@Override
