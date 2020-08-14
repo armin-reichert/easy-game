@@ -28,9 +28,10 @@ public class ApplicationLog implements Log {
 		if (shutUp) {
 			return;
 		}
-		DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss:SSS");
+		DateTimeFormatter df = DateTimeFormatter.ofPattern("HH:mm:ss:SSS");
 		String timestamp = LocalDateTime.now().format(df);
-		String message = String.format("[%s] %s", timestamp, String.format(format, args));
+		String message = String.format("%s [%s] %s", timestamp, Thread.currentThread().getName(),
+				String.format(format, args));
 		loggedMessages.add(message);
 		System.out.println(message);
 	}

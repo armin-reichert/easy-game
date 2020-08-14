@@ -151,8 +151,8 @@ public abstract class Application {
 		this.settings = settings;
 		logger = new ApplicationLog();
 		soundManager = new SoundManager();
-		clock = new Clock();
-		clock.setTargetFrameRate(settings.fps);
+		clock = new Clock(settings.fps);
+		clock.setThreadName("Clock-" + getClass().getSimpleName());
 		lifecycle = new ApplicationLifecycle(this, cmdLine);
 		clock.onTick = lifecycle::update;
 	}

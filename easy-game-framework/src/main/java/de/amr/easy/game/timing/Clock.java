@@ -23,6 +23,7 @@ public class Clock {
 	public Runnable onTick;
 
 	private Thread thread;
+	private String threadName;
 	private volatile boolean ticking;
 	private long totalTicks;
 	private int targetFrameRate;
@@ -43,6 +44,7 @@ public class Clock {
 		setTargetFrameRate(ticksPerSecond);
 		onTick = () -> {
 		};
+		threadName = "Clock";
 	}
 
 	/**
@@ -52,6 +54,10 @@ public class Clock {
 		this(60);
 	}
 
+	public void setThreadName(String threadName) {
+		this.threadName = threadName;
+	}
+
 	/**
 	 * Starts the clock if not yet ticking.
 	 */
@@ -59,7 +65,7 @@ public class Clock {
 		if (!ticking) {
 			totalTicks = 0;
 			ticking = true;
-			thread = new Thread(this::tick, "Clock-" + hashCode());
+			thread = new Thread(this::tick, threadName);
 			thread.start();
 		}
 	}
