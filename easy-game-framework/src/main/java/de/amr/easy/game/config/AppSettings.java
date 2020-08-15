@@ -131,18 +131,26 @@ public class AppSettings {
 	 * Prints the current settings to the application log.
 	 */
 	public void print() {
-		printValue("Title", "%s", title);
-		printValue("Width", "%d", width);
-		printValue("Height", "%d", height);
-		printValue("Scaling", "%.2f", scale);
-		printValue("Full-screen mode", "%s", fullScreen);
-		printValue("Full-screen resolution", "%s", fullScreenMode);
-		printValue("Framerate (ticks/sec)", "%d", fps);
-		printValue("Smooth rendering", "%s", smoothRendering);
-		printValue("Muted", "%s", muted);
+		print("Title", title);
+		print("Width", width);
+		print("Height", height);
+		print("Scaling", scale);
+		print("Full-screen mode", fullScreen);
+		print("Full-screen resolution", fullScreenMode);
+		print("Framerate (ticks/sec)", fps);
+		print("Smooth rendering", smoothRendering);
+		print("Muted", muted);
 	}
 
-	public void printValue(String name, String format, Object value) {
+	public void print(String name, Object value) {
+		String format = "%s";
+		if (value instanceof Double) {
+			format = "%.2g";
+		} else if (value instanceof Float) {
+			format = "%.2f";
+		} else if (value instanceof Integer || value instanceof Long) {
+			format = "%d";
+		}
 		loginfo("\t%-25s %s", name + ":", String.format(format, value));
 	}
 }
