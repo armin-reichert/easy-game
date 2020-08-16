@@ -65,7 +65,7 @@ public class Clock {
 		if (!ticking) {
 			totalTicks = 0;
 			ticking = true;
-			thread = new Thread(this::tick, threadName);
+			thread = new Thread(this::ticking, threadName);
 			thread.start();
 		}
 	}
@@ -84,10 +84,10 @@ public class Clock {
 		}
 	}
 
-	private void tick() {
+	private void ticking() {
 		while (ticking) {
 			try {
-				singleTick();
+				tick();
 				++totalTicks;
 			} catch (InterruptedException x) {
 				// ignore
@@ -95,7 +95,7 @@ public class Clock {
 		}
 	}
 
-	private void singleTick() throws InterruptedException {
+	private void tick() throws InterruptedException {
 		long startTime = System.nanoTime();
 		if (onTick != null) {
 			onTick.run();
