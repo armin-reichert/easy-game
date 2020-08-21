@@ -1,5 +1,8 @@
 package de.amr.easy.game.controller;
 
+import static de.amr.easy.game.Application.app;
+import static de.amr.easy.game.Application.loginfo;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -7,7 +10,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import de.amr.easy.game.Application;
 import de.amr.statemachine.core.StateMachine;
 
 /**
@@ -29,19 +31,23 @@ public final class StateMachineRegistry {
 		return Collections.unmodifiableSet(machines);
 	}
 
+	public <FSM extends StateMachine<?, ?>> void register(FSM fsm) {
+		machines.add(fsm);
+		fsm.getTracer().setLogger(app().getLogger());
+		loginfo("State machine registered: %s", fsm);
+	}
+
+	public <FSM extends StateMachine<?, ?>> void unregister(FSM fsm) {
+		machines.remove(fsm);
+		fsm.getTracer().setLogger(null);
+		loginfo("State machine unregistered: %s", fsm);
+	}
+
 	public <FSM extends StateMachine<?, ?>> void register(Stream<FSM> machines) {
-		machines.filter(Objects::nonNull).forEach(fsm -> {
-			this.machines.add(fsm);
-			fsm.getTracer().setLogger(Application.app().getLogger());
-			Application.loginfo("State machine registered: %s", fsm);
-		});
+		machines.filter(Objects::nonNull).forEach(this::register);
 	}
 
 	public <FSM extends StateMachine<?, ?>> void unregister(Stream<FSM> machines) {
-		machines.filter(Objects::nonNull).forEach(fsm -> {
-			this.machines.remove(fsm);
-			fsm.getTracer().setLogger(null);
-			Application.loginfo("State machine unregistered: %s", fsm);
-		});
+		machines.filter(Objects::nonNull).forEach(this::unregister);
 	}
 }
