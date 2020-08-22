@@ -8,7 +8,7 @@ import de.amr.easy.game.assets.Assets;
 
 public class Spritesheet {
 
-	protected final BufferedImage sheet;
+	protected final BufferedImage image;
 	protected final int tileSize;
 
 	public Spritesheet(String path, int tileSize) {
@@ -16,20 +16,20 @@ public class Spritesheet {
 	}
 
 	public Spritesheet(BufferedImage image, int tileSize) {
-		sheet = image;
+		this.image = image;
 		this.tileSize = tileSize;
 	}
 
 	public BufferedImage region(int x, int y, int w, int h) {
-		return sheet.getSubimage(x, y, w, h);
-	}
-
-	public BufferedImage[] horizontalTiles(int n, int col, int row) {
-		return IntStream.range(0, n).mapToObj(i -> tile(col + i, row)).toArray(BufferedImage[]::new);
+		return image.getSubimage(x, y, w, h);
 	}
 
 	public BufferedImage tile(int col, int row) {
 		return region(col * tileSize, row * tileSize, tileSize, tileSize);
+	}
+
+	public BufferedImage[] horizontalTiles(int n, int col, int row) {
+		return IntStream.range(0, n).mapToObj(i -> tile(col + i, row)).toArray(BufferedImage[]::new);
 	}
 
 	public BufferedImage exchangeColor(BufferedImage img, int oldColorRGB, int newColorRGB) {
