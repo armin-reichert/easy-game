@@ -8,15 +8,16 @@ import de.amr.easy.game.assets.Assets;
 
 public class Spritesheet {
 
-	protected BufferedImage sheet;
-	protected int tileSize = 8;
+	protected final BufferedImage sheet;
+	protected final int tileSize;
 
-	public Spritesheet(String path) {
-		sheet = Assets.readImage(path);
+	public Spritesheet(String path, int tileSize) {
+		this(Assets.readImage(path), tileSize);
 	}
 
-	public Spritesheet(BufferedImage image) {
+	public Spritesheet(BufferedImage image, int tileSize) {
 		sheet = image;
+		this.tileSize = tileSize;
 	}
 
 	public BufferedImage region(int x, int y, int w, int h) {
