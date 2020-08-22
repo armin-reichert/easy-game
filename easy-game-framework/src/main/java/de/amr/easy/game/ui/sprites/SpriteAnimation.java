@@ -8,6 +8,14 @@ package de.amr.easy.game.ui.sprites;
  */
 public abstract class SpriteAnimation {
 
+	static final SpriteAnimation NO_ANIMATION = new SpriteAnimation(0) {
+
+		@Override
+		protected void nextFrame() {
+
+		}
+	};
+
 	protected int numFrames;
 	protected int frameDurationMillis;
 	protected int frameIndex;

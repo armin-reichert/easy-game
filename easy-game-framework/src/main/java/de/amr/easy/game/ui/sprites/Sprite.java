@@ -12,42 +12,21 @@ import java.util.Optional;
 import de.amr.easy.game.assets.Assets;
 
 /**
- * A sprite.
+ * An animated sprite.
  * 
  * <p>
- * In my understanding, a "sprite" is a sequence of images ("frames") which, when played in
- * sequence, create the illusion of a movement or animation. In this implementation, the animation
- * is driven by drawing the sprite which might be naive but is sufficient for my purposes.
+ * In my book, a "sprite" is a sequence of images ("frames") which, when played in sequence, create
+ * the illusion of a movement or animation. In this implementation, the animation proceeds by
+ * drawing the sprite.
  * 
  * @author Armin Reichert
  */
 public class Sprite {
 
-	/**
-	 * Uses this constant if you want to insert blank frames.
-	 */
-	public static final Image BLANK_FRAME = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
-
-	private final Image[] frames;
-	private SpriteAnimation animation;
-
-	private Sprite(int numFrames) {
-		this.frames = new Image[numFrames];
-	}
-
-	private void setFrame(int i, Image image) {
-		rangeCheck(i);
-		frames[i] = image != null ? image : BLANK_FRAME;
-	}
-
-	private void rangeCheck(int i) {
-		if (i < 0 || i >= frames.length) {
-			throw new IllegalArgumentException("Sprite index out of range: " + i);
-		}
-	}
+	static final Image BLANK_FRAME = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
 
 	/**
-	 * Creates a sprite with the given frames.
+	 * Creates a sprite using the given images. Null images are treated as blank frames.
 	 * 
 	 * @param images non-empty list of images
 	 */
@@ -63,9 +42,9 @@ public class Sprite {
 	}
 
 	/**
-	 * Creates a sprite from the frames stored in the assets with the given keys.
+	 * Creates a sprite from the images stored in the assets with the given keys.
 	 * 
-	 * @param keys list of keys of the images
+	 * @param keys asset keys of the images
 	 */
 	public static Sprite ofAssets(String... keys) {
 		if (keys.length == 0) {
@@ -76,6 +55,25 @@ public class Sprite {
 			sprite.setFrame(i, Assets.image(keys[i]));
 		}
 		return sprite;
+	}
+
+	private final Image[] frames;
+	private SpriteAnimation animation;
+
+	private Sprite(int numFrames) {
+		this.frames = new Image[numFrames];
+		animation = SpriteAnimation.NO_ANIMATION;
+	}
+
+	private void setFrame(int i, Image image) {
+		rangeCheck(i);
+		frames[i] = image != null ? image : BLANK_FRAME;
+	}
+
+	private void rangeCheck(int i) {
+		if (i < 0 || i >= frames.length) {
+			throw new IllegalArgumentException("Sprite index out of range: " + i);
+		}
 	}
 
 	/**
@@ -119,15 +117,6 @@ public class Sprite {
 			throw new IllegalArgumentException("Size must be positive, is " + size);
 		}
 		return scale(size, size);
-	}
-
-	/**
-	 * Returns the current frame of this sprite.
-	 * 
-	 * @return current frame or the single frame for a non-animated sprite
-	 */
-	public Optional<Image> currentAnimationFrame() {
-		return Optional.ofNullable(frames[animation == null ? 0 : animation.currentFrameIndex()]);
 	}
 
 	/**
@@ -182,7 +171,7 @@ public class Sprite {
 	 */
 	public void draw(Graphics2D g) {
 		currentAnimationFrame().ifPresent(frame -> g.drawImage(frame, 0, 0, null));
-		if (animation != null && animation.isEnabled()) {
+		if (animation.isEnabled()) {
 			animation.update();
 		}
 	}
@@ -229,22 +218,30 @@ public class Sprite {
 	}
 
 	/**
+	 * Returns the current frame of this sprite.
+	 * 
+	 * @return current frame or the single frame for a non-animated sprite
+	 */
+	public Optional<Image> currentAnimationFrame() {
+		if (animation == SpriteAnimation.NO_ANIMATION) {
+			return Optional.of(frames[0]);
+		}
+		return Optional.of(frames[animation.currentFrameIndex()]);
+	}
+
+	/**
 	 * Enables or disables the animation of this sprite.
 	 * 
 	 * @param enabled the enabling state
 	 */
 	public void enableAnimation(boolean enabled) {
-		if (animation != null) {
-			animation.setEnabled(enabled);
-		}
+		animation.setEnabled(enabled);
 	}
 
 	/**
 	 * Resets the animation of this sprite.
 	 */
 	public void resetAnimation() {
-		if (animation != null) {
-			animation.reset();
-		}
+		animation.reset();
 	}
 }
