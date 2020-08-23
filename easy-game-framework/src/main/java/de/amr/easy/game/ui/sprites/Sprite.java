@@ -229,6 +229,14 @@ public class Sprite {
 		return Optional.of(frames[animation.currentFrameIndex()]);
 	}
 
+	public int currentAnimationFrameIndex() {
+		if (animation == SpriteAnimation.NO_ANIMATION) {
+			return 0;
+		}
+		return animation.currentFrameIndex();
+
+	}
+
 	/**
 	 * Enables or disables the animation of this sprite.
 	 * 
@@ -236,6 +244,13 @@ public class Sprite {
 	 */
 	public void enableAnimation(boolean enabled) {
 		animation.setEnabled(enabled);
+	}
+
+	/**
+	 * @return if this sprites' animation is enabled
+	 */
+	public boolean isAnimationEnabled() {
+		return animation.enabled;
 	}
 
 	/**
