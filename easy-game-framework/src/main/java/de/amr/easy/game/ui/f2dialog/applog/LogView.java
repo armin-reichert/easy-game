@@ -47,5 +47,6 @@ public class LogView extends JPanel implements Lifecycle {
 				textField.append("\n");
 			}
 		}
+		textField.setCaretPosition(textField.getText().length());
 	}
 }
