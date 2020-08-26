@@ -30,6 +30,10 @@ public final class StateMachineRegistry {
 		machines = new HashMap<>();
 	}
 
+	public Stream<String> categories() {
+		return machines.keySet().stream();
+	}
+
 	public Set<StateMachine<?, ?>> machines() {
 		return machines.values().stream().flatMap(List::stream).collect(Collectors.toSet());
 	}
