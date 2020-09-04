@@ -51,7 +51,7 @@ public final class StateMachineRegistry {
 		}
 		category.add(fsm);
 		fsm.getTracer().setLogger(app().getLogger());
-		loginfo("State machine registered: %s", fsm);
+		loginfo("State machine registered: %s", fsm.getDescription());
 	}
 
 	public void register(String categoryName, Stream<StateMachine<?, ?>> machines) {
@@ -65,7 +65,7 @@ public final class StateMachineRegistry {
 			if (category.contains(fsm)) {
 				it.remove();
 				fsm.getTracer().setLogger(null);
-				loginfo("State machine unregistered: %s", fsm);
+				loginfo("State machine unregistered: %s", fsm.getDescription());
 				break;
 			}
 		}
