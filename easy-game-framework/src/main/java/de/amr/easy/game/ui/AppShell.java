@@ -213,36 +213,10 @@ public class AppShell extends JFrame {
 	}
 
 	public void render(View view) {
-		BufferStrategy strategy = null;
-		int width, height;
-		if (inFullScreenMode()) {
-			strategy = fullScreenWindow.getBufferStrategy();
-			width = fullScreenWindow.getWidth();
-			height = fullScreenWindow.getHeight();
+		if (device.getFullScreenWindow() != null) {
+			render(view, fullScreenWindow.getBufferStrategy(), fullScreenWindow.getWidth(), fullScreenWindow.getHeight());
 		} else {
-			strategy = canvas.getBufferStrategy();
-			width = canvas.getWidth();
-			height = canvas.getHeight();
-		}
-		if (strategy != null) {
-			try {
-				do {
-					do {
-						Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
-						g.setColor(Color.BLACK);
-						g.fillRect(0, 0, width, height);
-						renderView(view, g);
-						centerHorizontally(g);
-						drawPausedText(g);
-						drawMutedIcon(g);
-						g.dispose();
-					} while (strategy.contentsRestored());
-					strategy.show();
-				} while (strategy.contentsLost());
-				++frames;
-			} catch (Exception x) {
-				loginfo("Rendering failed: %s", x); // happens when switching from fullscreen to window mode
-			}
+			render(view, canvas.getBufferStrategy(), canvas.getWidth(), canvas.getHeight());
 		}
 		// update window title text
 		if (frames >= app.clock().getTargetFramerate()) {
@@ -251,7 +225,28 @@ public class AppShell extends JFrame {
 		}
 	}
 
-	private void renderView(View view, Graphics2D g) {
+	private void render(View view, BufferStrategy strategy, int width, int height) {
+		try {
+			do {
+				do {
+					Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
+					g.setColor(Color.BLACK);
+					g.fillRect(0, 0, width, height);
+					drawView(view, g);
+					centerHorizontally(g);
+					drawPausedText(g);
+					drawMutedIcon(g);
+					g.dispose();
+				} while (strategy.contentsRestored());
+				strategy.show();
+			} while (strategy.contentsLost());
+			++frames;
+		} catch (Exception x) {
+			loginfo("Rendering failed: %s", x); // happens when switching from fullscreen to window mode
+		}
+	}
+
+	private void drawView(View view, Graphics2D g) {
 		g = (Graphics2D) g.create();
 		if (app.settings().smoothRendering) {
 			g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
