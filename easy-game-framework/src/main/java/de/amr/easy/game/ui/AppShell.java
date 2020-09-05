@@ -35,6 +35,7 @@ import de.amr.easy.game.Application;
 import de.amr.easy.game.input.Keyboard;
 import de.amr.easy.game.input.Mouse;
 import de.amr.easy.game.input.MouseHandler;
+import de.amr.easy.game.ui.f2dialog.F2Dialog;
 import de.amr.easy.game.ui.f2dialog.core.F2DialogImpl;
 import de.amr.easy.game.view.View;
 
@@ -67,7 +68,7 @@ public class AppShell extends JFrame {
 	private final Canvas canvas;
 	private final JFrame fullScreenWindow;
 	private int frames;
-	public F2DialogImpl f2Dialog;
+	private F2DialogImpl f2Dialog;
 
 	public AppShell(Application app, int width, int height) {
 		this.app = app;
@@ -155,26 +156,14 @@ public class AppShell extends JFrame {
 		return device.getFullScreenWindow() != null;
 	}
 
-	public JFrame getFullScreenWindow() {
-		return fullScreenWindow;
-	}
-
-	public Canvas getCanvas() {
-		return canvas;
-	}
-
-	public void toggleDisplayMode() {
-		if (inFullScreenMode()) {
-			showWindow();
-		} else {
-			showFullScreenWindow();
-		}
-	}
-
 	public void showWindow() {
-		device.setFullScreenWindow(null);
+		if (inFullScreenMode()) {
+			device.setFullScreenWindow(null);
+		}
+		if (canvas.getBufferStrategy() == null) {
+			canvas.createBufferStrategy(2);
+		}
 		requestFocus();
-		canvas.createBufferStrategy(2);
 		setVisible(true);
 		loginfo("Entered window mode, resolution %dx%d (%dx%d px scaled by %.2f)", (int) (viewWidth * app.settings().scale),
 				(int) (viewHeight * app.settings().scale), viewWidth, viewHeight, app.settings().scale);
@@ -185,27 +174,28 @@ public class AppShell extends JFrame {
 			loginfo("Device does not support full-screen exclusive mode.");
 			return;
 		}
-		final DisplayMode mode = app.settings().fullScreenMode;
-		if (!isValidMode(mode)) {
-			loginfo("Display mode not supported: %s", displayModeText(mode));
-			return;
-		}
+
+		fullScreenWindow.setVisible(true);
+		fullScreenWindow.createBufferStrategy(2);
+		fullScreenWindow.requestFocus();
 		if (!app.settings().fullScreenCursor) {
 			Cursor invisibleCursor = fullScreenWindow.getToolkit()
 					.createCustomCursor(new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB), new Point(), null);
 			fullScreenWindow.setCursor(invisibleCursor);
 		}
+
 		device.setFullScreenWindow(fullScreenWindow);
-		if (device.isDisplayChangeSupported()) {
+		DisplayMode mode = app.settings().fullScreenMode;
+		try {
 			device.setDisplayMode(mode);
-			fullScreenWindow.createBufferStrategy(2);
-			fullScreenWindow.requestFocus();
 			loginfo("Entered full-screen mode %s", displayModeText(mode));
-		} else {
-			device.setFullScreenWindow(null);
-			loginfo("Display change not supported: %s", displayModeText(mode));
-			return;
+		} catch (Exception x) {
+			loginfo("Device cannot use display mode " + mode);
 		}
+	}
+
+	public F2Dialog getF2Dialog() {
+		return f2Dialog;
 	}
 
 	public void showF2Dialog() {
@@ -216,7 +206,7 @@ public class AppShell extends JFrame {
 		f2Dialog.setVisible(true);
 	}
 
-	public void createF2Dialog(int width, int height) {
+	private void createF2Dialog(int width, int height) {
 		f2Dialog = new F2DialogImpl(null);
 		f2Dialog.setSize(width, height);
 		f2Dialog.init();
@@ -336,11 +326,6 @@ public class AppShell extends JFrame {
 	private Dimension scaledViewSize() {
 		float scaling = scaling();
 		return new Dimension(round(scaling * viewWidth), round(scaling * viewHeight));
-	}
-
-	private boolean isValidMode(DisplayMode mode) {
-		return Arrays.stream(device.getDisplayModes()).anyMatch(dm -> dm.getWidth() == mode.getWidth()
-				&& dm.getHeight() == mode.getHeight() && dm.getBitDepth() == mode.getBitDepth());
 	}
 
 	private String displayModeText(DisplayMode mode) {

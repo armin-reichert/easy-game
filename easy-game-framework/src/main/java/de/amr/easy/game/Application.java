@@ -195,7 +195,7 @@ public abstract class Application {
 		} else {
 			shell = new AppShell(this, settings.width, settings.height);
 		}
-		configureF2Dialog(shell.f2Dialog);
+		configureF2Dialog(shell.getF2Dialog());
 		if (settings.fullScreen) {
 			shell.showFullScreenWindow();
 		} else {
@@ -232,7 +232,7 @@ public abstract class Application {
 	 * @return the F2 dialog if already created
 	 */
 	public Optional<F2Dialog> f2Dialog() {
-		return shell().map(shell -> shell.f2Dialog);
+		return shell().map(AppShell::getF2Dialog);
 	}
 
 	/**
