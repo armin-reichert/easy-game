@@ -57,6 +57,8 @@ public class AppShell extends JFrame {
 
 	// TODO localize
 	private static final String PAUSED_TEXT = "PAUSED\n(Press CTRL+P to continue)";
+	private static final Image MUTED_ICON = new ImageIcon(AppShell.class.getResource("/icons/muted.png")).getImage()
+			.getScaledInstance(32, 32, Image.SCALE_SMOOTH);
 
 	private final Application app;
 	private final int viewWidth;
@@ -314,10 +316,9 @@ public class AppShell extends JFrame {
 
 	private void drawMutedIcon(Graphics2D g) {
 		if (app.soundManager().isMuted()) {
-			Image icon = new ImageIcon(getClass().getResource("/icons/muted.png")).getImage();
-			int size = 32;
-			Dimension scaledViewSize = scaledViewSize();
-			g.drawImage(icon, (scaledViewSize.width - size) / 2, scaledViewSize.height - 80, size, size, null);
+			int iconSize = MUTED_ICON.getWidth(null);
+			Dimension viewSize = scaledViewSize();
+			g.drawImage(MUTED_ICON, viewSize.width - iconSize - 2, viewSize.height - iconSize - 2, iconSize, iconSize, null);
 		}
 	}
 
