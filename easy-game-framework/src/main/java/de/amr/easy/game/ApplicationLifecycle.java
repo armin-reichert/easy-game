@@ -46,12 +46,12 @@ class ApplicationLifecycle extends StateMachine<ApplicationState, ApplicationEve
 				.state(INITIALIZING)
 					.onEntry(() -> {
 						loginfo("Configuring application '%s'", app.getName());
-						app.configure(app.settings);
+						app.configure(app.settings());
 						app.processCommandLine(cmdLine);
 						app.printSettings();
 						app.init();
-						if (app.settings.muted) {
-							app.soundManager.muteAll();
+						if (app.settings().muted) {
+							app.soundManager().muteAll();
 						}
 						setState(CREATING_UI);
 					})
@@ -60,15 +60,15 @@ class ApplicationLifecycle extends StateMachine<ApplicationState, ApplicationEve
 					.onEntry(() -> {
 						SwingUtilities.invokeLater(() -> {
 							app.createUserInterface();
-							app.clock.start();
-							loginfo("Application is running, %d frames/second", app.clock.getTargetFramerate());
+							app.clock().start();
+							loginfo("Application is running, %d frames/second", app.clock().getTargetFramerate());
 						});
 					})
 				
 				.state(RUNNING)
 					.onTick(() -> {
 						app.readInput();
-						app.controller.update();
+						app.getController().update();
 						app.renderCurrentView();
 					})
 				
@@ -80,34 +80,34 @@ class ApplicationLifecycle extends StateMachine<ApplicationState, ApplicationEve
 						loginfo("Closing application '%s'", app.getName());
 					})
 					.onTick(() -> {
-						app.shell.dispose();
+						app.shell().get().dispose();
 						// cannot exit in onEntry because CLOSING listeners would not get executed!
 						System.exit(0);
 					})
 					
 			.transitions()
 
-				.when(CREATING_UI).then(RUNNING).condition(() -> app.clock.isTicking())
+				.when(CREATING_UI).then(RUNNING).condition(() -> app.clock().isTicking())
 				
-				.when(RUNNING).then(PAUSED).on(PAUSE).act(() -> app.soundManager.muteAll())
+				.when(RUNNING).then(PAUSED).on(PAUSE).act(() -> app.soundManager().muteAll())
 				
 				.when(RUNNING).then(CLOSING).on(CLOSE)
 	
-				.stay(RUNNING).on(ENTER_FULLSCREEN_MODE).act(() -> app.shell.showFullScreenWindow())
+				.stay(RUNNING).on(ENTER_FULLSCREEN_MODE).act(() -> app.shell().get().showFullScreenWindow())
 
-				.stay(RUNNING).on(ENTER_WINDOW_MODE).act(() -> app.shell.showWindow())
+				.stay(RUNNING).on(ENTER_WINDOW_MODE).act(() -> app.shell().get().showWindow())
 					
-				.stay(RUNNING).on(SHOW_SETTINGS_DIALOG).act(() -> app.shell.showF2Dialog())
+				.stay(RUNNING).on(SHOW_SETTINGS_DIALOG).act(() -> app.shell().get().showF2Dialog())
 				
-				.when(PAUSED).then(RUNNING).on(RESUME).act(() -> app.soundManager.unmuteAll())
+				.when(PAUSED).then(RUNNING).on(RESUME).act(() -> app.soundManager().unmuteAll())
 			
 				.when(PAUSED).then(CLOSING).on(CLOSE)
 				
-				.stay(PAUSED).on(ENTER_FULLSCREEN_MODE).act(() -> app.shell.showFullScreenWindow())
+				.stay(PAUSED).on(ENTER_FULLSCREEN_MODE).act(() -> app.shell().get().showFullScreenWindow())
 
-				.stay(PAUSED).on(ENTER_WINDOW_MODE).act(() -> app.shell.showWindow())
+				.stay(PAUSED).on(ENTER_WINDOW_MODE).act(() -> app.shell().get().showWindow())
 	
-				.stay(PAUSED).on(SHOW_SETTINGS_DIALOG).act(() -> app.shell.showF2Dialog())
+				.stay(PAUSED).on(SHOW_SETTINGS_DIALOG).act(() -> app.shell().get().showF2Dialog())
 
 		.endStateMachine();
 		/*@formatter:on*/

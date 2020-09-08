@@ -137,15 +137,15 @@ public abstract class Application {
 		}
 	}
 
-	ApplicationLifecycle lifecycle;
-	AppSettings settings;
-	ApplicationLog logger;
-	Clock clock;
-	Lifecycle controller;
-	CollisionHandler collisionHandler;
-	AppShell shell;
-	Image icon;
-	SoundManager soundManager;
+	private ApplicationLifecycle lifecycle;
+	private AppSettings settings;
+	private ApplicationLog logger;
+	private Clock clock;
+	private Lifecycle controller;
+	private CollisionHandler collisionHandler;
+	private AppShell shell;
+	private Image icon;
+	private SoundManager soundManager;
 
 	private void build(AppSettings settings, String[] cmdLine) {
 		this.settings = settings;
