@@ -4,7 +4,7 @@ import java.util.stream.Stream;
 
 import de.amr.statemachine.core.StateMachine;
 
-public interface IStateMachineControlled {
+public interface StateMachineControlled {
 
 	default Stream<StateMachine<?, ?>> machines() {
 		return Stream.empty();
