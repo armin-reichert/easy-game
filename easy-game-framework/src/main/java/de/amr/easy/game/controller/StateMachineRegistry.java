@@ -8,8 +8,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import de.amr.statemachine.core.StateMachine;
@@ -34,13 +32,13 @@ public final class StateMachineRegistry {
 		return machines.keySet().stream();
 	}
 
-	public Set<StateMachine<?, ?>> machines() {
-		return machines.values().stream().flatMap(List::stream).collect(Collectors.toSet());
+	public Stream<StateMachine<?, ?>> machines() {
+		return machines.values().stream().flatMap(List::stream);
 	}
 
-	public Set<StateMachine<?, ?>> machines(String category) {
+	public Stream<StateMachine<?, ?>> machines(String category) {
 		return machines.entrySet().stream().filter(e -> e.getKey().equals(category)).map(e -> e.getValue())
-				.flatMap(List::stream).collect(Collectors.toSet());
+				.flatMap(List::stream);
 	}
 
 	public void register(String categoryName, StateMachine<?, ?> fsm) {
