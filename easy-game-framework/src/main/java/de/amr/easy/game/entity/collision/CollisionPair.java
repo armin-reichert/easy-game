@@ -1,6 +1,7 @@
 package de.amr.easy.game.entity.collision;
 
 import java.awt.geom.Rectangle2D;
+import java.util.Objects;
 
 public class CollisionPair {
 
@@ -30,16 +31,20 @@ public class CollisionPair {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		CollisionPair pair = (CollisionPair) obj;
-		return pair.either == either && pair.other == other || pair.either == other && pair.other == either;
+	public int hashCode() {
+		return Objects.hash(either, other);
 	}
 
 	@Override
-	public int hashCode() {
-		return either.hashCode() + other.hashCode();
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		CollisionPair other = (CollisionPair) obj;
+		return Objects.equals(either, other.either) && Objects.equals(this.other, other.other);
 	}
+
 }
