@@ -30,17 +30,21 @@ public class SoundClip {
 	private final Clip line;
 
 	public SoundClip(InputStream is) throws LineUnavailableException, IOException, UnsupportedAudioFileException {
-		AudioInputStream ais = AudioSystem.getAudioInputStream(new BufferedInputStream(is));
-		if (ais.getFormat() instanceof MpegAudioFormat) {
-			AudioFormat mp3 = ais.getFormat();
-			AudioFormat pcm = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, mp3.getSampleRate(), 16, mp3.getChannels(),
-					mp3.getChannels() * 2, mp3.getSampleRate(), false);
-			ais = AudioSystem.getAudioInputStream(pcm, ais);
-		}
 		line = AudioSystem.getClip(null);
-		line.open(ais);
-		if (volume() > 1) {
-			setVolume(1);
+		try (AudioInputStream ais = AudioSystem.getAudioInputStream(new BufferedInputStream(is))) {
+			if (ais.getFormat() instanceof MpegAudioFormat) {
+				AudioFormat mp3Format = ais.getFormat();
+				AudioFormat pcmFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, mp3Format.getSampleRate(), 16, mp3Format.getChannels(),
+						mp3Format.getChannels() * 2, mp3Format.getSampleRate(), false);
+				try (AudioInputStream mp3Stream = AudioSystem.getAudioInputStream(pcmFormat, ais)) {
+					line.open(mp3Stream);
+				}
+			} else {
+				line.open(ais);
+			}
+			if (volume() > 1) {
+				setVolume(1);
+			}
 		}
 	}
 
