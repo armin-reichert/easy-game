@@ -1,8 +1,5 @@
 package de.amr.easy.game.assets;
 
-import static java.lang.Math.log10;
-import static java.lang.Math.pow;
-
 import java.beans.PropertyChangeSupport;
 import java.util.Optional;
 
@@ -56,7 +53,7 @@ public class SoundManager {
 		if (value < 0 || value > 1) {
 			throw new IllegalArgumentException("Volume must be between 0 and 1, but is: " + value);
 		}
-		masterGainControl(line).ifPresent(control -> control.setValue((float) (20 * log10(value))));
+		masterGainControl(line).ifPresent(control -> control.setValue((float) (20 * Math.log10(value))));
 	}
 
 	/**
@@ -65,7 +62,7 @@ public class SoundManager {
 	 * @return the optional volume as a value between 0 and 1
 	 */
 	public static Optional<Float> getLineVolume(Line line) {
-		return masterGainControl(line).map(control -> (float) pow(10, control.getValue() / 20));
+		return masterGainControl(line).map(control -> (float) Math.pow(10, control.getValue() / 20));
 	}
 
 	/**

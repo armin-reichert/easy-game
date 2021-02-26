@@ -34,8 +34,8 @@ public class SoundClip {
 		try (AudioInputStream ais = AudioSystem.getAudioInputStream(new BufferedInputStream(is))) {
 			if (ais.getFormat() instanceof MpegAudioFormat) {
 				AudioFormat mp3Format = ais.getFormat();
-				AudioFormat pcmFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, mp3Format.getSampleRate(), 16, mp3Format.getChannels(),
-						mp3Format.getChannels() * 2, mp3Format.getSampleRate(), false);
+				AudioFormat pcmFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, mp3Format.getSampleRate(), 16,
+						mp3Format.getChannels(), mp3Format.getChannels() * 2, mp3Format.getSampleRate(), false);
 				try (AudioInputStream mp3Stream = AudioSystem.getAudioInputStream(pcmFormat, ais)) {
 					line.open(mp3Stream);
 				}
