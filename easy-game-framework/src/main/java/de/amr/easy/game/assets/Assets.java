@@ -266,7 +266,7 @@ public class Assets {
 		} catch (LineUnavailableException e) {
 			throw new AssetException(String.format("Sound file at path '%s' is not available", path), e);
 		} catch (UnsupportedAudioFileException e) {
-			throw new AssetException(String.format("Sound file at path '%s' has unsupported aufdio format", path), e);
+			throw new AssetException(String.format("Sound file at path '%s' has unsupported audio format", path), e);
 		}
 	}
 
