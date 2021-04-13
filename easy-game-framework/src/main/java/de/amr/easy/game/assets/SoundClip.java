@@ -13,7 +13,7 @@ import javax.sound.sampled.Clip;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import javazoom.spi.mpeg.sampled.file.MpegAudioFormat;
+import com.tagtraum.ffsampledsp.FFAudioInputStream;
 
 /**
  * Clips are usually short audio sequences that are loaded completely into memory. This class uses
@@ -32,7 +32,7 @@ public class SoundClip {
 	public SoundClip(InputStream is) throws LineUnavailableException, IOException, UnsupportedAudioFileException {
 		line = AudioSystem.getClip(null);
 		try (AudioInputStream ais = AudioSystem.getAudioInputStream(new BufferedInputStream(is))) {
-			if (ais.getFormat() instanceof MpegAudioFormat) {
+			if (ais instanceof FFAudioInputStream) {
 				AudioFormat mp3Format = ais.getFormat();
 				AudioFormat pcmFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, mp3Format.getSampleRate(), 16,
 						mp3Format.getChannels(), mp3Format.getChannels() * 2, mp3Format.getSampleRate(), false);
