@@ -23,7 +23,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.tagtraum</groupId>
-			<artifactId>ffsampledsp-complete</artifactId>
+			<artifactId>ffsampledsp-java</artifactId>
 			<version>0.9.32</version>
 		</dependency>
 	</dependencies>
