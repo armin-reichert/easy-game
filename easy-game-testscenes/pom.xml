@@ -3,8 +3,8 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.compiler.source>11</maven.compiler.source>
-		<maven.compiler.target>11</maven.compiler.target>
+		<maven.compiler.source>15</maven.compiler.source>
+		<maven.compiler.target>15</maven.compiler.target>
 	</properties>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.amr.easy.game.tests</groupId>
