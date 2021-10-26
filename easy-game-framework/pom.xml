@@ -23,9 +23,11 @@
 		</dependency>
 		<dependency>
 			<groupId>com.tagtraum</groupId>
-			<artifactId>ffsampledsp-java</artifactId>
+			<artifactId>ffsampledsp-complete</artifactId>
 			<version>0.9.32</version>
 		</dependency>
+		<!-- <dependency> <groupId>com.tagtraum</groupId> <artifactId>ffmpeg-x86_64-win</artifactId> 
+			<version>4.0.0</version> <type>pom</type> </dependency> -->
 	</dependencies>
 	<parent>
 		<groupId>de.amr.easy.game</groupId>
