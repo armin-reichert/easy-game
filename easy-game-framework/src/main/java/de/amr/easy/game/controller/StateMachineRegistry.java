@@ -5,7 +5,6 @@ import static de.amr.easy.game.Application.loginfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -42,9 +41,9 @@ public final class StateMachineRegistry {
 	}
 
 	public void register(String categoryName, StateMachine<?, ?> fsm) {
-		List<StateMachine<?, ?>> category = machines.get(categoryName);
+		var category = machines.get(categoryName);
 		if (category == null) {
-			category = new ArrayList<StateMachine<?, ?>>();
+			category = new ArrayList<>();
 			machines.put(categoryName, category);
 		}
 		category.add(fsm);
@@ -52,12 +51,8 @@ public final class StateMachineRegistry {
 		loginfo("State machine registered: %s", fsm.getDescription());
 	}
 
-	public void register(String categoryName, Stream<StateMachine<?, ?>> machines) {
-		machines.forEach(fsm -> register(categoryName, fsm));
-	}
-
 	public void unregister(StateMachine<?, ?> fsm) {
-		Iterator<Map.Entry<String, List<StateMachine<?, ?>>>> it = machines.entrySet().iterator();
+		var it = machines.entrySet().iterator();
 		while (it.hasNext()) {
 			List<StateMachine<?, ?>> category = it.next().getValue();
 			if (category.contains(fsm)) {
@@ -67,9 +62,5 @@ public final class StateMachineRegistry {
 				break;
 			}
 		}
-	}
-
-	public <FSM extends StateMachine<?, ?>> void unregister(Stream<FSM> machines) {
-		machines.forEach(this::unregister);
 	}
 }

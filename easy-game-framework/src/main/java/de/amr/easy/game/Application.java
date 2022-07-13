@@ -32,13 +32,12 @@ import de.amr.easy.game.view.View;
 import de.amr.easy.game.view.VisualController;
 
 /**
- * Applications must extend this abstract class and provide a public no-args constructor. To start
- * the application, either of the static methods {@link #launch(Class, String[])} or
- * {@link #launch(Class, AppSettings, String[])} may be called. The second variant allows an
- * application to specify an extended settings object, otherwise a settings object of class
- * {@link AppSettings} is used. Command-line arguments are merged into the application settings
- * after the {@link #configure(AppSettings)} hook method has been called. For a complete list of the
- * supported command-line arguments and application settings, see class {@link AppSettings}.
+ * Applications must extend this abstract class and provide a public no-args constructor. To start the application,
+ * either of the static methods {@link #launch(Class, String[])} or {@link #launch(Class, AppSettings, String[])} may be
+ * called. The second variant allows an application to specify an extended settings object, otherwise a settings object
+ * of class {@link AppSettings} is used. Command-line arguments are merged into the application settings after the
+ * {@link #configure(AppSettings)} hook method has been called. For a complete list of the supported command-line
+ * arguments and application settings, see class {@link AppSettings}.
  * <p>
  * Example:
  * 
@@ -108,8 +107,8 @@ public abstract class Application {
 	}
 
 	/**
-	 * Creates and starts the application of the given class. The command-line arguments are parsed and
-	 * assigned to the implicitly created application settings.
+	 * Creates and starts the application of the given class. The command-line arguments are parsed and assigned to the
+	 * implicitly created application settings.
 	 * 
 	 * @param appClass application class
 	 * @param cmdLine  command-line arguments
@@ -119,8 +118,8 @@ public abstract class Application {
 	}
 
 	/**
-	 * Creates and starts the application of the given class. The command-line arguments are parsed and
-	 * assigned to the given application settings.
+	 * Creates and starts the application of the given class. The command-line arguments are parsed and assigned to the
+	 * given application settings.
 	 * 
 	 * @param appClass application class
 	 * @param settings application settings
@@ -188,7 +187,8 @@ public abstract class Application {
 		}
 		if (controller == null) {
 			loginfo("No controller has been set, using default controller");
-			int defaultWidth = 640, defaultHeight = 480;
+			int defaultWidth = 640;
+			int defaultHeight = 480;
 			AppInfoView defaultController = new AppInfoView(this, defaultWidth, defaultHeight);
 			setController(defaultController);
 			shell = new AppShell(this, defaultWidth, defaultHeight);
@@ -205,23 +205,21 @@ public abstract class Application {
 	}
 
 	/**
-	 * Hook method where the application settings can be configured. The command-line arguments are
-	 * parsed and merged into the settings object immediately <em>after</em> this method has been called
-	 * such that command-line arguments can override the settings made here.
+	 * Hook method where the application settings can be configured. The command-line arguments are parsed and merged into
+	 * the settings object immediately <em>after</em> this method has been called such that command-line arguments can
+	 * override the settings made here.
 	 * 
 	 * @param settings application settings
 	 */
 	protected abstract void configure(AppSettings settings);
 
 	/**
-	 * Hook method getting called after the application has been configured and before the clock starts
-	 * ticking.
+	 * Hook method getting called after the application has been configured and before the clock starts ticking.
 	 */
 	public abstract void init();
 
 	/**
-	 * Hook method that is called after the application shell has been created. Used to configure the F2
-	 * dialog.
+	 * Hook method that is called after the application shell has been created. Used to configure the F2 dialog.
 	 * 
 	 * @param f2 the F2 dialog
 	 */
@@ -327,8 +325,7 @@ public abstract class Application {
 	}
 
 	/**
-	 * If an application wants to use the built-in collision handling, it must initialize it using this
-	 * method.
+	 * If an application wants to use the built-in collision handling, it must initialize it using this method.
 	 */
 	public void createCollisionHandler() {
 		if (collisionHandler == null) {
