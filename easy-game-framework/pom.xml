@@ -9,6 +9,20 @@
 		<version>1.0</version>
 		<relativePath>../easy-game</relativePath>
 	</parent>
+	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+			</resource>
+			<resource>
+				<filtering>false</filtering>
+				<directory>src/main/resources</directory>
+				<includes>
+					<include>*.dll</include>
+				</includes>
+			</resource>
+		</resources>
+	</build>
 	<dependencies>
 		<dependency>
 			<groupId>com.miglayout</groupId>
@@ -27,10 +41,11 @@
 		</dependency>
 		<dependency>
 			<groupId>com.tagtraum</groupId>
-			<!-- TODO this includes way too much into the executable jar file! -->
+			<!-- TODO this includes way too much into the executable jar file! 
 			<artifactId>ffsampledsp-complete</artifactId>
+			-->
 			<!-- TODO if this is used, the DLL is not included in the executable jar file -->
-			<!-- <artifactId>ffsampledsp-java</artifactId>  -->
+			<artifactId>ffsampledsp-java</artifactId>
 			<version>0.9.32</version>
 		</dependency>
 	</dependencies>
