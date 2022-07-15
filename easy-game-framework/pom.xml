@@ -36,10 +36,6 @@
 		</dependency>
 		<dependency>
 			<groupId>com.tagtraum</groupId>
-			<!-- TODO this includes way too much into the executable jar file! 
-			<artifactId>ffsampledsp-complete</artifactId>
-			-->
-			<!-- TODO if this is used, the DLL is not included in the executable jar file -->
 			<artifactId>ffsampledsp-java</artifactId>
 			<version>0.9.32</version>
 		</dependency>
