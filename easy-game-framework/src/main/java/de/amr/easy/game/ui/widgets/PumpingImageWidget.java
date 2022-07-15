@@ -10,7 +10,7 @@ import java.util.Objects;
 
 import de.amr.easy.game.controller.Lifecycle;
 import de.amr.easy.game.entity.Entity;
-import de.amr.easy.game.math.Vector2f;
+import de.amr.easy.game.math.V2f;
 import de.amr.easy.game.ui.sprites.Sprite;
 import de.amr.easy.game.view.View;
 
@@ -104,9 +104,9 @@ public class PumpingImageWidget extends Entity implements Lifecycle, View {
 	public void draw(Graphics2D g) {
 		if (visible) {
 			g = (Graphics2D) g.create();
-			Vector2f center = tf.getCenter();
+			V2f center = tf.getCenter();
 			int dx = -sprite.getWidth() / 2, dy = -sprite.getHeight() / 2;
-			g.translate(center.x + dx, center.y + dy);
+			g.translate(center.x() + dx, center.y() + dy);
 			g.rotate(tf.rotation);
 			sprite.draw(g);
 			g.dispose();

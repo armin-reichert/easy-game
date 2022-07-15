@@ -1,8 +1,10 @@
 package de.amr.easy.game.entity;
 
+import static de.amr.easy.game.math.V2f.v;
+
 import java.awt.geom.Rectangle2D;
 
-import de.amr.easy.game.math.Vector2f;
+import de.amr.easy.game.math.V2f;
 
 /**
  * Encapsulates size, position, velocity and rotation of an entity.
@@ -51,8 +53,8 @@ public class Transform {
 	 * 
 	 * @return position vector
 	 */
-	public Vector2f getPosition() {
-		return Vector2f.of(x, y);
+	public V2f getPosition() {
+		return v(x, y);
 	}
 
 	/**
@@ -71,9 +73,9 @@ public class Transform {
 	 * 
 	 * @param position position vector
 	 */
-	public void setPosition(Vector2f position) {
-		x = position.x;
-		y = position.y;
+	public void setPosition(V2f position) {
+		x = position.x();
+		y = position.y();
 	}
 
 	/**
@@ -81,8 +83,8 @@ public class Transform {
 	 * 
 	 * @return center position vector
 	 */
-	public Vector2f getCenter() {
-		return Vector2f.of(x + width / 2, y + height / 2);
+	public V2f getCenter() {
+		return v(x + width / 2, y + height / 2);
 	}
 
 	/**
@@ -90,8 +92,8 @@ public class Transform {
 	 * 
 	 * @return velocity vector
 	 */
-	public Vector2f getVelocity() {
-		return Vector2f.of(vx, vy);
+	public V2f getVelocity() {
+		return v(vx, vy);
 	}
 
 	/**
@@ -110,9 +112,9 @@ public class Transform {
 	 * 
 	 * @param velocity velocity vector
 	 */
-	public void setVelocity(Vector2f velocity) {
-		vx = velocity.x;
-		vy = velocity.y;
+	public void setVelocity(V2f velocity) {
+		vx = velocity.x();
+		vy = velocity.y();
 	}
 
 	/**

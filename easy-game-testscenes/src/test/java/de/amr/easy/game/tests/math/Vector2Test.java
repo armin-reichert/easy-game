@@ -1,66 +1,67 @@
 package de.amr.easy.game.tests.math;
 
-import static de.amr.easy.game.math.Vector2f.angle;
-import static de.amr.easy.game.math.Vector2f.diff;
-import static de.amr.easy.game.math.Vector2f.dot;
-import static de.amr.easy.game.math.Vector2f.euclideanDist;
-import static de.amr.easy.game.math.Vector2f.inverse;
-import static de.amr.easy.game.math.Vector2f.smul;
-import static de.amr.easy.game.math.Vector2f.sum;
+import static de.amr.easy.game.math.V2f.angle;
+import static de.amr.easy.game.math.V2f.diff;
+import static de.amr.easy.game.math.V2f.dot;
+import static de.amr.easy.game.math.V2f.euclideanDist;
+import static de.amr.easy.game.math.V2f.inverse;
+import static de.amr.easy.game.math.V2f.smul;
+import static de.amr.easy.game.math.V2f.sum;
+import static de.amr.easy.game.math.V2f.v;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import de.amr.easy.game.math.Vector2f;
+import de.amr.easy.game.math.V2f;
 
 public class Vector2Test {
 
-	private Vector2f v, w, x;
+	private V2f v, w, x;
 
 	@Before
 	public void setUp() {
-		v = Vector2f.of(5, -10);
-		w = Vector2f.of(-3, 4);
-		x = Vector2f.of(1, 1);
+		v = v(5, -10);
+		w = v(-3, 4);
+		x = v(1, 1);
 	}
 
 	@Test
 	public void testEquals() {
-		assertTrue(v.equals(Vector2f.of(v.x, v.y)));
+		assertEquals(v, v(v.x(), v.y()));
 	}
 
 	@Test
 	public void testSum() {
-		Vector2f sum = sum(v, w);
-		assertTrue(sum.x == 2);
-		assertTrue(sum.y == -6);
+		V2f sum = sum(v, w);
+		assertEquals(2, sum.x(), V2f.EPSILON);
+		assertEquals(-6, sum.y(), V2f.EPSILON);
 	}
 
 	@Test
 	public void testDiff() {
-		Vector2f diff = diff(v, w);
-		assertTrue(diff.x == 8);
-		assertTrue(diff.y == -14);
-		assertTrue(diff.equals(sum(v, inverse(w))));
+		V2f diff = diff(v, w);
+		assertEquals(8f, diff.x(), V2f.EPSILON);
+		assertEquals(-14, diff.y(), V2f.EPSILON);
+		assertEquals(sum(v, inverse(w)), diff);
 	}
 
 	@Test
 	public void testNullVector() {
-		assertTrue(Vector2f.NULL.x == 0);
-		assertTrue(Vector2f.NULL.y == 0);
-		assertTrue(sum(Vector2f.NULL, v).equals(v));
-		assertTrue(sum(v, Vector2f.NULL).equals(v));
+		assertEquals(0, V2f.NULL.x(), 0);
+		assertEquals(0, V2f.NULL.y(), 0);
+		assertEquals(sum(V2f.NULL, v), v);
+		assertEquals(sum(v, V2f.NULL), v);
 	}
 
 	@Test
 	public void testInverse() {
-		Vector2f inverse = inverse(v);
-		assertTrue(inverse.x == -5);
-		assertTrue(inverse.y == 10);
-		assertTrue(Vector2f.NULL == sum(v, inverse));
-		assertTrue(Vector2f.NULL == sum(inverse, v));
+		V2f inverse = inverse(v);
+		assertEquals(-5, inverse.x(), V2f.EPSILON);
+		assertEquals(10, inverse.y(), V2f.EPSILON);
+		assertEquals(V2f.NULL, sum(v, inverse));
+		assertEquals(V2f.NULL, sum(inverse, v));
 	}
 
 	@Test
@@ -75,9 +76,9 @@ public class Vector2Test {
 
 	@Test
 	public void testMultiplicationWithScalar() {
-		Vector2f product = smul(1.5f, v);
-		assertTrue(product.x == 7.5f);
-		assertTrue(product.y == -15);
+		V2f product = smul(1.5f, v);
+		assertEquals(7.5f, product.x(), V2f.EPSILON);
+		assertEquals(-15.0f, product.y(), V2f.EPSILON);
 
 		// 3 * (2 * v) = (3 * 2) * v
 		assertTrue(smul(3, smul(2, v)).equals(smul(3 * 2, v)));
@@ -88,7 +89,7 @@ public class Vector2Test {
 		// 1 * v = v
 		assertTrue(smul(1f, v).equals(v));
 		// 0 * v = 0
-		assertTrue(smul(0, v) == Vector2f.NULL);
+		assertTrue(smul(0, v) == V2f.NULL);
 	}
 
 	@Test
@@ -96,8 +97,8 @@ public class Vector2Test {
 		float product = dot(v, w);
 		assertTrue(product == -55);
 
-		Vector2f e1 = Vector2f.of(1, 0);
-		Vector2f e2 = Vector2f.of(0, 1);
+		V2f e1 = v(1, 0);
+		V2f e2 = v(0, 1);
 		assertTrue(dot(e1, e2) == 0);
 	}
 
@@ -112,7 +113,7 @@ public class Vector2Test {
 
 	@Test
 	public void testLength() {
-		assertTrue(Vector2f.NULL.length() == 0);
+		assertTrue(V2f.NULL.length() == 0);
 		assertTrue(v.length() == inverse(v).length());
 		assertTrue(v.length() + w.length() >= sum(v, w).length());
 		assertTrue(v.length() >= 0);
@@ -122,28 +123,27 @@ public class Vector2Test {
 
 	@Test
 	public void testAngle() {
-		Vector2f v = Vector2f.of(1, 0), w;
+		V2f v = v(1, 0), w;
 
-		w = Vector2f.of(1, 1);
+		w = v(1, 1);
 		assertEquals(45, angle(v, x), 0.001);
 
-		w = Vector2f.of(0, 1);
+		w = v(0, 1);
 		assertEquals(90, angle(v, w), 0.001);
 
-		w = Vector2f.of(-1, 1);
+		w = v(-1, 1);
 		assertEquals(135, angle(v, w), 0.001);
 
-		w = Vector2f.of(-1, 0);
+		w = v(-1, 0);
 		assertEquals(180, angle(v, w), 0.001);
 
-		w = Vector2f.of(-1, -1);
+		w = v(-1, -1);
 		assertEquals(135, angle(v, w), 0.001);
 
-		w = Vector2f.of(0, -1);
+		w = v(0, -1);
 		assertEquals(90, angle(v, w), 0.001);
 
-		w = Vector2f.of(1, -1);
+		w = v(1, -1);
 		assertEquals(45, angle(v, w), 0.001);
 	}
-
 }
