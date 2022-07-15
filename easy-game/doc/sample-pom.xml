@@ -1,21 +1,21 @@
-<!-- Sample POM file for your game application 
-mvn clean install
+<!-- Sample POM file for your game application Suppose group ID, artifactID, 
+	version and main class name as given below. Then calling "mvn clean install" 
+	will build your game application and create an executable jar file in the 
+	target folder. The jar file name will be: "yourgame-1.0-jar-with-dependencies.jar" -->
 
-will build the game app and create an executable jar file in the target folder.
-
-Jar file name will be:	artifactId-version-jar-with-dependencies.jar
--->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>de.amr.games.mygamepackage</groupId>
-	<artifactId>mygame</artifactId>
+	<groupId>yourgroupid</groupId>
+	<artifactId>yourgame</artifactId>
 	<version>1.0</version>
-	<description>Whatever my game is doing</description>
+	<description>Whatever your game is doing</description>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<mainClass>de.amr.games.mygame.MyGameApp</mainClass>
+		<mainClass>yourpackage.YourGameApp</mainClass>
 		<maven.compiler.source>18</maven.compiler.source>
 		<maven.compiler.target>18</maven.compiler.target>
 	</properties>
@@ -24,6 +24,7 @@ Jar file name will be:	artifactId-version-jar-with-dependencies.jar
 		<plugins>
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
+				<version>3.4.1</version>
 				<configuration>
 					<archive>
 						<manifest>
