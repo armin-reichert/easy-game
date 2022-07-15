@@ -1,19 +1,23 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+
 	<groupId>de.amr.easy.game</groupId>
 	<artifactId>easy-game</artifactId>
 	<version>1.0</version>
 	<packaging>pom</packaging>
 	<name>Easy Game</name>
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>18</maven.compiler.source>
 		<maven.compiler.target>18</maven.compiler.target>
 	</properties>
+
 	<modules>
 		<module>../easy-game-framework</module>
 		<module>../easy-game-testscenes</module>
 	</modules>
+
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -23,4 +27,5 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
+
 </project>
