@@ -1,6 +1,5 @@
 package de.amr.easy.game.controller;
 
-import static de.amr.easy.game.Application.app;
 import static de.amr.easy.game.Application.loginfo;
 
 import java.util.ArrayList;
@@ -47,7 +46,6 @@ public final class StateMachineRegistry {
 			machines.put(categoryName, category);
 		}
 		category.add(fsm);
-		fsm.getTracer().setLogger(app().getLogger());
 		loginfo("State machine registered: %s", fsm.getDescription());
 	}
 
@@ -57,7 +55,6 @@ public final class StateMachineRegistry {
 			List<StateMachine<?, ?>> category = it.next().getValue();
 			if (category.contains(fsm)) {
 				it.remove();
-				fsm.getTracer().setLogger(null);
 				loginfo("State machine unregistered: %s", fsm.getDescription());
 				break;
 			}

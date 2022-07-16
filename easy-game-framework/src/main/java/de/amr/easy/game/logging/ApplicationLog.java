@@ -6,36 +6,43 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import de.amr.statemachine.api.Log;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-public class ApplicationLog implements Log {
+/**
+ * @author Armin Reichert
+ */
+public class ApplicationLog {
 
-	private List<String> loggedMessages = new ArrayList<>();
-	private DateTimeFormatter df = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
+	private static final Logger LOGGER = LogManager.getFormatterLogger();
+
+	private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
+
+	private final List<String> lines = new ArrayList<>();
 	private boolean shutUp = false;
 
-	@Override
-	public void loginfo(String format, Object... args) {
+	public void loginfo(String message, Object... args) {
 		if (shutUp) {
 			return;
 		}
-		String message = String.format("%s [%s] %s", LocalDateTime.now().format(df), Thread.currentThread().getName(),
-				String.format(format, args));
-		loggedMessages.add(message);
-		System.out.println(message);
+		LOGGER.info(message, args);
+
+		var formattedMsg = message.formatted(args);
+		var timestamp = LocalDateTime.now().format(TIME_FORMAT);
+		var thread = Thread.currentThread().getName();
+		var line = "%s - %s [%s]".formatted(timestamp, formattedMsg, thread);
+		lines.add(line);
 	}
 
-	@Override
+	public List<String> getLoggedLines() {
+		return Collections.unmodifiableList(lines);
+	}
+
 	public boolean isShutUp() {
 		return shutUp;
 	}
 
-	@Override
 	public void shutUp(boolean shutUp) {
 		this.shutUp = shutUp;
-	}
-
-	public List<String> getLoggedLines() {
-		return Collections.unmodifiableList(loggedMessages);
 	}
 }
