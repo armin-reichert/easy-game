@@ -5,16 +5,14 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.util.logging.Logger;
 
 /**
  * @author Armin Reichert
  */
 public class ApplicationLog {
 
-	private static final Logger LOGGER = LogManager.getFormatterLogger();
+	private static final Logger LOGGER = Logger.getLogger(ApplicationLog.class.getName());
 
 	private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
 
@@ -25,7 +23,7 @@ public class ApplicationLog {
 		if (shutUp) {
 			return;
 		}
-		LOGGER.info(message, args);
+		LOGGER.info(() -> message.formatted(args));
 
 		var formattedMsg = message.formatted(args);
 		var timestamp = LocalDateTime.now().format(TIME_FORMAT);
