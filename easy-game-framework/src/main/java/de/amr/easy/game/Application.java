@@ -131,8 +131,7 @@ public abstract class Application {
 			theApp.build(settings, cmdLine);
 			theApp.lifecycle.init();
 		} catch (Exception e) {
-			loginfo("Application '%s' could not be created", theApp.getName());
-			e.printStackTrace(System.err);
+			loginfo("Application '%s' could not be created: %s", theApp.getName(), e.getMessage());
 		}
 	}
 
@@ -142,7 +141,7 @@ public abstract class Application {
 	private Clock clock;
 	private Lifecycle controller;
 	private CollisionHandler collisionHandler;
-	private AppShell shell;
+	private AppShell appShell;
 	private Image icon;
 	private SoundManager soundManager;
 
@@ -173,7 +172,7 @@ public abstract class Application {
 	}
 
 	void renderCurrentView() {
-		currentView().ifPresent(shell::render);
+		currentView().ifPresent(appShell::render);
 	}
 
 	void createUserInterface() {
@@ -191,15 +190,15 @@ public abstract class Application {
 			int defaultHeight = 480;
 			AppInfoView defaultController = new AppInfoView(this, defaultWidth, defaultHeight);
 			setController(defaultController);
-			shell = new AppShell(this, defaultWidth, defaultHeight);
+			appShell = new AppShell(this, defaultWidth, defaultHeight);
 		} else {
-			shell = new AppShell(this, settings.width, settings.height);
+			appShell = new AppShell(this, settings.width, settings.height);
 		}
-		configureF2Dialog(shell.getF2Dialog());
+		configureF2Dialog(appShell.getF2Dialog());
 		if (settings.fullScreen) {
-			shell.showFullScreenWindow();
+			appShell.showFullScreenWindow();
 		} else {
-			shell.showWindow();
+			appShell.showWindow();
 		}
 		loginfo("User interface for application '%s' has been created", getName());
 	}
@@ -301,11 +300,11 @@ public abstract class Application {
 	 * @return the optional current view
 	 */
 	public Optional<View> currentView() {
-		if (getController() instanceof View) {
-			return Optional.ofNullable((View) getController());
+		if (getController() instanceof View view) {
+			return Optional.ofNullable(view);
 		}
-		if (getController() instanceof VisualController) {
-			return ((VisualController) getController()).currentView();
+		if (getController() instanceof VisualController visualController) {
+			return visualController.currentView();
 		}
 		return Optional.empty();
 	}
@@ -344,7 +343,7 @@ public abstract class Application {
 	 * @return the application shell
 	 */
 	public Optional<AppShell> shell() {
-		return Optional.ofNullable(shell);
+		return Optional.ofNullable(appShell);
 	}
 
 	/**
@@ -377,8 +376,8 @@ public abstract class Application {
 	 */
 	public void setIcon(Image icon) {
 		this.icon = icon;
-		if (shell != null) {
-			shell.setIconImage(icon);
+		if (appShell != null) {
+			appShell.setIconImage(icon);
 		}
 	}
 
