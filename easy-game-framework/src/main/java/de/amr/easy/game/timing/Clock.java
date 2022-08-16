@@ -89,8 +89,8 @@ public class Clock {
 			try {
 				tick();
 				++totalTicks;
-			} catch (InterruptedException x) {
-				// ignore
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
 		}
 	}
@@ -108,10 +108,8 @@ public class Clock {
 		boolean tooSlow = false;
 
 		// half a second has passed since last measurement start, check if running fast enough
-		if (now - frameCountStart > SECONDS.toNanos(1) / 2) {
-			if (frames < targetFrameRate / 2) {
-				tooSlow = true;
-			}
+		if (now - frameCountStart > SECONDS.toNanos(1) / 2 && frames < targetFrameRate / 2) {
+			tooSlow = true;
 		}
 
 		// one second has passed, store framerate
@@ -124,6 +122,7 @@ public class Clock {
 		// sleep to keep target framerate
 		if (!tooSlow) {
 			long sleepTime = SECONDS.toNanos(1) / targetFrameRate - frameDuration;
+			sleepTime = sleepTime * 94 / 100;
 			NANOSECONDS.sleep(sleepTime);
 			loginfo("Sleep %.2f millisec", sleepTime / 1_000_000f);
 		}
@@ -182,8 +181,7 @@ public class Clock {
 	}
 
 	/**
-	 * Converts a given time (in seconds) into the number of corresponding ticks at the clock's target
-	 * speed.
+	 * Converts a given time (in seconds) into the number of corresponding ticks at the clock's target speed.
 	 * 
 	 * @param seconds seconds
 	 * @return number of clock ticks representing the given seconds
